@@ -129,7 +129,7 @@ const locales = {
         ["17 696 м", "двойной Everesting за один заезд"],
         ["58 часов", "ультратриатлон 1 111 км без сна"],
       ],
-      quote: "Не продаёт историю.<br>Он её проживает.",
+      quote: "История — не выдумка.<br>Это его жизнь.",
     },
     story: {
       label: "Виктор Доронин: тренировки и люди рядом",
@@ -159,7 +159,7 @@ const locales = {
     },
     proof: {
       eyebrow: "Мы уже делали это",
-      title: "Проект «11 111» — доказанная формула",
+      title: "Проект «1111» — доказанная формула",
       body:
         "Аудитория готова к длинным форматам. Честность работает лучше глянца. История продолжает жить после финиша.",
       metrics: [
@@ -223,6 +223,7 @@ const locales = {
       navLabel: "Навигация",
       contactLabel: "Связаться",
       utilityLabel: "Сайт",
+      languageLabel: "Язык",
       themeLabel: "Тема",
       themeSystem: "Система",
       themeLight: "Светлая",
@@ -339,7 +340,7 @@ const locales = {
     viktor: {
       eyebrow: "Who is Viktor",
       title: "Viktor Doronin",
-      lead: "47. He does not build an image — he lives it.",
+      lead: "47. He does not build an image&nbsp;—<br>he lives it.",
       body: `A driving force behind the <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">Dusty Dumbbells</a> and&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">Gastrodinamika</a> communities, a friend, a motivator, and one of Russia’s strongest amateur triathletes.`,
       imageAlt: "Viktor Doronin racing through the desert",
       achievements: [
@@ -378,7 +379,7 @@ const locales = {
     },
     proof: {
       eyebrow: "We have done it before",
-      title: "Project “11 111” — a proven formula",
+      title: "Project “1111” — a proven formula",
       body:
         "The audience embraces long-form stories. Honesty outperforms gloss. The project lives on after the finish.",
       metrics: [
@@ -442,6 +443,7 @@ const locales = {
       navLabel: "Navigation",
       contactLabel: "Get in touch",
       utilityLabel: "Website",
+      languageLabel: "Language",
       themeLabel: "Theme",
       themeSystem: "System",
       themeLight: "Light",
@@ -556,25 +558,24 @@ function renderDistanceMedia(items, l) {
 function renderDistanceEquation(distance) {
   const terms = distance.items
     .map(
-      (item, index) =>
-        `<span class="distance-total__term">
+      (item) =>
+        `<span class="distance-total__term" data-distance-step="${item.value.replaceAll(/\D/g, "")}">
           <span class="distance-total__index">${item.index}</span>
           <span class="distance-total__term-copy">
             <strong>${item.value}<small>${item.unit}</small></strong>
             <em>${item.label}</em>
           </span>
-          <span class="distance-total__operator">${index === distance.items.length - 1 ? "=" : "+"}</span>
         </span>`,
     )
     .join("");
 
   return `
-    <div class="distance-total__equation" role="img" aria-label="${distance.totalFormulaLabel}">
-      <div class="distance-total__terms" aria-hidden="true">${terms}</div>
+    <div class="distance-total__equation" role="img" aria-label="${distance.totalFormulaLabel}" data-distance-total>
       <div class="distance-total__result" aria-hidden="true">
-        <span>${distance.totalValue}</span>
+        <span data-distance-counter data-distance-final="${distance.totalValue.replaceAll(/\D/g, "")}">${distance.totalValue}</span>
         <small>${distance.totalUnit}</small>
       </div>
+      <div class="distance-total__terms" aria-hidden="true">${terms}</div>
     </div>`;
 }
 
@@ -754,7 +755,22 @@ function renderPage(l) {
     <details class="nav-shell" open>
       <summary class="menu-toggle">${l.menu}<span aria-hidden="true"></span></summary>
       <nav class="site-nav" aria-label="${l.menu}">
-        ${renderNav(l.nav)}
+        <div class="site-nav__primary">
+          ${renderNav(l.nav)}
+        </div>
+        <div class="site-nav__utility">
+          <div class="site-nav__language">
+            <span>${l.footer.languageLabel}</span>
+            <a data-language-switch href="${l.alternateHref}" hreflang="${l.lang === "ru" ? "en" : "ru"}">${l.footer.languageCta}</a>
+          </div>
+          ${renderThemeSwitcher(l)}
+          <div class="site-nav__contacts">
+            <span>${l.footer.contactLabel}</span>
+            <a href="mailto:${shared.email}">${l.footer.emailCta}${icons.external}</a>
+            <a href="${shared.telegramHref}" target="_blank" rel="noopener noreferrer">${l.footer.telegramCta}${icons.external}</a>
+          </div>
+          <a class="site-nav__cta" href="${mailHref}">${l.footer.partnerCta}${icons.external}</a>
+        </div>
       </nav>
     </details>
 
@@ -998,7 +1014,6 @@ function renderPage(l) {
     <div class="site-footer__legal">
       <p>${l.footer.legal}</p>
       <div class="site-footer__credits">
-        <p>11111.life</p>
         <a href="${shared.designHref}" target="_blank" rel="noopener noreferrer">${l.footer.designCredit}${icons.external}</a>
       </div>
     </div>

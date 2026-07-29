@@ -207,6 +207,131 @@ if (distanceStory) {
   distanceDesktop.addEventListener?.("change", syncDistanceVideo);
 }
 
+const distanceTotal = document.querySelector("[data-distance-total]");
+
+if (distanceTotal) {
+  const counter = distanceTotal.querySelector("[data-distance-counter]");
+  const steps = [...distanceTotal.querySelectorAll("[data-distance-step]")];
+  const finalValue = Number(counter?.dataset.distanceFinal);
+  const formatter = new Intl.NumberFormat(
+    document.documentElement.lang === "ru" ? "ru-RU" : "en-US",
+    { maximumFractionDigits: 0 },
+  );
+  let animationRun = 0;
+  let hasStarted = false;
+
+  function renderDistanceTotal(value) {
+    if (counter) {
+      counter.textContent = formatter.format(value);
+    }
+  }
+
+  function finishDistanceTotal() {
+    animationRun += 1;
+    renderDistanceTotal(finalValue);
+    distanceTotal.classList.remove("is-counting");
+    distanceTotal.classList.add("is-complete");
+
+    for (const step of steps) {
+      step.classList.remove("is-active");
+      step.classList.add("is-complete");
+    }
+  }
+
+  function countDistance(from, to, duration, run) {
+    return new Promise((resolve) => {
+      const startedAt = performance.now();
+
+      function update(now) {
+        if (run !== animationRun) {
+          resolve(false);
+          return;
+        }
+
+        const progress = Math.min(1, (now - startedAt) / duration);
+        const eased = 1 - (1 - progress) ** 4;
+        renderDistanceTotal(Math.round(from + (to - from) * eased));
+
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        } else {
+          resolve(true);
+        }
+      }
+
+      requestAnimationFrame(update);
+    });
+  }
+
+  async function playDistanceTotal() {
+    if (hasStarted) {
+      return;
+    }
+
+    hasStarted = true;
+
+    if (reducedMotion.matches) {
+      finishDistanceTotal();
+      return;
+    }
+
+    const run = ++animationRun;
+    let accumulated = 0;
+    distanceTotal.classList.add("is-counting");
+
+    for (const step of steps) {
+      const addition = Number(step.dataset.distanceStep);
+      const nextValue = accumulated + addition;
+      const duration = addition > 5_000 ? 1_000 : addition > 500 ? 720 : 520;
+
+      step.classList.add("is-active");
+
+      if (!(await countDistance(accumulated, nextValue, duration, run))) {
+        return;
+      }
+
+      step.classList.remove("is-active");
+      step.classList.add("is-complete");
+      accumulated = nextValue;
+    }
+
+    distanceTotal.classList.remove("is-counting");
+    distanceTotal.classList.add("is-complete");
+  }
+
+  if (
+    counter &&
+    steps.length &&
+    Number.isFinite(finalValue) &&
+    !reducedMotion.matches
+  ) {
+    distanceTotal.classList.add("is-ready");
+    renderDistanceTotal(0);
+
+    if ("IntersectionObserver" in window) {
+      const totalObserver = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            totalObserver.disconnect();
+            playDistanceTotal();
+          }
+        },
+        { threshold: 0.35 },
+      );
+
+      totalObserver.observe(distanceTotal);
+    } else {
+      playDistanceTotal();
+    }
+  }
+
+  reducedMotion.addEventListener?.("change", (event) => {
+    if (event.matches) {
+      finishDistanceTotal();
+    }
+  });
+}
+
 const eventStatus = document.querySelector("[data-event-status]");
 
 if (eventStatus) {
