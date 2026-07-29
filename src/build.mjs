@@ -168,7 +168,7 @@ const locales = {
         ["+310%", "рост аудитории героя"],
         ["25+", "федеральных СМИ"],
       ],
-      filmCta: "Смотреть фильм о проекте «11 111»",
+      filmCta: "Смотреть фильм о проекте «1111»",
       externalLabel: "Откроется ВКонтакте в новой вкладке",
     },
     adventures: {
@@ -388,7 +388,7 @@ const locales = {
         ["+310%", "growth in Viktor’s audience"],
         ["25+", "federal media outlets"],
       ],
-      filmCta: "Watch the film about Project “11 111”",
+      filmCta: "Watch the film about Project “1111”",
       externalLabel: "Opens VK in a new tab",
     },
     adventures: {
