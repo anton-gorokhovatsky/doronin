@@ -57,6 +57,24 @@ function applyTheme(theme, persist = true) {
 
 applyTheme(activeTheme, false);
 
+function syncOpticalStart(element) {
+  if (!element) {
+    return;
+  }
+
+  const leading = element.textContent.trim().charAt(0);
+
+  if (leading) {
+    element.dataset.opticalLeading = leading;
+  } else {
+    delete element.dataset.opticalLeading;
+  }
+}
+
+for (const element of document.querySelectorAll("[data-optical-start]")) {
+  syncOpticalStart(element);
+}
+
 for (const button of document.querySelectorAll("[data-theme-option]")) {
   button.addEventListener("click", () => {
     applyTheme(button.dataset.themeOption);
@@ -223,6 +241,7 @@ if (distanceTotal) {
   function renderDistanceTotal(value) {
     if (counter) {
       counter.textContent = formatter.format(value);
+      syncOpticalStart(counter);
     }
   }
 
@@ -369,6 +388,8 @@ if (eventStatus) {
     value.textContent = "31/31";
     label.textContent = eventStatus.dataset.finished;
   }
+
+  syncOpticalStart(value);
 }
 
 const desktopNavigation = window.matchMedia("(min-width: 961px)");

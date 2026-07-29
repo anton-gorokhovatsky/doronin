@@ -1,9 +1,16 @@
-import { cp, mkdir, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const outputRoot = resolve(process.argv[2] || "preview");
 const assetSource = resolve("src/assets");
 const assetOutput = resolve(outputRoot, "assets");
+const assetVersion = createHash("sha256")
+  .update(await readFile(resolve(assetSource, "styles.css")))
+  .update(await readFile(resolve(assetSource, "app.js")))
+  .update(await readFile(resolve(assetSource, "theme-init.js")))
+  .digest("hex")
+  .slice(0, 10);
 
 const shared = {
   email: "anesterova88@gmail.com",
@@ -499,7 +506,7 @@ function renderDistanceValue(value, unit, className) {
     .join("");
 
   return `
-    <p class="${className}">
+    <p class="${className}" data-optical-start>
       <span class="sr-only">${value} ${unit}</span>
       <span class="distance-card__number" aria-hidden="true">${valueGroups}</span>
       <span class="distance-card__unit" aria-hidden="true">${unit}</span>
@@ -562,7 +569,7 @@ function renderDistanceEquation(distance) {
         `<span class="distance-total__term" data-distance-step="${item.value.replaceAll(/\D/g, "")}">
           <span class="distance-total__index">${item.index}</span>
           <span class="distance-total__term-copy">
-            <strong>${item.value}<small>${item.unit}</small></strong>
+            <strong data-optical-start>${item.value}<small>${item.unit}</small></strong>
             <em>${item.label}</em>
           </span>
         </span>`,
@@ -572,7 +579,7 @@ function renderDistanceEquation(distance) {
   return `
     <div class="distance-total__equation" role="img" aria-label="${distance.totalFormulaLabel}" data-distance-total>
       <div class="distance-total__result" aria-hidden="true">
-        <span data-distance-counter data-distance-final="${distance.totalValue.replaceAll(/\D/g, "")}">${distance.totalValue}</span>
+        <span data-distance-counter data-distance-final="${distance.totalValue.replaceAll(/\D/g, "")}" data-optical-start>${distance.totalValue}</span>
         <small>${distance.totalUnit}</small>
       </div>
       <div class="distance-total__terms" aria-hidden="true">${terms}</div>
@@ -584,7 +591,7 @@ function renderMetrics(items, className) {
     .map(
       ([value, label]) => `
         <div class="${className}">
-          <strong>${value}</strong>
+          <strong data-optical-start>${value}</strong>
           <span>${label}</span>
         </div>`,
     )
@@ -635,7 +642,7 @@ function renderStory(items, l) {
 }
 
 function renderHeroLine([value, unit]) {
-  return `<span>${value}<wbr> ${unit}</span>`;
+  return `<span data-optical-start>${value}<wbr> ${unit}</span>`;
 }
 
 const shortWords = {
@@ -737,12 +744,12 @@ function renderPage(l) {
     data-light-href="${l.assetBase}assets/favicon-light.svg"
     data-dark-href="${l.assetBase}assets/favicon-dark.svg"
   >
-  <script src="${l.assetBase}assets/theme-init.js"></script>
+  <script src="${l.assetBase}assets/theme-init.js?v=${assetVersion}"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="${l.assetBase}assets/styles.css">
-  <script src="${l.assetBase}assets/app.js" defer></script>
+  <link rel="stylesheet" href="${l.assetBase}assets/styles.css?v=${assetVersion}">
+  <script src="${l.assetBase}assets/app.js?v=${assetVersion}" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">${l.skip}</a>
@@ -753,7 +760,10 @@ function renderPage(l) {
     </a>
 
     <details class="nav-shell" open>
-      <summary class="menu-toggle">${l.menu}<span aria-hidden="true"></span></summary>
+      <summary class="menu-toggle">
+        <span class="menu-toggle__label">${l.menu}</span>
+        <span class="menu-toggle__icon" aria-hidden="true"></span>
+      </summary>
       <nav class="site-nav" aria-label="${l.menu}">
         <div class="site-nav__primary">
           ${renderNav(l.nav)}
@@ -815,7 +825,7 @@ function renderPage(l) {
         <h1 id="hero-title" class="hero__title">
           ${renderHeroLine(l.hero.lineOne)}
           ${renderHeroLine(l.hero.lineTwo)}
-          <em>${l.hero.accent}</em>
+          <em data-optical-start>${l.hero.accent}</em>
         </h1>
         <p class="hero__intro">${l.hero.intro}</p>
         <div class="hero__actions">
@@ -843,7 +853,7 @@ function renderPage(l) {
         <span class="event-status__rail" aria-hidden="true">
           <span></span><span></span><span></span><span></span><span></span>
         </span>
-        <span class="event-status__value" data-status-value>01.12</span>
+        <span class="event-status__value" data-status-value data-optical-start>01.12</span>
         <span class="event-status__label" data-status-label>${l.hero.statusFallback}</span>
       </div>
 
@@ -925,7 +935,8 @@ function renderPage(l) {
         <h2 id="proof-title">${l.proof.title}</h2>
         <p>${l.proof.body}</p>
         <a class="text-link" href="${shared.filmHref}" target="_blank" rel="noopener noreferrer">
-          ${l.proof.filmCta}${icons.external}
+          <span class="text-link__label">${l.proof.filmCta}</span>
+          ${icons.external}
           <span class="sr-only">${l.proof.externalLabel}</span>
         </a>
       </div>

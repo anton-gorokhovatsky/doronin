@@ -38,12 +38,12 @@
     data-light-href="./assets/favicon-light.svg"
     data-dark-href="./assets/favicon-dark.svg"
   >
-  <script src="./assets/theme-init.js"></script>
+  <script src="./assets/theme-init.js?v=85355ddc27"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./assets/styles.css">
-  <script src="./assets/app.js" defer></script>
+  <link rel="stylesheet" href="./assets/styles.css?v=85355ddc27">
+  <script src="./assets/app.js?v=85355ddc27" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти к содержанию</a>
@@ -54,7 +54,10 @@
     </a>
 
     <details class="nav-shell" open>
-      <summary class="menu-toggle">Меню<span aria-hidden="true"></span></summary>
+      <summary class="menu-toggle">
+        <span class="menu-toggle__label">Меню</span>
+        <span class="menu-toggle__icon" aria-hidden="true"></span>
+      </summary>
       <nav class="site-nav" aria-label="Меню">
         <div class="site-nav__primary">
           <a class="site-nav__link" href="#distance">11 111 км</a><a class="site-nav__link" href="#viktor">Виктор Доронин</a><a class="site-nav__link" href="#proof">Фильм и сериал</a><a class="site-nav__link" href="#adventures">Другие проекты</a>
@@ -131,9 +134,9 @@
       <div class="hero__content">
         <p class="hero__kicker"><time datetime="2026-12-01">1–31 декабря 2026 · Виктор Доронин</time></p>
         <h1 id="hero-title" class="hero__title">
-          <span>11 111<wbr> км</span>
-          <span>31<wbr> день</span>
-          <em>ОДИН ШАНС</em>
+          <span data-optical-start>11 111<wbr> км</span>
+          <span data-optical-start>31<wbr> день</span>
+          <em data-optical-start>ОДИН ШАНС</em>
         </h1>
         <p class="hero__intro">Первый в мире 31-дневный ультратриатлон.</p>
         <div class="hero__actions">
@@ -164,7 +167,7 @@
         <span class="event-status__rail" aria-hidden="true">
           <span></span><span></span><span></span><span></span><span></span>
         </span>
-        <span class="event-status__value" data-status-value>01.12</span>
+        <span class="event-status__value" data-status-value data-optical-start>01.12</span>
         <span class="event-status__label" data-status-label>Старт 1 декабря 2026</span>
       </div>
 
@@ -272,7 +275,7 @@
             <h3>плавание</h3>
           </div>
 
-    <p class="distance-card__value">
+    <p class="distance-card__value" data-optical-start>
       <span class="sr-only">100 км</span>
       <span class="distance-card__number" aria-hidden="true"><span>100</span></span>
       <span class="distance-card__unit" aria-hidden="true">км</span>
@@ -290,7 +293,7 @@
             <h3>велосипед</h3>
           </div>
 
-    <p class="distance-card__value">
+    <p class="distance-card__value" data-optical-start>
       <span class="sr-only">10 010 км</span>
       <span class="distance-card__number" aria-hidden="true"><span>10</span><span>010</span></span>
       <span class="distance-card__unit" aria-hidden="true">км</span>
@@ -308,7 +311,7 @@
             <h3>бег</h3>
           </div>
 
-    <p class="distance-card__value">
+    <p class="distance-card__value" data-optical-start>
       <span class="sr-only">1 001 км</span>
       <span class="distance-card__number" aria-hidden="true"><span>1</span><span>001</span></span>
       <span class="distance-card__unit" aria-hidden="true">км</span>
@@ -324,25 +327,25 @@
 
     <div class="distance-total__equation" role="img" aria-label="100 плюс 10 010 плюс 1 001 равно 11 111 километров" data-distance-total>
       <div class="distance-total__result" aria-hidden="true">
-        <span data-distance-counter data-distance-final="11111">11 111</span>
+        <span data-distance-counter data-distance-final="11111" data-optical-start>11 111</span>
         <small>км</small>
       </div>
       <div class="distance-total__terms" aria-hidden="true"><span class="distance-total__term" data-distance-step="100">
           <span class="distance-total__index">01</span>
           <span class="distance-total__term-copy">
-            <strong>100<small>км</small></strong>
+            <strong data-optical-start>100<small>км</small></strong>
             <em>плавание</em>
           </span>
         </span><span class="distance-total__term" data-distance-step="10010">
           <span class="distance-total__index">02</span>
           <span class="distance-total__term-copy">
-            <strong>10 010<small>км</small></strong>
+            <strong data-optical-start>10 010<small>км</small></strong>
             <em>велосипед</em>
           </span>
         </span><span class="distance-total__term" data-distance-step="1001">
           <span class="distance-total__index">03</span>
           <span class="distance-total__term-copy">
-            <strong>1 001<small>км</small></strong>
+            <strong data-optical-start>1 001<small>км</small></strong>
             <em>бег</em>
           </span>
         </span></div>
@@ -366,19 +369,19 @@
         <div class="achievement-grid">
 
         <div class="achievement">
-          <strong>4×</strong>
+          <strong data-optical-start>4×</strong>
           <span>участник чемпионата мира WC Ironman Kona</span>
         </div>
         <div class="achievement">
-          <strong>252,8 км</strong>
+          <strong data-optical-start>252,8 км</strong>
           <span>Marathon des Sables в Сахаре</span>
         </div>
         <div class="achievement">
-          <strong>17 696 м</strong>
+          <strong data-optical-start>17 696 м</strong>
           <span>двойной Everesting за один заезд</span>
         </div>
         <div class="achievement">
-          <strong>58 часов</strong>
+          <strong data-optical-start>58 часов</strong>
           <span>ультратриатлон 1 111 км без сна</span>
         </div>
         </div>
@@ -446,7 +449,8 @@
         <h2 id="proof-title">Проект «1111» — доказанная формула</h2>
         <p>Аудитория готова к длинным форматам. Честность работает лучше глянца. История продолжает жить после финиша.</p>
         <a class="text-link" href="https://vk.com/video-224465212_456239107" target="_blank" rel="noopener noreferrer">
-          Смотреть фильм о проекте «1111»
+          <span class="text-link__label">Смотреть фильм о проекте «1111»</span>
+
     <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M4 12 12 4M6 4h6v6"></path>
     </svg>
@@ -456,19 +460,19 @@
       <div class="proof-metrics">
 
         <div class="proof-metric">
-          <strong>1,3 млн+</strong>
+          <strong data-optical-start>1,3 млн+</strong>
           <span>просмотров сериала</span>
         </div>
         <div class="proof-metric">
-          <strong>85 000+</strong>
+          <strong data-optical-start>85 000+</strong>
           <span>просмотров фильма</span>
         </div>
         <div class="proof-metric">
-          <strong>+310%</strong>
+          <strong data-optical-start>+310%</strong>
           <span>рост аудитории героя</span>
         </div>
         <div class="proof-metric">
-          <strong>25+</strong>
+          <strong data-optical-start>25+</strong>
           <span>федеральных СМИ</span>
         </div>
       </div>
