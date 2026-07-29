@@ -4,6 +4,7 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
+  unicode-range: U+0020-007E, U+00AB, U+00BB, U+0400-04FF;
 }
 
 :root {
@@ -34,7 +35,7 @@
   --type-athlete-title: clamp(2.8rem, calc(1rem + 4.75vw), 7rem);
   --type-lead: clamp(1.2rem, calc(1rem + 0.72vw), 1.75rem);
   --type-stat: clamp(1.7rem, calc(1rem + 1.75vw), 3.5rem);
-  --type-proof-title: clamp(2.7rem, calc(1rem + 5.25vw), 7.5rem);
+  --type-proof-title: clamp(2.7rem, calc(1rem + 3.6vw), 6.25rem);
   --type-proof-metric: clamp(1.7rem, calc(0.9rem + 1.48vw), 3.2rem);
   --type-adventure-title: clamp(1.15rem, calc(0.9rem + 0.68vw), 2rem);
   --type-partners-title: clamp(3rem, calc(1rem + 6.25vw), 8.8rem);
@@ -43,7 +44,7 @@
   --type-contact-link: clamp(1rem, calc(0.75rem + 0.3vw), 1.25rem);
   --type-footer-title: clamp(3rem, calc(1rem + 5.95vw), 8.25rem);
   --type-footer-link: clamp(0.9rem, calc(0.8rem + 0.1vw), 1.05rem);
-  --type-footer-mark: clamp(7.8rem, calc(3rem + 21.75vw), 30rem);
+  --type-footer-mark: clamp(6rem, calc(1rem + 17vw), 20rem);
   --page-gutter: clamp(1rem, 3.4vw, 4rem);
   --section-space: clamp(5rem, 10vw, 10rem);
   --ease-enter: ease-out;
@@ -1203,13 +1204,13 @@ a {
   position: relative;
   z-index: 0;
   width: max-content;
-  margin: 0 0 -0.21em -0.07em;
+  margin: 0 0 1rem -0.04em;
   color: var(--paper);
   font-family: var(--display);
   font-size: var(--type-footer-mark);
   font-weight: 700;
   letter-spacing: -0.045em;
-  line-height: 0.74;
+  line-height: 0.9;
   white-space: nowrap;
 }
 
@@ -1393,7 +1394,7 @@ a {
     --type-proof-title: clamp(1.8rem, calc(1rem + 3.59vw), 3.2rem);
     --type-partners-title: clamp(2.1rem, calc(0.75rem + 6.4vw), 4rem);
     --type-footer-title: clamp(2.25rem, calc(0.75rem + 7.3vw), 4rem);
-    --type-footer-mark: clamp(6rem, calc(1.5rem + 23.35vw), 11rem);
+    --type-footer-mark: clamp(3rem, calc(0.25rem + 15vw), 6rem);
     --page-gutter: 1rem;
     --section-space: 5.5rem;
   }
@@ -1573,7 +1574,7 @@ a {
   }
 
   .site-footer__wordmark {
-    margin-bottom: -0.16em;
+    margin-bottom: 0.75rem;
   }
 
   .site-footer__legal {
