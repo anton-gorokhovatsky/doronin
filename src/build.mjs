@@ -25,9 +25,11 @@ const locales = {
     alternateLabel: "EN",
     canonical: "https://11111.life/",
     alternateCanonical: "https://11111.life/en/",
-    title: "11 111 км / 31 день — Виктор Доронин",
+    title: "11 111 км за 31 день — Виктор Доронин",
     description:
-      "Первый в мире 31-дневный ультратриатлон Виктора Доронина. 11 111 км с 1 по 31 декабря 2026 года.",
+      "Виктор Доронин преодолеет в Дубае 11 111 км за 31 день: плавание, велосипед и бег. Старт — 1 декабря 2026 года.",
+    socialImage: "https://11111.life/assets/share-ru.jpg",
+    socialAlt: "11 111 км за 31 день. Виктор Доронин. Старт 1 декабря 2026 года в Дубае.",
     skip: "Перейти к содержанию",
     homeLabel: "11 111 — на главную",
     menu: "Меню",
@@ -80,6 +82,7 @@ const locales = {
           unit: "км",
           label: "плавание",
           image: "distance-swim.jpg",
+          video: "distance-swim-motion.mp4",
           details: [
             "2 000 бассейнов по 50 метров",
             "три переправы через Ла-Манш",
@@ -92,6 +95,7 @@ const locales = {
           unit: "км",
           label: "велосипед",
           image: "distance-bike.jpg",
+          video: "distance-bike-motion.mp4",
           details: [
             "почти поперёк России: Москва — Владивосток",
             "четверть экватора Земли",
@@ -104,6 +108,7 @@ const locales = {
           unit: "км",
           label: "бег",
           image: "distance-run.jpg",
+          video: "distance-run-motion.mp4",
           details: [
             "24 полных марафона подряд",
             "Москва — Санкт-Петербург и ещё 300 км",
@@ -116,7 +121,7 @@ const locales = {
       eyebrow: "Кто такой Виктор",
       title: "Виктор Доронин",
       lead: "47 лет. Не создаёт образ — живёт в нём.",
-      body: `Идеолог сообществ <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">«Пыльные гантели»</a> и <a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">«Гастродинамика»</a>, друг, мотиватор и один из сильнейших любителей в триатлоне.`,
+      body: `Идеолог сообществ <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">«Пыльные гантели»</a> и&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">«Гастродинамика»</a>, друг, мотиватор и&nbsp;один из сильнейших любителей в триатлоне.`,
       imageAlt: "Виктор Доронин на дистанции в пустыне",
       achievements: [
         ["4×", "участник чемпионата мира WC Ironman Kona"],
@@ -239,9 +244,11 @@ const locales = {
     alternateLabel: "RU",
     canonical: "https://11111.life/en/",
     alternateCanonical: "https://11111.life/",
-    title: "11,111 km / 31 days — Viktor Doronin",
+    title: "11,111 km in 31 days — Viktor Doronin",
     description:
-      "Viktor Doronin’s 31-day ultra-triathlon: 11,111 km from December 1 through December 31, 2026.",
+      "In Dubai, Viktor Doronin will cover 11,111 km in 31 days through swimming, cycling and running. Starts December 1, 2026.",
+    socialImage: "https://11111.life/assets/share-en.jpg",
+    socialAlt: "11,111 km in 31 days. Viktor Doronin. Starts December 1, 2026 in Dubai.",
     skip: "Skip to content",
     homeLabel: "11 111 — home",
     menu: "Menu",
@@ -294,6 +301,7 @@ const locales = {
           unit: "km",
           label: "swimming",
           image: "distance-swim.jpg",
+          video: "distance-swim-motion.mp4",
           details: [
             "2,000 lengths of a 50-metre pool",
             "the equivalent of three English Channel crossings",
@@ -306,6 +314,7 @@ const locales = {
           unit: "km",
           label: "cycling",
           image: "distance-bike.jpg",
+          video: "distance-bike-motion.mp4",
           details: [
             "almost across Russia: Moscow to Vladivostok",
             "one quarter of Earth’s equator",
@@ -318,6 +327,7 @@ const locales = {
           unit: "km",
           label: "running",
           image: "distance-run.jpg",
+          video: "distance-run-motion.mp4",
           details: [
             "24 full marathons in succession",
             "Moscow to Saint Petersburg, plus another 300 km",
@@ -330,7 +340,7 @@ const locales = {
       eyebrow: "Who is Viktor",
       title: "Viktor Doronin",
       lead: "47. He does not build an image — he lives it.",
-      body: `A driving force behind the <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">Dusty Dumbbells</a> and <a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">Gastrodinamika</a> communities, a friend, a motivator, and one of Russia’s strongest amateur triathletes.`,
+      body: `A driving force behind the <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">Dusty Dumbbells</a> and&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">Gastrodinamika</a> communities, a friend, a motivator, and one of Russia’s strongest amateur triathletes.`,
       imageAlt: "Viktor Doronin racing through the desert",
       achievements: [
         ["4×", "Ironman World Championship Kona participant"],
@@ -524,7 +534,16 @@ function renderDistanceMedia(items, l) {
           data-distance-frame="${index}"
           aria-hidden="true"
         >
-          <img src="${l.assetBase}assets/${item.image}" alt="" loading="lazy" width="1600" height="900">
+          <video
+            data-distance-video="${index}"
+            muted
+            playsinline
+            preload="none"
+            poster="${l.assetBase}assets/${item.image}"
+            aria-hidden="true"
+          >
+            <source src="${l.assetBase}assets/${item.video}" type="video/mp4">
+          </video>
           <figcaption>
             <span>${l.distance.mediaKicker}</span>
             <strong>${item.index} · ${item.label}</strong>
@@ -538,19 +557,23 @@ function renderDistanceEquation(distance) {
   const terms = distance.items
     .map(
       (item, index) =>
-        `${index ? '<span class="distance-total__operator">+</span>' : ""}<span>${item.value}</span>`,
+        `${index ? '<span class="distance-total__operator">+</span>' : ""}
+        <span class="distance-total__term">
+          <strong>${item.value}</strong>
+          <small>${item.label}</small>
+        </span>`,
     )
     .join("");
 
   return `
-    <p class="distance-total__equation" aria-label="${distance.totalFormulaLabel}">
-      <span class="distance-total__terms" aria-hidden="true">${terms}</span>
-      <span class="distance-total__result" aria-hidden="true">
+    <div class="distance-total__equation" role="img" aria-label="${distance.totalFormulaLabel}">
+      <div class="distance-total__terms" aria-hidden="true">${terms}</div>
+      <div class="distance-total__result" aria-hidden="true">
         <span class="distance-total__operator">=</span>
         <span>${distance.totalValue}</span>
         <small>${distance.totalUnit}</small>
-      </span>
-    </p>`;
+      </div>
+    </div>`;
 }
 
 function renderMetrics(items, className) {
@@ -686,12 +709,22 @@ function renderPage(l) {
   <link rel="alternate" hreflang="${l.lang === "ru" ? "en" : "ru"}" href="${l.alternateCanonical}">
   <link rel="alternate" hreflang="x-default" href="https://11111.life/">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="11 111">
   <meta property="og:title" content="${l.title}">
   <meta property="og:description" content="${l.description}">
   <meta property="og:url" content="${l.canonical}">
-  <meta property="og:image" content="https://11111.life/assets/hero.jpg">
+  <meta property="og:image" content="${l.socialImage}">
+  <meta property="og:image:secure_url" content="${l.socialImage}">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${l.socialAlt}">
   <meta property="og:locale" content="${l.lang === "ru" ? "ru_RU" : "en_US"}">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${l.title}">
+  <meta name="twitter:description" content="${l.description}">
+  <meta name="twitter:image" content="${l.socialImage}">
+  <meta name="twitter:image:alt" content="${l.socialAlt}">
   <link
     rel="icon"
     href="${l.assetBase}assets/favicon-adaptive.svg"
@@ -842,7 +875,6 @@ function renderPage(l) {
     <section class="athlete section" id="viktor" aria-labelledby="viktor-title">
       <div class="athlete__media">
         <img src="${l.assetBase}assets/portrait.jpg" alt="${l.viktor.imageAlt}" width="1680" height="2102" loading="lazy">
-        <p class="athlete__quote">${l.viktor.quote}</p>
       </div>
       <div class="athlete__copy">
         <div class="section-label">
@@ -852,6 +884,7 @@ function renderPage(l) {
         <h2 id="viktor-title">${l.viktor.title}</h2>
         <p class="athlete__lead">${l.viktor.lead}</p>
         <p class="athlete__body">${l.viktor.body}</p>
+        <p class="athlete__quote">${l.viktor.quote}</p>
         <div class="achievement-grid">
           ${renderMetrics(l.viktor.achievements, "achievement")}
         </div>

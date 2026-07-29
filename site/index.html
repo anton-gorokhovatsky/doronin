@@ -6,19 +6,29 @@
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#f1f5ed" media="(prefers-color-scheme: light)" data-theme-color="light">
   <meta name="theme-color" content="#02160f" media="(prefers-color-scheme: dark)" data-theme-color="dark">
-  <title>11 111 км / 31 день — Виктор Доронин</title>
-  <meta name="description" content="Первый в мире 31-дневный ультратриатлон Виктора Доронина. 11 111 км с 1 по 31 декабря 2026 года.">
+  <title>11 111 км за 31 день — Виктор Доронин</title>
+  <meta name="description" content="Виктор Доронин преодолеет в Дубае 11 111 км за 31 день: плавание, велосипед и бег. Старт — 1 декабря 2026 года.">
   <link rel="canonical" href="https://11111.life/">
   <link rel="alternate" hreflang="ru" href="https://11111.life/">
   <link rel="alternate" hreflang="en" href="https://11111.life/en/">
   <link rel="alternate" hreflang="x-default" href="https://11111.life/">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="11 111 км / 31 день — Виктор Доронин">
-  <meta property="og:description" content="Первый в мире 31-дневный ультратриатлон Виктора Доронина. 11 111 км с 1 по 31 декабря 2026 года.">
+  <meta property="og:site_name" content="11 111">
+  <meta property="og:title" content="11 111 км за 31 день — Виктор Доронин">
+  <meta property="og:description" content="Виктор Доронин преодолеет в Дубае 11 111 км за 31 день: плавание, велосипед и бег. Старт — 1 декабря 2026 года.">
   <meta property="og:url" content="https://11111.life/">
-  <meta property="og:image" content="https://11111.life/assets/hero.jpg">
+  <meta property="og:image" content="https://11111.life/assets/share-ru.jpg">
+  <meta property="og:image:secure_url" content="https://11111.life/assets/share-ru.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="11 111 км за 31 день. Виктор Доронин. Старт 1 декабря 2026 года в Дубае.">
   <meta property="og:locale" content="ru_RU">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="11 111 км за 31 день — Виктор Доронин">
+  <meta name="twitter:description" content="Виктор Доронин преодолеет в Дубае 11 111 км за 31 день: плавание, велосипед и бег. Старт — 1 декабря 2026 года.">
+  <meta name="twitter:image" content="https://11111.life/assets/share-ru.jpg">
+  <meta name="twitter:image:alt" content="11 111 км за 31 день. Виктор Доронин. Старт 1 декабря 2026 года в Дубае.">
   <link
     rel="icon"
     href="./assets/favicon-adaptive.svg"
@@ -163,7 +173,16 @@
           data-distance-frame="0"
           aria-hidden="true"
         >
-          <img src="./assets/distance-swim.jpg" alt="" loading="lazy" width="1600" height="900">
+          <video
+            data-distance-video="0"
+            muted
+            playsinline
+            preload="none"
+            poster="./assets/distance-swim.jpg"
+            aria-hidden="true"
+          >
+            <source src="./assets/distance-swim-motion.mp4" type="video/mp4">
+          </video>
           <figcaption>
             <span>Дубай · архив проекта «1111»</span>
             <strong>01 · плавание</strong>
@@ -174,7 +193,16 @@
           data-distance-frame="1"
           aria-hidden="true"
         >
-          <img src="./assets/distance-bike.jpg" alt="" loading="lazy" width="1600" height="900">
+          <video
+            data-distance-video="1"
+            muted
+            playsinline
+            preload="none"
+            poster="./assets/distance-bike.jpg"
+            aria-hidden="true"
+          >
+            <source src="./assets/distance-bike-motion.mp4" type="video/mp4">
+          </video>
           <figcaption>
             <span>Дубай · архив проекта «1111»</span>
             <strong>02 · велосипед</strong>
@@ -185,7 +213,16 @@
           data-distance-frame="2"
           aria-hidden="true"
         >
-          <img src="./assets/distance-run.jpg" alt="" loading="lazy" width="1600" height="900">
+          <video
+            data-distance-video="2"
+            muted
+            playsinline
+            preload="none"
+            poster="./assets/distance-run.jpg"
+            aria-hidden="true"
+          >
+            <source src="./assets/distance-run-motion.mp4" type="video/mp4">
+          </video>
           <figcaption>
             <span>Дубай · архив проекта «1111»</span>
             <strong>03 · бег</strong>
@@ -253,21 +290,32 @@
       <div class="distance-total">
         <p class="distance-total__label">Итого за 31 день</p>
 
-    <p class="distance-total__equation" aria-label="100 плюс 10 010 плюс 1 001 равно 11 111 километров">
-      <span class="distance-total__terms" aria-hidden="true"><span>100</span><span class="distance-total__operator">+</span><span>10 010</span><span class="distance-total__operator">+</span><span>1 001</span></span>
-      <span class="distance-total__result" aria-hidden="true">
+    <div class="distance-total__equation" role="img" aria-label="100 плюс 10 010 плюс 1 001 равно 11 111 километров">
+      <div class="distance-total__terms" aria-hidden="true">
+        <span class="distance-total__term">
+          <strong>100</strong>
+          <small>плавание</small>
+        </span><span class="distance-total__operator">+</span>
+        <span class="distance-total__term">
+          <strong>10 010</strong>
+          <small>велосипед</small>
+        </span><span class="distance-total__operator">+</span>
+        <span class="distance-total__term">
+          <strong>1 001</strong>
+          <small>бег</small>
+        </span></div>
+      <div class="distance-total__result" aria-hidden="true">
         <span class="distance-total__operator">=</span>
         <span>11 111</span>
         <small>км</small>
-      </span>
-    </p>
+      </div>
+    </div>
       </div>
     </section>
 
     <section class="athlete section" id="viktor" aria-labelledby="viktor-title">
       <div class="athlete__media">
         <img src="./assets/portrait.jpg" alt="Виктор Доронин на дистанции в пустыне" width="1680" height="2102" loading="lazy">
-        <p class="athlete__quote">Не продаёт историю.<br>Он её проживает.</p>
       </div>
       <div class="athlete__copy">
         <div class="section-label">
@@ -276,7 +324,8 @@
         </div>
         <h2 id="viktor-title">Виктор Доронин</h2>
         <p class="athlete__lead">47 лет. Не создаёт образ — живёт в нём.</p>
-        <p class="athlete__body">Идеолог сообществ <a href="https://dustydumbbells.com/" target="_blank" rel="noopener noreferrer">«Пыльные гантели»</a> и <a href="https://www.instagram.com/gstrdnmc/" target="_blank" rel="noopener noreferrer">«Гастродинамика»</a>, друг, мотиватор и один из сильнейших любителей в триатлоне.</p>
+        <p class="athlete__body">Идеолог сообществ <a href="https://dustydumbbells.com/" target="_blank" rel="noopener noreferrer">«Пыльные гантели»</a> и&nbsp;<a href="https://www.instagram.com/gstrdnmc/" target="_blank" rel="noopener noreferrer">«Гастродинамика»</a>, друг, мотиватор и&nbsp;один из сильнейших любителей в триатлоне.</p>
+        <p class="athlete__quote">Не продаёт историю.<br>Он её проживает.</p>
         <div class="achievement-grid">
 
         <div class="achievement">

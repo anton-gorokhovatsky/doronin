@@ -131,8 +131,38 @@ if (distanceStory) {
   const distanceFrames = [
     ...distanceStory.querySelectorAll("[data-distance-frame]"),
   ];
+  const distanceVideos = [
+    ...distanceStory.querySelectorAll("[data-distance-video]"),
+  ];
+  const distanceDesktop = window.matchMedia("(min-width: 641px)");
+  let activeDistanceIndex = 0;
+  let distanceStoryVisible = false;
+
+  function syncDistanceVideo() {
+    for (const [videoIndex, video] of distanceVideos.entries()) {
+      const shouldPlay =
+        videoIndex === activeDistanceIndex &&
+        distanceStoryVisible &&
+        distanceDesktop.matches &&
+        !reducedMotion.matches;
+
+      if (shouldPlay) {
+        if (video.paused && !video.ended) {
+          video.play().catch(() => {});
+        }
+      } else {
+        video.pause();
+
+        if (video.readyState > 0) {
+          video.currentTime = 0;
+        }
+      }
+    }
+  }
 
   function setActiveDistance(index) {
+    activeDistanceIndex = index;
+
     for (const [cardIndex, card] of distanceCards.entries()) {
       card.classList.toggle("is-active", cardIndex === index);
     }
@@ -140,9 +170,18 @@ if (distanceStory) {
     for (const [frameIndex, frame] of distanceFrames.entries()) {
       frame.classList.toggle("is-active", frameIndex === index);
     }
+
+    syncDistanceVideo();
   }
 
   if ("IntersectionObserver" in window) {
+    const distanceVisibilityObserver = new IntersectionObserver(
+      ([entry]) => {
+        distanceStoryVisible = entry.isIntersecting;
+        syncDistanceVideo();
+      },
+      { threshold: 0.08 },
+    );
     const distanceObserver = new IntersectionObserver(
       (entries) => {
         const activeEntry = entries.find((entry) => entry.isIntersecting);
@@ -157,10 +196,15 @@ if (distanceStory) {
       },
     );
 
+    distanceVisibilityObserver.observe(distanceStory);
+
     for (const card of distanceCards) {
       distanceObserver.observe(card);
     }
   }
+
+  reducedMotion.addEventListener?.("change", syncDistanceVideo);
+  distanceDesktop.addEventListener?.("change", syncDistanceVideo);
 }
 
 const eventStatus = document.querySelector("[data-event-status]");
