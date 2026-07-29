@@ -435,21 +435,30 @@ const icons = {
 
 function renderDistance(items) {
   return items
-    .map(
-      (item) => `
+    .map((item) => {
+      const valueGroups = item.value
+        .split(" ")
+        .map((group) => `<span>${group}</span>`)
+        .join("");
+
+      return `
         <article class="distance-card">
           <div class="distance-card__top">
             <span class="distance-card__index" aria-hidden="true">${item.index}</span>
             <div>
-              <p class="distance-card__value">${item.value}<span> ${item.unit}</span></p>
+              <p class="distance-card__value">
+                <span class="sr-only">${item.value} ${item.unit}</span>
+                <span class="distance-card__number" aria-hidden="true">${valueGroups}</span>
+                <span class="distance-card__unit" aria-hidden="true">${item.unit}</span>
+              </p>
               <h3>${item.label}</h3>
             </div>
           </div>
           <ul class="detail-list">
             ${item.details.map((detail) => `<li>${detail}</li>`).join("")}
           </ul>
-        </article>`,
-    )
+        </article>`;
+    })
     .join("");
 }
 
@@ -798,7 +807,9 @@ function renderPage(l) {
       </div>
     </div>
 
-    <div class="site-footer__wordmark" aria-hidden="true">11 111</div>
+    <div class="site-footer__wordmark" aria-hidden="true">
+      <img src="${l.assetBase}assets/logo.svg" alt="" width="512" height="231">
+    </div>
 
     <div class="site-footer__legal">
       <p>${l.footer.legal}</p>

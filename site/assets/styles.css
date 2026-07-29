@@ -608,6 +608,9 @@ a {
 }
 
 .distance-card__value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.12em;
   margin: 0;
   font-family: var(--display);
   font-size: var(--type-distance-value);
@@ -618,8 +621,13 @@ a {
   white-space: nowrap;
 }
 
-.distance-card__value span {
-  margin-left: 0.25em;
+.distance-card__number {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.14em;
+}
+
+.distance-card__unit {
   font-size: 0.25em;
   letter-spacing: 0;
   text-transform: uppercase;
@@ -1203,15 +1211,15 @@ a {
 .site-footer__wordmark {
   position: relative;
   z-index: 0;
-  width: max-content;
-  margin: 0 0 1rem -0.04em;
-  color: var(--paper);
-  font-family: var(--display);
-  font-size: var(--type-footer-mark);
-  font-weight: 700;
-  letter-spacing: -0.045em;
-  line-height: 0.9;
-  white-space: nowrap;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: clamp(5rem, 9vw, 9rem) 0 2rem;
+}
+
+.site-footer__wordmark img {
+  width: min(48vw, 60rem);
+  height: auto;
 }
 
 .site-footer__legal {
@@ -1574,7 +1582,12 @@ a {
   }
 
   .site-footer__wordmark {
-    margin-bottom: 0.75rem;
+    justify-content: flex-start;
+    margin: 4.5rem 0 1.5rem;
+  }
+
+  .site-footer__wordmark img {
+    width: min(72vw, 32rem);
   }
 
   .site-footer__legal {
