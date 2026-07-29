@@ -4,3 +4,8 @@
 публикации через GitHub Pages.
 
 Страница сохранена в `site/index.html` без изменений исходной разметки.
+
+Принципы следующей версии зафиксированы в
+[`docs/product-rules.md`](docs/product-rules.md), обязательные правила работы —
+в [`AGENTS.md`](AGENTS.md). Правила и исходные решения для русской и английской
+версий собраны в [`docs/localization.md`](docs/localization.md).
