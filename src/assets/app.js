@@ -1,3 +1,9 @@
+const requestedTheme = new URLSearchParams(window.location.search).get("theme");
+
+if (requestedTheme === "dark" || requestedTheme === "light") {
+  document.documentElement.dataset.theme = requestedTheme;
+}
+
 const eventStatus = document.querySelector("[data-event-status]");
 
 if (eventStatus) {

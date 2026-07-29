@@ -29,10 +29,10 @@ const locales = {
     homeLabel: "11 111 — на главную",
     menu: "Меню",
     nav: [
-      ["#distance", "Дистанция"],
-      ["#viktor", "Виктор"],
-      ["#proof", "Доказательство"],
-      ["#adventures", "Приключения"],
+      ["#distance", "11 111 км"],
+      ["#viktor", "Виктор Доронин"],
+      ["#proof", "Фильм и сериал"],
+      ["#adventures", "Другие проекты"],
     ],
     headerCta: "Партнёрам",
     hero: {
@@ -45,6 +45,7 @@ const locales = {
       primaryCta: "Как это устроено",
       secondaryCta: "Войти в историю",
       statusFallback: "Старт 1 декабря 2026",
+      statusMeta: "11 111 км · 31 день",
       beforeForms: ["день до старта", "дня до старта", "дней до старта"],
       activeLabel: "день из 31",
       finishedLabel: "Плановый период проекта завершён",
@@ -62,6 +63,9 @@ const locales = {
       title: "Дистанция, которую трудно представить",
       intro:
         "31 день подряд. Числа здесь не декор — каждое можно перевести в знакомый человеку масштаб.",
+      totalLabel: "Итого за 31 день",
+      totalValue: "11 111",
+      totalUnit: "км",
       items: [
         {
           index: "01",
@@ -141,7 +145,7 @@ const locales = {
     },
     proof: {
       eyebrow: "Мы уже делали это",
-      title: "Проект «1111» — доказанная формула",
+      title: "Проект «11 111» — доказанная формула",
       body:
         "Аудитория готова к длинным форматам. Честность работает лучше глянца. История продолжает жить после финиша.",
       metrics: [
@@ -150,7 +154,7 @@ const locales = {
         ["+310%", "рост аудитории героя"],
         ["25+", "федеральных СМИ"],
       ],
-      filmCta: "Смотреть фильм о проекте «1111»",
+      filmCta: "Смотреть фильм о проекте «11 111»",
       externalLabel: "Откроется ВКонтакте в новой вкладке",
     },
     adventures: {
@@ -227,10 +231,10 @@ const locales = {
     homeLabel: "11 111 — home",
     menu: "Menu",
     nav: [
-      ["#distance", "Distance"],
-      ["#viktor", "Viktor"],
-      ["#proof", "Proof"],
-      ["#adventures", "Adventures"],
+      ["#distance", "11,111 km"],
+      ["#viktor", "Viktor Doronin"],
+      ["#proof", "Film and series"],
+      ["#adventures", "Other projects"],
     ],
     headerCta: "For partners",
     hero: {
@@ -243,6 +247,7 @@ const locales = {
       primaryCta: "See the challenge",
       secondaryCta: "Become part of it",
       statusFallback: "Starts December 1, 2026",
+      statusMeta: "11,111 km · 31 days",
       beforeForms: ["day to start", "days to start", "days to start"],
       activeLabel: "day of 31",
       finishedLabel: "The scheduled project period has ended",
@@ -260,6 +265,9 @@ const locales = {
       title: "A distance that is hard to imagine",
       intro:
         "Thirty-one days in succession. These figures are not decoration — each one translates into a scale people can understand.",
+      totalLabel: "Total over 31 days",
+      totalValue: "11,111",
+      totalUnit: "km",
       items: [
         {
           index: "01",
@@ -339,7 +347,7 @@ const locales = {
     },
     proof: {
       eyebrow: "We have done it before",
-      title: "Project “1111” — a proven formula",
+      title: "Project “11 111” — a proven formula",
       body:
         "The audience embraces long-form stories. Honesty outperforms gloss. The project lives on after the finish.",
       metrics: [
@@ -348,7 +356,7 @@ const locales = {
         ["+310%", "growth in Viktor’s audience"],
         ["25+", "federal media outlets"],
       ],
-      filmCta: "Watch the film about Project “1111”",
+      filmCta: "Watch the film about Project “11 111”",
       externalLabel: "Opens VK in a new tab",
     },
     adventures: {
@@ -433,32 +441,35 @@ const icons = {
     </svg>`,
 };
 
+function renderDistanceValue(value, unit, className) {
+  const valueGroups = value
+    .split(" ")
+    .map((group) => `<span>${group}</span>`)
+    .join("");
+
+  return `
+    <p class="${className}">
+      <span class="sr-only">${value} ${unit}</span>
+      <span class="distance-card__number" aria-hidden="true">${valueGroups}</span>
+      <span class="distance-card__unit" aria-hidden="true">${unit}</span>
+    </p>`;
+}
+
 function renderDistance(items) {
   return items
-    .map((item) => {
-      const valueGroups = item.value
-        .split(" ")
-        .map((group) => `<span>${group}</span>`)
-        .join("");
-
-      return `
+    .map(
+      (item) => `
         <article class="distance-card">
-          <div class="distance-card__top">
+          <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">${item.index}</span>
-            <div>
-              <p class="distance-card__value">
-                <span class="sr-only">${item.value} ${item.unit}</span>
-                <span class="distance-card__number" aria-hidden="true">${valueGroups}</span>
-                <span class="distance-card__unit" aria-hidden="true">${item.unit}</span>
-              </p>
-              <h3>${item.label}</h3>
-            </div>
+            <h3>${item.label}</h3>
           </div>
+          ${renderDistanceValue(item.value, item.unit, "distance-card__value")}
           <ul class="detail-list">
             ${item.details.map((detail) => `<li>${detail}</li>`).join("")}
           </ul>
-        </article>`;
-    })
+        </article>`,
+    )
     .join("");
 }
 
@@ -585,7 +596,9 @@ function renderPage(l) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#041f15">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f1f5ed" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#02160f" media="(prefers-color-scheme: dark)">
   <title>${l.title}</title>
   <meta name="description" content="${l.description}">
   <link rel="canonical" href="${l.canonical}">
@@ -599,7 +612,7 @@ function renderPage(l) {
   <meta property="og:image" content="https://anton-gorokhovatsky.github.io/doronin/assets/hero.jpg">
   <meta property="og:locale" content="${l.lang === "ru" ? "ru_RU" : "en_US"}">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="${l.assetBase}assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="${l.assetBase}assets/favicon-adaptive.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -651,6 +664,9 @@ function renderPage(l) {
       <div
         class="event-status"
         data-event-status
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
         data-lang="${l.lang}"
         data-start="${shared.startDate}T00:00:00+03:00"
         data-end="2027-01-01T00:00:00+03:00"
@@ -660,7 +676,11 @@ function renderPage(l) {
         data-active="${l.hero.activeLabel}"
         data-finished="${l.hero.finishedLabel}"
       >
-        <span class="event-status__value" data-status-value aria-hidden="true">01.12</span>
+        <span class="event-status__meta">${l.hero.statusMeta}</span>
+        <span class="event-status__rail" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </span>
+        <span class="event-status__value" data-status-value>01.12</span>
         <span class="event-status__label" data-status-label>${l.hero.statusFallback}</span>
       </div>
 
@@ -695,6 +715,11 @@ function renderPage(l) {
       </div>
       <div class="distance-grid">
         ${renderDistance(l.distance.items)}
+        <div class="distance-total">
+          <p class="distance-total__label">${l.distance.totalLabel}</p>
+          ${renderDistanceValue(l.distance.totalValue, l.distance.totalUnit, "distance-total__value")}
+          <p class="distance-total__meta">${l.distance.eyebrow}</p>
+        </div>
       </div>
     </section>
 

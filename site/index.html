@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#041f15">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f1f5ed" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#02160f" media="(prefers-color-scheme: dark)">
   <title>11 111 км / 31 день — Виктор Доронин</title>
   <meta name="description" content="Первый в мире 31-дневный ультратриатлон Виктора Доронина. 11 111 км с 1 по 31 декабря 2026 года.">
   <link rel="canonical" href="https://anton-gorokhovatsky.github.io/doronin/">
@@ -17,7 +19,7 @@
   <meta property="og:image" content="https://anton-gorokhovatsky.github.io/doronin/assets/hero.jpg">
   <meta property="og:locale" content="ru_RU">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="./assets/favicon-adaptive.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -35,7 +37,7 @@
     <details class="nav-shell" open>
       <summary class="menu-toggle">Меню<span aria-hidden="true"></span></summary>
       <nav class="site-nav" aria-label="Меню">
-        <a class="site-nav__link" href="#distance">Дистанция</a><a class="site-nav__link" href="#viktor">Виктор</a><a class="site-nav__link" href="#proof">Доказательство</a><a class="site-nav__link" href="#adventures">Приключения</a>
+        <a class="site-nav__link" href="#distance">11 111 км</a><a class="site-nav__link" href="#viktor">Виктор Доронин</a><a class="site-nav__link" href="#proof">Фильм и сериал</a><a class="site-nav__link" href="#adventures">Другие проекты</a>
       </nav>
     </details>
 
@@ -72,6 +74,9 @@
       <div
         class="event-status"
         data-event-status
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
         data-lang="ru"
         data-start="2026-12-01T00:00:00+03:00"
         data-end="2027-01-01T00:00:00+03:00"
@@ -81,7 +86,11 @@
         data-active="день из 31"
         data-finished="Плановый период проекта завершён"
       >
-        <span class="event-status__value" data-status-value aria-hidden="true">01.12</span>
+        <span class="event-status__meta">11 111 км · 31 день</span>
+        <span class="event-status__rail" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </span>
+        <span class="event-status__value" data-status-value>01.12</span>
         <span class="event-status__label" data-status-label>Старт 1 декабря 2026</span>
       </div>
 
@@ -117,53 +126,60 @@
       <div class="distance-grid">
 
         <article class="distance-card">
-          <div class="distance-card__top">
+          <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">01</span>
-            <div>
-              <p class="distance-card__value">
-                <span class="sr-only">100 км</span>
-                <span class="distance-card__number" aria-hidden="true"><span>100</span></span>
-                <span class="distance-card__unit" aria-hidden="true">км</span>
-              </p>
-              <h3>плавания</h3>
-            </div>
+            <h3>плавания</h3>
           </div>
+
+    <p class="distance-card__value">
+      <span class="sr-only">100 км</span>
+      <span class="distance-card__number" aria-hidden="true"><span>100</span></span>
+      <span class="distance-card__unit" aria-hidden="true">км</span>
+    </p>
           <ul class="detail-list">
             <li>2 000 бассейнов по 50 метров</li><li>три переправы через Ла-Манш</li><li>от Москвы до Ярославля без передышки в воде</li>
           </ul>
         </article>
         <article class="distance-card">
-          <div class="distance-card__top">
+          <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">02</span>
-            <div>
-              <p class="distance-card__value">
-                <span class="sr-only">10 010 км</span>
-                <span class="distance-card__number" aria-hidden="true"><span>10</span><span>010</span></span>
-                <span class="distance-card__unit" aria-hidden="true">км</span>
-              </p>
-              <h3>на велосипеде</h3>
-            </div>
+            <h3>на велосипеде</h3>
           </div>
+
+    <p class="distance-card__value">
+      <span class="sr-only">10 010 км</span>
+      <span class="distance-card__number" aria-hidden="true"><span>10</span><span>010</span></span>
+      <span class="distance-card__unit" aria-hidden="true">км</span>
+    </p>
           <ul class="detail-list">
             <li>почти поперёк России: Москва — Владивосток</li><li>четверть экватора Земли</li><li>Москва — Париж — Москва — Париж</li>
           </ul>
         </article>
         <article class="distance-card">
-          <div class="distance-card__top">
+          <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">03</span>
-            <div>
-              <p class="distance-card__value">
-                <span class="sr-only">1 001 км</span>
-                <span class="distance-card__number" aria-hidden="true"><span>1</span><span>001</span></span>
-                <span class="distance-card__unit" aria-hidden="true">км</span>
-              </p>
-              <h3>бега</h3>
-            </div>
+            <h3>бега</h3>
           </div>
+
+    <p class="distance-card__value">
+      <span class="sr-only">1 001 км</span>
+      <span class="distance-card__number" aria-hidden="true"><span>1</span><span>001</span></span>
+      <span class="distance-card__unit" aria-hidden="true">км</span>
+    </p>
           <ul class="detail-list">
             <li>24 полных марафона подряд</li><li>Москва — Санкт-Петербург и ещё 300 км</li><li>10 кругов по МКАД нон-стоп</li>
           </ul>
         </article>
+        <div class="distance-total">
+          <p class="distance-total__label">Итого за 31 день</p>
+
+    <p class="distance-total__value">
+      <span class="sr-only">11 111 км</span>
+      <span class="distance-card__number" aria-hidden="true"><span>11</span><span>111</span></span>
+      <span class="distance-card__unit" aria-hidden="true">км</span>
+    </p>
+          <p class="distance-total__meta">Один проект · три дисциплины</p>
+        </div>
       </div>
     </section>
 
@@ -258,10 +274,10 @@
           <span>04</span>
           <p>Мы уже делали это</p>
         </div>
-        <h2 id="proof-title">Проект «1111» — доказанная формула</h2>
+        <h2 id="proof-title">Проект «11 111» — доказанная формула</h2>
         <p>Аудитория готова к длинным форматам. Честность работает лучше глянца. История продолжает жить после финиша.</p>
         <a class="text-link" href="https://vk.com/video-224465212_456239107" target="_blank" rel="noopener noreferrer">
-          Смотреть фильм о проекте «1111»
+          Смотреть фильм о проекте «11 111»
     <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M4 12 12 4M6 4h6v6"></path>
     </svg>
@@ -397,7 +413,7 @@
     <div class="site-footer__directory">
       <nav class="site-footer__nav" aria-label="Навигация">
         <p>Навигация</p>
-        <a class="site-nav__link" href="#distance">Дистанция</a><a class="site-nav__link" href="#viktor">Виктор</a><a class="site-nav__link" href="#proof">Доказательство</a><a class="site-nav__link" href="#adventures">Приключения</a>
+        <a class="site-nav__link" href="#distance">11 111 км</a><a class="site-nav__link" href="#viktor">Виктор Доронин</a><a class="site-nav__link" href="#proof">Фильм и сериал</a><a class="site-nav__link" href="#adventures">Другие проекты</a>
         <a class="site-nav__link" href="#partners">Партнёрам</a>
       </nav>
 
