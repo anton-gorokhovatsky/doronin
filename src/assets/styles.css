@@ -529,19 +529,6 @@ a {
   font-size: var(--type-copy-large);
 }
 
-.manifesto__mark {
-  position: absolute;
-  right: -0.12em;
-  bottom: -0.38em;
-  color: rgba(223, 255, 56, 0.09);
-  font-family: var(--display);
-  font-size: var(--type-mark);
-  font-weight: 700;
-  letter-spacing: -0.08em;
-  line-height: 1;
-  pointer-events: none;
-}
-
 .section-heading {
   display: grid;
   grid-template-columns: minmax(12rem, 1fr) minmax(0, 2.2fr);
@@ -842,7 +829,7 @@ a {
 
 .proof__mark {
   position: absolute;
-  top: -0.25em;
+  top: clamp(1rem, 2vw, 2.5rem);
   right: -0.1em;
   color: rgba(4, 31, 21, 0.08);
   font-family: var(--display);

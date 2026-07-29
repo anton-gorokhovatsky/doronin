@@ -679,7 +679,6 @@ function renderPage(l) {
         <h2 id="manifesto-title">${l.manifesto.title}</h2>
         <p>${l.manifesto.text}</p>
       </div>
-      <div class="manifesto__mark" aria-hidden="true">1111</div>
     </section>
 
     <section class="distance section section--light" id="distance" aria-labelledby="distance-title">
