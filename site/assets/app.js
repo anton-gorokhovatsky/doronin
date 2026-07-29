@@ -1,7 +1,66 @@
 const requestedTheme = new URLSearchParams(window.location.search).get("theme");
+const supportedThemes = new Set(["system", "light", "dark"]);
+const storedTheme = document.documentElement.dataset.theme;
+let activeTheme = supportedThemes.has(requestedTheme)
+  ? requestedTheme
+  : supportedThemes.has(storedTheme)
+    ? storedTheme
+    : "system";
 
-if (requestedTheme === "dark" || requestedTheme === "light") {
-  document.documentElement.dataset.theme = requestedTheme;
+function applyTheme(theme, persist = true) {
+  activeTheme = supportedThemes.has(theme) ? theme : "system";
+
+  if (activeTheme === "system") {
+    delete document.documentElement.dataset.theme;
+  } else {
+    document.documentElement.dataset.theme = activeTheme;
+  }
+
+  for (const button of document.querySelectorAll("[data-theme-option]")) {
+    button.setAttribute(
+      "aria-pressed",
+      String(button.dataset.themeOption === activeTheme),
+    );
+  }
+
+  const favicon = document.querySelector("[data-favicon]");
+
+  if (favicon) {
+    favicon.href =
+      activeTheme === "light"
+        ? favicon.dataset.lightHref
+        : activeTheme === "dark"
+          ? favicon.dataset.darkHref
+          : favicon.dataset.systemHref;
+  }
+
+  for (const meta of document.querySelectorAll("[data-theme-color]")) {
+    const colorTheme = meta.dataset.themeColor;
+    meta.media =
+      activeTheme === "system"
+        ? `(prefers-color-scheme: ${colorTheme})`
+        : colorTheme === activeTheme
+          ? "all"
+          : "not all";
+  }
+
+  if (persist) {
+    try {
+      if (activeTheme === "system") {
+        localStorage.removeItem("theme");
+      } else {
+        localStorage.setItem("theme", activeTheme);
+      }
+    } catch {}
+  }
+}
+
+applyTheme(activeTheme, false);
+
+for (const button of document.querySelectorAll("[data-theme-option]")) {
+  button.addEventListener("click", () => {
+    applyTheme(button.dataset.themeOption);
+  });
 }
 
 const eventStatus = document.querySelector("[data-event-status]");

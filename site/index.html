@@ -4,22 +4,31 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#f1f5ed" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#02160f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f1f5ed" media="(prefers-color-scheme: light)" data-theme-color="light">
+  <meta name="theme-color" content="#02160f" media="(prefers-color-scheme: dark)" data-theme-color="dark">
   <title>11 111 км / 31 день — Виктор Доронин</title>
   <meta name="description" content="Первый в мире 31-дневный ультратриатлон Виктора Доронина. 11 111 км с 1 по 31 декабря 2026 года.">
-  <link rel="canonical" href="https://anton-gorokhovatsky.github.io/doronin/">
-  <link rel="alternate" hreflang="ru" href="https://anton-gorokhovatsky.github.io/doronin/">
-  <link rel="alternate" hreflang="en" href="https://anton-gorokhovatsky.github.io/doronin/en/">
-  <link rel="alternate" hreflang="x-default" href="https://anton-gorokhovatsky.github.io/doronin/">
+  <link rel="canonical" href="https://11111.life/">
+  <link rel="alternate" hreflang="ru" href="https://11111.life/">
+  <link rel="alternate" hreflang="en" href="https://11111.life/en/">
+  <link rel="alternate" hreflang="x-default" href="https://11111.life/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="11 111 км / 31 день — Виктор Доронин">
   <meta property="og:description" content="Первый в мире 31-дневный ультратриатлон Виктора Доронина. 11 111 км с 1 по 31 декабря 2026 года.">
-  <meta property="og:url" content="https://anton-gorokhovatsky.github.io/doronin/">
-  <meta property="og:image" content="https://anton-gorokhovatsky.github.io/doronin/assets/hero.jpg">
+  <meta property="og:url" content="https://11111.life/">
+  <meta property="og:image" content="https://11111.life/assets/hero.jpg">
   <meta property="og:locale" content="ru_RU">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="./assets/favicon-adaptive.svg" type="image/svg+xml">
+  <link
+    rel="icon"
+    href="./assets/favicon-adaptive.svg"
+    type="image/svg+xml"
+    data-favicon
+    data-system-href="./assets/favicon-adaptive.svg"
+    data-light-href="./assets/favicon-light.svg"
+    data-dark-href="./assets/favicon-dark.svg"
+  >
+  <script src="./assets/theme-init.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -128,7 +137,7 @@
         <article class="distance-card">
           <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">01</span>
-            <h3>плавания</h3>
+            <h3>плавание</h3>
           </div>
 
     <p class="distance-card__value">
@@ -143,7 +152,7 @@
         <article class="distance-card">
           <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">02</span>
-            <h3>на велосипеде</h3>
+            <h3>велосипед</h3>
           </div>
 
     <p class="distance-card__value">
@@ -158,7 +167,7 @@
         <article class="distance-card">
           <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">03</span>
-            <h3>бега</h3>
+            <h3>бег</h3>
           </div>
 
     <p class="distance-card__value">
@@ -173,12 +182,14 @@
         <div class="distance-total">
           <p class="distance-total__label">Итого за 31 день</p>
 
-    <p class="distance-total__value">
-      <span class="sr-only">11 111 км</span>
-      <span class="distance-card__number" aria-hidden="true"><span>11</span><span>111</span></span>
-      <span class="distance-card__unit" aria-hidden="true">км</span>
+    <p class="distance-total__equation" aria-label="100 плюс 10 010 плюс 1 001 равно 11 111 километров">
+      <span class="distance-total__terms" aria-hidden="true"><span>100</span><span class="distance-total__operator">+</span><span>10 010</span><span class="distance-total__operator">+</span><span>1 001</span></span>
+      <span class="distance-total__result" aria-hidden="true">
+        <span class="distance-total__operator">=</span>
+        <span>11 111</span>
+        <small>км</small>
+      </span>
     </p>
-          <p class="distance-total__meta">Один проект · три дисциплины</p>
         </div>
       </div>
     </section>
@@ -186,7 +197,7 @@
     <section class="athlete section" id="viktor" aria-labelledby="viktor-title">
       <div class="athlete__media">
         <img src="./assets/portrait.jpg" alt="Виктор Доронин на дистанции в пустыне" width="1680" height="2102" loading="lazy">
-        <p class="athlete__quote">Не продаёт историю. Он её проживает.</p>
+        <p class="athlete__quote">Не продаёт историю.<br>Он её проживает.</p>
       </div>
       <div class="athlete__copy">
         <div class="section-label">
@@ -195,7 +206,7 @@
         </div>
         <h2 id="viktor-title">Виктор Доронин</h2>
         <p class="athlete__lead">47 лет. Не создаёт образ — живёт в нём.</p>
-        <p class="athlete__body">Идеолог сообществ «Пыльные гантели» и «Гастродинамика», друг, мотиватор и один из сильнейших любителей в триатлоне.</p>
+        <p class="athlete__body">Идеолог сообществ <a href="https://dustydumbbells.com/" target="_blank" rel="noopener noreferrer">«Пыльные гантели»</a> и <a href="https://www.instagram.com/gstrdnmc/" target="_blank" rel="noopener noreferrer">«Гастродинамика»</a>, друг, мотиватор и один из сильнейших любителей в триатлоне.</p>
         <div class="achievement-grid">
 
         <div class="achievement">
@@ -400,7 +411,7 @@
       <p class="site-footer__kicker">11 111 км · 31 день · Виктор Доронин</p>
       <h2 id="footer-title">
         <span>История начинается</span>
-        <span>1 декабря 2026</span>
+        <span>1 декабря<br>2026</span>
       </h2>
       <a class="site-footer__cta" href="mailto:anesterova88@gmail.com?subject=%D0%9F%D0%B0%D1%80%D1%82%D0%BD%D1%91%D1%80%D1%81%D1%82%D0%B2%D0%BE%20%D1%81%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%BE%D0%BC%2011%20111">
         Обсудить партнёрство
@@ -430,6 +441,16 @@
       </div>
 
       <div class="site-footer__utility">
+        <p>Сайт</p>
+
+    <div class="theme-switcher" role="group" aria-label="Тема">
+      <span class="theme-switcher__label">Тема</span>
+      <div class="theme-switcher__options">
+        <button type="button" data-theme-option="system" aria-pressed="true">Система</button>
+        <button type="button" data-theme-option="light" aria-pressed="false">Светлая</button>
+        <button type="button" data-theme-option="dark" aria-pressed="false">Тёмная</button>
+      </div>
+    </div>
         <a data-language-switch href="./en/" hreflang="en">English version
     <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M4 12 12 4M6 4h6v6"></path>
@@ -447,7 +468,13 @@
 
     <div class="site-footer__legal">
       <p>2026 ИП Доронин В. В. · ИНН 344 406 202 270</p>
-      <p>11111.life</p>
+      <div class="site-footer__credits">
+        <p>11111.life</p>
+        <a href="https://anton-gorokhovatsky.github.io/design/" target="_blank" rel="noopener noreferrer">Дизайн и разработка
+    <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M4 12 12 4M6 4h6v6"></path>
+    </svg></a>
+      </div>
     </div>
   </footer>
 </body>

@@ -9,6 +9,9 @@ const shared = {
   email: "anesterova88@gmail.com",
   telegramHref: "https://t.me/alraunean",
   filmHref: "https://vk.com/video-224465212_456239107",
+  dustyDumbbellsHref: "https://dustydumbbells.com/",
+  gastrodinamikaHref: "https://www.instagram.com/gstrdnmc/",
+  designHref: "https://anton-gorokhovatsky.github.io/design/",
   startDate: "2026-12-01",
   endDate: "2026-12-31",
 };
@@ -20,8 +23,8 @@ const locales = {
     assetBase: "./",
     alternateHref: "./en/",
     alternateLabel: "EN",
-    canonical: "https://anton-gorokhovatsky.github.io/doronin/",
-    alternateCanonical: "https://anton-gorokhovatsky.github.io/doronin/en/",
+    canonical: "https://11111.life/",
+    alternateCanonical: "https://11111.life/en/",
     title: "11 111 км / 31 день — Виктор Доронин",
     description:
       "Первый в мире 31-дневный ультратриатлон Виктора Доронина. 11 111 км с 1 по 31 декабря 2026 года.",
@@ -66,12 +69,13 @@ const locales = {
       totalLabel: "Итого за 31 день",
       totalValue: "11 111",
       totalUnit: "км",
+      totalFormulaLabel: "100 плюс 10 010 плюс 1 001 равно 11 111 километров",
       items: [
         {
           index: "01",
           value: "100",
           unit: "км",
-          label: "плавания",
+          label: "плавание",
           details: [
             "2 000 бассейнов по 50 метров",
             "три переправы через Ла-Манш",
@@ -82,7 +86,7 @@ const locales = {
           index: "02",
           value: "10 010",
           unit: "км",
-          label: "на велосипеде",
+          label: "велосипед",
           details: [
             "почти поперёк России: Москва — Владивосток",
             "четверть экватора Земли",
@@ -93,7 +97,7 @@ const locales = {
           index: "03",
           value: "1 001",
           unit: "км",
-          label: "бега",
+          label: "бег",
           details: [
             "24 полных марафона подряд",
             "Москва — Санкт-Петербург и ещё 300 км",
@@ -106,8 +110,7 @@ const locales = {
       eyebrow: "Кто такой Виктор",
       title: "Виктор Доронин",
       lead: "47 лет. Не создаёт образ — живёт в нём.",
-      body:
-        "Идеолог сообществ «Пыльные гантели» и «Гастродинамика», друг, мотиватор и один из сильнейших любителей в триатлоне.",
+      body: `Идеолог сообществ <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">«Пыльные гантели»</a> и <a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">«Гастродинамика»</a>, друг, мотиватор и один из сильнейших любителей в триатлоне.`,
       imageAlt: "Виктор Доронин на дистанции в пустыне",
       achievements: [
         ["4×", "участник чемпионата мира WC Ironman Kona"],
@@ -115,7 +118,7 @@ const locales = {
         ["17 696 м", "двойной Everesting за один заезд"],
         ["58 часов", "ультратриатлон 1 111 км без сна"],
       ],
-      quote: "Не продаёт историю. Он её проживает.",
+      quote: "Не продаёт историю.<br>Он её проживает.",
     },
     story: {
       label: "Виктор Доронин: тренировки и люди рядом",
@@ -205,14 +208,20 @@ const locales = {
     footer: {
       kicker: "11 111 км · 31 день · Виктор Доронин",
       titleLineOne: "История начинается",
-      titleLineTwo: "1 декабря 2026",
+      titleLineTwo: "1 декабря<br>2026",
       navLabel: "Навигация",
       contactLabel: "Связаться",
+      utilityLabel: "Сайт",
+      themeLabel: "Тема",
+      themeSystem: "Система",
+      themeLight: "Светлая",
+      themeDark: "Тёмная",
       emailCta: "Написать по почте",
       telegramCta: "Написать в Telegram",
       partnerCta: "Обсудить партнёрство",
       languageCta: "English version",
       legal: "2026 ИП Доронин В. В. · ИНН 344 406 202 270",
+      designCredit: "Дизайн и разработка",
       top: "Наверх",
     },
   },
@@ -222,8 +231,8 @@ const locales = {
     assetBase: "../",
     alternateHref: "../",
     alternateLabel: "RU",
-    canonical: "https://anton-gorokhovatsky.github.io/doronin/en/",
-    alternateCanonical: "https://anton-gorokhovatsky.github.io/doronin/",
+    canonical: "https://11111.life/en/",
+    alternateCanonical: "https://11111.life/",
     title: "11,111 km / 31 days — Viktor Doronin",
     description:
       "Viktor Doronin’s 31-day ultra-triathlon: 11,111 km from December 1 through December 31, 2026.",
@@ -268,6 +277,7 @@ const locales = {
       totalLabel: "Total over 31 days",
       totalValue: "11,111",
       totalUnit: "km",
+      totalFormulaLabel: "100 plus 10,010 plus 1,001 equals 11,111 kilometres",
       items: [
         {
           index: "01",
@@ -308,8 +318,7 @@ const locales = {
       eyebrow: "Who is Viktor",
       title: "Viktor Doronin",
       lead: "47. He does not build an image — he lives it.",
-      body:
-        "A driving force behind the Dusty Dumbbells and Gastrodinamika communities, a friend, a motivator, and one of Russia’s strongest amateur triathletes.",
+      body: `A driving force behind the <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">Dusty Dumbbells</a> and <a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">Gastrodinamika</a> communities, a friend, a motivator, and one of Russia’s strongest amateur triathletes.`,
       imageAlt: "Viktor Doronin racing through the desert",
       achievements: [
         ["4×", "Ironman World Championship Kona participant"],
@@ -317,7 +326,7 @@ const locales = {
         ["17,696 m", "Double Everesting elevation gain in one ride"],
         ["58 hours", "1,111 km ultra-triathlon without sleep"],
       ],
-      quote: "He does not sell a story. He lives it.",
+      quote: "He does not sell a story.<br>He lives it.",
     },
     story: {
       label: "Viktor Doronin: training and the people around him",
@@ -407,14 +416,20 @@ const locales = {
     footer: {
       kicker: "11,111 km · 31 days · Viktor Doronin",
       titleLineOne: "The story begins",
-      titleLineTwo: "December 1, 2026",
+      titleLineTwo: "December 1,<br>2026",
       navLabel: "Navigation",
       contactLabel: "Get in touch",
+      utilityLabel: "Website",
+      themeLabel: "Theme",
+      themeSystem: "System",
+      themeLight: "Light",
+      themeDark: "Dark",
       emailCta: "Send an email",
       telegramCta: "Message on Telegram",
       partnerCta: "Discuss a partnership",
       languageCta: "Русская версия",
       legal: "2026 · Sole proprietor Viktor Doronin · TIN 344 406 202 270",
+      designCredit: "Design and development",
       top: "Back to top",
     },
   },
@@ -424,6 +439,18 @@ function renderNav(items) {
   return items
     .map(([href, label]) => `<a class="site-nav__link" href="${href}">${label}</a>`)
     .join("");
+}
+
+function renderThemeSwitcher(l) {
+  return `
+    <div class="theme-switcher" role="group" aria-label="${l.footer.themeLabel}">
+      <span class="theme-switcher__label">${l.footer.themeLabel}</span>
+      <div class="theme-switcher__options">
+        <button type="button" data-theme-option="system" aria-pressed="true">${l.footer.themeSystem}</button>
+        <button type="button" data-theme-option="light" aria-pressed="false">${l.footer.themeLight}</button>
+        <button type="button" data-theme-option="dark" aria-pressed="false">${l.footer.themeDark}</button>
+      </div>
+    </div>`;
 }
 
 const icons = {
@@ -471,6 +498,25 @@ function renderDistance(items) {
         </article>`,
     )
     .join("");
+}
+
+function renderDistanceEquation(distance) {
+  const terms = distance.items
+    .map(
+      (item, index) =>
+        `${index ? '<span class="distance-total__operator">+</span>' : ""}<span>${item.value}</span>`,
+    )
+    .join("");
+
+  return `
+    <p class="distance-total__equation" aria-label="${distance.totalFormulaLabel}">
+      <span class="distance-total__terms" aria-hidden="true">${terms}</span>
+      <span class="distance-total__result" aria-hidden="true">
+        <span class="distance-total__operator">=</span>
+        <span>${distance.totalValue}</span>
+        <small>${distance.totalUnit}</small>
+      </span>
+    </p>`;
 }
 
 function renderMetrics(items, className) {
@@ -597,22 +643,31 @@ function renderPage(l) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#f1f5ed" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#02160f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f1f5ed" media="(prefers-color-scheme: light)" data-theme-color="light">
+  <meta name="theme-color" content="#02160f" media="(prefers-color-scheme: dark)" data-theme-color="dark">
   <title>${l.title}</title>
   <meta name="description" content="${l.description}">
   <link rel="canonical" href="${l.canonical}">
   <link rel="alternate" hreflang="${l.lang}" href="${l.canonical}">
   <link rel="alternate" hreflang="${l.lang === "ru" ? "en" : "ru"}" href="${l.alternateCanonical}">
-  <link rel="alternate" hreflang="x-default" href="https://anton-gorokhovatsky.github.io/doronin/">
+  <link rel="alternate" hreflang="x-default" href="https://11111.life/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="${l.title}">
   <meta property="og:description" content="${l.description}">
   <meta property="og:url" content="${l.canonical}">
-  <meta property="og:image" content="https://anton-gorokhovatsky.github.io/doronin/assets/hero.jpg">
+  <meta property="og:image" content="https://11111.life/assets/hero.jpg">
   <meta property="og:locale" content="${l.lang === "ru" ? "ru_RU" : "en_US"}">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="${l.assetBase}assets/favicon-adaptive.svg" type="image/svg+xml">
+  <link
+    rel="icon"
+    href="${l.assetBase}assets/favicon-adaptive.svg"
+    type="image/svg+xml"
+    data-favicon
+    data-system-href="${l.assetBase}assets/favicon-adaptive.svg"
+    data-light-href="${l.assetBase}assets/favicon-light.svg"
+    data-dark-href="${l.assetBase}assets/favicon-dark.svg"
+  >
+  <script src="${l.assetBase}assets/theme-init.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -717,8 +772,7 @@ function renderPage(l) {
         ${renderDistance(l.distance.items)}
         <div class="distance-total">
           <p class="distance-total__label">${l.distance.totalLabel}</p>
-          ${renderDistanceValue(l.distance.totalValue, l.distance.totalUnit, "distance-total__value")}
-          <p class="distance-total__meta">${l.distance.eyebrow}</p>
+          ${renderDistanceEquation(l.distance)}
         </div>
       </div>
     </section>
@@ -827,6 +881,8 @@ function renderPage(l) {
       </div>
 
       <div class="site-footer__utility">
+        <p>${l.footer.utilityLabel}</p>
+        ${renderThemeSwitcher(l)}
         <a data-language-switch href="${l.alternateHref}" hreflang="${l.lang === "ru" ? "en" : "ru"}">${l.footer.languageCta}${icons.external}</a>
         <a href="#top">${l.footer.top}${icons.up}</a>
       </div>
@@ -838,7 +894,10 @@ function renderPage(l) {
 
     <div class="site-footer__legal">
       <p>${l.footer.legal}</p>
-      <p>11111.life</p>
+      <div class="site-footer__credits">
+        <p>11111.life</p>
+        <a href="${shared.designHref}" target="_blank" rel="noopener noreferrer">${l.footer.designCredit}${icons.external}</a>
+      </div>
     </div>
   </footer>
 </body>
@@ -858,15 +917,15 @@ for (const locale of Object.values(locales)) {
 await writeFile(resolve(outputRoot, ".nojekyll"), "", "utf8");
 await writeFile(
   resolve(outputRoot, "robots.txt"),
-  "User-agent: *\nAllow: /\nSitemap: https://anton-gorokhovatsky.github.io/doronin/sitemap.xml\n",
+  "User-agent: *\nAllow: /\nSitemap: https://11111.life/sitemap.xml\n",
   "utf8",
 );
 await writeFile(
   resolve(outputRoot, "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://anton-gorokhovatsky.github.io/doronin/</loc></url>
-  <url><loc>https://anton-gorokhovatsky.github.io/doronin/en/</loc></url>
+  <url><loc>https://11111.life/</loc></url>
+  <url><loc>https://11111.life/en/</loc></url>
 </urlset>
 `,
   "utf8",
