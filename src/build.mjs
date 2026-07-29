@@ -599,7 +599,7 @@ function renderPage(l) {
   <meta property="og:image" content="https://anton-gorokhovatsky.github.io/doronin/assets/hero.jpg">
   <meta property="og:locale" content="${l.lang === "ru" ? "ru_RU" : "en_US"}">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="${l.assetBase}assets/logo.svg" type="image/svg+xml">
+  <link rel="icon" href="${l.assetBase}assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
