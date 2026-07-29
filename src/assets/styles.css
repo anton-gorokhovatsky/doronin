@@ -627,7 +627,7 @@ a {
 .distance-card__number {
   display: inline-flex;
   align-items: baseline;
-  gap: 0.14em;
+  gap: 0.24em;
 }
 
 .distance-card__unit {
