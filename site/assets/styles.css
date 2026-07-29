@@ -30,6 +30,32 @@
   --partner-button-background: var(--ink);
   --partner-button-text: var(--paper);
   --partner-line: var(--ink);
+  --hero-veil:
+    linear-gradient(90deg, rgba(2, 22, 15, 0.98) 0%, rgba(2, 22, 15, 0.78) 43%, rgba(2, 22, 15, 0.14) 76%),
+    linear-gradient(0deg, rgba(2, 22, 15, 0.88) 0%, transparent 36%);
+  --hero-veil-mobile:
+    linear-gradient(0deg, rgba(2, 22, 15, 0.98) 0%, rgba(2, 22, 15, 0.7) 58%, rgba(2, 22, 15, 0.3) 100%),
+    linear-gradient(90deg, rgba(2, 22, 15, 0.65), transparent);
+  --hero-media-grade: none;
+  --editorial-art: linear-gradient(transparent, transparent);
+  --proof-art: linear-gradient(transparent, transparent);
+  --partners-art: linear-gradient(transparent, transparent);
+  --athlete-art: linear-gradient(transparent, transparent);
+  --distance-total-art: linear-gradient(transparent, transparent);
+  --footer-art: linear-gradient(transparent, transparent);
+  --media-grade: none;
+  --media-glow: none;
+  --label-trail-background: currentColor;
+  --label-trail-shadow: none;
+  --label-index-shadow: none;
+  --distance-active-color: var(--text-editorial);
+  --distance-active-glow: none;
+  --proof-title-color: var(--text-proof);
+  --partners-title-color: var(--text-partners);
+  --manifesto-mark-opacity: 0.065;
+  --proof-mark-color: var(--text-proof);
+  --proof-mark-opacity: 0.065;
+  --footer-mark-filter: none;
   --line-light: rgba(241, 245, 237, 0.22);
   --line-dark: rgba(4, 31, 21, 0.2);
   --display: "Micra", "Arial Black", sans-serif;
@@ -313,13 +339,12 @@ a {
   height: 100%;
   object-fit: cover;
   object-position: 60% 50%;
+  filter: var(--hero-media-grade);
 }
 
 .hero__veil {
   z-index: -1;
-  background:
-    linear-gradient(90deg, rgba(2, 22, 15, 0.98) 0%, rgba(2, 22, 15, 0.78) 43%, rgba(2, 22, 15, 0.14) 76%),
-    linear-gradient(0deg, rgba(2, 22, 15, 0.88) 0%, transparent 36%);
+  background: var(--hero-veil);
 }
 
 .hero__media-toggle {
@@ -641,7 +666,9 @@ a {
 
 .section--light {
   color-scheme: var(--editorial-color-scheme);
-  background: var(--surface-editorial);
+  background:
+    var(--editorial-art),
+    var(--surface-editorial);
   color: var(--text-editorial);
 }
 
@@ -745,6 +772,7 @@ a {
   height: 2.1rem;
   border: 1px solid currentColor;
   border-radius: 50%;
+  box-shadow: var(--label-index-shadow);
 }
 
 .section-label p {
@@ -754,7 +782,8 @@ a {
 .section-label::after {
   width: clamp(2.5rem, 7vw, 7.5rem);
   height: 0.28rem;
-  background: currentColor;
+  background: var(--label-trail-background);
+  box-shadow: var(--label-trail-shadow);
   clip-path: polygon(0.35rem 0, 100% 0, calc(100% - 0.35rem) 100%, 0 100%);
   content: "";
   opacity: 0.58;
@@ -809,7 +838,7 @@ a {
 
 .manifesto__mark {
   color: var(--acid);
-  opacity: 0.065;
+  opacity: var(--manifesto-mark-opacity);
 }
 
 .section-heading {
@@ -961,6 +990,11 @@ a {
   color: var(--ink);
 }
 
+.distance-card.is-active .distance-card__value {
+  color: var(--distance-active-color);
+  text-shadow: var(--distance-active-glow);
+}
+
 .distance-card__value {
   display: inline-flex;
   align-items: baseline;
@@ -1015,9 +1049,11 @@ a {
 
 .distance-total {
   display: grid;
-  gap: clamp(2.5rem, 5vw, 5rem);
+  gap: clamp(1.75rem, 3vw, 3rem);
   padding: clamp(2rem, 4vw, 4.5rem);
-  background: var(--ink);
+  background:
+    var(--distance-total-art),
+    var(--ink);
   color: var(--paper);
 }
 
@@ -1032,8 +1068,10 @@ a {
 
 .distance-total__equation {
   display: grid;
-  gap: clamp(1.75rem, 3.5vw, 3.5rem);
+  grid-template-columns: minmax(25rem, 0.9fr) minmax(0, 1.1fr);
   min-width: 0;
+  border-top: 1px solid var(--line-light);
+  border-bottom: 1px solid var(--line-light);
   font-family: var(--display);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
@@ -1042,54 +1080,88 @@ a {
 
 .distance-total__terms {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: baseline;
-  gap: clamp(0.75rem, 2.5vw, 2.5rem);
 }
 
 .distance-total__term {
   display: grid;
-  gap: 0.65rem;
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(0.75rem, 1.4vw, 1.25rem);
+  min-width: 0;
+  min-height: clamp(4.75rem, 6vw, 6.25rem);
+  padding-right: clamp(1rem, 2vw, 2rem);
+  border-bottom: 1px solid var(--line-light);
+}
+
+.distance-total__term:last-child {
+  border-bottom: 0;
+}
+
+.distance-total__index {
+  color: var(--paper-dim);
+  font-family: var(--sans);
+  font-size: var(--type-kicker);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.distance-total__term-copy {
+  display: block;
   min-width: 0;
 }
 
 .distance-total__term strong {
   color: var(--paper);
-  font-size: clamp(1.75rem, calc(0.75rem + 2.6vw), 4.25rem);
+  font-size: clamp(1.5rem, calc(0.8rem + 1.55vw), 3rem);
   font-weight: 700;
+  white-space: nowrap;
 }
 
-.distance-total__term small {
+.distance-total__term strong small {
+  margin-left: 0.24em;
   color: var(--paper-dim);
   font-family: var(--sans);
-  font-size: var(--type-kicker);
+  font-size: 0.28em;
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
+.distance-total__term em {
+  display: block;
+  margin-top: 0.45rem;
+  color: var(--paper-dim);
+  font-family: var(--sans);
+  font-size: var(--type-kicker);
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
 .distance-total__operator {
   color: var(--orange);
+  font-size: clamp(1.25rem, calc(0.85rem + 0.8vw), 2rem);
 }
 
 .distance-total__result {
   display: flex;
   align-items: baseline;
+  align-content: center;
+  justify-content: center;
   gap: 0.18em;
-  padding-top: clamp(1.5rem, 2.5vw, 2.5rem);
-  border-top: 1px solid var(--line-light);
+  min-width: 0;
+  padding: clamp(2rem, 4vw, 4.5rem);
+  border-left: 1px solid var(--line-light);
   color: var(--paper);
-  font-size: clamp(4.2rem, calc(1.2rem + 8vw), 11rem);
+  font-size: clamp(4.5rem, calc(1.6rem + 6.5vw), 9.5rem);
   white-space: nowrap;
-}
-
-.distance-total__result .distance-total__operator {
-  margin-right: 0.05em;
-  font-size: 0.38em;
 }
 
 .distance-total__result small {
   font-size: 0.14em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -1098,7 +1170,9 @@ a {
   grid-template-columns: minmax(20rem, 0.82fr) minmax(0, 1.18fr);
   gap: clamp(3rem, 7vw, 8rem);
   align-items: start;
-  background: var(--ink-deep);
+  background:
+    var(--athlete-art),
+    var(--ink-deep);
 }
 
 .athlete__media {
@@ -1161,16 +1235,16 @@ a {
 
 .achievement-grid {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: clamp(2.5rem, 5vw, 4.5rem);
   border-top: 1px solid var(--line-light);
+  border-left: 1px solid var(--line-light);
 }
 
 .achievement {
-  display: grid;
-  grid-template-columns: minmax(9rem, 0.62fr) minmax(0, 1fr);
-  align-items: baseline;
-  gap: clamp(1.5rem, 3vw, 3rem);
-  padding: clamp(1.15rem, 2vw, 1.65rem) 0;
+  min-height: clamp(9rem, 12vw, 12rem);
+  padding: clamp(1.15rem, 2vw, 1.75rem);
+  border-right: 1px solid var(--line-light);
   border-bottom: 1px solid var(--line-light);
 }
 
@@ -1182,15 +1256,16 @@ a {
 .achievement strong {
   color: var(--acid);
   font-family: var(--display);
-  font-size: clamp(1.65rem, calc(0.8rem + 1.8vw), 3.2rem);
+  font-size: clamp(1.55rem, calc(0.75rem + 1.55vw), 3rem);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .achievement span {
   max-width: 22ch;
-  margin: 0;
+  margin-top: 0.85rem;
   color: var(--paper-dim);
   font-size: 0.82rem;
 }
@@ -1268,13 +1343,15 @@ a {
   gap: clamp(3rem, 9vw, 10rem);
   min-height: 58rem;
   overflow: hidden;
-  background: var(--surface-proof);
+  background:
+    var(--proof-art),
+    var(--surface-proof);
   color: var(--text-proof);
 }
 
 .proof__mark {
-  color: var(--text-proof);
-  opacity: 0.065;
+  color: var(--proof-mark-color);
+  opacity: var(--proof-mark-opacity);
 }
 
 .proof__heading,
@@ -1290,6 +1367,7 @@ a {
 .proof h2 {
   max-width: 13ch;
   margin: 2rem 0 0;
+  color: var(--proof-title-color);
   font-family: var(--display);
   font-size: var(--type-proof-title);
   letter-spacing: 0;
@@ -1388,6 +1466,22 @@ a {
   transition-timing-function: var(--ease-enter);
 }
 
+.distance-story__visual,
+.athlete__media,
+.story-frame__media,
+.adventure-card__media {
+  box-shadow: var(--media-glow);
+}
+
+.distance-story__frame img,
+.distance-story__frame video,
+.distance-card__media img,
+.athlete__media img,
+.story-frame img,
+.adventure-card__media img {
+  filter: var(--media-grade);
+}
+
 .adventure-card__copy {
   display: flex;
   flex-direction: column;
@@ -1427,13 +1521,16 @@ a {
   display: grid;
   grid-template-columns: minmax(0, 1.3fr) minmax(20rem, 0.7fr);
   gap: clamp(3rem, 9vw, 10rem);
-  background: var(--surface-partners);
+  background:
+    var(--partners-art),
+    var(--surface-partners);
   color: var(--text-partners);
 }
 
 .partners h2 {
   max-width: 11ch;
   margin: 2rem 0 0;
+  color: var(--partners-title-color);
   font-family: var(--display);
   font-size: var(--type-partners-title);
   letter-spacing: 0;
@@ -1522,7 +1619,9 @@ a {
   min-height: 52rem;
   padding: clamp(4.5rem, 8vw, 8rem) var(--page-gutter) 1.5rem;
   overflow: hidden;
-  background: var(--ink-deep);
+  background:
+    var(--footer-art),
+    var(--ink-deep);
   color: var(--paper-dim);
 }
 
@@ -1707,6 +1806,7 @@ a {
   display: block;
   width: 100%;
   height: auto;
+  filter: var(--footer-mark-filter);
 }
 
 .site-footer__legal {
@@ -1953,9 +2053,7 @@ a {
   }
 
   .hero__veil {
-    background:
-      linear-gradient(0deg, rgba(2, 22, 15, 0.98) 0%, rgba(2, 22, 15, 0.7) 58%, rgba(2, 22, 15, 0.3) 100%),
-      linear-gradient(90deg, rgba(2, 22, 15, 0.65), transparent);
+    background: var(--hero-veil-mobile);
   }
 
   .hero__content {
@@ -2093,24 +2191,31 @@ a {
     opacity: 0.5;
   }
 
-  .distance-total__terms {
-    gap: 0.45rem;
+  .distance-total__equation {
+    grid-template-columns: 1fr;
   }
 
   .distance-total__term {
-    gap: 0.45rem;
+    grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+    gap: 0.6rem;
+    min-height: 4.5rem;
+    padding-right: 0;
   }
 
   .distance-total__term strong {
-    font-size: clamp(1rem, calc(0.35rem + 3.4vw), 1.45rem);
+    font-size: clamp(1.15rem, calc(0.4rem + 3.8vw), 1.55rem);
   }
 
-  .distance-total__term small {
-    font-size: 0.52rem;
+  .distance-total__term em {
+    font-size: 0.55rem;
   }
 
   .distance-total__result {
-    font-size: clamp(2.15rem, calc(0.4rem + 9.5vw), 3.6rem);
+    justify-content: flex-start;
+    padding: 1.75rem 0 0;
+    border-top: 1px solid var(--line-light);
+    border-left: 0;
+    font-size: clamp(2.8rem, 13vw, 4.8rem);
   }
 
   .distance {
@@ -2149,8 +2254,7 @@ a {
   }
 
   .achievement {
-    grid-template-columns: 1fr;
-    gap: 0.55rem;
+    min-height: 8rem;
   }
 
   .proof {
@@ -2282,19 +2386,65 @@ a {
   color-scheme: dark;
   --editorial-color-scheme: dark;
   --line-dark: rgba(241, 245, 237, 0.22);
-  --surface-editorial: #0a241b;
+  --surface-editorial: #040c0d;
   --text-editorial: var(--paper);
-  --text-editorial-muted: rgba(217, 226, 217, 0.72);
-  --text-editorial-strong-muted: rgba(217, 226, 217, 0.78);
-  --text-editorial-faint: rgba(217, 226, 217, 0.56);
-  --surface-proof: #552218;
+  --text-editorial-muted: rgba(217, 226, 217, 0.74);
+  --text-editorial-strong-muted: rgba(217, 226, 217, 0.82);
+  --text-editorial-faint: rgba(217, 226, 217, 0.58);
+  --surface-proof: #20080f;
   --text-proof: var(--paper);
-  --text-proof-muted: rgba(241, 245, 237, 0.7);
-  --surface-partners: #173820;
+  --text-proof-muted: rgba(241, 245, 237, 0.76);
+  --surface-partners: #0b1408;
   --text-partners: var(--paper);
   --partner-button-background: var(--acid);
   --partner-button-text: var(--ink);
   --partner-line: var(--paper);
+  --hero-veil:
+    radial-gradient(ellipse 38% 42% at 72% 48%, rgba(255, 91, 61, 0.18), transparent 72%),
+    radial-gradient(ellipse 28% 26% at 42% 84%, rgba(223, 255, 56, 0.08), transparent 72%),
+    linear-gradient(92deg, rgba(1, 5, 7, 0.99) 0%, rgba(2, 9, 11, 0.76) 48%, rgba(2, 7, 9, 0.2) 80%),
+    linear-gradient(0deg, rgba(1, 5, 7, 0.96) 0%, transparent 46%);
+  --hero-veil-mobile:
+    radial-gradient(ellipse 78% 42% at 72% 28%, rgba(255, 91, 61, 0.2), transparent 72%),
+    linear-gradient(0deg, rgba(1, 5, 7, 0.99) 0%, rgba(2, 9, 11, 0.78) 62%, rgba(2, 7, 9, 0.34) 100%);
+  --hero-media-grade: brightness(0.74) contrast(1.18) saturate(0.72);
+  --editorial-art:
+    radial-gradient(ellipse 48% 28% at 88% 5%, rgba(223, 255, 56, 0.11), transparent 72%),
+    radial-gradient(ellipse 46% 34% at 4% 92%, rgba(255, 91, 61, 0.12), transparent 72%),
+    linear-gradient(122deg, rgba(5, 18, 23, 0.98), rgba(2, 9, 9, 0.98) 52%, rgba(5, 17, 11, 0.98));
+  --proof-art:
+    radial-gradient(ellipse 58% 46% at 10% 8%, rgba(255, 91, 61, 0.24), transparent 72%),
+    radial-gradient(ellipse 30% 28% at 92% 88%, rgba(223, 255, 56, 0.07), transparent 74%),
+    linear-gradient(116deg, #15060b, #2b0a13 58%, #120b09);
+  --partners-art:
+    radial-gradient(ellipse 56% 48% at 8% 10%, rgba(223, 255, 56, 0.16), transparent 72%),
+    radial-gradient(ellipse 36% 34% at 94% 88%, rgba(255, 91, 61, 0.12), transparent 74%),
+    linear-gradient(120deg, #071007, #0d1809 55%, #08100d);
+  --athlete-art:
+    radial-gradient(ellipse 50% 38% at 90% 14%, rgba(255, 91, 61, 0.12), transparent 74%),
+    linear-gradient(128deg, #010607, #03130e 64%, #08100b);
+  --distance-total-art:
+    radial-gradient(ellipse 48% 48% at 96% 0%, rgba(223, 255, 56, 0.11), transparent 72%),
+    linear-gradient(120deg, #020809, #041a12);
+  --footer-art:
+    radial-gradient(ellipse 54% 44% at 78% 92%, rgba(223, 255, 56, 0.11), transparent 74%),
+    radial-gradient(ellipse 36% 28% at 6% 8%, rgba(255, 91, 61, 0.09), transparent 72%),
+    linear-gradient(135deg, #010607, #02160f 58%, #07110c);
+  --media-grade: brightness(0.84) contrast(1.16) saturate(0.78);
+  --media-glow:
+    0 1.5rem 4rem rgba(0, 0, 0, 0.28),
+    0 0 3.5rem rgba(255, 91, 61, 0.08);
+  --label-trail-background: linear-gradient(90deg, var(--acid), transparent);
+  --label-trail-shadow: 0 0 1.2rem rgba(223, 255, 56, 0.22);
+  --label-index-shadow: 0 0 1.4rem rgba(223, 255, 56, 0.1);
+  --distance-active-color: var(--acid);
+  --distance-active-glow: 0 0 2.8rem rgba(223, 255, 56, 0.22);
+  --proof-title-color: var(--orange);
+  --partners-title-color: var(--acid);
+  --manifesto-mark-opacity: 0.12;
+  --proof-mark-color: var(--orange);
+  --proof-mark-opacity: 0.12;
+  --footer-mark-filter: drop-shadow(0 0 3rem rgba(223, 255, 56, 0.12));
 }
 
 @media (prefers-color-scheme: dark) {
@@ -2302,19 +2452,65 @@ a {
     color-scheme: dark;
     --editorial-color-scheme: dark;
     --line-dark: rgba(241, 245, 237, 0.22);
-    --surface-editorial: #0a241b;
+    --surface-editorial: #040c0d;
     --text-editorial: var(--paper);
-    --text-editorial-muted: rgba(217, 226, 217, 0.72);
-    --text-editorial-strong-muted: rgba(217, 226, 217, 0.78);
-    --text-editorial-faint: rgba(217, 226, 217, 0.56);
-    --surface-proof: #552218;
+    --text-editorial-muted: rgba(217, 226, 217, 0.74);
+    --text-editorial-strong-muted: rgba(217, 226, 217, 0.82);
+    --text-editorial-faint: rgba(217, 226, 217, 0.58);
+    --surface-proof: #20080f;
     --text-proof: var(--paper);
-    --text-proof-muted: rgba(241, 245, 237, 0.7);
-    --surface-partners: #173820;
+    --text-proof-muted: rgba(241, 245, 237, 0.76);
+    --surface-partners: #0b1408;
     --text-partners: var(--paper);
     --partner-button-background: var(--acid);
     --partner-button-text: var(--ink);
     --partner-line: var(--paper);
+    --hero-veil:
+      radial-gradient(ellipse 38% 42% at 72% 48%, rgba(255, 91, 61, 0.18), transparent 72%),
+      radial-gradient(ellipse 28% 26% at 42% 84%, rgba(223, 255, 56, 0.08), transparent 72%),
+      linear-gradient(92deg, rgba(1, 5, 7, 0.99) 0%, rgba(2, 9, 11, 0.76) 48%, rgba(2, 7, 9, 0.2) 80%),
+      linear-gradient(0deg, rgba(1, 5, 7, 0.96) 0%, transparent 46%);
+    --hero-veil-mobile:
+      radial-gradient(ellipse 78% 42% at 72% 28%, rgba(255, 91, 61, 0.2), transparent 72%),
+      linear-gradient(0deg, rgba(1, 5, 7, 0.99) 0%, rgba(2, 9, 11, 0.78) 62%, rgba(2, 7, 9, 0.34) 100%);
+    --hero-media-grade: brightness(0.74) contrast(1.18) saturate(0.72);
+    --editorial-art:
+      radial-gradient(ellipse 48% 28% at 88% 5%, rgba(223, 255, 56, 0.11), transparent 72%),
+      radial-gradient(ellipse 46% 34% at 4% 92%, rgba(255, 91, 61, 0.12), transparent 72%),
+      linear-gradient(122deg, rgba(5, 18, 23, 0.98), rgba(2, 9, 9, 0.98) 52%, rgba(5, 17, 11, 0.98));
+    --proof-art:
+      radial-gradient(ellipse 58% 46% at 10% 8%, rgba(255, 91, 61, 0.24), transparent 72%),
+      radial-gradient(ellipse 30% 28% at 92% 88%, rgba(223, 255, 56, 0.07), transparent 74%),
+      linear-gradient(116deg, #15060b, #2b0a13 58%, #120b09);
+    --partners-art:
+      radial-gradient(ellipse 56% 48% at 8% 10%, rgba(223, 255, 56, 0.16), transparent 72%),
+      radial-gradient(ellipse 36% 34% at 94% 88%, rgba(255, 91, 61, 0.12), transparent 74%),
+      linear-gradient(120deg, #071007, #0d1809 55%, #08100d);
+    --athlete-art:
+      radial-gradient(ellipse 50% 38% at 90% 14%, rgba(255, 91, 61, 0.12), transparent 74%),
+      linear-gradient(128deg, #010607, #03130e 64%, #08100b);
+    --distance-total-art:
+      radial-gradient(ellipse 48% 48% at 96% 0%, rgba(223, 255, 56, 0.11), transparent 72%),
+      linear-gradient(120deg, #020809, #041a12);
+    --footer-art:
+      radial-gradient(ellipse 54% 44% at 78% 92%, rgba(223, 255, 56, 0.11), transparent 74%),
+      radial-gradient(ellipse 36% 28% at 6% 8%, rgba(255, 91, 61, 0.09), transparent 72%),
+      linear-gradient(135deg, #010607, #02160f 58%, #07110c);
+    --media-grade: brightness(0.84) contrast(1.16) saturate(0.78);
+    --media-glow:
+      0 1.5rem 4rem rgba(0, 0, 0, 0.28),
+      0 0 3.5rem rgba(255, 91, 61, 0.08);
+    --label-trail-background: linear-gradient(90deg, var(--acid), transparent);
+    --label-trail-shadow: 0 0 1.2rem rgba(223, 255, 56, 0.22);
+    --label-index-shadow: 0 0 1.4rem rgba(223, 255, 56, 0.1);
+    --distance-active-color: var(--acid);
+    --distance-active-glow: 0 0 2.8rem rgba(223, 255, 56, 0.22);
+    --proof-title-color: var(--orange);
+    --partners-title-color: var(--acid);
+    --manifesto-mark-opacity: 0.12;
+    --proof-mark-color: var(--orange);
+    --proof-mark-opacity: 0.12;
+    --footer-mark-filter: drop-shadow(0 0 3rem rgba(223, 255, 56, 0.12));
   }
 }
 

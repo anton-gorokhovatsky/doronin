@@ -557,10 +557,13 @@ function renderDistanceEquation(distance) {
   const terms = distance.items
     .map(
       (item, index) =>
-        `${index ? '<span class="distance-total__operator">+</span>' : ""}
-        <span class="distance-total__term">
-          <strong>${item.value}</strong>
-          <small>${item.label}</small>
+        `<span class="distance-total__term">
+          <span class="distance-total__index">${item.index}</span>
+          <span class="distance-total__term-copy">
+            <strong>${item.value}<small>${item.unit}</small></strong>
+            <em>${item.label}</em>
+          </span>
+          <span class="distance-total__operator">${index === distance.items.length - 1 ? "=" : "+"}</span>
         </span>`,
     )
     .join("");
@@ -569,7 +572,6 @@ function renderDistanceEquation(distance) {
     <div class="distance-total__equation" role="img" aria-label="${distance.totalFormulaLabel}">
       <div class="distance-total__terms" aria-hidden="true">${terms}</div>
       <div class="distance-total__result" aria-hidden="true">
-        <span class="distance-total__operator">=</span>
         <span>${distance.totalValue}</span>
         <small>${distance.totalUnit}</small>
       </div>
@@ -701,7 +703,7 @@ function renderPage(l) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#f1f5ed" media="(prefers-color-scheme: light)" data-theme-color="light">
-  <meta name="theme-color" content="#02160f" media="(prefers-color-scheme: dark)" data-theme-color="dark">
+  <meta name="theme-color" content="#040c0d" media="(prefers-color-scheme: dark)" data-theme-color="dark">
   <title>${l.title}</title>
   <meta name="description" content="${l.description}">
   <link rel="canonical" href="${l.canonical}">
