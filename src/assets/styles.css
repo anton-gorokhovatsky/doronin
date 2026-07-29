@@ -529,6 +529,22 @@ a {
   font-size: var(--type-copy-large);
 }
 
+.project-mark {
+  position: absolute;
+  aspect-ratio: 512 / 231;
+  background: currentColor;
+  -webkit-mask: url("./logo.svg") center / contain no-repeat;
+  mask: url("./logo.svg") center / contain no-repeat;
+  pointer-events: none;
+}
+
+.manifesto__mark {
+  right: -3vw;
+  bottom: -14vw;
+  width: min(88vw, 94rem);
+  color: rgba(223, 255, 56, 0.09);
+}
+
 .section-heading {
   display: grid;
   grid-template-columns: minmax(12rem, 1fr) minmax(0, 2.2fr);
@@ -828,15 +844,10 @@ a {
 }
 
 .proof__mark {
-  position: absolute;
   top: clamp(1rem, 2vw, 2.5rem);
-  right: -0.1em;
+  right: -2vw;
+  width: min(96vw, 110rem);
   color: rgba(4, 31, 21, 0.08);
-  font-family: var(--display);
-  font-size: var(--type-mark);
-  font-weight: 700;
-  letter-spacing: -0.08em;
-  line-height: 1;
 }
 
 .proof__heading,

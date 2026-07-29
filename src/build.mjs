@@ -679,6 +679,7 @@ function renderPage(l) {
         <h2 id="manifesto-title">${l.manifesto.title}</h2>
         <p>${l.manifesto.text}</p>
       </div>
+      <div class="project-mark manifesto__mark" aria-hidden="true"></div>
     </section>
 
     <section class="distance section section--light" id="distance" aria-labelledby="distance-title">
@@ -721,7 +722,7 @@ function renderPage(l) {
     </section>
 
     <section class="proof section" id="proof" aria-labelledby="proof-title">
-      <div class="proof__mark" aria-hidden="true">1111</div>
+      <div class="project-mark proof__mark" aria-hidden="true"></div>
       <div class="proof__heading">
         <div class="section-label">
           <span>04</span>
