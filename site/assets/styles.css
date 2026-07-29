@@ -645,6 +645,88 @@ a {
   color: var(--text-editorial);
 }
 
+.velocity-cut {
+  --velocity-from: var(--surface-editorial);
+  --velocity-to: var(--surface-proof);
+  --velocity-image: url("./distance-bike.jpg");
+  position: relative;
+  height: clamp(4.5rem, 7.5vw, 8.5rem);
+  overflow: hidden;
+  background: linear-gradient(
+    to bottom,
+    var(--velocity-from) 0%,
+    var(--velocity-from) 8%,
+    var(--velocity-to) 92%,
+    var(--velocity-to) 100%
+  );
+  isolation: isolate;
+}
+
+.velocity-cut::before {
+  position: absolute;
+  inset: -30% -16%;
+  background: var(--velocity-image) 50% 50% / cover no-repeat;
+  content: "";
+  filter: blur(clamp(0.45rem, 0.8vw, 0.85rem)) saturate(0.84) contrast(1.08);
+  opacity: 0.64;
+  transform: scaleX(1.28) scaleY(1.12);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 20%,
+    #000 80%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 20%,
+    #000 80%,
+    transparent
+  );
+}
+
+.velocity-cut::after {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to bottom,
+      var(--velocity-from) 0%,
+      transparent 34%,
+      transparent 66%,
+      var(--velocity-to) 100%
+    ),
+    linear-gradient(
+        to right,
+        transparent 4%,
+        var(--velocity-to) 34%,
+        transparent 82%
+      )
+      0 35% / 100% 0.32rem no-repeat,
+    linear-gradient(
+        to right,
+        transparent 18%,
+        var(--velocity-from) 62%,
+        transparent 96%
+      )
+      0 68% / 100% 0.18rem no-repeat;
+  content: "";
+  filter: blur(0.14rem);
+  opacity: 0.88;
+}
+
+.velocity-cut--out-of-proof {
+  --velocity-from: var(--surface-proof);
+  --velocity-to: var(--surface-editorial);
+  --velocity-image: url("./story-running.jpg");
+}
+
+.velocity-cut--into-partners {
+  --velocity-to: var(--surface-partners);
+  --velocity-image: url("./story-cycling.jpg");
+}
+
 .section-label {
   display: flex;
   align-items: center;
@@ -1999,6 +2081,16 @@ a {
     gap: 2rem;
     margin: 0 -1rem;
     padding: 2rem 1rem 2.5rem;
+  }
+
+  .velocity-cut {
+    height: 4.25rem;
+  }
+
+  .velocity-cut::before {
+    inset: -42% -28%;
+    filter: blur(0.6rem) saturate(0.82);
+    opacity: 0.5;
   }
 
   .distance-total__terms {

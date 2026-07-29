@@ -895,6 +895,8 @@ function renderPage(l) {
       ${renderStory(l.story.items, l)}
     </section>
 
+    <div class="velocity-cut velocity-cut--into-proof" aria-hidden="true"></div>
+
     <section class="proof section" id="proof" aria-labelledby="proof-title">
       <div class="project-mark proof__mark" aria-hidden="true"></div>
       <div class="proof__heading">
@@ -914,6 +916,8 @@ function renderPage(l) {
       </div>
     </section>
 
+    <div class="velocity-cut velocity-cut--out-of-proof" aria-hidden="true"></div>
+
     <section class="adventures section section--light" id="adventures" aria-labelledby="adventures-title">
       <div class="section-heading section-heading--compact">
         <div class="section-label section-label--dark">
@@ -926,6 +930,8 @@ function renderPage(l) {
         ${renderAdventures(l.adventures.items, l)}
       </div>
     </section>
+
+    <div class="velocity-cut velocity-cut--into-partners" aria-hidden="true"></div>
 
     <section class="partners section" id="partners" aria-labelledby="partners-title">
       <div class="partners__copy">
