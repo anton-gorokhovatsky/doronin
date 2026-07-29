@@ -201,6 +201,7 @@ a {
 }
 
 .site-header {
+  --header-progress: 0.025;
   position: fixed;
   z-index: 20;
   inset: 0 0 auto;
@@ -214,6 +215,19 @@ a {
   background: rgba(2, 22, 15, 0.72);
   -webkit-backdrop-filter: blur(18px) saturate(1.2);
   backdrop-filter: blur(18px) saturate(1.2);
+}
+
+.site-header::after {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: var(--acid);
+  box-shadow: 0 0 1.25rem rgba(223, 255, 56, 0.28);
+  content: "";
+  transform: scaleX(var(--header-progress));
+  transform-origin: left;
 }
 
 .site-logo {
@@ -284,7 +298,8 @@ a {
 }
 
 .site-nav__link:hover::after,
-.site-nav__link:focus-visible::after {
+.site-nav__link:focus-visible::after,
+.site-nav__link[aria-current="location"]::after {
   transform: scaleX(1);
   transform-origin: left;
   transition-timing-function: var(--ease-enter);
@@ -324,6 +339,120 @@ a {
 .header-cta:hover {
   background: var(--acid);
   color: var(--ink);
+}
+
+@media (min-width: 961px) {
+  .site-header {
+    min-height: 6rem;
+    gap: clamp(0.75rem, 1.6vw, 2rem);
+    padding-block: 0.8rem;
+    background:
+      linear-gradient(90deg, rgba(2, 22, 15, 0.96), rgba(2, 22, 15, 0.76)),
+      rgba(2, 22, 15, 0.78);
+    box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.12);
+  }
+
+  .nav-shell {
+    width: 100%;
+  }
+
+  .site-nav {
+    justify-content: center;
+    gap: 0;
+  }
+
+  .site-nav__primary {
+    display: flex;
+    counter-reset: header-navigation;
+    border-left: 1px solid var(--line-light);
+  }
+
+  .site-nav__link {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 3.4rem;
+    padding: 0 clamp(0.75rem, 1.15vw, 1.35rem);
+    overflow: hidden;
+    border-right: 1px solid var(--line-light);
+    counter-increment: header-navigation;
+    transition:
+      color 160ms var(--ease-move),
+      background-color 160ms var(--ease-move);
+  }
+
+  .site-nav__link::before {
+    color: rgba(217, 226, 217, 0.5);
+    content: "0" counter(header-navigation);
+    font-family: var(--body);
+    font-size: 0.52rem;
+    letter-spacing: 0.04em;
+    transform: translateY(-0.04em);
+    transition: color 160ms var(--ease-move);
+  }
+
+  .site-nav__link::after {
+    right: 0.8rem;
+    bottom: 0.48rem;
+    left: 0.8rem;
+    height: 0.18rem;
+    background: var(--acid);
+  }
+
+  .site-nav__link:hover,
+  .site-nav__link:focus-visible,
+  .site-nav__link[aria-current="location"] {
+    background: rgba(223, 255, 56, 0.06);
+    color: var(--acid);
+  }
+
+  .site-nav__link:hover::before,
+  .site-nav__link:focus-visible::before,
+  .site-nav__link[aria-current="location"]::before {
+    color: var(--acid);
+  }
+
+  .header-actions {
+    gap: 0.55rem;
+  }
+
+  .language-switch {
+    width: 3.4rem;
+    height: 3.4rem;
+    background: rgba(2, 22, 15, 0.34);
+  }
+
+  .header-cta {
+    display: flex;
+    align-items: center;
+    min-height: 3.4rem;
+    padding: 0.75rem 1.35rem 0.75rem 1.65rem;
+    border: 0;
+    background: var(--acid);
+    clip-path: polygon(0.65rem 0, 100% 0, 100% 100%, 0 100%, 0 0.65rem);
+    color: var(--ink);
+  }
+
+  .header-cta:hover,
+  .header-cta:focus-visible {
+    background: var(--orange);
+  }
+}
+
+@media (min-width: 961px) and (max-width: 1180px) {
+  .site-nav__link {
+    gap: 0;
+    padding-inline: clamp(0.62rem, 1.05vw, 0.8rem);
+    font-size: 0.7rem;
+  }
+
+  .site-nav__link::before {
+    display: none;
+  }
+
+  .header-cta {
+    padding-inline: 1.15rem;
+  }
 }
 
 .hero {
@@ -1107,8 +1236,10 @@ a {
 .distance-total__term {
   position: relative;
   display: grid;
-  grid-template-columns: 2rem minmax(0, 1fr);
+  grid-template-columns: max-content max-content;
+  align-content: center;
   align-items: baseline;
+  justify-content: center;
   gap: clamp(0.75rem, 1.2vw, 1.1rem);
   min-width: 0;
   min-height: clamp(7rem, 9vw, 9.5rem);
@@ -1175,6 +1306,8 @@ a {
 
 .distance-total__term-copy {
   display: block;
+  width: max-content;
+  max-width: 100%;
   min-width: 0;
 }
 
@@ -1183,6 +1316,7 @@ a {
   color: var(--paper);
   font-size: clamp(1.5rem, calc(0.8rem + 1.55vw), 3rem);
   font-weight: 700;
+  transform: translateX(-0.11em);
   transition:
     color 420ms var(--ease-move),
     text-shadow 620ms var(--ease-move);
@@ -2398,6 +2532,7 @@ a {
 
   .distance-total__term {
     grid-template-columns: 1.5rem minmax(0, 1fr);
+    justify-content: stretch;
     gap: 0.6rem;
     min-height: 4.5rem;
     padding: 1rem 0;
@@ -2411,6 +2546,10 @@ a {
 
   .distance-total__term strong {
     font-size: clamp(1.15rem, calc(0.4rem + 3.8vw), 1.55rem);
+  }
+
+  .distance-total__term-copy {
+    width: auto;
   }
 
   .distance-total__term em {

@@ -410,3 +410,57 @@ for (const languageSwitch of document.querySelectorAll("[data-language-switch]")
     languageSwitch.href = target.href;
   });
 }
+
+const siteHeader = document.querySelector(".site-header");
+const headerNavigationLinks = [
+  ...document.querySelectorAll(".site-nav__primary .site-nav__link"),
+];
+const headerNavigationTargets = headerNavigationLinks
+  .map((link) => {
+    const target = document.querySelector(link.hash);
+    return target ? { link, target } : null;
+  })
+  .filter(Boolean);
+
+if (siteHeader && headerNavigationTargets.length) {
+  let headerNavigationFrame = 0;
+
+  function syncHeaderNavigation() {
+    headerNavigationFrame = 0;
+
+    const scrollRange =
+      document.documentElement.scrollHeight - window.innerHeight;
+    const progress =
+      scrollRange > 0 ? Math.max(0.025, window.scrollY / scrollRange) : 0.025;
+    const readingLine = window.scrollY + window.innerHeight * 0.38;
+    let activeItem = headerNavigationTargets[0];
+
+    for (const item of headerNavigationTargets) {
+      if (item.target.offsetTop <= readingLine) {
+        activeItem = item;
+      }
+    }
+
+    siteHeader.style.setProperty("--header-progress", String(progress));
+
+    for (const item of headerNavigationTargets) {
+      if (item === activeItem) {
+        item.link.setAttribute("aria-current", "location");
+      } else {
+        item.link.removeAttribute("aria-current");
+      }
+    }
+  }
+
+  function requestHeaderNavigationSync() {
+    if (!headerNavigationFrame) {
+      headerNavigationFrame = requestAnimationFrame(syncHeaderNavigation);
+    }
+  }
+
+  syncHeaderNavigation();
+  window.addEventListener("scroll", requestHeaderNavigationSync, {
+    passive: true,
+  });
+  window.addEventListener("resize", requestHeaderNavigationSync);
+}
