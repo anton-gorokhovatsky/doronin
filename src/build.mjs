@@ -45,6 +45,8 @@ const locales = {
       accent: "ОДИН ШАНС",
       intro: "Первый в мире 31-дневный ультратриатлон.",
       imageAlt: "Виктор Доронин на велосипеде во время скоростного заезда",
+      videoPlay: "Включить видео",
+      videoPause: "Пауза",
       primaryCta: "Как это устроено",
       secondaryCta: "Войти в историю",
       statusFallback: "Старт 1 декабря 2026",
@@ -70,12 +72,14 @@ const locales = {
       totalValue: "11 111",
       totalUnit: "км",
       totalFormulaLabel: "100 плюс 10 010 плюс 1 001 равно 11 111 километров",
+      mediaKicker: "Дубай · архив проекта «1111»",
       items: [
         {
           index: "01",
           value: "100",
           unit: "км",
           label: "плавание",
+          image: "distance-swim.jpg",
           details: [
             "2 000 бассейнов по 50 метров",
             "три переправы через Ла-Манш",
@@ -87,6 +91,7 @@ const locales = {
           value: "10 010",
           unit: "км",
           label: "велосипед",
+          image: "distance-bike.jpg",
           details: [
             "почти поперёк России: Москва — Владивосток",
             "четверть экватора Земли",
@@ -98,6 +103,7 @@ const locales = {
           value: "1 001",
           unit: "км",
           label: "бег",
+          image: "distance-run.jpg",
           details: [
             "24 полных марафона подряд",
             "Москва — Санкт-Петербург и ещё 300 км",
@@ -253,6 +259,8 @@ const locales = {
       accent: "ONE CHANCE",
       intro: "The world’s first 31-day ultra-triathlon.",
       imageAlt: "Viktor Doronin riding at speed during a cycling event",
+      videoPlay: "Play video",
+      videoPause: "Pause",
       primaryCta: "See the challenge",
       secondaryCta: "Become part of it",
       statusFallback: "Starts December 1, 2026",
@@ -278,12 +286,14 @@ const locales = {
       totalValue: "11,111",
       totalUnit: "km",
       totalFormulaLabel: "100 plus 10,010 plus 1,001 equals 11,111 kilometres",
+      mediaKicker: "Dubai · Project “1111” archive",
       items: [
         {
           index: "01",
           value: "100",
           unit: "km",
           label: "swimming",
+          image: "distance-swim.jpg",
           details: [
             "2,000 lengths of a 50-metre pool",
             "the equivalent of three English Channel crossings",
@@ -295,6 +305,7 @@ const locales = {
           value: "10,010",
           unit: "km",
           label: "cycling",
+          image: "distance-bike.jpg",
           details: [
             "almost across Russia: Moscow to Vladivostok",
             "one quarter of Earth’s equator",
@@ -306,6 +317,7 @@ const locales = {
           value: "1,001",
           unit: "km",
           label: "running",
+          image: "distance-run.jpg",
           details: [
             "24 full marathons in succession",
             "Moscow to Saint Petersburg, plus another 300 km",
@@ -482,11 +494,14 @@ function renderDistanceValue(value, unit, className) {
     </p>`;
 }
 
-function renderDistance(items) {
+function renderDistance(items, l) {
   return items
     .map(
-      (item) => `
-        <article class="distance-card">
+      (item, index) => `
+        <article class="distance-card${index === 0 ? " is-active" : ""}" data-distance-card="${index}">
+          <figure class="distance-card__media" aria-hidden="true">
+            <img src="${l.assetBase}assets/${item.image}" alt="" loading="lazy" width="1600" height="900">
+          </figure>
           <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">${item.index}</span>
             <h3>${item.label}</h3>
@@ -496,6 +511,25 @@ function renderDistance(items) {
             ${item.details.map((detail) => `<li>${detail}</li>`).join("")}
           </ul>
         </article>`,
+    )
+    .join("");
+}
+
+function renderDistanceMedia(items, l) {
+  return items
+    .map(
+      (item, index) => `
+        <figure
+          class="distance-story__frame${index === 0 ? " is-active" : ""}"
+          data-distance-frame="${index}"
+          aria-hidden="true"
+        >
+          <img src="${l.assetBase}assets/${item.image}" alt="" loading="lazy" width="1600" height="900">
+          <figcaption>
+            <span>${l.distance.mediaKicker}</span>
+            <strong>${item.index} · ${item.label}</strong>
+          </figcaption>
+        </figure>`,
     )
     .join("");
 }
@@ -698,9 +732,32 @@ function renderPage(l) {
   <main id="main">
     <section class="hero" id="top" aria-labelledby="hero-title">
       <figure class="hero__media">
-        <img src="${l.assetBase}assets/hero.jpg" alt="${l.hero.imageAlt}" width="2400" height="1350" fetchpriority="high">
+        <video
+          data-hero-video
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          poster="${l.assetBase}assets/hero.jpg"
+          aria-hidden="true"
+        >
+          <source src="${l.assetBase}assets/hero-loop-mobile.mp4" type="video/mp4" media="(max-width: 640px)">
+          <source src="${l.assetBase}assets/hero-loop.mp4" type="video/mp4">
+        </video>
       </figure>
       <div class="hero__veil" aria-hidden="true"></div>
+      <button
+        class="hero__media-toggle"
+        type="button"
+        data-video-toggle
+        data-play-label="${l.hero.videoPlay}"
+        data-pause-label="${l.hero.videoPause}"
+        aria-label="${l.hero.videoPlay}"
+        aria-pressed="false"
+      >
+        <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
+        <span data-video-toggle-label>${l.hero.videoPlay}</span>
+      </button>
 
       <div class="hero__content">
         <p class="hero__kicker"><time datetime="${shared.startDate}">${l.hero.kicker}</time></p>
@@ -768,12 +825,17 @@ function renderPage(l) {
           <p>${l.distance.intro}</p>
         </div>
       </div>
-      <div class="distance-grid">
-        ${renderDistance(l.distance.items)}
-        <div class="distance-total">
-          <p class="distance-total__label">${l.distance.totalLabel}</p>
-          ${renderDistanceEquation(l.distance)}
+      <div class="distance-story" data-distance-story>
+        <div class="distance-story__visual">
+          ${renderDistanceMedia(l.distance.items, l)}
         </div>
+        <div class="distance-story__chapters">
+          ${renderDistance(l.distance.items, l)}
+        </div>
+      </div>
+      <div class="distance-total">
+        <p class="distance-total__label">${l.distance.totalLabel}</p>
+        ${renderDistanceEquation(l.distance)}
       </div>
     </section>
 

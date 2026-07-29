@@ -59,9 +59,32 @@
   <main id="main">
     <section class="hero" id="top" aria-labelledby="hero-title">
       <figure class="hero__media">
-        <img src="../assets/hero.jpg" alt="Viktor Doronin riding at speed during a cycling event" width="2400" height="1350" fetchpriority="high">
+        <video
+          data-hero-video
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          poster="../assets/hero.jpg"
+          aria-hidden="true"
+        >
+          <source src="../assets/hero-loop-mobile.mp4" type="video/mp4" media="(max-width: 640px)">
+          <source src="../assets/hero-loop.mp4" type="video/mp4">
+        </video>
       </figure>
       <div class="hero__veil" aria-hidden="true"></div>
+      <button
+        class="hero__media-toggle"
+        type="button"
+        data-video-toggle
+        data-play-label="Play video"
+        data-pause-label="Pause"
+        aria-label="Play video"
+        aria-pressed="false"
+      >
+        <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
+        <span data-video-toggle-label>Play video</span>
+      </button>
 
       <div class="hero__content">
         <p class="hero__kicker"><time datetime="2026-12-01">December 1–31, 2026 · Viktor Doronin</time></p>
@@ -132,9 +155,49 @@
           <p>Thirty-one days in succession. These figures are not decoration — each one translates into a scale people can understand.</p>
         </div>
       </div>
-      <div class="distance-grid">
+      <div class="distance-story" data-distance-story>
+        <div class="distance-story__visual">
 
-        <article class="distance-card">
+        <figure
+          class="distance-story__frame is-active"
+          data-distance-frame="0"
+          aria-hidden="true"
+        >
+          <img src="../assets/distance-swim.jpg" alt="" loading="lazy" width="1600" height="900">
+          <figcaption>
+            <span>Dubai · Project “1111” archive</span>
+            <strong>01 · swimming</strong>
+          </figcaption>
+        </figure>
+        <figure
+          class="distance-story__frame"
+          data-distance-frame="1"
+          aria-hidden="true"
+        >
+          <img src="../assets/distance-bike.jpg" alt="" loading="lazy" width="1600" height="900">
+          <figcaption>
+            <span>Dubai · Project “1111” archive</span>
+            <strong>02 · cycling</strong>
+          </figcaption>
+        </figure>
+        <figure
+          class="distance-story__frame"
+          data-distance-frame="2"
+          aria-hidden="true"
+        >
+          <img src="../assets/distance-run.jpg" alt="" loading="lazy" width="1600" height="900">
+          <figcaption>
+            <span>Dubai · Project “1111” archive</span>
+            <strong>03 · running</strong>
+          </figcaption>
+        </figure>
+        </div>
+        <div class="distance-story__chapters">
+
+        <article class="distance-card is-active" data-distance-card="0">
+          <figure class="distance-card__media" aria-hidden="true">
+            <img src="../assets/distance-swim.jpg" alt="" loading="lazy" width="1600" height="900">
+          </figure>
           <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">01</span>
             <h3>swimming</h3>
@@ -149,7 +212,10 @@
             <li>2,000 lengths of a 50-metre pool</li><li>the equivalent of three English Channel crossings</li><li>Moscow to Yaroslavl without a break in the water</li>
           </ul>
         </article>
-        <article class="distance-card">
+        <article class="distance-card" data-distance-card="1">
+          <figure class="distance-card__media" aria-hidden="true">
+            <img src="../assets/distance-bike.jpg" alt="" loading="lazy" width="1600" height="900">
+          </figure>
           <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">02</span>
             <h3>cycling</h3>
@@ -164,7 +230,10 @@
             <li>almost across Russia: Moscow to Vladivostok</li><li>one quarter of Earth’s equator</li><li>Moscow — Paris — Moscow — Paris</li>
           </ul>
         </article>
-        <article class="distance-card">
+        <article class="distance-card" data-distance-card="2">
+          <figure class="distance-card__media" aria-hidden="true">
+            <img src="../assets/distance-run.jpg" alt="" loading="lazy" width="1600" height="900">
+          </figure>
           <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">03</span>
             <h3>running</h3>
@@ -179,8 +248,10 @@
             <li>24 full marathons in succession</li><li>Moscow to Saint Petersburg, plus another 300 km</li><li>10 non-stop laps of the Moscow Ring Road</li>
           </ul>
         </article>
-        <div class="distance-total">
-          <p class="distance-total__label">Total over 31 days</p>
+        </div>
+      </div>
+      <div class="distance-total">
+        <p class="distance-total__label">Total over 31 days</p>
 
     <p class="distance-total__equation" aria-label="100 plus 10,010 plus 1,001 equals 11,111 kilometres">
       <span class="distance-total__terms" aria-hidden="true"><span>100</span><span class="distance-total__operator">+</span><span>10,010</span><span class="distance-total__operator">+</span><span>1,001</span></span>
@@ -190,7 +261,6 @@
         <small>km</small>
       </span>
     </p>
-        </div>
       </div>
     </section>
 

@@ -59,9 +59,32 @@
   <main id="main">
     <section class="hero" id="top" aria-labelledby="hero-title">
       <figure class="hero__media">
-        <img src="./assets/hero.jpg" alt="Виктор Доронин на велосипеде во время скоростного заезда" width="2400" height="1350" fetchpriority="high">
+        <video
+          data-hero-video
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          poster="./assets/hero.jpg"
+          aria-hidden="true"
+        >
+          <source src="./assets/hero-loop-mobile.mp4" type="video/mp4" media="(max-width: 640px)">
+          <source src="./assets/hero-loop.mp4" type="video/mp4">
+        </video>
       </figure>
       <div class="hero__veil" aria-hidden="true"></div>
+      <button
+        class="hero__media-toggle"
+        type="button"
+        data-video-toggle
+        data-play-label="Включить видео"
+        data-pause-label="Пауза"
+        aria-label="Включить видео"
+        aria-pressed="false"
+      >
+        <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
+        <span data-video-toggle-label>Включить видео</span>
+      </button>
 
       <div class="hero__content">
         <p class="hero__kicker"><time datetime="2026-12-01">1–31 декабря 2026 · Виктор Доронин</time></p>
@@ -132,9 +155,49 @@
           <p>31 день подряд. Числа здесь не декор — каждое можно перевести в знакомый человеку масштаб.</p>
         </div>
       </div>
-      <div class="distance-grid">
+      <div class="distance-story" data-distance-story>
+        <div class="distance-story__visual">
 
-        <article class="distance-card">
+        <figure
+          class="distance-story__frame is-active"
+          data-distance-frame="0"
+          aria-hidden="true"
+        >
+          <img src="./assets/distance-swim.jpg" alt="" loading="lazy" width="1600" height="900">
+          <figcaption>
+            <span>Дубай · архив проекта «1111»</span>
+            <strong>01 · плавание</strong>
+          </figcaption>
+        </figure>
+        <figure
+          class="distance-story__frame"
+          data-distance-frame="1"
+          aria-hidden="true"
+        >
+          <img src="./assets/distance-bike.jpg" alt="" loading="lazy" width="1600" height="900">
+          <figcaption>
+            <span>Дубай · архив проекта «1111»</span>
+            <strong>02 · велосипед</strong>
+          </figcaption>
+        </figure>
+        <figure
+          class="distance-story__frame"
+          data-distance-frame="2"
+          aria-hidden="true"
+        >
+          <img src="./assets/distance-run.jpg" alt="" loading="lazy" width="1600" height="900">
+          <figcaption>
+            <span>Дубай · архив проекта «1111»</span>
+            <strong>03 · бег</strong>
+          </figcaption>
+        </figure>
+        </div>
+        <div class="distance-story__chapters">
+
+        <article class="distance-card is-active" data-distance-card="0">
+          <figure class="distance-card__media" aria-hidden="true">
+            <img src="./assets/distance-swim.jpg" alt="" loading="lazy" width="1600" height="900">
+          </figure>
           <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">01</span>
             <h3>плавание</h3>
@@ -149,7 +212,10 @@
             <li>2 000 бассейнов по 50 метров</li><li>три переправы через Ла-Манш</li><li>от Москвы до Ярославля без передышки в воде</li>
           </ul>
         </article>
-        <article class="distance-card">
+        <article class="distance-card" data-distance-card="1">
+          <figure class="distance-card__media" aria-hidden="true">
+            <img src="./assets/distance-bike.jpg" alt="" loading="lazy" width="1600" height="900">
+          </figure>
           <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">02</span>
             <h3>велосипед</h3>
@@ -164,7 +230,10 @@
             <li>почти поперёк России: Москва — Владивосток</li><li>четверть экватора Земли</li><li>Москва — Париж — Москва — Париж</li>
           </ul>
         </article>
-        <article class="distance-card">
+        <article class="distance-card" data-distance-card="2">
+          <figure class="distance-card__media" aria-hidden="true">
+            <img src="./assets/distance-run.jpg" alt="" loading="lazy" width="1600" height="900">
+          </figure>
           <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">03</span>
             <h3>бег</h3>
@@ -179,8 +248,10 @@
             <li>24 полных марафона подряд</li><li>Москва — Санкт-Петербург и ещё 300 км</li><li>10 кругов по МКАД нон-стоп</li>
           </ul>
         </article>
-        <div class="distance-total">
-          <p class="distance-total__label">Итого за 31 день</p>
+        </div>
+      </div>
+      <div class="distance-total">
+        <p class="distance-total__label">Итого за 31 день</p>
 
     <p class="distance-total__equation" aria-label="100 плюс 10 010 плюс 1 001 равно 11 111 километров">
       <span class="distance-total__terms" aria-hidden="true"><span>100</span><span class="distance-total__operator">+</span><span>10 010</span><span class="distance-total__operator">+</span><span>1 001</span></span>
@@ -190,7 +261,6 @@
         <small>км</small>
       </span>
     </p>
-        </div>
       </div>
     </section>
 
