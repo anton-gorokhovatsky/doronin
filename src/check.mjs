@@ -60,6 +60,26 @@ for (const [lang, path] of pages) {
     `${lang}: ожидаются единые SVG-иконки для действий`,
   );
   expect(
+    /<header\b[\s\S]*?class="hero__media-toggle"[\s\S]*?<details class="nav-shell"/u.test(
+      html,
+    ),
+    `${lang}: управление видео и меню должны находиться в одном сервисном слое шапки`,
+  );
+  expect(
+    (html.match(/\bdata-theme-option="/g) || []).length === 9 &&
+      html.includes('class="header-theme"'),
+    `${lang}: тема должна быть доступна в шапке, меню и подвале в трёх явных режимах`,
+  );
+  expect(
+    (html.match(/\bdata-status-day\b/g) || []).length === 31,
+    `${lang}: шкала статуса должна отражать все 31 день проекта`,
+  );
+  expect(
+    (html.match(/class="partner-format"/g) || []).length === 3 &&
+      (html.match(/class="partner-proof__metric"/g) || []).length === 3,
+    `${lang}: партнёрский сценарий должен содержать три формата и три доказательства`,
+  );
+  expect(
     [...html.matchAll(/<a\b[^>]*target="_blank"[^>]*>/g)].every(([link]) =>
       /\brel="noopener noreferrer"/.test(link),
     ),

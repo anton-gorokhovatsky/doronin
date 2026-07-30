@@ -5,6 +5,9 @@ import { resolve } from "node:path";
 const outputRoot = resolve(process.argv[2] || "preview");
 const assetSource = resolve("src/assets");
 const assetOutput = resolve(outputRoot, "assets");
+const projectStatus = JSON.parse(
+  await readFile(resolve("src/project-status.json"), "utf8"),
+);
 const assetVersion = createHash("sha256")
   .update(await readFile(resolve(assetSource, "styles.css")))
   .update(await readFile(resolve(assetSource, "app.js")))
@@ -22,6 +25,17 @@ const shared = {
   startDate: "2026-12-01",
   endDate: "2026-12-31",
 };
+
+const hasVerifiedProjectStatus =
+  typeof projectStatus.updatedAt === "string" &&
+  projectStatus.updatedAt.length > 0 &&
+  Number.isFinite(projectStatus.distanceKm) &&
+  projectStatus.distanceKm >= 0 &&
+  ["ru", "en"].every(
+    (lang) =>
+      typeof projectStatus.discipline?.[lang] === "string" &&
+      projectStatus.discipline[lang].length > 0,
+  );
 
 const locales = {
   ru: {
@@ -63,6 +77,9 @@ const locales = {
       beforeForms: ["день до старта", "дня до старта", "дней до старта"],
       activeLabel: "день из 31",
       finishedLabel: "Плановый период проекта завершён",
+      latestUpdate: "Последнее подтверждённое обновление",
+      statusPending:
+        "Подтверждённые данные появятся после обновления команды",
       footLabel: "Не спортивное событие",
       footText: "История, в которую можно войти",
     },
@@ -212,10 +229,26 @@ const locales = {
       lead: "Давайте создадим это вместе.",
       body:
         "Подберём формат присутствия бренда в большой человеческой истории — без искусственного глянца и случайных интеграций.",
-      benefits: [
-        "Обсудим ваш пакет за 15 минут",
-        "Места в категориях ограничены",
-        "Первым партнёрам — мерч проекта в подарок",
+      formatsLabel: "Направления участия",
+      formats: [
+        [
+          "Экипировка и восстановление",
+          "Продукт становится частью ежедневной дистанции и честно показывается в работе.",
+        ],
+        [
+          "Технологии и измерение",
+          "Данные, связь и контроль помогают сделать 31 день понятными аудитории.",
+        ],
+        [
+          "Медиа и контент",
+          "Совместно рассказываем историю до старта, во время проекта и после финиша.",
+        ],
+      ],
+      proofLabel: "Основание",
+      proof: [
+        ["1,3 млн+", "просмотров сериала"],
+        ["+310%", "рост аудитории"],
+        ["25+", "федеральных СМИ"],
       ],
       cta: "Обсудить партнёрство",
       mailSubject: "Партнёрство с проектом 11 111",
@@ -286,6 +319,8 @@ const locales = {
       beforeForms: ["day to start", "days to start", "days to start"],
       activeLabel: "day of 31",
       finishedLabel: "The scheduled project period has ended",
+      latestUpdate: "Latest verified update",
+      statusPending: "Verified figures will appear after the team’s update",
       footLabel: "Not a sporting event",
       footText: "A story you can become part of",
     },
@@ -435,10 +470,26 @@ const locales = {
       lead: "Let’s build it together.",
       body:
         "We will find a meaningful role for your brand in a major human story — without artificial gloss or token integrations.",
-      benefits: [
-        "We will outline your package in 15 minutes",
-        "Category placements are limited",
-        "Early partners receive project merchandise",
+      formatsLabel: "Ways to participate",
+      formats: [
+        [
+          "Equipment and recovery",
+          "The product becomes part of the daily distance and is shown honestly at work.",
+        ],
+        [
+          "Technology and measurement",
+          "Data, connectivity and monitoring make all 31 days legible to the audience.",
+        ],
+        [
+          "Media and content",
+          "We tell the story together before the start, throughout the project and after the finish.",
+        ],
+      ],
+      proofLabel: "Track record",
+      proof: [
+        ["1.3M+", "documentary series views"],
+        ["+310%", "audience growth"],
+        ["25+", "federal media outlets"],
       ],
       cta: "Discuss a partnership",
       mailSubject: "Partnership with Project 11 111",
@@ -623,6 +674,21 @@ function renderMetrics(items, className) {
     .join("");
 }
 
+function renderPartnerFormats(partners) {
+  return partners.formats
+    .map(
+      ([title, body], index) => `
+        <li class="partner-format">
+          <span>${String(index + 1).padStart(2, "0")}</span>
+          <div>
+            <strong>${title}</strong>
+            <p>${body}</p>
+          </div>
+        </li>`,
+    )
+    .join("");
+}
+
 function renderAdventures(items, l) {
   return items
     .map(
@@ -736,6 +802,14 @@ function typographText(value, lang) {
   return text;
 }
 
+function escapeAttribute(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
 function typographHtml(html, lang) {
   const textNodes = html
     .split(/(<[^>]+>)/g)
@@ -744,7 +818,7 @@ function typographHtml(html, lang) {
 
   return textNodes
     .replace(
-      /\b(alt|aria-label|content|data-before-one|data-before-few|data-before-many|data-active|data-finished)="([^"]*)"/g,
+      /\b(alt|aria-label|content|data-before-one|data-before-few|data-before-many|data-active|data-finished|data-latest-update|data-status-pending|data-live-discipline|data-live-note)="([^"]*)"/g,
       (attribute, name, value) => `${name}="${typographText(value, lang)}"`,
     )
     .replace(/[ \t]+$/gm, "");
@@ -754,6 +828,19 @@ function renderPage(l) {
   const encodedSubject = encodeURIComponent(l.partners.mailSubject);
   const mailHref = `mailto:${shared.email}?subject=${encodedSubject}`;
   const statusForms = l.hero.beforeForms.map((form) => form.replaceAll('"', "&quot;"));
+  const liveStatus = hasVerifiedProjectStatus
+    ? {
+        updatedAt: projectStatus.updatedAt,
+        distanceKm: String(projectStatus.distanceKm),
+        discipline: escapeAttribute(projectStatus.discipline[l.lang]),
+        note: escapeAttribute(projectStatus.note?.[l.lang] || ""),
+      }
+    : {
+        updatedAt: "",
+        distanceKm: "",
+        discipline: "",
+        note: "",
+      };
 
   return typographHtml(`<!doctype html>
 <html lang="${l.lang}">
@@ -805,10 +892,23 @@ function renderPage(l) {
 <body>
   <a class="skip-link" href="#main">${l.skip}</a>
 
-  <header class="site-header">
+  <header class="site-header is-over-hero">
     <a class="site-logo" href="#top" aria-label="${l.homeLabel}">
       <img src="${l.assetBase}assets/logo.svg" alt="" width="512" height="231">
     </a>
+
+    <button
+      class="hero__media-toggle"
+      type="button"
+      data-video-toggle
+      data-play-label="${l.hero.videoPlay}"
+      data-pause-label="${l.hero.videoPause}"
+      aria-label="${l.hero.videoPlay}"
+      aria-pressed="false"
+    >
+      <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
+      <span data-video-toggle-label>${l.hero.videoPlay}</span>
+    </button>
 
     <details class="nav-shell" open>
       <summary class="menu-toggle" aria-label="${l.menu}">
@@ -837,6 +937,14 @@ function renderPage(l) {
     </details>
 
     <div class="header-actions">
+      <details class="header-theme">
+        <summary aria-label="${l.footer.themeLabel}">
+          <span aria-hidden="true"></span>
+        </summary>
+        <div class="header-theme__panel">
+          ${renderThemeSwitcher(l)}
+        </div>
+      </details>
       <a class="language-switch" data-language-switch href="${l.alternateHref}" hreflang="${l.lang === "ru" ? "en" : "ru"}">${l.alternateLabel}</a>
       <a class="header-cta" href="#partners">${l.headerCta}</a>
     </div>
@@ -859,18 +967,6 @@ function renderPage(l) {
         </video>
       </figure>
       <div class="hero__veil" aria-hidden="true"></div>
-      <button
-        class="hero__media-toggle"
-        type="button"
-        data-video-toggle
-        data-play-label="${l.hero.videoPlay}"
-        data-pause-label="${l.hero.videoPause}"
-        aria-label="${l.hero.videoPlay}"
-        aria-pressed="false"
-      >
-        <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
-        <span data-video-toggle-label>${l.hero.videoPlay}</span>
-      </button>
 
       <div class="hero__content">
         <p class="hero__kicker"><time datetime="${shared.startDate}">${l.hero.kicker}</time></p>
@@ -900,13 +996,26 @@ function renderPage(l) {
         data-before-many="${statusForms[2]}"
         data-active="${l.hero.activeLabel}"
         data-finished="${l.hero.finishedLabel}"
+        data-latest-update="${l.hero.latestUpdate}"
+        data-status-pending="${l.hero.statusPending}"
+        data-live-verified="${String(hasVerifiedProjectStatus)}"
+        data-live-updated="${liveStatus.updatedAt}"
+        data-live-distance="${liveStatus.distanceKm}"
+        data-live-unit="${l.distance.totalUnit}"
+        data-live-discipline="${liveStatus.discipline}"
+        data-live-note="${liveStatus.note}"
       >
         <span class="event-status__meta">${l.hero.statusMeta}</span>
         <span class="event-status__rail" aria-hidden="true">
-          <span></span><span></span><span></span><span></span><span></span>
+          ${Array.from(
+            { length: 31 },
+            (_, index) =>
+              `<span data-status-day="${index + 1}" style="--status-step:${index}"></span>`,
+          ).join("")}
         </span>
         <span class="event-status__value" data-status-value data-optical-start>01.12</span>
         <span class="event-status__label" data-status-label>${l.hero.statusFallback}</span>
+        <span class="event-status__update" data-status-update hidden></span>
       </div>
 
       <div class="hero__foot">
@@ -1042,9 +1151,18 @@ function renderPage(l) {
         <h2 id="partners-title">${l.partners.title}</h2>
         <p class="partners__lead">${l.partners.lead}</p>
         <p class="partners__body">${l.partners.body}</p>
-        <ul class="partner-benefits">
-          ${l.partners.benefits.map((benefit) => `<li>${benefit}</li>`).join("")}
-        </ul>
+        <div class="partner-formats">
+          <p class="partner-formats__label">${l.partners.formatsLabel}</p>
+          <ol class="partner-formats__list">
+            ${renderPartnerFormats(l.partners)}
+          </ol>
+        </div>
+        <div class="partner-proof">
+          <p class="partner-proof__label">${l.partners.proofLabel}</p>
+          <div class="partner-proof__metrics">
+            ${renderMetrics(l.partners.proof, "partner-proof__metric")}
+          </div>
+        </div>
         <a class="button button--dark" href="${mailHref}">${l.partners.cta}${icons.external}</a>
       </div>
       <address class="contacts">

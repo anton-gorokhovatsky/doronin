@@ -78,6 +78,7 @@ for (const element of document.querySelectorAll("[data-optical-start]")) {
 for (const button of document.querySelectorAll("[data-theme-option]")) {
   button.addEventListener("click", () => {
     applyTheme(button.dataset.themeOption);
+    button.closest(".header-theme")?.removeAttribute("open");
   });
 }
 
@@ -484,7 +485,13 @@ if (eventStatus) {
   const now = new Date();
   const value = eventStatus.querySelector("[data-status-value]");
   const label = eventStatus.querySelector("[data-status-label]");
+  const update = eventStatus.querySelector("[data-status-update]");
+  const rail = [
+    ...eventStatus.querySelectorAll("[data-status-day]"),
+  ];
   const day = 86_400_000;
+  let elapsedDays = 0;
+  let showLiveUpdate = false;
 
   if (now < start) {
     const days = Math.max(1, Math.ceil((start - now) / day));
@@ -507,11 +514,50 @@ if (eventStatus) {
     label.textContent = form;
   } else if (now < end) {
     const projectDay = Math.min(31, Math.floor((now - start) / day) + 1);
+    elapsedDays = projectDay;
+    showLiveUpdate = true;
     value.textContent = String(projectDay).padStart(2, "0");
     label.textContent = eventStatus.dataset.active;
   } else {
+    elapsedDays = 31;
+    showLiveUpdate = true;
     value.textContent = "31/31";
     label.textContent = eventStatus.dataset.finished;
+  }
+
+  rail.forEach((segment, index) => {
+    segment.classList.toggle("is-elapsed", index < elapsedDays);
+    segment.classList.toggle(
+      "is-current",
+      elapsedDays > 0 && index === elapsedDays - 1,
+    );
+  });
+
+  if (update && showLiveUpdate) {
+    if (eventStatus.dataset.liveVerified === "true") {
+      const locale = eventStatus.dataset.lang === "ru" ? "ru-RU" : "en-US";
+      const distance = new Intl.NumberFormat(locale, {
+        maximumFractionDigits: 2,
+      }).format(Number(eventStatus.dataset.liveDistance));
+      const updatedAt = new Intl.DateTimeFormat(locale, {
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(new Date(eventStatus.dataset.liveUpdated));
+      const parts = [
+        `${distance}\u00a0${eventStatus.dataset.liveUnit}`,
+        eventStatus.dataset.liveDiscipline,
+        updatedAt,
+        eventStatus.dataset.liveNote,
+      ].filter(Boolean);
+
+      update.textContent = `${eventStatus.dataset.latestUpdate}: ${parts.join(" · ")}`;
+    } else {
+      update.textContent = eventStatus.dataset.statusPending;
+    }
+
+    update.hidden = false;
   }
 
   syncOpticalStart(value);
@@ -560,6 +606,10 @@ document.addEventListener("keydown", (event) => {
       navigation.querySelector("summary")?.focus();
     }
   }
+
+  if (event.key === "Escape") {
+    document.querySelector(".header-theme[open]")?.removeAttribute("open");
+  }
 });
 
 for (const languageSwitch of document.querySelectorAll("[data-language-switch]")) {
@@ -575,6 +625,19 @@ for (const languageSwitch of document.querySelectorAll("[data-language-switch]")
 }
 
 const siteHeader = document.querySelector(".site-header");
+const heroSection = document.querySelector(".hero");
+
+if (siteHeader && heroSection && "IntersectionObserver" in window) {
+  const heroHeaderObserver = new IntersectionObserver(
+    ([entry]) => {
+      siteHeader.classList.toggle("is-over-hero", entry.isIntersecting);
+    },
+    { rootMargin: "0px 0px -84% 0px" },
+  );
+
+  heroHeaderObserver.observe(heroSection);
+}
+
 const headerNavigationLinks = [
   ...document.querySelectorAll(".site-nav__primary .site-nav__link"),
 ];
