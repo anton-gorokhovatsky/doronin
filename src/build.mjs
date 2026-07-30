@@ -1009,7 +1009,7 @@ function renderPage(l) {
           ${Array.from(
             { length: 31 },
             (_, index) =>
-              `<span data-status-day="${index + 1}" style="--status-step:${index}"></span>`,
+              `<span data-status-day="${index + 1}" style="--status-step:${index};--status-heat:${Math.max(8, 80 - index * 6.55).toFixed(2)};--status-rise:${(0.12 + index * 0.006).toFixed(3)}rem"></span>`,
           ).join("")}
         </span>
         <span class="event-status__value" data-status-value data-optical-start>01.12</span>

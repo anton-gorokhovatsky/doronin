@@ -123,6 +123,7 @@ for (const [lang, path] of pages) {
 }
 
 const css = await readFile(resolve(outputRoot, "assets/styles.css"), "utf8");
+const app = await readFile(resolve(outputRoot, "assets/app.js"), "utf8");
 expect(
   css.includes("hanging-punctuation: first allow-end last"),
   "css: отсутствует progressive enhancement для висячей пунктуации",
@@ -134,6 +135,17 @@ expect(
 expect(
   css.includes("text-wrap: balance") && css.includes("text-wrap: pretty"),
   "css: отсутствуют правила балансировки заголовков и абзацев",
+);
+expect(
+  app.includes('statusTimeline = "calendar"') &&
+    app.includes("now.getMonth() + 1"),
+  "js: предстартовая шкала должна показывать текущий календарный месяц",
+);
+expect(
+  css.includes(
+    '.event-status__rail[data-status-timeline="calendar"] span:nth-child(12)',
+  ),
+  "css: декабрь должен завершать календарную шкалу красной зоной",
 );
 
 if (failures.length > 0) {

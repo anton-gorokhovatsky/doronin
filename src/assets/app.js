@@ -493,20 +493,19 @@ if (eventStatus) {
   const day = 86_400_000;
   let visibleSegments = 31;
   let progressSegments = 0;
+  let statusTimeline = "project";
   let showLiveUpdate = false;
 
   if (now < start) {
     const days = Math.max(1, Math.ceil((start - now) / day));
-    const countdownStart = new Date(start);
-    countdownStart.setFullYear(countdownStart.getFullYear() - 1);
-    const elapsedMonths =
-      (now.getFullYear() - countdownStart.getFullYear()) * 12 +
-      now.getMonth() -
-      countdownStart.getMonth();
     visibleSegments = 12;
+    statusTimeline = "calendar";
     progressSegments = Math.max(
       0,
-      Math.min(visibleSegments, elapsedMonths + 1),
+      Math.min(
+        visibleSegments,
+        now.getFullYear() < start.getFullYear() ? 0 : now.getMonth() + 1,
+      ),
     );
     let form = eventStatus.dataset.beforeMany;
 
@@ -542,6 +541,9 @@ if (eventStatus) {
     "--status-segment-count",
     String(visibleSegments),
   );
+  if (railElement) {
+    railElement.dataset.statusTimeline = statusTimeline;
+  }
 
   rail.forEach((segment, index) => {
     segment.hidden = index >= visibleSegments;

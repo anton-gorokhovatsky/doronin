@@ -893,6 +893,30 @@ a {
   box-shadow: 0 0 0 1px var(--acid);
 }
 
+.event-status__rail[data-status-timeline="calendar"] {
+  align-items: end;
+}
+
+.event-status__rail[data-status-timeline="calendar"] span {
+  height: var(--status-rise);
+  background: hsl(var(--status-heat) 100% 60% / 0.22);
+}
+
+.event-status__rail[data-status-timeline="calendar"] span.is-elapsed {
+  background: hsl(var(--status-heat) 100% 60% / 0.72);
+}
+
+.event-status__rail[data-status-timeline="calendar"] span.is-current {
+  height: 0.24rem;
+  background: hsl(var(--status-heat) 100% 60%);
+  box-shadow: 0 0 0.45rem hsl(var(--status-heat) 100% 60% / 0.24);
+}
+
+.event-status__rail[data-status-timeline="calendar"] span:nth-child(12) {
+  background: rgb(255 91 61 / 0.64);
+  box-shadow: 0 0 0.35rem rgb(255 91 61 / 0.12);
+}
+
 .event-status__value {
   color: var(--paper);
   font-family: var(--display);
