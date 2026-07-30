@@ -4008,6 +4008,23 @@ a {
     text-align: left;
   }
 
+  .story__credit {
+    display: grid;
+    justify-content: start;
+    justify-items: start;
+    gap: 0.35rem;
+    padding-top: 0.5rem;
+    line-height: 1.45;
+  }
+
+  .story__credit a {
+    white-space: nowrap;
+  }
+
+  .story__credit .icon {
+    flex: 0 0 auto;
+  }
+
   .hero__actions {
     display: grid;
   }
