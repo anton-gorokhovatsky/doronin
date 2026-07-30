@@ -38,12 +38,12 @@
     data-light-href="./assets/favicon-light.svg"
     data-dark-href="./assets/favicon-dark.svg"
   >
-  <script src="./assets/theme-init.js?v=4ef4e31a94"></script>
+  <script src="./assets/theme-init.js?v=338da72d1e"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./assets/styles.css?v=4ef4e31a94">
-  <script src="./assets/app.js?v=4ef4e31a94" defer></script>
+  <link rel="stylesheet" href="./assets/styles.css?v=338da72d1e">
+  <script src="./assets/app.js?v=338da72d1e" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти к содержанию</a>
@@ -52,19 +52,6 @@
     <a class="site-logo" href="#top" aria-label="11 111 — на главную">
       <img src="./assets/logo.svg" alt="" width="512" height="231">
     </a>
-
-    <button
-      class="hero__media-toggle"
-      type="button"
-      data-video-toggle
-      data-play-label="Включить видео"
-      data-pause-label="Пауза"
-      aria-label="Включить видео"
-      aria-pressed="false"
-    >
-      <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
-      <span data-video-toggle-label>Включить видео</span>
-    </button>
 
     <details class="nav-shell" open>
       <summary class="menu-toggle" aria-label="Меню">
@@ -148,6 +135,18 @@
         </video>
       </figure>
       <div class="hero__veil" aria-hidden="true"></div>
+      <button
+        class="hero__media-toggle"
+        type="button"
+        data-video-toggle
+        data-play-label="Включить видео"
+        data-pause-label="Пауза"
+        aria-label="Включить видео"
+        aria-pressed="false"
+      >
+        <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
+        <span class="sr-only" data-video-toggle-label>Включить видео</span>
+      </button>
 
       <div class="hero__content">
         <p class="hero__kicker"><time datetime="2026-12-01">1–31 декабря 2026 · Виктор Доронин</time></p>

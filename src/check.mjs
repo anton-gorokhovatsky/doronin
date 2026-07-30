@@ -60,10 +60,13 @@ for (const [lang, path] of pages) {
     `${lang}: ожидаются единые SVG-иконки для действий`,
   );
   expect(
-    /<header\b[\s\S]*?class="hero__media-toggle"[\s\S]*?<details class="nav-shell"/u.test(
+    /<header\b[\s\S]*?<details class="nav-shell"[\s\S]*?<\/header>[\s\S]*?<section class="hero"[\s\S]*?class="hero__media-toggle"/u.test(
       html,
-    ),
-    `${lang}: управление видео и меню должны находиться в одном сервисном слое шапки`,
+    ) &&
+      !/<header\b[\s\S]*?class="hero__media-toggle"[\s\S]*?<\/header>/u.test(
+        html,
+      ),
+    `${lang}: меню относится к шапке, а управление видео — к кадру первого экрана`,
   );
   expect(
     (html.match(/\bdata-theme-option="/g) || []).length === 9 &&

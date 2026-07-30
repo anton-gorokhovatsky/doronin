@@ -486,22 +486,28 @@ if (eventStatus) {
   const value = eventStatus.querySelector("[data-status-value]");
   const label = eventStatus.querySelector("[data-status-label]");
   const update = eventStatus.querySelector("[data-status-update]");
+  const railElement = eventStatus.querySelector(".event-status__rail");
   const rail = [
     ...eventStatus.querySelectorAll("[data-status-day]"),
   ];
   const day = 86_400_000;
-  let elapsedDays = 0;
+  let visibleSegments = 31;
+  let progressSegments = 0;
   let showLiveUpdate = false;
 
   if (now < start) {
     const days = Math.max(1, Math.ceil((start - now) / day));
     const countdownStart = new Date(start);
     countdownStart.setFullYear(countdownStart.getFullYear() - 1);
-    const countdownProgress = Math.max(
+    const elapsedMonths =
+      (now.getFullYear() - countdownStart.getFullYear()) * 12 +
+      now.getMonth() -
+      countdownStart.getMonth();
+    visibleSegments = 12;
+    progressSegments = Math.max(
       0,
-      Math.min(1, (now - countdownStart) / (start - countdownStart)),
+      Math.min(visibleSegments, elapsedMonths + 1),
     );
-    elapsedDays = Math.floor(countdownProgress * rail.length);
     let form = eventStatus.dataset.beforeMany;
 
     if (eventStatus.dataset.lang === "ru") {
@@ -521,22 +527,28 @@ if (eventStatus) {
     label.textContent = form;
   } else if (now < end) {
     const projectDay = Math.min(31, Math.floor((now - start) / day) + 1);
-    elapsedDays = projectDay;
+    progressSegments = projectDay;
     showLiveUpdate = true;
     value.textContent = String(projectDay).padStart(2, "0");
     label.textContent = eventStatus.dataset.active;
   } else {
-    elapsedDays = 31;
+    progressSegments = 31;
     showLiveUpdate = true;
     value.textContent = "31/31";
     label.textContent = eventStatus.dataset.finished;
   }
 
+  railElement?.style.setProperty(
+    "--status-segment-count",
+    String(visibleSegments),
+  );
+
   rail.forEach((segment, index) => {
-    segment.classList.toggle("is-elapsed", index < elapsedDays);
+    segment.hidden = index >= visibleSegments;
+    segment.classList.toggle("is-elapsed", index < progressSegments);
     segment.classList.toggle(
       "is-current",
-      elapsedDays > 0 && index === elapsedDays - 1,
+      progressSegments > 0 && index === progressSegments - 1,
     );
   });
 

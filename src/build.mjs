@@ -897,19 +897,6 @@ function renderPage(l) {
       <img src="${l.assetBase}assets/logo.svg" alt="" width="512" height="231">
     </a>
 
-    <button
-      class="hero__media-toggle"
-      type="button"
-      data-video-toggle
-      data-play-label="${l.hero.videoPlay}"
-      data-pause-label="${l.hero.videoPause}"
-      aria-label="${l.hero.videoPlay}"
-      aria-pressed="false"
-    >
-      <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
-      <span data-video-toggle-label>${l.hero.videoPlay}</span>
-    </button>
-
     <details class="nav-shell" open>
       <summary class="menu-toggle" aria-label="${l.menu}">
         <span class="menu-toggle__label">${l.menu}</span>
@@ -967,6 +954,18 @@ function renderPage(l) {
         </video>
       </figure>
       <div class="hero__veil" aria-hidden="true"></div>
+      <button
+        class="hero__media-toggle"
+        type="button"
+        data-video-toggle
+        data-play-label="${l.hero.videoPlay}"
+        data-pause-label="${l.hero.videoPause}"
+        aria-label="${l.hero.videoPlay}"
+        aria-pressed="false"
+      >
+        <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
+        <span class="sr-only" data-video-toggle-label>${l.hero.videoPlay}</span>
+      </button>
 
       <div class="hero__content">
         <p class="hero__kicker"><time datetime="${shared.startDate}">${l.hero.kicker}</time></p>
