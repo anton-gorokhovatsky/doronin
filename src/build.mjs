@@ -190,7 +190,7 @@ const locales = {
       body:
         "Аудитория готова к длинным форматам. Честность работает лучше глянца. История продолжает жить после финиша.",
       metrics: [
-        ["1,3 млн+", "просмотров сериала"],
+        ["1,3+ млн", "просмотров сериала"],
         ["85 000+", "просмотров фильма"],
         ["+310%", "рост аудитории героя"],
         ["25+", "федеральных СМИ"],
@@ -232,21 +232,21 @@ const locales = {
       formatsLabel: "Направления участия",
       formats: [
         [
-          "Экипировка и восстановление",
+          "Экипировка",
           "Продукт становится частью ежедневной дистанции и честно показывается в работе.",
         ],
         [
-          "Технологии и измерение",
+          "Технологии",
           "Данные, связь и контроль помогают сделать 31 день понятными аудитории.",
         ],
         [
-          "Медиа и контент",
+          "Медиа",
           "Совместно рассказываем историю до старта, во время проекта и после финиша.",
         ],
       ],
       proofLabel: "Основание",
       proof: [
-        ["1,3 млн+", "просмотров сериала"],
+        ["1,3+ млн", "просмотров сериала"],
         ["+310%", "рост аудитории"],
         ["25+", "федеральных СМИ"],
       ],
@@ -473,15 +473,15 @@ const locales = {
       formatsLabel: "Ways to participate",
       formats: [
         [
-          "Equipment and recovery",
+          "Equipment",
           "The product becomes part of the daily distance and is shown honestly at work.",
         ],
         [
-          "Technology and measurement",
+          "Technology",
           "Data, connectivity and monitoring make all 31 days legible to the audience.",
         ],
         [
-          "Media and content",
+          "Media",
           "We tell the story together before the start, throughout the project and after the finish.",
         ],
       ],
@@ -768,7 +768,7 @@ const shortWords = {
 };
 
 const units = {
-  ru: /(бассейнов|года|день|дня|дней|декабря|категориях|км|кругов|лет|марафона|метров|минут|м|переправы|просмотров|СМИ|часа|часов)/giu,
+  ru: /(бассейнов|года|день|дня|дней|декабря|категориях|км|кругов|лет|марафона|метров|минут|млн|м|переправы|просмотров|СМИ|часа|часов)/giu,
   en: /(categories|crossings|days?|hours?|km|laps|lengths|marathons|metres?|minutes|outlets|views|years?)/giu,
 };
 
@@ -885,11 +885,24 @@ function renderPage(l) {
   <script src="${l.assetBase}assets/theme-init.js?v=${assetVersion}"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="${l.assetBase}assets/styles.css?v=${assetVersion}">
   <script src="${l.assetBase}assets/app.js?v=${assetVersion}" defer></script>
+  <!-- Yandex.Metrika counter -->
+  <script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+      m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+      m[i].l=1*new Date();
+      for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=111159425', 'ym');
+
+    ym(111159425, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+  </script>
+  <!-- /Yandex.Metrika counter -->
 </head>
 <body>
+  <noscript><div><img src="https://mc.yandex.ru/watch/111159425" style="position:absolute; left:-9999px;" alt=""></div></noscript>
   <a class="skip-link" href="#main">${l.skip}</a>
 
   <header class="site-header is-over-hero">
@@ -1142,14 +1155,18 @@ function renderPage(l) {
     <div class="velocity-cut velocity-cut--into-partners" aria-hidden="true"></div>
 
     <section class="partners section" id="partners" aria-labelledby="partners-title">
-      <div class="partners__copy">
+      <div class="partners__intro">
         <div class="section-label section-label--dark">
           <span>06</span>
           <p>${l.partners.eyebrow}</p>
         </div>
         <h2 id="partners-title">${l.partners.title}</h2>
-        <p class="partners__lead">${l.partners.lead}</p>
-        <p class="partners__body">${l.partners.body}</p>
+        <div class="partners__pitch">
+          <p class="partners__lead">${l.partners.lead}</p>
+          <p class="partners__body">${l.partners.body}</p>
+        </div>
+      </div>
+      <div class="partners__offer">
         <div class="partner-formats">
           <p class="partner-formats__label">${l.partners.formatsLabel}</p>
           <ol class="partner-formats__list">
@@ -1162,14 +1179,16 @@ function renderPage(l) {
             ${renderMetrics(l.partners.proof, "partner-proof__metric")}
           </div>
         </div>
-        <a class="button button--dark" href="${mailHref}">${l.partners.cta}${icons.external}</a>
       </div>
-      <address class="contacts">
-        <p class="contacts__label">${l.partners.contacts}</p>
-        <strong>${l.partners.person}</strong>
-        <a href="mailto:${shared.email}" aria-label="${l.partners.emailLabel}">${l.partners.emailCta}${icons.external}</a>
-        <a href="${shared.telegramHref}" aria-label="${l.partners.telegramLabel}" target="_blank" rel="noopener noreferrer">${l.partners.telegramCta}${icons.external}</a>
-      </address>
+      <div class="partners__actions">
+        <a class="button button--dark" href="${mailHref}">${l.partners.cta}${icons.external}</a>
+        <address class="contacts">
+          <p class="contacts__label">${l.partners.contacts}</p>
+          <strong>${l.partners.person}</strong>
+          <a href="mailto:${shared.email}" aria-label="${l.partners.emailLabel}">${l.partners.emailCta}${icons.external}</a>
+          <a href="${shared.telegramHref}" aria-label="${l.partners.telegramLabel}" target="_blank" rel="noopener noreferrer">${l.partners.telegramCta}${icons.external}</a>
+        </address>
+      </div>
     </section>
   </main>
 

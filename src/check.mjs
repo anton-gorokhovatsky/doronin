@@ -83,6 +83,14 @@ for (const [lang, path] of pages) {
     `${lang}: партнёрский сценарий должен содержать три формата и три доказательства`,
   );
   expect(
+    html.includes('class="partners__intro"') &&
+      html.includes('class="partners__offer"') &&
+      html.includes('class="partners__actions"') &&
+      html.indexOf('class="partner-formats"') <
+        html.indexOf('class="partners__actions"'),
+    `${lang}: партнёрский экран должен собираться из вводной, матрицы и общего блока действий`,
+  );
+  expect(
     [...html.matchAll(/<a\b[^>]*target="_blank"[^>]*>/g)].every(([link]) =>
       /\brel="noopener noreferrer"/.test(link),
     ),
@@ -106,6 +114,16 @@ for (const [lang, path] of pages) {
       visibleText.includes("11 111 км"),
       "ru: масштаб проекта должен иметь типографские разделители",
     );
+    expect(
+      visibleText.includes("1,3+ млн") && !visibleText.includes("1,3 млн+"),
+      "ru: знак плюса относится к числу, а млн остаётся единицей",
+    );
+    expect(
+      visibleText.includes("Экипировка") &&
+        visibleText.includes("Технологии") &&
+        visibleText.includes("Медиа"),
+      "ru: названия партнёрских направлений должны оставаться короткими",
+    );
   } else {
     expect(
       !textFragments.some((fragment) =>
@@ -119,7 +137,26 @@ for (const [lang, path] of pages) {
       visibleText.includes("December 1, 2026"),
       "en: полная дата должна быть неразрывной",
     );
+    expect(
+      visibleText.includes("Equipment") &&
+        visibleText.includes("Technology") &&
+        visibleText.includes("Media"),
+      "en: названия партнёрских направлений должны оставаться короткими",
+    );
   }
+
+  expect(
+    html.includes("family=Commissioner") && !html.includes("family=Manrope"),
+    `${lang}: основной шрифт должен загружаться как Commissioner`,
+  );
+  expect(
+    html.includes("https://mc.yandex.ru/metrika/tag.js?id=111159425") &&
+      html.includes("ym(111159425, 'init'") &&
+      html.includes("https://mc.yandex.ru/watch/111159425") &&
+      html.split("https://mc.yandex.ru/metrika/tag.js?id=111159425").length ===
+        2,
+    `${lang}: счётчик Яндекс Метрики 111159425 должен присутствовать один раз`,
+  );
 }
 
 const css = await readFile(resolve(outputRoot, "assets/styles.css"), "utf8");
@@ -146,6 +183,29 @@ expect(
     '.event-status__rail[data-status-timeline="calendar"] span:nth-child(12)',
   ),
   "css: декабрь должен завершать календарную шкалу красной зоной",
+);
+expect(
+  css.includes(".button:hover .icon--down") &&
+    css.includes(".button:hover .icon--external") &&
+    !css.includes(".button:hover .icon {"),
+  "css: направление hover-анимации должно зависеть от смысла SVG-иконки",
+);
+expect(
+  css.includes(".contacts a:hover") &&
+    css.includes(".site-footer__utility a:hover"),
+  "css: текстовые действия должны иметь единое hover-состояние",
+);
+expect(
+  css.includes(".site-footer__cta:hover") &&
+    css.includes("background: var(--paper)") &&
+    css.includes("min-height: 4.25rem"),
+  "css: финальный партнёрский CTA должен быть цельной кнопкой, а не служебной строкой",
+);
+expect(
+  css.includes('--body: "Commissioner"') &&
+    css.includes("--sans: var(--body)") &&
+    !css.includes('--body: "Manrope"'),
+  "css: основной и нейтральный текстовые слои должны использовать Commissioner",
 );
 
 if (failures.length > 0) {
