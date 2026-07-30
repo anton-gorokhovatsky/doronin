@@ -83,12 +83,25 @@ for (const [lang, path] of pages) {
     `${lang}: партнёрский сценарий должен содержать три формата и три доказательства`,
   );
   expect(
+    html.includes('id="interviews"') &&
+      (html.match(/class="interview-card(?:\s|")/g) || []).length === 8,
+    `${lang}: редакционная глава интервью должна содержать все восемь выпусков`,
+  );
+  expect(
     html.includes('class="partners__intro"') &&
+      html.includes('class="partners__pitch"') &&
       html.includes('class="partners__offer"') &&
-      html.includes('class="partners__actions"') &&
+      html.includes('class="partners__closing"') &&
+      html.includes('class="partners__cta"') &&
+      html.includes("data-partner-countdown") &&
       html.indexOf('class="partner-formats"') <
-        html.indexOf('class="partners__actions"'),
-    `${lang}: партнёрский экран должен собираться из вводной, матрицы и общего блока действий`,
+        html.indexOf('class="partners__closing"'),
+    `${lang}: партнёрский экран должен собираться из вводной, редакционной матрицы и общего финального блока`,
+  );
+  expect(
+    html.includes('class="site-footer__after-credits"') &&
+      html.includes("data-footer-countdown"),
+    `${lang}: в подвале должна быть послетитровая реплика`,
   );
   expect(
     [...html.matchAll(/<a\b[^>]*target="_blank"[^>]*>/g)].every(([link]) =>
@@ -124,6 +137,11 @@ for (const [lang, path] of pages) {
         visibleText.includes("Медиа"),
       "ru: названия партнёрских направлений должны оставаться короткими",
     );
+    expect(
+      visibleText.includes("Дневник подготовки") &&
+        !visibleText.includes("Дневник подготовки Виктора"),
+      "ru: послетитровая ссылка не должна повторять имя героя",
+    );
   } else {
     expect(
       !textFragments.some((fragment) =>
@@ -142,6 +160,11 @@ for (const [lang, path] of pages) {
         visibleText.includes("Technology") &&
         visibleText.includes("Media"),
       "en: названия партнёрских направлений должны оставаться короткими",
+    );
+    expect(
+      visibleText.includes("Training diary") &&
+        !visibleText.includes("Viktor’s training diary"),
+      "en: послетитровая ссылка не должна повторять имя героя",
     );
   }
 
@@ -197,9 +220,9 @@ expect(
 );
 expect(
   css.includes(".site-footer__cta:hover") &&
-    css.includes("background: var(--paper)") &&
-    css.includes("min-height: 4.25rem"),
-  "css: финальный партнёрский CTA должен быть цельной кнопкой, а не служебной строкой",
+    css.includes(".partners__channels a:hover") &&
+    css.includes(".interview-card:hover h3"),
+  "css: партнёрские и редакционные действия должны иметь ясное интерактивное состояние",
 );
 expect(
   css.includes('--body: "Commissioner"') &&

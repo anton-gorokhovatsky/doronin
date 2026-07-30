@@ -18,6 +18,8 @@ const assetVersion = createHash("sha256")
 const shared = {
   email: "anesterova88@gmail.com",
   telegramHref: "https://t.me/alraunean",
+  viktorTelegramHref: "https://t.me/doroninvdele",
+  viktorInstagramHref: "https://www.instagram.com/victordoronin/",
   filmHref: "https://vk.com/video-224465212_456239107",
   dustyDumbbellsHref: "https://dustydumbbells.com/",
   gastrodinamikaHref: "https://www.instagram.com/gstrdnmc/",
@@ -223,12 +225,69 @@ const locales = {
         },
       ],
     },
+    interviews: {
+      eyebrow: "Интервью",
+      title: "Своими словами",
+      intro:
+        "Разговоры о триатлоне, беге, сообществах и больших дистанциях.",
+      watch: "Смотреть интервью",
+      items: [
+        {
+          title: "Проект «1111»: 58 часов без сна",
+          source: "SPORTFERMA",
+          image: "interview-01.jpg",
+          href: "https://youtu.be/4H2fddBQ6VQ",
+        },
+        {
+          title: "252 км по Сахаре",
+          source: "Спорт-Марафон",
+          image: "interview-02.jpg",
+          href: "https://youtu.be/YKywKAqJF4I",
+        },
+        {
+          title: "Гастродинамика: триатлон со вкусом",
+          source: "Siberman",
+          image: "interview-03.jpg",
+          href: "https://youtu.be/FyYYLrvR-Hc",
+        },
+        {
+          title: "Как трижды попасть на Кону",
+          source: "Бег Вреден live",
+          image: "interview-04.jpg",
+          href: "https://youtu.be/Iggevbibf8w",
+        },
+        {
+          title: "Dusty Диалоги",
+          source: "Пыльные гантели",
+          image: "interview-05.jpg",
+          href: "https://youtu.be/FuHM9yD1fa4",
+        },
+        {
+          title: "Пыльные гантели: как устроено сообщество",
+          source: "SPORTFERMA",
+          image: "interview-06.jpg",
+          href: "https://youtu.be/xrOSk5OpYCA",
+        },
+        {
+          title: "Зачем бегуну плавать и ездить на велосипеде",
+          source: "RUN FAQ",
+          image: "interview-07.jpg",
+          href: "https://youtu.be/-tTE9Wk-kIo",
+        },
+        {
+          title: "Полезные виды спорта для бегуна",
+          source: "RUN FAQ",
+          image: "interview-08.jpg",
+          href: "https://youtu.be/c4Q4KwM5oVQ",
+        },
+      ],
+    },
     partners: {
       eyebrow: "Партнёрам",
-      title: "Хочешь войти в историю?",
-      lead: "Давайте создадим это вместе.",
+      title: "Стань частью большого приключения",
+      lead: "Не интеграция.<br>Общий путь.",
       body:
-        "Подберём формат присутствия бренда в большой человеческой истории — без искусственного глянца и случайных интеграций.",
+        "11 111 км начинаются задолго до первого километра. Мы приглашаем тех, кто хочет не наблюдать со стороны, а пройти эту историю вместе с Виктором — до старта, все 31 день и после финиша.",
       formatsLabel: "Направления участия",
       formats: [
         [
@@ -244,15 +303,15 @@ const locales = {
           "Совместно рассказываем историю до старта, во время проекта и после финиша.",
         ],
       ],
-      proofLabel: "Основание",
+      proofLabel: "Опыт, который уже работает",
       proof: [
         ["1,3+ млн", "просмотров сериала"],
         ["+310%", "рост аудитории"],
         ["25+", "федеральных СМИ"],
       ],
-      cta: "Обсудить партнёрство",
+      cta: "Обсудить участие",
       mailSubject: "Партнёрство с проектом 11 111",
-      contacts: "Контакты",
+      contacts: "Контакт",
       emailLabel: "Написать Анне Нестеровой",
       telegramLabel: "Написать Анне Нестеровой в Telegram",
       emailCta: "Написать по почте",
@@ -261,8 +320,11 @@ const locales = {
     },
     footer: {
       kicker: "11 111 км · 31 день · Виктор Доронин",
-      titleLineOne: "История начинается",
-      titleLineTwo: "1 декабря<br>2026",
+      titleLineOne: "История начинается через",
+      titleActive: "История идёт",
+      titleFinished: "История продолжается",
+      titleLineTwo: "скоро",
+      afterCredits: "Дневник подготовки",
       navLabel: "Навигация",
       contactLabel: "Связаться",
       utilityLabel: "Сайт",
@@ -273,7 +335,7 @@ const locales = {
       themeDark: "Тёмная",
       emailCta: "Написать по почте",
       telegramCta: "Написать в Telegram",
-      partnerCta: "Обсудить партнёрство",
+      partnerCta: "Стать частью истории",
       languageCta: "English version",
       legal: "2026 ИП Доронин В. В. · ИНН 344 406 202 270",
       designCredit: "Дизайн и разработка",
@@ -464,12 +526,69 @@ const locales = {
         },
       ],
     },
+    interviews: {
+      eyebrow: "Interviews",
+      title: "In his own words",
+      intro:
+        "Conversations about triathlon, running, community and long-distance challenges.",
+      watch: "Watch the interview",
+      items: [
+        {
+          title: "Project “1111”: 58 hours without sleep",
+          source: "SPORTFERMA",
+          image: "interview-01.jpg",
+          href: "https://youtu.be/4H2fddBQ6VQ",
+        },
+        {
+          title: "252 km across the Sahara",
+          source: "Sport-Marafon",
+          image: "interview-02.jpg",
+          href: "https://youtu.be/YKywKAqJF4I",
+        },
+        {
+          title: "Gastrodynamics: triathlon with flavour",
+          source: "Siberman",
+          image: "interview-03.jpg",
+          href: "https://youtu.be/FyYYLrvR-Hc",
+        },
+        {
+          title: "How to qualify for Kona three times",
+          source: "Running Is Bad Live",
+          image: "interview-04.jpg",
+          href: "https://youtu.be/Iggevbibf8w",
+        },
+        {
+          title: "Dusty Dialogues",
+          source: "Dusty Dumbbells",
+          image: "interview-05.jpg",
+          href: "https://youtu.be/FuHM9yD1fa4",
+        },
+        {
+          title: "Dusty Dumbbells: how the community works",
+          source: "SPORTFERMA",
+          image: "interview-06.jpg",
+          href: "https://youtu.be/xrOSk5OpYCA",
+        },
+        {
+          title: "Why runners should swim and cycle",
+          source: "RUN FAQ",
+          image: "interview-07.jpg",
+          href: "https://youtu.be/-tTE9Wk-kIo",
+        },
+        {
+          title: "Cross-training for runners",
+          source: "RUN FAQ",
+          image: "interview-08.jpg",
+          href: "https://youtu.be/c4Q4KwM5oVQ",
+        },
+      ],
+    },
     partners: {
       eyebrow: "For partners",
-      title: "Become part of the story",
-      lead: "Let’s build it together.",
+      title: "Become part of a great adventure",
+      lead: "Not an integration.<br>A shared journey.",
       body:
-        "We will find a meaningful role for your brand in a major human story — without artificial gloss or token integrations.",
+        "11,111 km begin long before the first kilometre. We invite those who want to do more than watch from the sidelines — to follow this story with Viktor before the start, through all 31 days and beyond the finish.",
       formatsLabel: "Ways to participate",
       formats: [
         [
@@ -485,7 +604,7 @@ const locales = {
           "We tell the story together before the start, throughout the project and after the finish.",
         ],
       ],
-      proofLabel: "Track record",
+      proofLabel: "Experience that already works",
       proof: [
         ["1.3M+", "documentary series views"],
         ["+310%", "audience growth"],
@@ -493,7 +612,7 @@ const locales = {
       ],
       cta: "Discuss a partnership",
       mailSubject: "Partnership with Project 11 111",
-      contacts: "Contacts",
+      contacts: "Contact",
       emailLabel: "Email Anna Nesterova",
       telegramLabel: "Message Anna Nesterova on Telegram",
       emailCta: "Send an email",
@@ -502,8 +621,11 @@ const locales = {
     },
     footer: {
       kicker: "11,111 km · 31 days · Viktor Doronin",
-      titleLineOne: "The story begins",
-      titleLineTwo: "December 1,<br>2026",
+      titleLineOne: "The story begins in",
+      titleActive: "The story is unfolding",
+      titleFinished: "The story continues",
+      titleLineTwo: "soon",
+      afterCredits: "Training diary",
       navLabel: "Navigation",
       contactLabel: "Get in touch",
       utilityLabel: "Website",
@@ -514,7 +636,7 @@ const locales = {
       themeDark: "Dark",
       emailCta: "Send an email",
       telegramCta: "Message on Telegram",
-      partnerCta: "Discuss a partnership",
+      partnerCta: "Become part of the story",
       languageCta: "Русская версия",
       legal: "2026 · Sole proprietor Viktor Doronin · TIN 344 406 202 270",
       designCredit: "Design and development",
@@ -680,10 +802,8 @@ function renderPartnerFormats(partners) {
       ([title, body], index) => `
         <li class="partner-format">
           <span>${String(index + 1).padStart(2, "0")}</span>
-          <div>
-            <strong>${title}</strong>
-            <p>${body}</p>
-          </div>
+          <strong>${title}</strong>
+          <p>${body}</p>
         </li>`,
     )
     .join("");
@@ -703,6 +823,42 @@ function renderAdventures(items, l) {
               <p>${item.meta}</p>
             </div>
             <span class="adventure-card__action">${l.adventures.watch}${icons.external}</span>
+          </div>
+        </a>`,
+    )
+    .join("");
+}
+
+function renderInterviews(items, l) {
+  return items
+    .map(
+      (item, index) => `
+        <a
+          class="interview-card${index === 0 ? " interview-card--featured" : ""}"
+          href="${item.href}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="${l.interviews.watch}: ${item.title}"
+        >
+          <div class="interview-card__media">
+            <img
+              src="${l.assetBase}assets/${item.image}"
+              alt=""
+              loading="lazy"
+              width="960"
+              height="540"
+            >
+          </div>
+          <div class="interview-card__copy">
+            <p class="interview-card__meta">
+              <span>${String(index + 1).padStart(2, "0")}</span>
+              ${item.source}
+            </p>
+            <h3>${item.title}</h3>
+            <span class="interview-card__action">
+              ${l.interviews.watch}
+              ${icons.external}
+            </span>
           </div>
         </a>`,
     )
@@ -1152,19 +1308,34 @@ function renderPage(l) {
       </div>
     </section>
 
+    <section class="interviews section" id="interviews" aria-labelledby="interviews-title">
+      <div class="interviews__heading">
+        <div class="section-label">
+          <span>06</span>
+          <p>${l.interviews.eyebrow}</p>
+        </div>
+        <h2 id="interviews-title">${l.interviews.title}</h2>
+        <p class="interviews__intro">${l.interviews.intro}</p>
+      </div>
+      <div class="interview-grid">
+        ${renderInterviews(l.interviews.items, l)}
+      </div>
+    </section>
+
     <div class="velocity-cut velocity-cut--into-partners" aria-hidden="true"></div>
 
     <section class="partners section" id="partners" aria-labelledby="partners-title">
       <div class="partners__intro">
-        <div class="section-label section-label--dark">
-          <span>06</span>
+        <div class="section-label">
+          <span>07</span>
           <p>${l.partners.eyebrow}</p>
         </div>
+        <p class="partners__countdown" data-partner-countdown aria-live="polite">${l.hero.statusFallback}</p>
         <h2 id="partners-title">${l.partners.title}</h2>
-        <div class="partners__pitch">
-          <p class="partners__lead">${l.partners.lead}</p>
-          <p class="partners__body">${l.partners.body}</p>
-        </div>
+      </div>
+      <div class="partners__pitch">
+        <p class="partners__lead">${l.partners.lead}</p>
+        <p class="partners__body">${l.partners.body}</p>
       </div>
       <div class="partners__offer">
         <div class="partner-formats">
@@ -1173,21 +1344,29 @@ function renderPage(l) {
             ${renderPartnerFormats(l.partners)}
           </ol>
         </div>
+      </div>
+      <div class="partners__closing" id="partner-contact">
         <div class="partner-proof">
           <p class="partner-proof__label">${l.partners.proofLabel}</p>
           <div class="partner-proof__metrics">
             ${renderMetrics(l.partners.proof, "partner-proof__metric")}
           </div>
         </div>
-      </div>
-      <div class="partners__actions">
-        <a class="button button--dark" href="${mailHref}">${l.partners.cta}${icons.external}</a>
-        <address class="contacts">
-          <p class="contacts__label">${l.partners.contacts}</p>
-          <strong>${l.partners.person}</strong>
-          <a href="mailto:${shared.email}" aria-label="${l.partners.emailLabel}">${l.partners.emailCta}${icons.external}</a>
-          <a href="${shared.telegramHref}" aria-label="${l.partners.telegramLabel}" target="_blank" rel="noopener noreferrer">${l.partners.telegramCta}${icons.external}</a>
-        </address>
+        <div class="partners__contact">
+          <h3 class="partners__cta">${l.partners.cta}</h3>
+          <div class="partners__channels">
+            <a href="${mailHref}" aria-label="${l.partners.emailLabel}">
+              ${l.partners.emailCta}${icons.external}
+            </a>
+            <a href="${shared.telegramHref}" aria-label="${l.partners.telegramLabel}" target="_blank" rel="noopener noreferrer">
+              ${l.partners.telegramCta}${icons.external}
+            </a>
+          </div>
+          <p class="partners__person">
+            <span>${l.partners.contacts}</span>
+            <strong>${l.partners.person}</strong>
+          </p>
+        </div>
       </div>
     </section>
   </main>
@@ -1196,8 +1375,12 @@ function renderPage(l) {
     <div class="site-footer__intro">
       <p class="site-footer__kicker">${l.footer.kicker}</p>
       <h2 id="footer-title">
-        <span>${l.footer.titleLineOne}</span>
-        <span>${l.footer.titleLineTwo}</span>
+        <span
+          data-footer-prefix
+          data-active="${l.footer.titleActive}"
+          data-finished="${l.footer.titleFinished}"
+        >${l.footer.titleLineOne}</span>
+        <span data-footer-countdown data-optical-start aria-live="polite">${l.footer.titleLineTwo}</span>
       </h2>
       <a class="site-footer__cta" href="${mailHref}">
         ${l.footer.partnerCta}${icons.external}
@@ -1228,6 +1411,17 @@ function renderPage(l) {
     <div class="site-footer__wordmark" aria-hidden="true">
       <img src="${l.assetBase}assets/logo.svg" alt="" width="512" height="231">
     </div>
+
+    <a
+      class="site-footer__after-credits"
+      href="${shared.viktorTelegramHref}"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <span aria-hidden="true"></span>
+      <strong>${l.footer.afterCredits}</strong>
+      ${icons.external}
+    </a>
 
     <div class="site-footer__legal">
       <p>${l.footer.legal}</p>

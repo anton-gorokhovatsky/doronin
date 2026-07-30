@@ -495,6 +495,8 @@ if (eventStatus) {
   let progressSegments = 0;
   let statusTimeline = "project";
   let showLiveUpdate = false;
+  let footerStatusText = "";
+  let footerPrefixMode = "before";
 
   if (now < start) {
     const days = Math.max(1, Math.ceil((start - now) / day));
@@ -524,17 +526,27 @@ if (eventStatus) {
 
     value.textContent = String(days);
     label.textContent = form;
+    footerStatusText = `${days} ${form.replace(
+      eventStatus.dataset.lang === "ru"
+        ? /\s+до\s+старта$/u
+        : /\s+to\s+start$/u,
+      "",
+    )}`;
   } else if (now < end) {
     const projectDay = Math.min(31, Math.floor((now - start) / day) + 1);
     progressSegments = projectDay;
     showLiveUpdate = true;
+    footerPrefixMode = "active";
     value.textContent = String(projectDay).padStart(2, "0");
     label.textContent = eventStatus.dataset.active;
+    footerStatusText = `${value.textContent} ${label.textContent}`;
   } else {
     progressSegments = 31;
     showLiveUpdate = true;
+    footerPrefixMode = "finished";
     value.textContent = "31/31";
     label.textContent = eventStatus.dataset.finished;
+    footerStatusText = label.textContent;
   }
 
   railElement?.style.setProperty(
@@ -579,6 +591,24 @@ if (eventStatus) {
     }
 
     update.hidden = false;
+  }
+
+  const partnerCountdown = document.querySelector("[data-partner-countdown]");
+
+  if (partnerCountdown) {
+    partnerCountdown.textContent = `${value.textContent} · ${label.textContent}`;
+  }
+
+  const footerCountdown = document.querySelector("[data-footer-countdown]");
+  const footerPrefix = document.querySelector("[data-footer-prefix]");
+
+  if (footerCountdown) {
+    footerCountdown.textContent = footerStatusText;
+    syncOpticalStart(footerCountdown);
+  }
+
+  if (footerPrefix && footerPrefixMode !== "before") {
+    footerPrefix.textContent = footerPrefix.dataset[footerPrefixMode];
   }
 
   syncOpticalStart(value);
