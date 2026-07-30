@@ -92,7 +92,7 @@
   --ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
   --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
   --micra-leading-one-shift: -0.18em;
-  --mobile-control-edge: 12px;
+  --mobile-control-edge: var(--page-gutter);
 }
 
 *,
