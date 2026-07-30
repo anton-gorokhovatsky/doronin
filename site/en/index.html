@@ -38,12 +38,12 @@
     data-light-href="../assets/favicon-light.svg"
     data-dark-href="../assets/favicon-dark.svg"
   >
-  <script src="../assets/theme-init.js?v=eccb931556"></script>
+  <script src="../assets/theme-init.js?v=d2ced2bd08"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/styles.css?v=eccb931556">
-  <script src="../assets/app.js?v=eccb931556" defer></script>
+  <link rel="stylesheet" href="../assets/styles.css?v=d2ced2bd08">
+  <script src="../assets/app.js?v=d2ced2bd08" defer></script>
   <!-- Yandex.Metrika counter -->
   <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
@@ -148,18 +148,35 @@
         </video>
       </figure>
       <div class="hero__veil" aria-hidden="true"></div>
-      <button
-        class="hero__media-toggle"
-        type="button"
-        data-video-toggle
-        data-play-label="Play video"
-        data-pause-label="Pause"
-        aria-label="Play video"
-        aria-pressed="false"
-      >
-        <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
-        <span class="sr-only" data-video-toggle-label>Play video</span>
-      </button>
+      <div class="hero__media-controls">
+        <button
+          class="hero__media-toggle"
+          type="button"
+          data-video-toggle
+          data-play-label="Play video"
+          data-pause-label="Pause"
+          aria-label="Play video"
+          aria-pressed="false"
+        >
+          <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
+          <span class="sr-only" data-video-toggle-label>Play video</span>
+        </button>
+        <button
+          class="hero__sound-toggle"
+          type="button"
+          data-sound-toggle
+          data-play-label="Play Viktor’s breathing and the sound of the distance"
+          data-pause-label="Mute Viktor’s breathing and the sound of the distance"
+          aria-label="Play Viktor’s breathing and the sound of the distance"
+          aria-pressed="false"
+        >
+          <span class="hero__sound-wave" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="sr-only" data-sound-toggle-label>Play Viktor’s breathing and the sound of the distance</span>
+        </button>
+      </div>
+      <audio data-effort-audio preload="none">
+        <source src="../assets/effort-breath.mp3" type="audio/mpeg">
+      </audio>
 
       <div class="hero__content">
         <p class="hero__kicker"><time datetime="2026-12-01">December 1–31, 2026 · Viktor Doronin</time></p>
@@ -250,12 +267,13 @@
           <video
             data-distance-video="0"
             muted
+            loop
             playsinline
             preload="metadata"
-            poster="../assets/distance-swim.jpg"
+            poster="../assets/distance-swim-presence.jpg"
             aria-hidden="true"
           >
-            <source src="../assets/distance-swim-motion.mp4" type="video/mp4">
+            <source src="../assets/distance-swim-presence.mp4" type="video/mp4">
           </video>
           <figcaption>
             <span>Dubai · Project “1111” archive</span>
@@ -270,12 +288,13 @@
           <video
             data-distance-video="1"
             muted
+            loop
             playsinline
             preload="metadata"
-            poster="../assets/distance-bike.jpg"
+            poster="../assets/distance-bike-presence.jpg"
             aria-hidden="true"
           >
-            <source src="../assets/distance-bike-motion.mp4" type="video/mp4">
+            <source src="../assets/distance-bike-presence.mp4" type="video/mp4">
           </video>
           <figcaption>
             <span>Dubai · Project “1111” archive</span>
@@ -290,12 +309,13 @@
           <video
             data-distance-video="2"
             muted
+            loop
             playsinline
             preload="metadata"
-            poster="../assets/distance-run.jpg"
+            poster="../assets/distance-run-presence.jpg"
             aria-hidden="true"
           >
-            <source src="../assets/distance-run-motion.mp4" type="video/mp4">
+            <source src="../assets/distance-run-presence.mp4" type="video/mp4">
           </video>
           <figcaption>
             <span>Dubai · Project “1111” archive</span>
@@ -328,7 +348,7 @@
           data-distance-label="swimming"
         >
           <figure class="distance-card__media" aria-hidden="true">
-            <img src="../assets/distance-swim.jpg" alt="" loading="lazy" width="1600" height="900">
+            <img src="../assets/distance-swim-presence.jpg" alt="" loading="lazy" width="1600" height="900">
           </figure>
           <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">01</span>
@@ -353,7 +373,7 @@
           data-distance-label="cycling"
         >
           <figure class="distance-card__media" aria-hidden="true">
-            <img src="../assets/distance-bike.jpg" alt="" loading="lazy" width="1600" height="900">
+            <img src="../assets/distance-bike-presence.jpg" alt="" loading="lazy" width="1600" height="900">
           </figure>
           <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">02</span>
@@ -378,7 +398,7 @@
           data-distance-label="running"
         >
           <figure class="distance-card__media" aria-hidden="true">
-            <img src="../assets/distance-run.jpg" alt="" loading="lazy" width="1600" height="900">
+            <img src="../assets/distance-run-presence.jpg" alt="" loading="lazy" width="1600" height="900">
           </figure>
           <div class="distance-card__identity">
             <span class="distance-card__index" aria-hidden="true">03</span>
@@ -462,39 +482,48 @@
       </div>
     </section>
 
-    <section class="story section section--light" aria-label="Viktor Doronin: training and the people around him">
+    <section class="story section section--light" aria-label="Training, effort and the people around him">
 
-        <figure class="story-frame">
+        <figure
+          class="story-frame"
+
+        >
           <div class="story-frame__media">
             <img
-                    src="../assets/story-running.jpg"
-                    alt="Viktor Doronin running with athletes at a training camp"
+                    src="../assets/training-group.jpg"
+                    alt="Viktor Doronin leading a large running group along the embankment"
                     width="1800"
-                    height="1198"
+                    height="1200"
                     loading="lazy"
                   >
           </div>
           <figcaption>
             <span aria-hidden="true">01</span>
-            Running
+            Together
           </figcaption>
         </figure>
-        <figure class="story-frame">
+        <figure
+          class="story-frame"
+
+        >
           <div class="story-frame__media">
             <img
-                    src="../assets/story-community.jpg"
-                    alt="Viktor Doronin talking with friends after training"
-                    width="1400"
-                    height="1539"
+                    src="../assets/training-pace.jpg"
+                    alt="A running group’s feet seen close to the track"
+                    width="1600"
+                    height="1066"
                     loading="lazy"
                   >
           </div>
           <figcaption>
             <span aria-hidden="true">02</span>
-            Community
+            Pace
           </figcaption>
         </figure>
-        <figure class="story-frame story-frame--motion">
+        <figure
+          class="story-frame story-frame--motion"
+          data-story-video-frame
+        >
           <div class="story-frame__media">
             <video
                     data-story-video
@@ -502,10 +531,10 @@
                     loop
                     playsinline
                     preload="metadata"
-                    poster="../assets/story-bridge.jpg"
+                    poster="../assets/story-recovery.jpg"
                     aria-hidden="true"
                   >
-                    <source src="../assets/story-bridge.mp4" type="video/mp4">
+                    <source src="../assets/story-recovery.mp4" type="video/mp4">
                   </video>
                   <button
                     class="story-frame__video-toggle"
@@ -522,7 +551,43 @@
           </div>
           <figcaption>
             <span aria-hidden="true">03</span>
-            Dubai · Project “1111”
+            The cost of effort
+          </figcaption>
+        </figure>
+        <figure
+          class="story-frame"
+
+        >
+          <div class="story-frame__media">
+            <img
+                    src="../assets/story-community.jpg"
+                    alt="Viktor Doronin talking with friends after training"
+                    width="1400"
+                    height="1539"
+                    loading="lazy"
+                  >
+          </div>
+          <figcaption>
+            <span aria-hidden="true">04</span>
+            People around him
+          </figcaption>
+        </figure>
+        <figure
+          class="story-frame"
+
+        >
+          <div class="story-frame__media">
+            <img
+                    src="../assets/training-together.jpg"
+                    alt="A group of runners moving along the embankment at the same pace"
+                    width="1800"
+                    height="1200"
+                    loading="lazy"
+                  >
+          </div>
+          <figcaption>
+            <span aria-hidden="true">05</span>
+            Motion
           </figcaption>
         </figure>
     </section>

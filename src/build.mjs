@@ -72,6 +72,8 @@ const locales = {
       imageAlt: "Виктор Доронин на велосипеде во время скоростного заезда",
       videoPlay: "Включить видео",
       videoPause: "Пауза",
+      audioPlay: "Включить дыхание и звук дистанции",
+      audioPause: "Выключить дыхание и звук дистанции",
       primaryCta: "Как это устроено",
       secondaryCta: "Войти в историю",
       statusFallback: "Старт 1 декабря 2026",
@@ -107,8 +109,8 @@ const locales = {
           value: "100",
           unit: "км",
           label: "плавание",
-          image: "distance-swim.jpg",
-          video: "distance-swim-motion.mp4",
+          image: "distance-swim-presence.jpg",
+          video: "distance-swim-presence.mp4",
           details: [
             "2 000 бассейнов по 50 метров",
             "три переправы через Ла-Манш",
@@ -120,8 +122,8 @@ const locales = {
           value: "10 010",
           unit: "км",
           label: "велосипед",
-          image: "distance-bike.jpg",
-          video: "distance-bike-motion.mp4",
+          image: "distance-bike-presence.jpg",
+          video: "distance-bike-presence.mp4",
           details: [
             "почти поперёк России: Москва — Владивосток",
             "четверть экватора Земли",
@@ -133,8 +135,8 @@ const locales = {
           value: "1 001",
           unit: "км",
           label: "бег",
-          image: "distance-run.jpg",
-          video: "distance-run-motion.mp4",
+          image: "distance-run-presence.jpg",
+          video: "distance-run-presence.mp4",
           details: [
             "24 полных марафона подряд",
             "Москва — Санкт-Петербург и ещё 300 км",
@@ -158,31 +160,45 @@ const locales = {
       quote: "История — не выдумка.<br>Это его жизнь.",
     },
     story: {
-      label: "Виктор Доронин: тренировки и люди рядом",
+      label: "Тренировки, усилие и люди рядом",
       videoPlay: "Включить фрагмент",
       videoPause: "Пауза",
       items: [
         {
-          image: "story-running.jpg",
+          image: "training-group.jpg",
           width: "1800",
-          height: "1198",
-          alt: "Виктор Доронин бежит вместе с участниками тренировочного лагеря",
-          caption: "Бег",
+          height: "1200",
+          alt: "Виктор Доронин бежит во главе большой группы на набережной",
+          caption: "Вместе",
+        },
+        {
+          image: "training-pace.jpg",
+          width: "1600",
+          height: "1066",
+          alt: "Ноги бегущей группы сняты с близкого расстояния на уровне дорожки",
+          caption: "Темп",
+        },
+        {
+          image: "story-recovery.jpg",
+          video: "story-recovery.mp4",
+          width: "1600",
+          height: "900",
+          alt: "Виктор Доронин восстанавливается сразу после тяжёлого усилия",
+          caption: "Цена усилия",
         },
         {
           image: "story-community.jpg",
           width: "1400",
           height: "1539",
           alt: "Виктор Доронин разговаривает с друзьями после тренировки",
-          caption: "Сообщество",
+          caption: "Люди рядом",
         },
         {
-          image: "story-bridge.jpg",
-          video: "story-bridge.mp4",
-          width: "1280",
-          height: "720",
-          alt: "Виктор Доронин плывёт, едет на велосипеде и бежит",
-          caption: "Дубай · проект «1111»",
+          image: "training-together.jpg",
+          width: "1800",
+          height: "1200",
+          alt: "Группа бегунов движется по набережной в одном темпе",
+          caption: "Движение",
         },
       ],
     },
@@ -374,6 +390,8 @@ const locales = {
       imageAlt: "Viktor Doronin riding at speed during a cycling event",
       videoPlay: "Play video",
       videoPause: "Pause",
+      audioPlay: "Play Viktor’s breathing and the sound of the distance",
+      audioPause: "Mute Viktor’s breathing and the sound of the distance",
       primaryCta: "See the challenge",
       secondaryCta: "Become part of it",
       statusFallback: "Starts December 1, 2026",
@@ -408,8 +426,8 @@ const locales = {
           value: "100",
           unit: "km",
           label: "swimming",
-          image: "distance-swim.jpg",
-          video: "distance-swim-motion.mp4",
+          image: "distance-swim-presence.jpg",
+          video: "distance-swim-presence.mp4",
           details: [
             "2,000 lengths of a 50-metre pool",
             "the equivalent of three English Channel crossings",
@@ -421,8 +439,8 @@ const locales = {
           value: "10,010",
           unit: "km",
           label: "cycling",
-          image: "distance-bike.jpg",
-          video: "distance-bike-motion.mp4",
+          image: "distance-bike-presence.jpg",
+          video: "distance-bike-presence.mp4",
           details: [
             "almost across Russia: Moscow to Vladivostok",
             "one quarter of Earth’s equator",
@@ -434,8 +452,8 @@ const locales = {
           value: "1,001",
           unit: "km",
           label: "running",
-          image: "distance-run.jpg",
-          video: "distance-run-motion.mp4",
+          image: "distance-run-presence.jpg",
+          video: "distance-run-presence.mp4",
           details: [
             "24 full marathons in succession",
             "Moscow to Saint Petersburg, plus another 300 km",
@@ -459,31 +477,45 @@ const locales = {
       quote: "He does not sell a story.<br>He lives it.",
     },
     story: {
-      label: "Viktor Doronin: training and the people around him",
+      label: "Training, effort and the people around him",
       videoPlay: "Play clip",
       videoPause: "Pause",
       items: [
         {
-          image: "story-running.jpg",
+          image: "training-group.jpg",
           width: "1800",
-          height: "1198",
-          alt: "Viktor Doronin running with athletes at a training camp",
-          caption: "Running",
+          height: "1200",
+          alt: "Viktor Doronin leading a large running group along the embankment",
+          caption: "Together",
+        },
+        {
+          image: "training-pace.jpg",
+          width: "1600",
+          height: "1066",
+          alt: "A running group’s feet seen close to the track",
+          caption: "Pace",
+        },
+        {
+          image: "story-recovery.jpg",
+          video: "story-recovery.mp4",
+          width: "1600",
+          height: "900",
+          alt: "Viktor Doronin recovering immediately after a hard effort",
+          caption: "The cost of effort",
         },
         {
           image: "story-community.jpg",
           width: "1400",
           height: "1539",
           alt: "Viktor Doronin talking with friends after training",
-          caption: "Community",
+          caption: "People around him",
         },
         {
-          image: "story-bridge.jpg",
-          video: "story-bridge.mp4",
-          width: "1280",
-          height: "720",
-          alt: "Viktor Doronin swimming, cycling and running",
-          caption: "Dubai · Project “1111”",
+          image: "training-together.jpg",
+          width: "1800",
+          height: "1200",
+          alt: "A group of runners moving along the embankment at the same pace",
+          caption: "Motion",
         },
       ],
     },
@@ -744,6 +776,7 @@ function renderDistanceMedia(items, l) {
           <video
             data-distance-video="${index}"
             muted
+            loop
             playsinline
             preload="metadata"
             poster="${l.assetBase}assets/${item.image}"
@@ -869,7 +902,10 @@ function renderStory(items, l) {
   return items
     .map(
       (item, index) => `
-        <figure class="story-frame${item.video ? " story-frame--motion" : ""}">
+        <figure
+          class="story-frame${item.video ? " story-frame--motion" : ""}"
+          ${item.video ? "data-story-video-frame" : ""}
+        >
           <div class="story-frame__media">
             ${
               item.video
@@ -1123,18 +1159,35 @@ function renderPage(l) {
         </video>
       </figure>
       <div class="hero__veil" aria-hidden="true"></div>
-      <button
-        class="hero__media-toggle"
-        type="button"
-        data-video-toggle
-        data-play-label="${l.hero.videoPlay}"
-        data-pause-label="${l.hero.videoPause}"
-        aria-label="${l.hero.videoPlay}"
-        aria-pressed="false"
-      >
-        <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
-        <span class="sr-only" data-video-toggle-label>${l.hero.videoPlay}</span>
-      </button>
+      <div class="hero__media-controls">
+        <button
+          class="hero__media-toggle"
+          type="button"
+          data-video-toggle
+          data-play-label="${l.hero.videoPlay}"
+          data-pause-label="${l.hero.videoPause}"
+          aria-label="${l.hero.videoPlay}"
+          aria-pressed="false"
+        >
+          <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
+          <span class="sr-only" data-video-toggle-label>${l.hero.videoPlay}</span>
+        </button>
+        <button
+          class="hero__sound-toggle"
+          type="button"
+          data-sound-toggle
+          data-play-label="${l.hero.audioPlay}"
+          data-pause-label="${l.hero.audioPause}"
+          aria-label="${l.hero.audioPlay}"
+          aria-pressed="false"
+        >
+          <span class="hero__sound-wave" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="sr-only" data-sound-toggle-label>${l.hero.audioPlay}</span>
+        </button>
+      </div>
+      <audio data-effort-audio preload="none">
+        <source src="${l.assetBase}assets/effort-breath.mp3" type="audio/mpeg">
+      </audio>
 
       <div class="hero__content">
         <p class="hero__kicker"><time datetime="${shared.startDate}">${l.hero.kicker}</time></p>

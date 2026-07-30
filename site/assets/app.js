@@ -84,6 +84,8 @@ for (const button of document.querySelectorAll("[data-theme-option]")) {
 
 const heroVideo = document.querySelector("[data-hero-video]");
 const videoToggle = document.querySelector("[data-video-toggle]");
+const effortAudio = document.querySelector("[data-effort-audio]");
+const soundToggle = document.querySelector("[data-sound-toggle]");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 if (heroVideo && videoToggle) {
@@ -105,6 +107,10 @@ if (heroVideo && videoToggle) {
   }
 
   async function playHeroVideo() {
+    if (document.visibilityState !== "visible") {
+      return;
+    }
+
     try {
       await heroVideo.play();
     } catch {
@@ -119,6 +125,7 @@ if (heroVideo && videoToggle) {
     } else {
       userPausedVideo = true;
       heroVideo.pause();
+      effortAudio?.pause();
     }
   });
 
@@ -134,6 +141,14 @@ if (heroVideo && videoToggle) {
     }
   });
 
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      heroVideo.pause();
+    } else if (!reducedMotion.matches && !userPausedVideo) {
+      playHeroVideo();
+    }
+  });
+
   syncVideoToggle();
 
   if (!reducedMotion.matches) {
@@ -141,10 +156,63 @@ if (heroVideo && videoToggle) {
   }
 }
 
-const storyVideo = document.querySelector("[data-story-video]");
-const storyVideoToggle = document.querySelector("[data-story-video-toggle]");
+if (effortAudio && soundToggle) {
+  const soundToggleLabel = soundToggle.querySelector("[data-sound-toggle-label]");
 
-if (storyVideo && storyVideoToggle) {
+  function syncSoundToggle() {
+    const isPlaying = !effortAudio.paused && !effortAudio.ended;
+    const label = isPlaying
+      ? soundToggle.dataset.pauseLabel
+      : soundToggle.dataset.playLabel;
+
+    soundToggle.setAttribute("aria-pressed", String(isPlaying));
+    soundToggle.setAttribute("aria-label", label);
+
+    if (soundToggleLabel) {
+      soundToggleLabel.textContent = label;
+    }
+  }
+
+  soundToggle.addEventListener("click", async () => {
+    if (!effortAudio.paused) {
+      effortAudio.pause();
+      return;
+    }
+
+    if (effortAudio.ended || effortAudio.currentTime > effortAudio.duration - 0.3) {
+      effortAudio.currentTime = 0;
+    }
+
+    try {
+      await effortAudio.play();
+    } catch {
+      syncSoundToggle();
+    }
+  });
+
+  effortAudio.addEventListener("play", syncSoundToggle);
+  effortAudio.addEventListener("pause", syncSoundToggle);
+  effortAudio.addEventListener("ended", syncSoundToggle);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      effortAudio.pause();
+    }
+  });
+  syncSoundToggle();
+}
+
+for (const storyVideoFrame of document.querySelectorAll(
+  "[data-story-video-frame]",
+)) {
+  const storyVideo = storyVideoFrame.querySelector("[data-story-video]");
+  const storyVideoToggle = storyVideoFrame.querySelector(
+    "[data-story-video-toggle]",
+  );
+
+  if (!storyVideo || !storyVideoToggle) {
+    continue;
+  }
+
   const storyVideoToggleLabel = storyVideoToggle.querySelector(
     "[data-story-video-toggle-label]",
   );
@@ -170,6 +238,7 @@ if (storyVideo && storyVideoToggle) {
     const shouldPlay =
       storyVideoVisible &&
       !userPausedStoryVideo &&
+      document.visibilityState === "visible" &&
       (!reducedMotion.matches || userStartedStoryVideo);
 
     if (shouldPlay) {
@@ -210,6 +279,7 @@ if (storyVideo && storyVideoToggle) {
   }
 
   reducedMotion.addEventListener?.("change", syncStoryVideoPlayback);
+  document.addEventListener("visibilitychange", syncStoryVideoPlayback);
   syncStoryVideoToggle();
 }
 
@@ -253,6 +323,7 @@ if (distanceStory) {
         videoIndex === activeDistanceIndex &&
         distanceStoryVisible &&
         distanceDesktop.matches &&
+        document.visibilityState === "visible" &&
         !reducedMotion.matches;
 
       if (shouldPlay) {
@@ -349,6 +420,7 @@ if (distanceStory) {
 
   reducedMotion.addEventListener?.("change", syncDistanceVideo);
   distanceDesktop.addEventListener?.("change", syncDistanceVideo);
+  document.addEventListener("visibilitychange", syncDistanceVideo);
 }
 
 const distanceTotal = document.querySelector("[data-distance-total]");

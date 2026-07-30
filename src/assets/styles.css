@@ -659,12 +659,24 @@ a {
   background: var(--hero-veil);
 }
 
-.hero__media-toggle {
+.hero__media-controls {
   position: absolute;
   z-index: 4;
   top: 6.25rem;
   right: var(--page-gutter);
   display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.js .hero__media-controls {
+  display: flex;
+}
+
+.hero__media-toggle,
+.hero__sound-toggle {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 2.75rem;
@@ -685,12 +697,10 @@ a {
     visibility 180ms var(--ease-move);
 }
 
-.js .hero__media-toggle {
-  display: inline-flex;
-}
-
 .hero__media-toggle:hover,
-.hero__media-toggle:focus-visible {
+.hero__media-toggle:focus-visible,
+.hero__sound-toggle:hover,
+.hero__sound-toggle:focus-visible {
   border-color: rgba(217, 226, 217, 0.32);
   background: rgba(2, 22, 15, 0.62);
   opacity: 1;
@@ -730,6 +740,63 @@ a {
 
 .hero__media-toggle[aria-pressed="false"] .hero__media-toggle-icon i:last-child {
   display: none;
+}
+
+.hero__sound-toggle {
+  opacity: 0.42;
+}
+
+.hero__sound-toggle[aria-pressed="true"] {
+  border-color: rgba(219, 255, 42, 0.42);
+  color: var(--acid);
+  opacity: 0.86;
+}
+
+.hero__sound-wave {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.12rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.hero__sound-wave i {
+  display: block;
+  width: 0.12rem;
+  height: 0.35rem;
+  background: currentColor;
+  transform-origin: center;
+}
+
+.hero__sound-wave i:nth-child(2) {
+  height: 0.72rem;
+}
+
+.hero__sound-wave i:nth-child(3) {
+  height: 0.5rem;
+}
+
+.hero__sound-toggle[aria-pressed="true"] .hero__sound-wave i {
+  animation: sound-wave 720ms var(--ease-move) infinite alternate;
+}
+
+.hero__sound-toggle[aria-pressed="true"] .hero__sound-wave i:nth-child(2) {
+  animation-delay: -240ms;
+}
+
+.hero__sound-toggle[aria-pressed="true"] .hero__sound-wave i:nth-child(3) {
+  animation-delay: -480ms;
+}
+
+@keyframes sound-wave {
+  from {
+    transform: scaleY(0.55);
+  }
+
+  to {
+    transform: scaleY(1);
+  }
 }
 
 .hero__content {
@@ -1016,7 +1083,7 @@ a {
 .velocity-cut {
   --velocity-from: var(--surface-editorial);
   --velocity-to: var(--surface-proof);
-  --velocity-image: url("./distance-bike.jpg");
+  --velocity-image: url("./velocity-water.jpg");
   position: relative;
   height: clamp(4rem, 6vw, 7rem);
   overflow: hidden;
@@ -1071,7 +1138,7 @@ a {
 .velocity-cut--out-of-proof {
   --velocity-from: var(--surface-proof);
   --velocity-to: var(--surface-editorial);
-  --velocity-image: url("./story-running.jpg");
+  --velocity-image: url("./velocity-run.jpg");
 }
 
 .velocity-cut--into-partners {
@@ -1805,6 +1872,15 @@ a {
   margin-top: clamp(1rem, 3vw, 3rem);
 }
 
+.story-frame:nth-child(4) {
+  grid-column: 1 / span 4;
+  margin-top: clamp(4rem, 9vw, 8rem);
+}
+
+.story-frame:nth-child(5) {
+  grid-column: 5 / -1;
+}
+
 .story-frame__media {
   position: relative;
   overflow: hidden;
@@ -1821,6 +1897,14 @@ a {
 
 .story-frame:nth-child(3) .story-frame__media {
   aspect-ratio: 21 / 9;
+}
+
+.story-frame:nth-child(4) .story-frame__media {
+  aspect-ratio: 0.91;
+}
+
+.story-frame:nth-child(5) .story-frame__media {
+  aspect-ratio: 3 / 2;
 }
 
 .story-frame img,
@@ -2386,7 +2470,7 @@ a {
   background:
     linear-gradient(180deg, rgba(2, 22, 15, 0.2) 0%, rgba(2, 22, 15, 0.54) 54%, var(--ink-deep) 100%),
     linear-gradient(90deg, rgba(2, 22, 15, 0.76) 0%, rgba(2, 22, 15, 0.18) 66%, rgba(2, 22, 15, 0.52) 100%),
-    url("./story-running.jpg") 50% 34% / cover no-repeat;
+    url("./partner-effort.jpg") 50% 42% / cover no-repeat;
   content: "";
   filter: contrast(1.08) saturate(0.76);
 }
@@ -3248,6 +3332,14 @@ a {
     grid-column: 2 / span 10;
   }
 
+  .story-frame:nth-child(4) {
+    grid-column: 1 / span 4;
+  }
+
+  .story-frame:nth-child(5) {
+    grid-column: 5 / -1;
+  }
+
   .proof {
     grid-template-columns: 1fr;
   }
@@ -3468,9 +3560,13 @@ a {
     object-position: 50% 50%;
   }
 
-  .hero__media-toggle {
+  .hero__media-controls {
     top: calc(var(--mobile-control-edge) + 3.75rem);
     right: var(--mobile-control-edge);
+  }
+
+  .hero__media-toggle,
+  .hero__sound-toggle {
     width: 2.75rem;
     height: 2.75rem;
   }
@@ -3707,7 +3803,9 @@ a {
 
   .story-frame:first-child,
   .story-frame:nth-child(2),
-  .story-frame:nth-child(3) {
+  .story-frame:nth-child(3),
+  .story-frame:nth-child(4),
+  .story-frame:nth-child(5) {
     grid-column: 1;
     margin-top: 0;
   }
@@ -3718,6 +3816,12 @@ a {
 
   .story-frame:nth-child(3) .story-frame__media {
     aspect-ratio: 16 / 9;
+  }
+
+  .story-frame:nth-child(2) .story-frame__media,
+  .story-frame:nth-child(4) .story-frame__media,
+  .story-frame:nth-child(5) .story-frame__media {
+    aspect-ratio: 4 / 3;
   }
 
   .achievement-grid {
