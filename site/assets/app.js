@@ -495,6 +495,13 @@ if (eventStatus) {
 
   if (now < start) {
     const days = Math.max(1, Math.ceil((start - now) / day));
+    const countdownStart = new Date(start);
+    countdownStart.setFullYear(countdownStart.getFullYear() - 1);
+    const countdownProgress = Math.max(
+      0,
+      Math.min(1, (now - countdownStart) / (start - countdownStart)),
+    );
+    elapsedDays = Math.floor(countdownProgress * rail.length);
     let form = eventStatus.dataset.beforeMany;
 
     if (eventStatus.dataset.lang === "ru") {
