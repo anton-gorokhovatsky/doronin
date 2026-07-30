@@ -38,12 +38,12 @@
     data-light-href="./assets/favicon-light.svg"
     data-dark-href="./assets/favicon-dark.svg"
   >
-  <script src="./assets/theme-init.js?v=035d700fdb"></script>
+  <script src="./assets/theme-init.js?v=834d3220dd"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./assets/styles.css?v=035d700fdb">
-  <script src="./assets/app.js?v=035d700fdb" defer></script>
+  <link rel="stylesheet" href="./assets/styles.css?v=834d3220dd">
+  <script src="./assets/app.js?v=834d3220dd" defer></script>
   <!-- Yandex.Metrika counter -->
   <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
@@ -218,35 +218,165 @@
       </div>
     </section>
 
-    <section class="audio-story" aria-labelledby="audio-story-title">
-      <div class="audio-story__meta">
-        <span aria-hidden="true">01</span>
-        <p>Звуковая сцена</p>
+    <section class="audio-story" data-audio-story aria-labelledby="audio-story-title">
+      <div class="audio-story__intro">
+        <div class="audio-story__meta">
+          <span aria-hidden="true">01–05</span>
+          <p>Пять звуковых сцен</p>
+        </div>
+        <div class="audio-story__copy">
+          <h2 id="audio-story-title">Присутствие</h2>
+          <p>Фрагменты из фильма: дыхание, голос, вода, ритм и скорость.</p>
+        </div>
       </div>
-      <div class="audio-story__copy">
-        <h2 id="audio-story-title">Присутствие</h2>
-        <p>Дыхание и звук дистанции</p>
-      </div>
-      <button
-        class="audio-story__toggle"
-        type="button"
-        data-sound-toggle
-        data-play-label="Включить дыхание и звук дистанции"
-        data-pause-label="Выключить дыхание и звук дистанции"
-        data-play-visible-label="Слушать"
-        data-pause-visible-label="Пауза"
-        data-duration="8.4"
-        aria-label="Включить дыхание и звук дистанции"
-        aria-pressed="false"
+      <div
+        class="audio-story__player"
+        data-sound-player
       >
-        <span class="audio-story__action" data-sound-visible-label>Слушать</span>
-        <span class="audio-story__wave" aria-hidden="true"><i></i><i></i><i></i></span>
-        <span class="audio-story__progress" aria-hidden="true"><i data-sound-progress></i></span>
-        <span class="sr-only" data-sound-toggle-label>Включить дыхание и звук дистанции</span>
-      </button>
-      <audio data-effort-audio preload="none">
-        <source src="./assets/effort-breath.mp3" type="audio/mpeg">
-      </audio>
+        <ol class="audio-story__storyline" aria-label="Выбрать звуковую сцену">
+
+            <li>
+              <button
+                type="button"
+                data-sound-scene
+                data-scene-index="0"
+                data-scene-title="Дыхание"
+                data-audio-src="./assets/audio-scene-01.m4a"
+                data-duration="13.973333"
+                data-play-label="Запустить звуковую историю"
+                data-pause-label="Поставить звуковую историю на паузу"
+                data-playing="false"
+                aria-label="Запустить звуковую историю: Дыхание"
+                aria-pressed="true"
+              >
+                <span class="audio-story__scene-line" aria-hidden="true"><i data-scene-progress></i></span>
+                <span class="audio-story__scene-head">
+                  <span>01</span>
+                  <svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M4 8h7c3 0 3-4 0-4-1.6 0-2.6.8-3 2M4 12h12c3 0 3-4 0-4-1.6 0-2.6.8-3 2M4 16h8c3 0 3 4 0 4-1.6 0-2.6-.8-3-2"></path>
+  </svg>
+                </span>
+                <span class="audio-story__scene-foot">
+                  <strong>Дыхание</strong>
+                  <span class="audio-story__wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                </span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                data-sound-scene
+                data-scene-index="1"
+                data-scene-title="Голос"
+                data-audio-src="./assets/audio-scene-02.m4a"
+                data-duration="50.410667"
+                data-play-label="Запустить звуковую историю"
+                data-pause-label="Поставить звуковую историю на паузу"
+                data-playing="false"
+                aria-label="Запустить звуковую историю: Голос"
+                aria-pressed="false"
+              >
+                <span class="audio-story__scene-line" aria-hidden="true"><i data-scene-progress></i></span>
+                <span class="audio-story__scene-head">
+                  <span>02</span>
+                  <svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M5 14v-4M9 18V6M13 20V4M17 16V8M21 13v-2"></path>
+  </svg>
+                </span>
+                <span class="audio-story__scene-foot">
+                  <strong>Голос</strong>
+                  <span class="audio-story__wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                </span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                data-sound-scene
+                data-scene-index="2"
+                data-scene-title="Вода"
+                data-audio-src="./assets/audio-scene-03.m4a"
+                data-duration="23.658667"
+                data-play-label="Запустить звуковую историю"
+                data-pause-label="Поставить звуковую историю на паузу"
+                data-playing="false"
+                aria-label="Запустить звуковую историю: Вода"
+                aria-pressed="false"
+              >
+                <span class="audio-story__scene-line" aria-hidden="true"><i data-scene-progress></i></span>
+                <span class="audio-story__scene-head">
+                  <span>03</span>
+                  <svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M3 9c3 0 3 2 6 2s3-2 6-2 3 2 6 2M3 15c3 0 3 2 6 2s3-2 6-2 3 2 6 2"></path>
+  </svg>
+                </span>
+                <span class="audio-story__scene-foot">
+                  <strong>Вода</strong>
+                  <span class="audio-story__wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                </span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                data-sound-scene
+                data-scene-index="3"
+                data-scene-title="Ритм"
+                data-audio-src="./assets/audio-scene-04.m4a"
+                data-duration="20.138667"
+                data-play-label="Запустить звуковую историю"
+                data-pause-label="Поставить звуковую историю на паузу"
+                data-playing="false"
+                aria-label="Запустить звуковую историю: Ритм"
+                aria-pressed="false"
+              >
+                <span class="audio-story__scene-line" aria-hidden="true"><i data-scene-progress></i></span>
+                <span class="audio-story__scene-head">
+                  <span>04</span>
+                  <svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M4 16V8M8 19V5M12 14v-4M16 18V6M20 15V9"></path>
+  </svg>
+                </span>
+                <span class="audio-story__scene-foot">
+                  <strong>Ритм</strong>
+                  <span class="audio-story__wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                </span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                data-sound-scene
+                data-scene-index="4"
+                data-scene-title="Скорость"
+                data-audio-src="./assets/audio-scene-05.m4a"
+                data-duration="16.298667"
+                data-play-label="Запустить звуковую историю"
+                data-pause-label="Поставить звуковую историю на паузу"
+                data-playing="false"
+                aria-label="Запустить звуковую историю: Скорость"
+                aria-pressed="false"
+              >
+                <span class="audio-story__scene-line" aria-hidden="true"><i data-scene-progress></i></span>
+                <span class="audio-story__scene-head">
+                  <span>05</span>
+                  <svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M4 16 10 8M9 17l6-8M14 18l6-8"></path>
+  </svg>
+                </span>
+                <span class="audio-story__scene-foot">
+                  <strong>Скорость</strong>
+                  <span class="audio-story__wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                </span>
+              </button>
+            </li>
+        </ol>
+      </div>
+      <audio
+        data-effort-audio
+        preload="metadata"
+        src="./assets/audio-scene-01.m4a"
+      ></audio>
     </section>
 
     <section class="manifesto section" aria-labelledby="manifesto-title">
@@ -612,8 +742,8 @@
             <img
                     src="./assets/story-motion-city.jpg"
                     alt="Виктор Доронин бежит рядом с другими спортсменами по залитой солнцем дорожке"
-                    width="1440"
-                    height="1800"
+                    width="3500"
+                    height="2333"
                     loading="lazy"
                   >
           </div>
@@ -1075,12 +1205,6 @@
         </div>
         <div class="partners__contact">
           <h3 class="partners__cta">Обсудить участие</h3>
-          <div class="partners__discussion">
-            <p>Можно обсудить</p>
-            <ul>
-              <li>Экипировка</li><li>Технологии</li><li>Медиа</li>
-            </ul>
-          </div>
           <div class="partners__channels">
             <a href="mailto:anesterova88@gmail.com?subject=%D0%9F%D0%B0%D1%80%D1%82%D0%BD%D1%91%D1%80%D1%81%D1%82%D0%B2%D0%BE%20%D1%81%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%BE%D0%BC%2011%20111" aria-label="Написать Анне Нестеровой">
               Написать по почте

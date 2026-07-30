@@ -76,8 +76,12 @@ for (const [lang, path] of pages) {
     heroMediaControls.includes("data-video-toggle") &&
       !heroMediaControls.includes("data-sound-toggle") &&
       html.includes('class="audio-story"') &&
-      html.includes("data-sound-progress"),
-    `${lang}: видео и атмосферный звук должны оставаться двумя независимыми сценариями`,
+      html.includes("data-sound-player") &&
+      !html.includes('class="audio-story__toggle"') &&
+      (html.match(/\bdata-scene-index="/g) || []).length === 5 &&
+      (html.match(/class="audio-story__wave"/g) || []).length === 5 &&
+      (html.match(/assets\/audio-scene-\d{2}\.m4a/g) || []).length === 6,
+    `${lang}: видео и пятичастная звуковая история должны оставаться двумя независимыми сценариями`,
   );
   const heroVideoTag =
     html.match(/<video\b[^>]*\bdata-hero-video\b[^>]*>/su)?.[0] || "";
@@ -119,10 +123,11 @@ for (const [lang, path] of pages) {
     `${lang}: партнёрский экран должен собираться из вводной, редакционной матрицы и общего финального блока`,
   );
   expect(
-    html.includes('class="partners__discussion"') &&
-      html.includes("<li>Equipment</li>") === (lang === "en") &&
-      html.includes("<li>Экипировка</li>") === (lang === "ru"),
-    `${lang}: в финальном контакте должны сохраняться направления обсуждения`,
+    !html.includes('class="partners__discussion"') &&
+      (html.match(/class="partners__channels"[\s\S]*?<\/div>/u)?.[0].match(
+        /<a\b/gu,
+      ) || []).length === 2,
+    `${lang}: финальный контакт должен выделять два канала связи без повтора партнёрских направлений`,
   );
   expect(
     html.includes('class="site-footer__after-credits"') &&

@@ -73,14 +73,42 @@ const locales = {
       imageAlt: "Виктор Доронин на велосипеде во время скоростного заезда",
       videoPlay: "Включить видео",
       videoPause: "Пауза",
-      audioPlay: "Включить дыхание и звук дистанции",
-      audioPause: "Выключить дыхание и звук дистанции",
-      audioStoryLabel: "Звуковая сцена",
+      audioPlay: "Запустить звуковую историю",
+      audioPause: "Поставить звуковую историю на паузу",
+      audioStoryLabel: "Пять звуковых сцен",
       audioStoryTitle: "Присутствие",
-      audioStoryNote: "Дыхание и звук дистанции",
-      audioPrompt: "Слушать",
+      audioStoryNote:
+        "Фрагменты из фильма: дыхание, голос, вода, ритм и скорость.",
+      audioPrompt: "Войти в звук",
       audioActive: "Пауза",
-      audioDuration: "8.4",
+      audioScenesLabel: "Выбрать звуковую сцену",
+      audioScenes: [
+        {
+          title: "Дыхание",
+          file: "audio-scene-01.m4a",
+          duration: "13.973333",
+        },
+        {
+          title: "Голос",
+          file: "audio-scene-02.m4a",
+          duration: "50.410667",
+        },
+        {
+          title: "Вода",
+          file: "audio-scene-03.m4a",
+          duration: "23.658667",
+        },
+        {
+          title: "Ритм",
+          file: "audio-scene-04.m4a",
+          duration: "20.138667",
+        },
+        {
+          title: "Скорость",
+          file: "audio-scene-05.m4a",
+          duration: "16.298667",
+        },
+      ],
       primaryCta: "Как это устроено",
       secondaryCta: "Войти в историю",
       statusFallback: "Старт 1 декабря 2026",
@@ -210,8 +238,8 @@ const locales = {
         },
         {
           image: "story-motion-city.jpg",
-          width: "1440",
-          height: "1800",
+          width: "3500",
+          height: "2333",
           alt: "Виктор Доронин бежит рядом с другими спортсменами по залитой солнцем дорожке",
           caption: "Движение",
           date: "2026-06-19",
@@ -352,7 +380,6 @@ const locales = {
         ["25+", "федеральных СМИ"],
       ],
       cta: "Обсудить участие",
-      discussionLabel: "Можно обсудить",
       mailSubject: "Партнёрство с проектом 11 111",
       contacts: "Контакт",
       emailLabel: "Написать Анне Нестеровой",
@@ -417,14 +444,42 @@ const locales = {
       imageAlt: "Viktor Doronin riding at speed during a cycling event",
       videoPlay: "Play video",
       videoPause: "Pause",
-      audioPlay: "Play Viktor’s breathing and the sound of the distance",
-      audioPause: "Mute Viktor’s breathing and the sound of the distance",
-      audioStoryLabel: "Sound scene",
+      audioPlay: "Start the sound story",
+      audioPause: "Pause the sound story",
+      audioStoryLabel: "Five sound scenes",
       audioStoryTitle: "Presence",
-      audioStoryNote: "Breath and the sound of the distance",
-      audioPrompt: "Listen",
+      audioStoryNote:
+        "Fragments from the film: breath, voice, water, rhythm, and speed.",
+      audioPrompt: "Enter the sound",
       audioActive: "Pause",
-      audioDuration: "8.4",
+      audioScenesLabel: "Choose a sound scene",
+      audioScenes: [
+        {
+          title: "Breath",
+          file: "audio-scene-01.m4a",
+          duration: "13.973333",
+        },
+        {
+          title: "Voice",
+          file: "audio-scene-02.m4a",
+          duration: "50.410667",
+        },
+        {
+          title: "Water",
+          file: "audio-scene-03.m4a",
+          duration: "23.658667",
+        },
+        {
+          title: "Rhythm",
+          file: "audio-scene-04.m4a",
+          duration: "20.138667",
+        },
+        {
+          title: "Speed",
+          file: "audio-scene-05.m4a",
+          duration: "16.298667",
+        },
+      ],
       primaryCta: "See the challenge",
       secondaryCta: "Become part of it",
       statusFallback: "Starts December 1, 2026",
@@ -553,8 +608,8 @@ const locales = {
         },
         {
           image: "story-motion-city.jpg",
-          width: "1440",
-          height: "1800",
+          width: "3500",
+          height: "2333",
           alt: "Viktor Doronin runs alongside other athletes on a sunlit path",
           caption: "Motion",
           date: "2026-06-19",
@@ -695,7 +750,6 @@ const locales = {
         ["25+", "federal media outlets"],
       ],
       cta: "Discuss a partnership",
-      discussionLabel: "Topics to discuss",
       mailSubject: "Partnership with Project 11 111",
       contacts: "Contact",
       emailLabel: "Email Anna Nesterova",
@@ -762,6 +816,24 @@ const icons = {
       <path d="M8 13V3M4.5 6.5 8 3l3.5 3.5"></path>
     </svg>`,
 };
+
+const soundSceneIcons = [
+  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M4 8h7c3 0 3-4 0-4-1.6 0-2.6.8-3 2M4 12h12c3 0 3-4 0-4-1.6 0-2.6.8-3 2M4 16h8c3 0 3 4 0 4-1.6 0-2.6-.8-3-2"></path>
+  </svg>`,
+  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M5 14v-4M9 18V6M13 20V4M17 16V8M21 13v-2"></path>
+  </svg>`,
+  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M3 9c3 0 3 2 6 2s3-2 6-2 3 2 6 2M3 15c3 0 3 2 6 2s3-2 6-2 3 2 6 2"></path>
+  </svg>`,
+  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M4 16V8M8 19V5M12 14v-4M16 18V6M20 15V9"></path>
+  </svg>`,
+  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M4 16 10 8M9 17l6-8M14 18l6-8"></path>
+  </svg>`,
+];
 
 function renderDistanceValue(value, unit, className) {
   const valueGroups = value
@@ -1305,35 +1377,59 @@ function renderPage(l) {
       </div>
     </section>
 
-    <section class="audio-story" aria-labelledby="audio-story-title">
-      <div class="audio-story__meta">
-        <span aria-hidden="true">01</span>
-        <p>${l.hero.audioStoryLabel}</p>
+    <section class="audio-story" data-audio-story aria-labelledby="audio-story-title">
+      <div class="audio-story__intro">
+        <div class="audio-story__meta">
+          <span aria-hidden="true">01–05</span>
+          <p>${l.hero.audioStoryLabel}</p>
+        </div>
+        <div class="audio-story__copy">
+          <h2 id="audio-story-title">${l.hero.audioStoryTitle}</h2>
+          <p>${l.hero.audioStoryNote}</p>
+        </div>
       </div>
-      <div class="audio-story__copy">
-        <h2 id="audio-story-title">${l.hero.audioStoryTitle}</h2>
-        <p>${l.hero.audioStoryNote}</p>
-      </div>
-      <button
-        class="audio-story__toggle"
-        type="button"
-        data-sound-toggle
-        data-play-label="${l.hero.audioPlay}"
-        data-pause-label="${l.hero.audioPause}"
-        data-play-visible-label="${l.hero.audioPrompt}"
-        data-pause-visible-label="${l.hero.audioActive}"
-        data-duration="${l.hero.audioDuration}"
-        aria-label="${l.hero.audioPlay}"
-        aria-pressed="false"
+      <div
+        class="audio-story__player"
+        data-sound-player
       >
-        <span class="audio-story__action" data-sound-visible-label>${l.hero.audioPrompt}</span>
-        <span class="audio-story__wave" aria-hidden="true"><i></i><i></i><i></i></span>
-        <span class="audio-story__progress" aria-hidden="true"><i data-sound-progress></i></span>
-        <span class="sr-only" data-sound-toggle-label>${l.hero.audioPlay}</span>
-      </button>
-      <audio data-effort-audio preload="none">
-        <source src="${l.assetBase}assets/effort-breath.mp3" type="audio/mpeg">
-      </audio>
+        <ol class="audio-story__storyline" aria-label="${l.hero.audioScenesLabel}">
+          ${l.hero.audioScenes
+            .map(
+              (scene, index) => `
+            <li>
+              <button
+                type="button"
+                data-sound-scene
+                data-scene-index="${index}"
+                data-scene-title="${scene.title}"
+                data-audio-src="${l.assetBase}assets/${scene.file}"
+                data-duration="${scene.duration}"
+                data-play-label="${l.hero.audioPlay}"
+                data-pause-label="${l.hero.audioPause}"
+                data-playing="false"
+                aria-label="${l.hero.audioPlay}: ${scene.title}"
+                aria-pressed="${index === 0 ? "true" : "false"}"
+              >
+                <span class="audio-story__scene-line" aria-hidden="true"><i data-scene-progress></i></span>
+                <span class="audio-story__scene-head">
+                  <span>${String(index + 1).padStart(2, "0")}</span>
+                  ${soundSceneIcons[index]}
+                </span>
+                <span class="audio-story__scene-foot">
+                  <strong>${scene.title}</strong>
+                  <span class="audio-story__wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                </span>
+              </button>
+            </li>`,
+            )
+            .join("")}
+        </ol>
+      </div>
+      <audio
+        data-effort-audio
+        preload="metadata"
+        src="${l.assetBase}assets/${l.hero.audioScenes[0].file}"
+      ></audio>
     </section>
 
     <section class="manifesto section" aria-labelledby="manifesto-title">
@@ -1504,12 +1600,6 @@ function renderPage(l) {
         </div>
         <div class="partners__contact">
           <h3 class="partners__cta">${l.partners.cta}</h3>
-          <div class="partners__discussion">
-            <p>${l.partners.discussionLabel}</p>
-            <ul>
-              ${l.partners.formats.map(([title]) => `<li>${title}</li>`).join("")}
-            </ul>
-          </div>
           <div class="partners__channels">
             <a href="${mailHref}" aria-label="${l.partners.emailLabel}">
               ${l.partners.emailCta}${icons.external}

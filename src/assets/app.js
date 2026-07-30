@@ -85,7 +85,10 @@ for (const button of document.querySelectorAll("[data-theme-option]")) {
 const heroVideo = document.querySelector("[data-hero-video]");
 const videoToggle = document.querySelector("[data-video-toggle]");
 const effortAudio = document.querySelector("[data-effort-audio]");
-const soundToggle = document.querySelector("[data-sound-toggle]");
+const soundPlayer = document.querySelector("[data-sound-player]");
+const soundSceneButtons = Array.from(
+  document.querySelectorAll("[data-sound-scene]"),
+);
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 if (heroVideo && videoToggle) {
@@ -155,20 +158,103 @@ if (heroVideo && videoToggle) {
   }
 }
 
-if (effortAudio && soundToggle) {
-  const soundToggleLabel = soundToggle.querySelector("[data-sound-toggle-label]");
-  const soundVisibleLabel = soundToggle.querySelector(
-    "[data-sound-visible-label]",
+if (effortAudio && soundPlayer && soundSceneButtons.length) {
+  let activeSoundScene = Math.max(
+    0,
+    soundSceneButtons.findIndex(
+      (button) => button.getAttribute("aria-pressed") === "true",
+    ),
   );
-  const soundProgress = soundToggle.querySelector("[data-sound-progress]");
   let soundProgressFrame = 0;
+  let soundAudioContext;
+  let soundAnalyser;
+  let soundFrequencyData;
+
+  function soundWaveBars() {
+    return Array.from(
+      soundSceneButtons[activeSoundScene]?.querySelectorAll(
+        ".audio-story__wave i",
+      ) || [],
+    );
+  }
+
+  async function ensureSoundAnalyser() {
+    if (!soundAudioContext) {
+      const AudioContextClass =
+        window.AudioContext || window.webkitAudioContext;
+
+      if (!AudioContextClass) {
+        return;
+      }
+
+      try {
+        soundAudioContext = new AudioContextClass();
+        const source = soundAudioContext.createMediaElementSource(effortAudio);
+        soundAnalyser = soundAudioContext.createAnalyser();
+        soundAnalyser.fftSize = 64;
+        soundAnalyser.smoothingTimeConstant = 0.72;
+        soundFrequencyData = new Uint8Array(
+          soundAnalyser.frequencyBinCount,
+        );
+        source.connect(soundAnalyser);
+        soundAnalyser.connect(soundAudioContext.destination);
+      } catch {
+        soundAudioContext = undefined;
+        soundAnalyser = undefined;
+        soundFrequencyData = undefined;
+        return;
+      }
+    }
+
+    if (soundAudioContext.state === "suspended") {
+      await soundAudioContext.resume();
+    }
+  }
+
+  function updateSoundWave() {
+    const bars = soundWaveBars();
+
+    if (!soundAnalyser || !soundFrequencyData || !bars.length) {
+      return;
+    }
+
+    soundAnalyser.getByteFrequencyData(soundFrequencyData);
+    const bins = [1, 3, 6, 10, 14];
+
+    for (const [index, bar] of bars.entries()) {
+      const strength = soundFrequencyData[bins[index]] / 255;
+      bar.style.transform = `scaleY(${0.34 + strength * 1.18})`;
+    }
+  }
+
+  function resetSoundWave() {
+    for (const bar of soundPlayer.querySelectorAll(".audio-story__wave i")) {
+      bar.style.removeProperty("transform");
+    }
+  }
 
   function soundDuration() {
     if (Number.isFinite(effortAudio.duration) && effortAudio.duration > 0) {
       return effortAudio.duration;
     }
 
-    return Number(soundToggle.dataset.duration) || 0;
+    return Number(soundSceneButtons[activeSoundScene]?.dataset.duration) || 0;
+  }
+
+  function syncSoundStoryline(progress = 0) {
+    for (const [index, button] of soundSceneButtons.entries()) {
+      const sceneProgress =
+        index < activeSoundScene
+          ? 1
+          : index === activeSoundScene
+            ? progress
+            : 0;
+
+      button.style.setProperty(
+        "--scene-progress",
+        `${Math.min(1, sceneProgress) * 100}%`,
+      );
+    }
   }
 
   function updateSoundProgress() {
@@ -178,66 +264,112 @@ if (effortAudio && soundToggle) {
       ? Math.min(1, effortAudio.currentTime / duration)
       : 0;
 
-    if (soundProgress) {
-      soundProgress.style.width = `${progress * 100}%`;
-    }
+    syncSoundStoryline(progress);
 
     if (isPlaying) {
+      updateSoundWave();
       soundProgressFrame = window.requestAnimationFrame(updateSoundProgress);
     }
   }
 
-  function syncSoundToggle() {
+  function syncSoundControls() {
     const isPlaying = !effortAudio.paused && !effortAudio.ended;
-    const label = isPlaying
-      ? soundToggle.dataset.pauseLabel
-      : soundToggle.dataset.playLabel;
-    const visibleLabel = isPlaying
-      ? soundToggle.dataset.pauseVisibleLabel
-      : soundToggle.dataset.playVisibleLabel;
 
-    soundToggle.setAttribute("aria-pressed", String(isPlaying));
-    soundToggle.setAttribute("aria-label", label);
+    for (const [index, button] of soundSceneButtons.entries()) {
+      const isActive = index === activeSoundScene;
+      const label =
+        isActive && isPlaying
+          ? button.dataset.pauseLabel
+          : button.dataset.playLabel;
+      const title = button.dataset.sceneTitle || "";
 
-    if (soundToggleLabel) {
-      soundToggleLabel.textContent = label;
-    }
-
-    if (soundVisibleLabel) {
-      soundVisibleLabel.textContent = visibleLabel;
+      button.setAttribute("aria-pressed", String(isActive));
+      button.dataset.playing = String(isActive && isPlaying);
+      button.setAttribute("aria-label", title ? `${label}: ${title}` : label);
     }
 
     window.cancelAnimationFrame(soundProgressFrame);
+    if (!isPlaying) {
+      resetSoundWave();
+    }
     updateSoundProgress();
   }
 
-  soundToggle.addEventListener("click", async () => {
-    if (!effortAudio.paused) {
-      effortAudio.pause();
+  async function selectSoundScene(index, shouldPlay = true) {
+    const nextButton = soundSceneButtons[index];
+
+    if (!nextButton) {
       return;
     }
 
-    if (effortAudio.ended || effortAudio.currentTime > effortAudio.duration - 0.3) {
+    activeSoundScene = index;
+    const nextSource = nextButton.dataset.audioSrc;
+
+    if (nextSource && effortAudio.getAttribute("src") !== nextSource) {
+      effortAudio.setAttribute("src", nextSource);
+      effortAudio.load();
+    } else {
       effortAudio.currentTime = 0;
     }
 
-    try {
-      await effortAudio.play();
-    } catch {
-      syncSoundToggle();
+    resetSoundWave();
+    syncSoundControls();
+
+    if (shouldPlay) {
+      try {
+        await ensureSoundAnalyser();
+        await effortAudio.play();
+      } catch {
+        syncSoundControls();
+      }
+    }
+  }
+
+  for (const [index, button] of soundSceneButtons.entries()) {
+    button.addEventListener("click", async () => {
+      if (index !== activeSoundScene) {
+        selectSoundScene(index);
+        return;
+      }
+
+      if (!effortAudio.paused) {
+        effortAudio.pause();
+        return;
+      }
+
+      if (
+        effortAudio.ended ||
+        (Number.isFinite(effortAudio.duration) &&
+          effortAudio.currentTime > effortAudio.duration - 0.3)
+      ) {
+        effortAudio.currentTime = 0;
+      }
+
+      try {
+        await ensureSoundAnalyser();
+        await effortAudio.play();
+      } catch {
+        syncSoundControls();
+      }
+    });
+  }
+
+  effortAudio.addEventListener("play", syncSoundControls);
+  effortAudio.addEventListener("pause", syncSoundControls);
+  effortAudio.addEventListener("ended", () => {
+    if (activeSoundScene < soundSceneButtons.length - 1) {
+      selectSoundScene(activeSoundScene + 1);
+    } else {
+      syncSoundControls();
     }
   });
-
-  effortAudio.addEventListener("play", syncSoundToggle);
-  effortAudio.addEventListener("pause", syncSoundToggle);
-  effortAudio.addEventListener("ended", syncSoundToggle);
-  effortAudio.addEventListener("loadedmetadata", syncSoundToggle);
+  effortAudio.addEventListener("loadedmetadata", syncSoundControls);
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
       effortAudio.pause();
     }
   });
-  syncSoundToggle();
+  syncSoundControls();
 }
 
 for (const storyVideoFrame of document.querySelectorAll(
