@@ -23,6 +23,7 @@ const shared = {
   filmHref: "https://vk.com/video-224465212_456239107",
   dustyDumbbellsHref: "https://dustydumbbells.com/",
   gastrodinamikaHref: "https://www.instagram.com/gstrdnmc/",
+  photoHref: "https://khanayphoto.ru/",
   designHref: "https://anton-gorokhovatsky.github.io/design/",
   startDate: "2026-12-01",
   endDate: "2026-12-31",
@@ -74,8 +75,11 @@ const locales = {
       videoPause: "Пауза",
       audioPlay: "Включить дыхание и звук дистанции",
       audioPause: "Выключить дыхание и звук дистанции",
-      audioPrompt: "Присутствие",
-      audioActive: "Присутствие",
+      audioStoryLabel: "Звуковая сцена",
+      audioStoryTitle: "Присутствие",
+      audioStoryNote: "Дыхание и звук дистанции",
+      audioPrompt: "Слушать",
+      audioActive: "Пауза",
       audioDuration: "8.4",
       primaryCta: "Как это устроено",
       secondaryCta: "Войти в историю",
@@ -149,7 +153,7 @@ const locales = {
       ],
     },
     viktor: {
-      eyebrow: "Кто такой Виктор",
+      eyebrow: "О герое",
       title: "Виктор Доронин",
       lead: "47 лет. Не создаёт образ — живёт в нём.",
       body: `Идеолог сообществ <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">«Пыльные гантели»</a> и&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">«Гастродинамика»</a>, друг, мотиватор и&nbsp;один из сильнейших любителей в триатлоне.`,
@@ -166,13 +170,17 @@ const locales = {
       label: "Тренировки, усилие и люди рядом",
       videoPlay: "Включить фрагмент",
       videoPause: "Пауза",
+      credit: "Фото — Женя Ханай",
+      dates: "22 мая — 19 июня 2026",
       items: [
         {
           image: "story-leads-community.jpg",
           width: "1800",
           height: "1200",
           alt: "Виктор Доронин стоит спиной к камере перед большой группой бегунов на стадионе",
-          caption: "Собирает",
+          caption: "Сообщество",
+          date: "2026-06-02",
+          dateLabel: "2 июня 2026",
         },
         {
           image: "story-pace-close.jpg",
@@ -180,6 +188,8 @@ const locales = {
           height: "1800",
           alt: "Виктор Доронин бежит в группе по залитой солнцем дорожке",
           caption: "Темп",
+          date: "2026-05-22",
+          dateLabel: "22 мая 2026",
         },
         {
           image: "story-recovery.jpg",
@@ -195,20 +205,26 @@ const locales = {
           height: "1800",
           alt: "Улыбающийся Виктор Доронин пожимает руки участникам тренировки",
           caption: "Поддержка",
+          date: "2026-05-31",
+          dateLabel: "31 мая 2026",
         },
         {
           image: "story-motion-city.jpg",
-          width: "1400",
+          width: "1440",
           height: "1800",
-          alt: "Виктор Доронин бежит вместе с двумя спортсменами по городской площади",
-          caption: "В движении",
+          alt: "Виктор Доронин бежит рядом с другими спортсменами по залитой солнцем дорожке",
+          caption: "Движение",
+          date: "2026-06-19",
+          dateLabel: "19 июня 2026",
         },
         {
           image: "story-community-wide.jpg",
           width: "1800",
           height: "1200",
           alt: "Виктор Доронин и большая группа участников тренировки позируют на стадионе",
-          caption: "Сообщество",
+          caption: "Вместе",
+          date: "2026-06-02",
+          dateLabel: "2 июня 2026",
         },
       ],
     },
@@ -336,6 +352,7 @@ const locales = {
         ["25+", "федеральных СМИ"],
       ],
       cta: "Обсудить участие",
+      discussionLabel: "Можно обсудить",
       mailSubject: "Партнёрство с проектом 11 111",
       contacts: "Контакт",
       emailLabel: "Написать Анне Нестеровой",
@@ -402,8 +419,11 @@ const locales = {
       videoPause: "Pause",
       audioPlay: "Play Viktor’s breathing and the sound of the distance",
       audioPause: "Mute Viktor’s breathing and the sound of the distance",
-      audioPrompt: "Presence",
-      audioActive: "Presence",
+      audioStoryLabel: "Sound scene",
+      audioStoryTitle: "Presence",
+      audioStoryNote: "Breath and the sound of the distance",
+      audioPrompt: "Listen",
+      audioActive: "Pause",
       audioDuration: "8.4",
       primaryCta: "See the challenge",
       secondaryCta: "Become part of it",
@@ -476,7 +496,7 @@ const locales = {
       ],
     },
     viktor: {
-      eyebrow: "Who is Viktor",
+      eyebrow: "About Viktor",
       title: "Viktor Doronin",
       lead: "47. He does not build an image&nbsp;—<br>he lives it.",
       body: `A driving force behind the <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">Dusty Dumbbells</a> and&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">Gastrodinamika</a> communities, a friend, a motivator, and one of Russia’s strongest amateur triathletes.`,
@@ -493,13 +513,17 @@ const locales = {
       label: "Training, effort and the people around him",
       videoPlay: "Play clip",
       videoPause: "Pause",
+      credit: "Photography — Zhenya Khanai",
+      dates: "May 22–June 19, 2026",
       items: [
         {
           image: "story-leads-community.jpg",
           width: "1800",
           height: "1200",
           alt: "Viktor Doronin stands with his back to the camera before a large group of runners on a track",
-          caption: "Brings people together",
+          caption: "Community",
+          date: "2026-06-02",
+          dateLabel: "June 2, 2026",
         },
         {
           image: "story-pace-close.jpg",
@@ -507,6 +531,8 @@ const locales = {
           height: "1800",
           alt: "Viktor Doronin runs with a group along a sunlit track",
           caption: "Pace",
+          date: "2026-05-22",
+          dateLabel: "May 22, 2026",
         },
         {
           image: "story-recovery.jpg",
@@ -522,20 +548,26 @@ const locales = {
           height: "1800",
           alt: "A smiling Viktor Doronin clasps hands with people after training",
           caption: "Support",
+          date: "2026-05-31",
+          dateLabel: "May 31, 2026",
         },
         {
           image: "story-motion-city.jpg",
-          width: "1400",
+          width: "1440",
           height: "1800",
-          alt: "Viktor Doronin runs with two athletes across a city square",
-          caption: "In motion",
+          alt: "Viktor Doronin runs alongside other athletes on a sunlit path",
+          caption: "Motion",
+          date: "2026-06-19",
+          dateLabel: "June 19, 2026",
         },
         {
           image: "story-community-wide.jpg",
           width: "1800",
           height: "1200",
           alt: "Viktor Doronin and a large training group pose together on a track",
-          caption: "Community",
+          caption: "Together",
+          date: "2026-06-02",
+          dateLabel: "June 2, 2026",
         },
       ],
     },
@@ -663,6 +695,7 @@ const locales = {
         ["25+", "federal media outlets"],
       ],
       cta: "Discuss a partnership",
+      discussionLabel: "Topics to discuss",
       mailSubject: "Partnership with Project 11 111",
       contacts: "Contact",
       emailLabel: "Email Anna Nesterova",
@@ -980,7 +1013,12 @@ function renderStory(items, l) {
           </div>
           <figcaption>
             <span aria-hidden="true">${String(index + 1).padStart(2, "0")}</span>
-            ${item.caption}
+            <strong>${item.caption}</strong>
+            ${
+              item.date
+                ? `<time datetime="${item.date}">${item.dateLabel}</time>`
+                : ""
+            }
           </figcaption>
         </figure>`,
     )
@@ -1209,27 +1247,7 @@ function renderPage(l) {
           <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
           <span class="sr-only" data-video-toggle-label>${l.hero.videoPlay}</span>
         </button>
-        <button
-          class="hero__sound-toggle"
-          type="button"
-          data-sound-toggle
-          data-play-label="${l.hero.audioPlay}"
-          data-pause-label="${l.hero.audioPause}"
-          data-play-visible-label="${l.hero.audioPrompt}"
-          data-pause-visible-label="${l.hero.audioActive}"
-          data-duration="${l.hero.audioDuration}"
-          aria-label="${l.hero.audioPlay}"
-          aria-pressed="false"
-        >
-          <span class="hero__sound-label" data-sound-visible-label>${l.hero.audioPrompt}</span>
-          <span class="hero__sound-wave" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span class="hero__sound-progress" aria-hidden="true"><i data-sound-progress></i></span>
-          <span class="sr-only" data-sound-toggle-label>${l.hero.audioPlay}</span>
-        </button>
       </div>
-      <audio data-effort-audio preload="none">
-        <source src="${l.assetBase}assets/effort-breath.mp3" type="audio/mpeg">
-      </audio>
 
       <div class="hero__content">
         <p class="hero__kicker"><time datetime="${shared.startDate}">${l.hero.kicker}</time></p>
@@ -1285,6 +1303,37 @@ function renderPage(l) {
         <span>${l.hero.footLabel}</span>
         <strong>${l.hero.footText}</strong>
       </div>
+    </section>
+
+    <section class="audio-story" aria-labelledby="audio-story-title">
+      <div class="audio-story__meta">
+        <span aria-hidden="true">01</span>
+        <p>${l.hero.audioStoryLabel}</p>
+      </div>
+      <div class="audio-story__copy">
+        <h2 id="audio-story-title">${l.hero.audioStoryTitle}</h2>
+        <p>${l.hero.audioStoryNote}</p>
+      </div>
+      <button
+        class="audio-story__toggle"
+        type="button"
+        data-sound-toggle
+        data-play-label="${l.hero.audioPlay}"
+        data-pause-label="${l.hero.audioPause}"
+        data-play-visible-label="${l.hero.audioPrompt}"
+        data-pause-visible-label="${l.hero.audioActive}"
+        data-duration="${l.hero.audioDuration}"
+        aria-label="${l.hero.audioPlay}"
+        aria-pressed="false"
+      >
+        <span class="audio-story__action" data-sound-visible-label>${l.hero.audioPrompt}</span>
+        <span class="audio-story__wave" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="audio-story__progress" aria-hidden="true"><i data-sound-progress></i></span>
+        <span class="sr-only" data-sound-toggle-label>${l.hero.audioPlay}</span>
+      </button>
+      <audio data-effort-audio preload="none">
+        <source src="${l.assetBase}assets/effort-breath.mp3" type="audio/mpeg">
+      </audio>
     </section>
 
     <section class="manifesto section" aria-labelledby="manifesto-title">
@@ -1364,6 +1413,12 @@ function renderPage(l) {
 
     <section class="story section section--light" aria-label="${l.story.label}">
       ${renderStory(l.story.items, l)}
+      <p class="story__credit">
+        <a href="${shared.photoHref}" target="_blank" rel="noopener noreferrer">
+          ${l.story.credit}${icons.external}
+        </a>
+        <span>${l.story.dates}</span>
+      </p>
     </section>
 
     <div class="velocity-cut velocity-cut--into-proof" aria-hidden="true"></div>
@@ -1449,6 +1504,12 @@ function renderPage(l) {
         </div>
         <div class="partners__contact">
           <h3 class="partners__cta">${l.partners.cta}</h3>
+          <div class="partners__discussion">
+            <p>${l.partners.discussionLabel}</p>
+            <ul>
+              ${l.partners.formats.map(([title]) => `<li>${title}</li>`).join("")}
+            </ul>
+          </div>
           <div class="partners__channels">
             <a href="${mailHref}" aria-label="${l.partners.emailLabel}">
               ${l.partners.emailCta}${icons.external}

@@ -68,6 +68,26 @@ for (const [lang, path] of pages) {
       ),
     `${lang}: меню относится к шапке, а управление видео — к кадру первого экрана`,
   );
+  const heroMediaControls =
+    html.match(
+      /<div class="hero__media-controls">([\s\S]*?)<\/div>/u,
+    )?.[1] || "";
+  expect(
+    heroMediaControls.includes("data-video-toggle") &&
+      !heroMediaControls.includes("data-sound-toggle") &&
+      html.includes('class="audio-story"') &&
+      html.includes("data-sound-progress"),
+    `${lang}: видео и атмосферный звук должны оставаться двумя независимыми сценариями`,
+  );
+  const heroVideoTag =
+    html.match(/<video\b[^>]*\bdata-hero-video\b[^>]*>/su)?.[0] || "";
+  expect(
+    /\bmuted\b/u.test(heroVideoTag) &&
+      /\bplaysinline\b/u.test(heroVideoTag) &&
+      /\bposter="[^"]+"/u.test(heroVideoTag) &&
+      !/\bautoplay\b/u.test(heroVideoTag),
+    `${lang}: фоновое видео должно запускаться только без звука и сохранять постерный fallback`,
+  );
   expect(
     (html.match(/\bdata-theme-option="/g) || []).length === 9 &&
       html.includes('class="header-theme"'),
@@ -97,6 +117,12 @@ for (const [lang, path] of pages) {
       html.indexOf('class="partner-formats"') <
         html.indexOf('class="partners__closing"'),
     `${lang}: партнёрский экран должен собираться из вводной, редакционной матрицы и общего финального блока`,
+  );
+  expect(
+    html.includes('class="partners__discussion"') &&
+      html.includes("<li>Equipment</li>") === (lang === "en") &&
+      html.includes("<li>Экипировка</li>") === (lang === "ru"),
+    `${lang}: в финальном контакте должны сохраняться направления обсуждения`,
   );
   expect(
     html.includes('class="site-footer__after-credits"') &&
@@ -142,6 +168,15 @@ for (const [lang, path] of pages) {
         !visibleText.includes("Дневник подготовки Виктора"),
       "ru: послетитровая ссылка не должна повторять имя героя",
     );
+    expect(
+      visibleText.includes("О герое") &&
+        visibleText.includes("Сообщество") &&
+        visibleText.includes("Движение") &&
+        visibleText.includes("Вместе") &&
+        visibleText.includes("Фото — Женя Ханай") &&
+        visibleText.includes("19 июня 2026"),
+      "ru: фотосерия о герое должна сохранять утверждённые главы, авторство и даты",
+    );
   } else {
     expect(
       !textFragments.some((fragment) =>
@@ -165,6 +200,15 @@ for (const [lang, path] of pages) {
       visibleText.includes("Training diary") &&
         !visibleText.includes("Viktor’s training diary"),
       "en: послетитровая ссылка не должна повторять имя героя",
+    );
+    expect(
+      visibleText.includes("About Viktor") &&
+        visibleText.includes("Community") &&
+        visibleText.includes("Motion") &&
+        visibleText.includes("Together") &&
+        visibleText.includes("Photography — Zhenya Khanai") &&
+        visibleText.includes("June 19, 2026"),
+      "en: the Viktor photo story must preserve the approved chapters, credit and dates",
     );
   }
 
@@ -223,6 +267,17 @@ expect(
     css.includes(".partners__channels a:hover") &&
     css.includes(".interview-card:hover h3"),
   "css: партнёрские и редакционные действия должны иметь ясное интерактивное состояние",
+);
+expect(
+  css.includes("@media (prefers-reduced-motion: reduce)") &&
+    app.includes('matchMedia("(prefers-reduced-motion: reduce)")') &&
+    app.includes("heroVideo.pause()"),
+  "motion: reduced-motion должен отключать автоматическое движение и останавливать первый экран",
+);
+expect(
+  css.includes(":focus-visible") &&
+    css.includes("outline: 3px solid var(--acid)"),
+  "css: клавиатурный фокус должен оставаться заметным",
 );
 expect(
   css.includes('--body: "Commissioner"') &&

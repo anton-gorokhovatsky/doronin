@@ -125,7 +125,6 @@ if (heroVideo && videoToggle) {
     } else {
       userPausedVideo = true;
       heroVideo.pause();
-      effortAudio?.pause();
     }
   });
 
@@ -209,12 +208,7 @@ if (effortAudio && soundToggle) {
     }
 
     window.cancelAnimationFrame(soundProgressFrame);
-
-    if (isPlaying) {
-      updateSoundProgress();
-    } else if (soundProgress) {
-      soundProgress.style.width = "0%";
-    }
+    updateSoundProgress();
   }
 
   soundToggle.addEventListener("click", async () => {

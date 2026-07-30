@@ -38,12 +38,12 @@
     data-light-href="../assets/favicon-light.svg"
     data-dark-href="../assets/favicon-dark.svg"
   >
-  <script src="../assets/theme-init.js?v=ebce77e428"></script>
+  <script src="../assets/theme-init.js?v=035d700fdb"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/styles.css?v=ebce77e428">
-  <script src="../assets/app.js?v=ebce77e428" defer></script>
+  <link rel="stylesheet" href="../assets/styles.css?v=035d700fdb">
+  <script src="../assets/app.js?v=035d700fdb" defer></script>
   <!-- Yandex.Metrika counter -->
   <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
@@ -161,27 +161,7 @@
           <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
           <span class="sr-only" data-video-toggle-label>Play video</span>
         </button>
-        <button
-          class="hero__sound-toggle"
-          type="button"
-          data-sound-toggle
-          data-play-label="Play Viktor’s breathing and the sound of the distance"
-          data-pause-label="Mute Viktor’s breathing and the sound of the distance"
-          data-play-visible-label="Presence"
-          data-pause-visible-label="Presence"
-          data-duration="8.4"
-          aria-label="Play Viktor’s breathing and the sound of the distance"
-          aria-pressed="false"
-        >
-          <span class="hero__sound-label" data-sound-visible-label>Presence</span>
-          <span class="hero__sound-wave" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span class="hero__sound-progress" aria-hidden="true"><i data-sound-progress></i></span>
-          <span class="sr-only" data-sound-toggle-label>Play Viktor’s breathing and the sound of the distance</span>
-        </button>
       </div>
-      <audio data-effort-audio preload="none">
-        <source src="../assets/effort-breath.mp3" type="audio/mpeg">
-      </audio>
 
       <div class="hero__content">
         <p class="hero__kicker"><time datetime="2026-12-01">December 1–31, 2026 · Viktor Doronin</time></p>
@@ -236,6 +216,37 @@
         <span>Not a sporting event</span>
         <strong>A story you can become part of</strong>
       </div>
+    </section>
+
+    <section class="audio-story" aria-labelledby="audio-story-title">
+      <div class="audio-story__meta">
+        <span aria-hidden="true">01</span>
+        <p>Sound scene</p>
+      </div>
+      <div class="audio-story__copy">
+        <h2 id="audio-story-title">Presence</h2>
+        <p>Breath and the sound of the distance</p>
+      </div>
+      <button
+        class="audio-story__toggle"
+        type="button"
+        data-sound-toggle
+        data-play-label="Play Viktor’s breathing and the sound of the distance"
+        data-pause-label="Mute Viktor’s breathing and the sound of the distance"
+        data-play-visible-label="Listen"
+        data-pause-visible-label="Pause"
+        data-duration="8.4"
+        aria-label="Play Viktor’s breathing and the sound of the distance"
+        aria-pressed="false"
+      >
+        <span class="audio-story__action" data-sound-visible-label>Listen</span>
+        <span class="audio-story__wave" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="audio-story__progress" aria-hidden="true"><i data-sound-progress></i></span>
+        <span class="sr-only" data-sound-toggle-label>Play Viktor’s breathing and the sound of the distance</span>
+      </button>
+      <audio data-effort-audio preload="none">
+        <source src="../assets/effort-breath.mp3" type="audio/mpeg">
+      </audio>
     </section>
 
     <section class="manifesto section" aria-labelledby="manifesto-title">
@@ -471,7 +482,7 @@
       <div class="athlete__copy">
         <div class="section-label">
           <span>03</span>
-          <p>Who is Viktor</p>
+          <p>About Viktor</p>
         </div>
         <h2 id="viktor-title">Viktor Doronin</h2>
         <p class="athlete__lead">47. He does not build an image&nbsp;—<br>he lives it.</p>
@@ -516,7 +527,8 @@
           </div>
           <figcaption>
             <span aria-hidden="true">01</span>
-            Brings people together
+            <strong>Community</strong>
+            <time datetime="2026-06-02">June 2, 2026</time>
           </figcaption>
         </figure>
         <figure
@@ -534,7 +546,8 @@
           </div>
           <figcaption>
             <span aria-hidden="true">02</span>
-            Pace
+            <strong>Pace</strong>
+            <time datetime="2026-05-22">May 22, 2026</time>
           </figcaption>
         </figure>
         <figure
@@ -568,7 +581,8 @@
           </div>
           <figcaption>
             <span aria-hidden="true">03</span>
-            The cost of effort
+            <strong>The cost of effort</strong>
+
           </figcaption>
         </figure>
         <figure
@@ -586,7 +600,8 @@
           </div>
           <figcaption>
             <span aria-hidden="true">04</span>
-            Support
+            <strong>Support</strong>
+            <time datetime="2026-05-31">May 31, 2026</time>
           </figcaption>
         </figure>
         <figure
@@ -596,15 +611,16 @@
           <div class="story-frame__media">
             <img
                     src="../assets/story-motion-city.jpg"
-                    alt="Viktor Doronin runs with two athletes across a city square"
-                    width="1400"
+                    alt="Viktor Doronin runs alongside other athletes on a sunlit path"
+                    width="1440"
                     height="1800"
                     loading="lazy"
                   >
           </div>
           <figcaption>
             <span aria-hidden="true">05</span>
-            In motion
+            <strong>Motion</strong>
+            <time datetime="2026-06-19">June 19, 2026</time>
           </figcaption>
         </figure>
         <figure
@@ -622,9 +638,19 @@
           </div>
           <figcaption>
             <span aria-hidden="true">06</span>
-            Community
+            <strong>Together</strong>
+            <time datetime="2026-06-02">June 2, 2026</time>
           </figcaption>
         </figure>
+      <p class="story__credit">
+        <a href="https://khanayphoto.ru/" target="_blank" rel="noopener noreferrer">
+          Photography — Zhenya Khanai
+    <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M4 12 12 4M6 4h6v6"></path>
+    </svg>
+        </a>
+        <span>May 22–June 19, 2026</span>
+      </p>
     </section>
 
     <div class="velocity-cut velocity-cut--into-proof" aria-hidden="true"></div>
@@ -1049,6 +1075,12 @@
         </div>
         <div class="partners__contact">
           <h3 class="partners__cta">Discuss a partnership</h3>
+          <div class="partners__discussion">
+            <p>Topics to discuss</p>
+            <ul>
+              <li>Equipment</li><li>Technology</li><li>Media</li>
+            </ul>
+          </div>
           <div class="partners__channels">
             <a href="mailto:anesterova88@gmail.com?subject=Partnership%20with%20Project%2011%20111" aria-label="Email Anna Nesterova">
               Send an email
