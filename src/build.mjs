@@ -140,6 +140,8 @@ const locales = {
     },
     story: {
       label: "Виктор Доронин: тренировки и люди рядом",
+      videoPlay: "Включить фрагмент",
+      videoPause: "Пауза",
       items: [
         {
           image: "story-running.jpg",
@@ -156,11 +158,12 @@ const locales = {
           caption: "Сообщество",
         },
         {
-          image: "story-cycling.jpg",
-          width: "1800",
-          height: "1333",
-          alt: "Виктор Доронин ведёт группу велосипедистов",
-          caption: "Велосипед",
+          image: "story-bridge.jpg",
+          video: "story-bridge.mp4",
+          width: "1280",
+          height: "720",
+          alt: "Виктор Доронин плывёт, едет на велосипеде и бежит",
+          caption: "Дубай · проект «1111»",
         },
       ],
     },
@@ -360,6 +363,8 @@ const locales = {
     },
     story: {
       label: "Viktor Doronin: training and the people around him",
+      videoPlay: "Play clip",
+      videoPause: "Pause",
       items: [
         {
           image: "story-running.jpg",
@@ -376,11 +381,12 @@ const locales = {
           caption: "Community",
         },
         {
-          image: "story-cycling.jpg",
-          width: "1800",
-          height: "1333",
-          alt: "Viktor Doronin leading a group of cyclists",
-          caption: "Cycling",
+          image: "story-bridge.jpg",
+          video: "story-bridge.mp4",
+          width: "1280",
+          height: "720",
+          alt: "Viktor Doronin swimming, cycling and running",
+          caption: "Dubai · Project “1111”",
         },
       ],
     },
@@ -513,11 +519,30 @@ function renderDistanceValue(value, unit, className) {
     </p>`;
 }
 
+function renderSequenceTotal(value) {
+  const groups = value.split(" ");
+
+  if (groups.length === 1) {
+    return `<b>${value}</b>`;
+  }
+
+  return `<b class="distance-story__sequence-total">${groups
+    .map((group) => `<span>${group}</span>`)
+    .join("")}</b>`;
+}
+
 function renderDistance(items, l) {
   return items
     .map(
       (item, index) => `
-        <article class="distance-card${index === 0 ? " is-active" : ""}" data-distance-card="${index}">
+        <article
+          class="distance-card${index === 0 ? " is-active" : ""}"
+          data-distance-card="${index}"
+          data-distance-value="${item.value}"
+          data-distance-unit="${item.unit}"
+          data-distance-index="${item.index}"
+          data-distance-label="${item.label}"
+        >
           <figure class="distance-card__media" aria-hidden="true">
             <img src="${l.assetBase}assets/${item.image}" alt="" loading="lazy" width="1600" height="900">
           </figure>
@@ -547,7 +572,7 @@ function renderDistanceMedia(items, l) {
             data-distance-video="${index}"
             muted
             playsinline
-            preload="none"
+            preload="metadata"
             poster="${l.assetBase}assets/${item.image}"
             aria-hidden="true"
           >
@@ -622,15 +647,41 @@ function renderStory(items, l) {
   return items
     .map(
       (item, index) => `
-        <figure class="story-frame">
+        <figure class="story-frame${item.video ? " story-frame--motion" : ""}">
           <div class="story-frame__media">
-            <img
-              src="${l.assetBase}assets/${item.image}"
-              alt="${item.alt}"
-              width="${item.width}"
-              height="${item.height}"
-              loading="lazy"
-            >
+            ${
+              item.video
+                ? `<video
+                    data-story-video
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata"
+                    poster="${l.assetBase}assets/${item.image}"
+                    aria-hidden="true"
+                  >
+                    <source src="${l.assetBase}assets/${item.video}" type="video/mp4">
+                  </video>
+                  <button
+                    class="story-frame__video-toggle"
+                    type="button"
+                    data-story-video-toggle
+                    data-play-label="${l.story.videoPlay}"
+                    data-pause-label="${l.story.videoPause}"
+                    aria-label="${l.story.videoPlay}"
+                    aria-pressed="false"
+                  >
+                    <span class="story-frame__video-toggle-icon" aria-hidden="true"><i></i><i></i></span>
+                    <span class="sr-only" data-story-video-toggle-label>${l.story.videoPlay}</span>
+                  </button>`
+                : `<img
+                    src="${l.assetBase}assets/${item.image}"
+                    alt="${item.alt}"
+                    width="${item.width}"
+                    height="${item.height}"
+                    loading="lazy"
+                  >`
+            }
           </div>
           <figcaption>
             <span aria-hidden="true">${String(index + 1).padStart(2, "0")}</span>
@@ -760,8 +811,9 @@ function renderPage(l) {
     </a>
 
     <details class="nav-shell" open>
-      <summary class="menu-toggle">
+      <summary class="menu-toggle" aria-label="${l.menu}">
         <span class="menu-toggle__label">${l.menu}</span>
+        <span class="menu-toggle__current" data-current-chapter>${l.nav[0][1]}</span>
         <span class="menu-toggle__icon" aria-hidden="true"></span>
       </summary>
       <nav class="site-nav" aria-label="${l.menu}">
@@ -889,6 +941,25 @@ function renderPage(l) {
       <div class="distance-story" data-distance-story>
         <div class="distance-story__visual">
           ${renderDistanceMedia(l.distance.items, l)}
+          <div class="distance-story__counter" aria-hidden="true">
+            <div class="distance-story__counter-meta">
+              <span data-distance-live-index>${l.distance.items[0].index}</span>
+              <span data-distance-live-label>${l.distance.items[0].label}</span>
+            </div>
+            <p class="distance-story__counter-value">
+              <strong data-distance-live-value data-optical-start>${l.distance.items[0].value}</strong>
+              <small data-distance-live-unit>${l.distance.items[0].unit}</small>
+            </p>
+            <div class="distance-story__sequence">
+              ${l.distance.items
+                .map(
+                  (item, index) =>
+                    `<span class="${index === 0 ? "is-active" : ""}" data-distance-sequence="${index}"></span>`,
+                )
+                .join("")}
+              ${renderSequenceTotal(l.distance.totalValue)}
+            </div>
+          </div>
         </div>
         <div class="distance-story__chapters">
           ${renderDistance(l.distance.items, l)}

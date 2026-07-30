@@ -38,12 +38,12 @@
     data-light-href="../assets/favicon-light.svg"
     data-dark-href="../assets/favicon-dark.svg"
   >
-  <script src="../assets/theme-init.js?v=85355ddc27"></script>
+  <script src="../assets/theme-init.js?v=875853e6f8"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/styles.css?v=85355ddc27">
-  <script src="../assets/app.js?v=85355ddc27" defer></script>
+  <link rel="stylesheet" href="../assets/styles.css?v=875853e6f8">
+  <script src="../assets/app.js?v=875853e6f8" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -54,8 +54,9 @@
     </a>
 
     <details class="nav-shell" open>
-      <summary class="menu-toggle">
+      <summary class="menu-toggle" aria-label="Menu">
         <span class="menu-toggle__label">Menu</span>
+        <span class="menu-toggle__current" data-current-chapter>11,111 km</span>
         <span class="menu-toggle__icon" aria-hidden="true"></span>
       </summary>
       <nav class="site-nav" aria-label="Menu">
@@ -212,7 +213,7 @@
             data-distance-video="0"
             muted
             playsinline
-            preload="none"
+            preload="metadata"
             poster="../assets/distance-swim.jpg"
             aria-hidden="true"
           >
@@ -232,7 +233,7 @@
             data-distance-video="1"
             muted
             playsinline
-            preload="none"
+            preload="metadata"
             poster="../assets/distance-bike.jpg"
             aria-hidden="true"
           >
@@ -252,7 +253,7 @@
             data-distance-video="2"
             muted
             playsinline
-            preload="none"
+            preload="metadata"
             poster="../assets/distance-run.jpg"
             aria-hidden="true"
           >
@@ -263,10 +264,31 @@
             <strong>03 · running</strong>
           </figcaption>
         </figure>
+          <div class="distance-story__counter" aria-hidden="true">
+            <div class="distance-story__counter-meta">
+              <span data-distance-live-index>01</span>
+              <span data-distance-live-label>swimming</span>
+            </div>
+            <p class="distance-story__counter-value">
+              <strong data-distance-live-value data-optical-start>100</strong>
+              <small data-distance-live-unit>km</small>
+            </p>
+            <div class="distance-story__sequence">
+              <span class="is-active" data-distance-sequence="0"></span><span class="" data-distance-sequence="1"></span><span class="" data-distance-sequence="2"></span>
+              <b>11,111</b>
+            </div>
+          </div>
         </div>
         <div class="distance-story__chapters">
 
-        <article class="distance-card is-active" data-distance-card="0">
+        <article
+          class="distance-card is-active"
+          data-distance-card="0"
+          data-distance-value="100"
+          data-distance-unit="km"
+          data-distance-index="01"
+          data-distance-label="swimming"
+        >
           <figure class="distance-card__media" aria-hidden="true">
             <img src="../assets/distance-swim.jpg" alt="" loading="lazy" width="1600" height="900">
           </figure>
@@ -284,7 +306,14 @@
             <li>2,000 lengths of a 50-metre pool</li><li>the equivalent of three English Channel crossings</li><li>Moscow to Yaroslavl without a break in the water</li>
           </ul>
         </article>
-        <article class="distance-card" data-distance-card="1">
+        <article
+          class="distance-card"
+          data-distance-card="1"
+          data-distance-value="10,010"
+          data-distance-unit="km"
+          data-distance-index="02"
+          data-distance-label="cycling"
+        >
           <figure class="distance-card__media" aria-hidden="true">
             <img src="../assets/distance-bike.jpg" alt="" loading="lazy" width="1600" height="900">
           </figure>
@@ -302,7 +331,14 @@
             <li>almost across Russia: Moscow to Vladivostok</li><li>one quarter of Earth’s equator</li><li>Moscow — Paris — Moscow — Paris</li>
           </ul>
         </article>
-        <article class="distance-card" data-distance-card="2">
+        <article
+          class="distance-card"
+          data-distance-card="2"
+          data-distance-value="1,001"
+          data-distance-unit="km"
+          data-distance-index="03"
+          data-distance-label="running"
+        >
           <figure class="distance-card__media" aria-hidden="true">
             <img src="../assets/distance-run.jpg" alt="" loading="lazy" width="1600" height="900">
           </figure>
@@ -393,12 +429,12 @@
         <figure class="story-frame">
           <div class="story-frame__media">
             <img
-              src="../assets/story-running.jpg"
-              alt="Viktor Doronin running with athletes at a training camp"
-              width="1800"
-              height="1198"
-              loading="lazy"
-            >
+                    src="../assets/story-running.jpg"
+                    alt="Viktor Doronin running with athletes at a training camp"
+                    width="1800"
+                    height="1198"
+                    loading="lazy"
+                  >
           </div>
           <figcaption>
             <span aria-hidden="true">01</span>
@@ -408,31 +444,47 @@
         <figure class="story-frame">
           <div class="story-frame__media">
             <img
-              src="../assets/story-community.jpg"
-              alt="Viktor Doronin talking with friends after training"
-              width="1400"
-              height="1539"
-              loading="lazy"
-            >
+                    src="../assets/story-community.jpg"
+                    alt="Viktor Doronin talking with friends after training"
+                    width="1400"
+                    height="1539"
+                    loading="lazy"
+                  >
           </div>
           <figcaption>
             <span aria-hidden="true">02</span>
             Community
           </figcaption>
         </figure>
-        <figure class="story-frame">
+        <figure class="story-frame story-frame--motion">
           <div class="story-frame__media">
-            <img
-              src="../assets/story-cycling.jpg"
-              alt="Viktor Doronin leading a group of cyclists"
-              width="1800"
-              height="1333"
-              loading="lazy"
-            >
+            <video
+                    data-story-video
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata"
+                    poster="../assets/story-bridge.jpg"
+                    aria-hidden="true"
+                  >
+                    <source src="../assets/story-bridge.mp4" type="video/mp4">
+                  </video>
+                  <button
+                    class="story-frame__video-toggle"
+                    type="button"
+                    data-story-video-toggle
+                    data-play-label="Play clip"
+                    data-pause-label="Pause"
+                    aria-label="Play clip"
+                    aria-pressed="false"
+                  >
+                    <span class="story-frame__video-toggle-icon" aria-hidden="true"><i></i><i></i></span>
+                    <span class="sr-only" data-story-video-toggle-label>Play clip</span>
+                  </button>
           </div>
           <figcaption>
             <span aria-hidden="true">03</span>
-            Cycling
+            Dubai · Project “1111”
           </figcaption>
         </figure>
     </section>

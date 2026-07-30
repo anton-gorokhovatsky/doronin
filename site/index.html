@@ -38,12 +38,12 @@
     data-light-href="./assets/favicon-light.svg"
     data-dark-href="./assets/favicon-dark.svg"
   >
-  <script src="./assets/theme-init.js?v=85355ddc27"></script>
+  <script src="./assets/theme-init.js?v=875853e6f8"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./assets/styles.css?v=85355ddc27">
-  <script src="./assets/app.js?v=85355ddc27" defer></script>
+  <link rel="stylesheet" href="./assets/styles.css?v=875853e6f8">
+  <script src="./assets/app.js?v=875853e6f8" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти к содержанию</a>
@@ -54,8 +54,9 @@
     </a>
 
     <details class="nav-shell" open>
-      <summary class="menu-toggle">
+      <summary class="menu-toggle" aria-label="Меню">
         <span class="menu-toggle__label">Меню</span>
+        <span class="menu-toggle__current" data-current-chapter>11 111 км</span>
         <span class="menu-toggle__icon" aria-hidden="true"></span>
       </summary>
       <nav class="site-nav" aria-label="Меню">
@@ -212,7 +213,7 @@
             data-distance-video="0"
             muted
             playsinline
-            preload="none"
+            preload="metadata"
             poster="./assets/distance-swim.jpg"
             aria-hidden="true"
           >
@@ -232,7 +233,7 @@
             data-distance-video="1"
             muted
             playsinline
-            preload="none"
+            preload="metadata"
             poster="./assets/distance-bike.jpg"
             aria-hidden="true"
           >
@@ -252,7 +253,7 @@
             data-distance-video="2"
             muted
             playsinline
-            preload="none"
+            preload="metadata"
             poster="./assets/distance-run.jpg"
             aria-hidden="true"
           >
@@ -263,10 +264,31 @@
             <strong>03 · бег</strong>
           </figcaption>
         </figure>
+          <div class="distance-story__counter" aria-hidden="true">
+            <div class="distance-story__counter-meta">
+              <span data-distance-live-index>01</span>
+              <span data-distance-live-label>плавание</span>
+            </div>
+            <p class="distance-story__counter-value">
+              <strong data-distance-live-value data-optical-start>100</strong>
+              <small data-distance-live-unit>км</small>
+            </p>
+            <div class="distance-story__sequence">
+              <span class="is-active" data-distance-sequence="0"></span><span class="" data-distance-sequence="1"></span><span class="" data-distance-sequence="2"></span>
+              <b class="distance-story__sequence-total"><span>11</span><span>111</span></b>
+            </div>
+          </div>
         </div>
         <div class="distance-story__chapters">
 
-        <article class="distance-card is-active" data-distance-card="0">
+        <article
+          class="distance-card is-active"
+          data-distance-card="0"
+          data-distance-value="100"
+          data-distance-unit="км"
+          data-distance-index="01"
+          data-distance-label="плавание"
+        >
           <figure class="distance-card__media" aria-hidden="true">
             <img src="./assets/distance-swim.jpg" alt="" loading="lazy" width="1600" height="900">
           </figure>
@@ -284,7 +306,14 @@
             <li>2 000 бассейнов по 50 метров</li><li>три переправы через Ла-Манш</li><li>от Москвы до Ярославля без передышки в воде</li>
           </ul>
         </article>
-        <article class="distance-card" data-distance-card="1">
+        <article
+          class="distance-card"
+          data-distance-card="1"
+          data-distance-value="10 010"
+          data-distance-unit="км"
+          data-distance-index="02"
+          data-distance-label="велосипед"
+        >
           <figure class="distance-card__media" aria-hidden="true">
             <img src="./assets/distance-bike.jpg" alt="" loading="lazy" width="1600" height="900">
           </figure>
@@ -302,7 +331,14 @@
             <li>почти поперёк России: Москва — Владивосток</li><li>четверть экватора Земли</li><li>Москва — Париж — Москва — Париж</li>
           </ul>
         </article>
-        <article class="distance-card" data-distance-card="2">
+        <article
+          class="distance-card"
+          data-distance-card="2"
+          data-distance-value="1 001"
+          data-distance-unit="км"
+          data-distance-index="03"
+          data-distance-label="бег"
+        >
           <figure class="distance-card__media" aria-hidden="true">
             <img src="./assets/distance-run.jpg" alt="" loading="lazy" width="1600" height="900">
           </figure>
@@ -393,12 +429,12 @@
         <figure class="story-frame">
           <div class="story-frame__media">
             <img
-              src="./assets/story-running.jpg"
-              alt="Виктор Доронин бежит вместе с участниками тренировочного лагеря"
-              width="1800"
-              height="1198"
-              loading="lazy"
-            >
+                    src="./assets/story-running.jpg"
+                    alt="Виктор Доронин бежит вместе с участниками тренировочного лагеря"
+                    width="1800"
+                    height="1198"
+                    loading="lazy"
+                  >
           </div>
           <figcaption>
             <span aria-hidden="true">01</span>
@@ -408,31 +444,47 @@
         <figure class="story-frame">
           <div class="story-frame__media">
             <img
-              src="./assets/story-community.jpg"
-              alt="Виктор Доронин разговаривает с друзьями после тренировки"
-              width="1400"
-              height="1539"
-              loading="lazy"
-            >
+                    src="./assets/story-community.jpg"
+                    alt="Виктор Доронин разговаривает с друзьями после тренировки"
+                    width="1400"
+                    height="1539"
+                    loading="lazy"
+                  >
           </div>
           <figcaption>
             <span aria-hidden="true">02</span>
             Сообщество
           </figcaption>
         </figure>
-        <figure class="story-frame">
+        <figure class="story-frame story-frame--motion">
           <div class="story-frame__media">
-            <img
-              src="./assets/story-cycling.jpg"
-              alt="Виктор Доронин ведёт группу велосипедистов"
-              width="1800"
-              height="1333"
-              loading="lazy"
-            >
+            <video
+                    data-story-video
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata"
+                    poster="./assets/story-bridge.jpg"
+                    aria-hidden="true"
+                  >
+                    <source src="./assets/story-bridge.mp4" type="video/mp4">
+                  </video>
+                  <button
+                    class="story-frame__video-toggle"
+                    type="button"
+                    data-story-video-toggle
+                    data-play-label="Включить фрагмент"
+                    data-pause-label="Пауза"
+                    aria-label="Включить фрагмент"
+                    aria-pressed="false"
+                  >
+                    <span class="story-frame__video-toggle-icon" aria-hidden="true"><i></i><i></i></span>
+                    <span class="sr-only" data-story-video-toggle-label>Включить фрагмент</span>
+                  </button>
           </div>
           <figcaption>
             <span aria-hidden="true">03</span>
-            Велосипед
+            Дубай · проект «1111»
           </figcaption>
         </figure>
     </section>
