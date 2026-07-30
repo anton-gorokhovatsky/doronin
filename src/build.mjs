@@ -74,6 +74,9 @@ const locales = {
       videoPause: "Пауза",
       audioPlay: "Включить дыхание и звук дистанции",
       audioPause: "Выключить дыхание и звук дистанции",
+      audioPrompt: "Присутствие",
+      audioActive: "Присутствие",
+      audioDuration: "8.4",
       primaryCta: "Как это устроено",
       secondaryCta: "Войти в историю",
       statusFallback: "Старт 1 декабря 2026",
@@ -165,17 +168,17 @@ const locales = {
       videoPause: "Пауза",
       items: [
         {
-          image: "training-group.jpg",
+          image: "story-leads-community.jpg",
           width: "1800",
           height: "1200",
-          alt: "Виктор Доронин бежит во главе большой группы на набережной",
-          caption: "Вместе",
+          alt: "Виктор Доронин стоит спиной к камере перед большой группой бегунов на стадионе",
+          caption: "Собирает",
         },
         {
-          image: "training-pace.jpg",
-          width: "1600",
-          height: "1066",
-          alt: "Ноги бегущей группы сняты с близкого расстояния на уровне дорожки",
+          image: "story-pace-close.jpg",
+          width: "1400",
+          height: "1800",
+          alt: "Виктор Доронин бежит в группе по залитой солнцем дорожке",
           caption: "Темп",
         },
         {
@@ -187,18 +190,25 @@ const locales = {
           caption: "Цена усилия",
         },
         {
-          image: "story-community.jpg",
+          image: "story-support.jpg",
           width: "1400",
-          height: "1539",
-          alt: "Виктор Доронин разговаривает с друзьями после тренировки",
-          caption: "Люди рядом",
+          height: "1800",
+          alt: "Улыбающийся Виктор Доронин пожимает руки участникам тренировки",
+          caption: "Поддержка",
         },
         {
-          image: "training-together.jpg",
+          image: "story-motion-city.jpg",
+          width: "1400",
+          height: "1800",
+          alt: "Виктор Доронин бежит вместе с двумя спортсменами по городской площади",
+          caption: "В движении",
+        },
+        {
+          image: "story-community-wide.jpg",
           width: "1800",
           height: "1200",
-          alt: "Группа бегунов движется по набережной в одном темпе",
-          caption: "Движение",
+          alt: "Виктор Доронин и большая группа участников тренировки позируют на стадионе",
+          caption: "Сообщество",
         },
       ],
     },
@@ -300,7 +310,7 @@ const locales = {
     },
     partners: {
       eyebrow: "Партнёрам",
-      title: "Стань частью большого приключения",
+      title: "Пройти вместе",
       lead: "Не интеграция.<br>Общий путь.",
       body:
         "11 111 км начинаются задолго до первого километра. Мы приглашаем тех, кто хочет не наблюдать со стороны, а пройти эту историю вместе с Виктором — до старта, все 31 день и после финиша.",
@@ -392,6 +402,9 @@ const locales = {
       videoPause: "Pause",
       audioPlay: "Play Viktor’s breathing and the sound of the distance",
       audioPause: "Mute Viktor’s breathing and the sound of the distance",
+      audioPrompt: "Presence",
+      audioActive: "Presence",
+      audioDuration: "8.4",
       primaryCta: "See the challenge",
       secondaryCta: "Become part of it",
       statusFallback: "Starts December 1, 2026",
@@ -482,17 +495,17 @@ const locales = {
       videoPause: "Pause",
       items: [
         {
-          image: "training-group.jpg",
+          image: "story-leads-community.jpg",
           width: "1800",
           height: "1200",
-          alt: "Viktor Doronin leading a large running group along the embankment",
-          caption: "Together",
+          alt: "Viktor Doronin stands with his back to the camera before a large group of runners on a track",
+          caption: "Brings people together",
         },
         {
-          image: "training-pace.jpg",
-          width: "1600",
-          height: "1066",
-          alt: "A running group’s feet seen close to the track",
+          image: "story-pace-close.jpg",
+          width: "1400",
+          height: "1800",
+          alt: "Viktor Doronin runs with a group along a sunlit track",
           caption: "Pace",
         },
         {
@@ -504,18 +517,25 @@ const locales = {
           caption: "The cost of effort",
         },
         {
-          image: "story-community.jpg",
+          image: "story-support.jpg",
           width: "1400",
-          height: "1539",
-          alt: "Viktor Doronin talking with friends after training",
-          caption: "People around him",
+          height: "1800",
+          alt: "A smiling Viktor Doronin clasps hands with people after training",
+          caption: "Support",
         },
         {
-          image: "training-together.jpg",
+          image: "story-motion-city.jpg",
+          width: "1400",
+          height: "1800",
+          alt: "Viktor Doronin runs with two athletes across a city square",
+          caption: "In motion",
+        },
+        {
+          image: "story-community-wide.jpg",
           width: "1800",
           height: "1200",
-          alt: "A group of runners moving along the embankment at the same pace",
-          caption: "Motion",
+          alt: "Viktor Doronin and a large training group pose together on a track",
+          caption: "Community",
         },
       ],
     },
@@ -617,7 +637,7 @@ const locales = {
     },
     partners: {
       eyebrow: "For partners",
-      title: "Become part of a great adventure",
+      title: "Take the journey together",
       lead: "Not an integration.<br>A shared journey.",
       body:
         "11,111 km begin long before the first kilometre. We invite those who want to do more than watch from the sidelines — to follow this story with Viktor before the start, through all 31 days and beyond the finish.",
@@ -738,8 +758,21 @@ function renderSequenceTotal(value) {
 
 function renderDistance(items, l) {
   return items
-    .map(
-      (item, index) => `
+    .map((item, index) => {
+      const mobileSequence = items
+        .map((_, stepIndex) => {
+          const state =
+            stepIndex < index
+              ? "is-complete"
+              : stepIndex === index
+                ? "is-active"
+                : "";
+
+          return `<span class="${state}"></span>`;
+        })
+        .join("");
+
+      return `
         <article
           class="distance-card${index === 0 ? " is-active" : ""}"
           data-distance-card="${index}"
@@ -756,11 +789,15 @@ function renderDistance(items, l) {
             <h3>${item.label}</h3>
           </div>
           ${renderDistanceValue(item.value, item.unit, "distance-card__value")}
+          <div class="distance-card__mobile-sequence" aria-hidden="true">
+            ${mobileSequence}
+            ${renderSequenceTotal(l.distance.totalValue)}
+          </div>
           <ul class="detail-list">
             ${item.details.map((detail) => `<li>${detail}</li>`).join("")}
           </ul>
-        </article>`,
-    )
+        </article>`;
+    })
     .join("");
 }
 
@@ -1178,10 +1215,15 @@ function renderPage(l) {
           data-sound-toggle
           data-play-label="${l.hero.audioPlay}"
           data-pause-label="${l.hero.audioPause}"
+          data-play-visible-label="${l.hero.audioPrompt}"
+          data-pause-visible-label="${l.hero.audioActive}"
+          data-duration="${l.hero.audioDuration}"
           aria-label="${l.hero.audioPlay}"
           aria-pressed="false"
         >
+          <span class="hero__sound-label" data-sound-visible-label>${l.hero.audioPrompt}</span>
           <span class="hero__sound-wave" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="hero__sound-progress" aria-hidden="true"><i data-sound-progress></i></span>
           <span class="sr-only" data-sound-toggle-label>${l.hero.audioPlay}</span>
         </button>
       </div>

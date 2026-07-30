@@ -38,12 +38,12 @@
     data-light-href="../assets/favicon-light.svg"
     data-dark-href="../assets/favicon-dark.svg"
   >
-  <script src="../assets/theme-init.js?v=d2ced2bd08"></script>
+  <script src="../assets/theme-init.js?v=ebce77e428"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/styles.css?v=d2ced2bd08">
-  <script src="../assets/app.js?v=d2ced2bd08" defer></script>
+  <link rel="stylesheet" href="../assets/styles.css?v=ebce77e428">
+  <script src="../assets/app.js?v=ebce77e428" defer></script>
   <!-- Yandex.Metrika counter -->
   <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
@@ -167,10 +167,15 @@
           data-sound-toggle
           data-play-label="Play Viktor’s breathing and the sound of the distance"
           data-pause-label="Mute Viktor’s breathing and the sound of the distance"
+          data-play-visible-label="Presence"
+          data-pause-visible-label="Presence"
+          data-duration="8.4"
           aria-label="Play Viktor’s breathing and the sound of the distance"
           aria-pressed="false"
         >
+          <span class="hero__sound-label" data-sound-visible-label>Presence</span>
           <span class="hero__sound-wave" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="hero__sound-progress" aria-hidden="true"><i data-sound-progress></i></span>
           <span class="sr-only" data-sound-toggle-label>Play Viktor’s breathing and the sound of the distance</span>
         </button>
       </div>
@@ -360,6 +365,10 @@
       <span class="distance-card__number" aria-hidden="true"><span>100</span></span>
       <span class="distance-card__unit" aria-hidden="true">km</span>
     </p>
+          <div class="distance-card__mobile-sequence" aria-hidden="true">
+            <span class="is-active"></span><span class=""></span><span class=""></span>
+            <b>11,111</b>
+          </div>
           <ul class="detail-list">
             <li>2,000 lengths of a 50-metre pool</li><li>the equivalent of three English Channel crossings</li><li>Moscow to Yaroslavl without a break in the water</li>
           </ul>
@@ -385,6 +394,10 @@
       <span class="distance-card__number" aria-hidden="true"><span>10,010</span></span>
       <span class="distance-card__unit" aria-hidden="true">km</span>
     </p>
+          <div class="distance-card__mobile-sequence" aria-hidden="true">
+            <span class="is-complete"></span><span class="is-active"></span><span class=""></span>
+            <b>11,111</b>
+          </div>
           <ul class="detail-list">
             <li>almost across Russia: Moscow to Vladivostok</li><li>one quarter of Earth’s equator</li><li>Moscow — Paris — Moscow — Paris</li>
           </ul>
@@ -410,6 +423,10 @@
       <span class="distance-card__number" aria-hidden="true"><span>1,001</span></span>
       <span class="distance-card__unit" aria-hidden="true">km</span>
     </p>
+          <div class="distance-card__mobile-sequence" aria-hidden="true">
+            <span class="is-complete"></span><span class="is-complete"></span><span class="is-active"></span>
+            <b>11,111</b>
+          </div>
           <ul class="detail-list">
             <li>24 full marathons in succession</li><li>Moscow to Saint Petersburg, plus another 300 km</li><li>10 non-stop laps of the Moscow Ring Road</li>
           </ul>
@@ -490,8 +507,8 @@
         >
           <div class="story-frame__media">
             <img
-                    src="../assets/training-group.jpg"
-                    alt="Viktor Doronin leading a large running group along the embankment"
+                    src="../assets/story-leads-community.jpg"
+                    alt="Viktor Doronin stands with his back to the camera before a large group of runners on a track"
                     width="1800"
                     height="1200"
                     loading="lazy"
@@ -499,7 +516,7 @@
           </div>
           <figcaption>
             <span aria-hidden="true">01</span>
-            Together
+            Brings people together
           </figcaption>
         </figure>
         <figure
@@ -508,10 +525,10 @@
         >
           <div class="story-frame__media">
             <img
-                    src="../assets/training-pace.jpg"
-                    alt="A running group’s feet seen close to the track"
-                    width="1600"
-                    height="1066"
+                    src="../assets/story-pace-close.jpg"
+                    alt="Viktor Doronin runs with a group along a sunlit track"
+                    width="1400"
+                    height="1800"
                     loading="lazy"
                   >
           </div>
@@ -560,16 +577,16 @@
         >
           <div class="story-frame__media">
             <img
-                    src="../assets/story-community.jpg"
-                    alt="Viktor Doronin talking with friends after training"
+                    src="../assets/story-support.jpg"
+                    alt="A smiling Viktor Doronin clasps hands with people after training"
                     width="1400"
-                    height="1539"
+                    height="1800"
                     loading="lazy"
                   >
           </div>
           <figcaption>
             <span aria-hidden="true">04</span>
-            People around him
+            Support
           </figcaption>
         </figure>
         <figure
@@ -578,16 +595,34 @@
         >
           <div class="story-frame__media">
             <img
-                    src="../assets/training-together.jpg"
-                    alt="A group of runners moving along the embankment at the same pace"
+                    src="../assets/story-motion-city.jpg"
+                    alt="Viktor Doronin runs with two athletes across a city square"
+                    width="1400"
+                    height="1800"
+                    loading="lazy"
+                  >
+          </div>
+          <figcaption>
+            <span aria-hidden="true">05</span>
+            In motion
+          </figcaption>
+        </figure>
+        <figure
+          class="story-frame"
+
+        >
+          <div class="story-frame__media">
+            <img
+                    src="../assets/story-community-wide.jpg"
+                    alt="Viktor Doronin and a large training group pose together on a track"
                     width="1800"
                     height="1200"
                     loading="lazy"
                   >
           </div>
           <figcaption>
-            <span aria-hidden="true">05</span>
-            Motion
+            <span aria-hidden="true">06</span>
+            Community
           </figcaption>
         </figure>
     </section>
@@ -964,7 +999,7 @@
           <p>For partners</p>
         </div>
         <p class="partners__countdown" data-partner-countdown aria-live="polite">Starts December 1, 2026</p>
-        <h2 id="partners-title">Become part of a great adventure</h2>
+        <h2 id="partners-title">Take the journey together</h2>
       </div>
       <div class="partners__pitch">
         <p class="partners__lead">Not an integration.<br>A shared journey.</p>

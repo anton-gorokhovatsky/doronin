@@ -158,18 +158,62 @@ if (heroVideo && videoToggle) {
 
 if (effortAudio && soundToggle) {
   const soundToggleLabel = soundToggle.querySelector("[data-sound-toggle-label]");
+  const soundVisibleLabel = soundToggle.querySelector(
+    "[data-sound-visible-label]",
+  );
+  const soundProgress = soundToggle.querySelector("[data-sound-progress]");
+  let soundProgressFrame = 0;
+
+  function soundDuration() {
+    if (Number.isFinite(effortAudio.duration) && effortAudio.duration > 0) {
+      return effortAudio.duration;
+    }
+
+    return Number(soundToggle.dataset.duration) || 0;
+  }
+
+  function updateSoundProgress() {
+    const duration = soundDuration();
+    const isPlaying = !effortAudio.paused && !effortAudio.ended;
+    const progress = duration
+      ? Math.min(1, effortAudio.currentTime / duration)
+      : 0;
+
+    if (soundProgress) {
+      soundProgress.style.width = `${progress * 100}%`;
+    }
+
+    if (isPlaying) {
+      soundProgressFrame = window.requestAnimationFrame(updateSoundProgress);
+    }
+  }
 
   function syncSoundToggle() {
     const isPlaying = !effortAudio.paused && !effortAudio.ended;
     const label = isPlaying
       ? soundToggle.dataset.pauseLabel
       : soundToggle.dataset.playLabel;
+    const visibleLabel = isPlaying
+      ? soundToggle.dataset.pauseVisibleLabel
+      : soundToggle.dataset.playVisibleLabel;
 
     soundToggle.setAttribute("aria-pressed", String(isPlaying));
     soundToggle.setAttribute("aria-label", label);
 
     if (soundToggleLabel) {
       soundToggleLabel.textContent = label;
+    }
+
+    if (soundVisibleLabel) {
+      soundVisibleLabel.textContent = visibleLabel;
+    }
+
+    window.cancelAnimationFrame(soundProgressFrame);
+
+    if (isPlaying) {
+      updateSoundProgress();
+    } else if (soundProgress) {
+      soundProgress.style.width = "0%";
     }
   }
 
@@ -193,6 +237,7 @@ if (effortAudio && soundToggle) {
   effortAudio.addEventListener("play", syncSoundToggle);
   effortAudio.addEventListener("pause", syncSoundToggle);
   effortAudio.addEventListener("ended", syncSoundToggle);
+  effortAudio.addEventListener("loadedmetadata", syncSoundToggle);
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
       effortAudio.pause();
@@ -313,7 +358,7 @@ if (distanceStory) {
   const distanceSequence = [
     ...distanceStory.querySelectorAll("[data-distance-sequence]"),
   ];
-  const distanceDesktop = window.matchMedia("(min-width: 641px)");
+  const distanceSaveData = navigator.connection?.saveData === true;
   let activeDistanceIndex = 0;
   let distanceStoryVisible = false;
 
@@ -322,9 +367,9 @@ if (distanceStory) {
       const shouldPlay =
         videoIndex === activeDistanceIndex &&
         distanceStoryVisible &&
-        distanceDesktop.matches &&
         document.visibilityState === "visible" &&
-        !reducedMotion.matches;
+        !reducedMotion.matches &&
+        !distanceSaveData;
 
       if (shouldPlay) {
         if (video.paused && !video.ended) {
@@ -419,7 +464,6 @@ if (distanceStory) {
   }
 
   reducedMotion.addEventListener?.("change", syncDistanceVideo);
-  distanceDesktop.addEventListener?.("change", syncDistanceVideo);
   document.addEventListener("visibilitychange", syncDistanceVideo);
 }
 

@@ -38,12 +38,12 @@
     data-light-href="./assets/favicon-light.svg"
     data-dark-href="./assets/favicon-dark.svg"
   >
-  <script src="./assets/theme-init.js?v=d2ced2bd08"></script>
+  <script src="./assets/theme-init.js?v=ebce77e428"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./assets/styles.css?v=d2ced2bd08">
-  <script src="./assets/app.js?v=d2ced2bd08" defer></script>
+  <link rel="stylesheet" href="./assets/styles.css?v=ebce77e428">
+  <script src="./assets/app.js?v=ebce77e428" defer></script>
   <!-- Yandex.Metrika counter -->
   <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
@@ -167,10 +167,15 @@
           data-sound-toggle
           data-play-label="Включить дыхание и звук дистанции"
           data-pause-label="Выключить дыхание и звук дистанции"
+          data-play-visible-label="Присутствие"
+          data-pause-visible-label="Присутствие"
+          data-duration="8.4"
           aria-label="Включить дыхание и звук дистанции"
           aria-pressed="false"
         >
+          <span class="hero__sound-label" data-sound-visible-label>Присутствие</span>
           <span class="hero__sound-wave" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="hero__sound-progress" aria-hidden="true"><i data-sound-progress></i></span>
           <span class="sr-only" data-sound-toggle-label>Включить дыхание и звук дистанции</span>
         </button>
       </div>
@@ -360,6 +365,10 @@
       <span class="distance-card__number" aria-hidden="true"><span>100</span></span>
       <span class="distance-card__unit" aria-hidden="true">км</span>
     </p>
+          <div class="distance-card__mobile-sequence" aria-hidden="true">
+            <span class="is-active"></span><span class=""></span><span class=""></span>
+            <b class="distance-story__sequence-total"><span>11</span><span>111</span></b>
+          </div>
           <ul class="detail-list">
             <li>2 000 бассейнов по 50 метров</li><li>три переправы через Ла-Манш</li><li>от Москвы до Ярославля без передышки в воде</li>
           </ul>
@@ -385,6 +394,10 @@
       <span class="distance-card__number" aria-hidden="true"><span>10</span><span>010</span></span>
       <span class="distance-card__unit" aria-hidden="true">км</span>
     </p>
+          <div class="distance-card__mobile-sequence" aria-hidden="true">
+            <span class="is-complete"></span><span class="is-active"></span><span class=""></span>
+            <b class="distance-story__sequence-total"><span>11</span><span>111</span></b>
+          </div>
           <ul class="detail-list">
             <li>почти поперёк России: Москва — Владивосток</li><li>четверть экватора Земли</li><li>Москва — Париж — Москва — Париж</li>
           </ul>
@@ -410,6 +423,10 @@
       <span class="distance-card__number" aria-hidden="true"><span>1</span><span>001</span></span>
       <span class="distance-card__unit" aria-hidden="true">км</span>
     </p>
+          <div class="distance-card__mobile-sequence" aria-hidden="true">
+            <span class="is-complete"></span><span class="is-complete"></span><span class="is-active"></span>
+            <b class="distance-story__sequence-total"><span>11</span><span>111</span></b>
+          </div>
           <ul class="detail-list">
             <li>24 полных марафона подряд</li><li>Москва — Санкт-Петербург и ещё 300 км</li><li>10 кругов по МКАД нон-стоп</li>
           </ul>
@@ -490,8 +507,8 @@
         >
           <div class="story-frame__media">
             <img
-                    src="./assets/training-group.jpg"
-                    alt="Виктор Доронин бежит во главе большой группы на набережной"
+                    src="./assets/story-leads-community.jpg"
+                    alt="Виктор Доронин стоит спиной к камере перед большой группой бегунов на стадионе"
                     width="1800"
                     height="1200"
                     loading="lazy"
@@ -499,7 +516,7 @@
           </div>
           <figcaption>
             <span aria-hidden="true">01</span>
-            Вместе
+            Собирает
           </figcaption>
         </figure>
         <figure
@@ -508,10 +525,10 @@
         >
           <div class="story-frame__media">
             <img
-                    src="./assets/training-pace.jpg"
-                    alt="Ноги бегущей группы сняты с близкого расстояния на уровне дорожки"
-                    width="1600"
-                    height="1066"
+                    src="./assets/story-pace-close.jpg"
+                    alt="Виктор Доронин бежит в группе по залитой солнцем дорожке"
+                    width="1400"
+                    height="1800"
                     loading="lazy"
                   >
           </div>
@@ -560,16 +577,16 @@
         >
           <div class="story-frame__media">
             <img
-                    src="./assets/story-community.jpg"
-                    alt="Виктор Доронин разговаривает с друзьями после тренировки"
+                    src="./assets/story-support.jpg"
+                    alt="Улыбающийся Виктор Доронин пожимает руки участникам тренировки"
                     width="1400"
-                    height="1539"
+                    height="1800"
                     loading="lazy"
                   >
           </div>
           <figcaption>
             <span aria-hidden="true">04</span>
-            Люди рядом
+            Поддержка
           </figcaption>
         </figure>
         <figure
@@ -578,16 +595,34 @@
         >
           <div class="story-frame__media">
             <img
-                    src="./assets/training-together.jpg"
-                    alt="Группа бегунов движется по набережной в одном темпе"
+                    src="./assets/story-motion-city.jpg"
+                    alt="Виктор Доронин бежит вместе с двумя спортсменами по городской площади"
+                    width="1400"
+                    height="1800"
+                    loading="lazy"
+                  >
+          </div>
+          <figcaption>
+            <span aria-hidden="true">05</span>
+            В движении
+          </figcaption>
+        </figure>
+        <figure
+          class="story-frame"
+
+        >
+          <div class="story-frame__media">
+            <img
+                    src="./assets/story-community-wide.jpg"
+                    alt="Виктор Доронин и большая группа участников тренировки позируют на стадионе"
                     width="1800"
                     height="1200"
                     loading="lazy"
                   >
           </div>
           <figcaption>
-            <span aria-hidden="true">05</span>
-            Движение
+            <span aria-hidden="true">06</span>
+            Сообщество
           </figcaption>
         </figure>
     </section>
@@ -964,7 +999,7 @@
           <p>Партнёрам</p>
         </div>
         <p class="partners__countdown" data-partner-countdown aria-live="polite">Старт 1 декабря 2026</p>
-        <h2 id="partners-title">Стань частью большого приключения</h2>
+        <h2 id="partners-title">Пройти вместе</h2>
       </div>
       <div class="partners__pitch">
         <p class="partners__lead">Не интеграция.<br>Общий путь.</p>
