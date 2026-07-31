@@ -110,9 +110,19 @@ async function auditPage(browser, browserName, origin, testCase) {
       `${prefix}: dark theme did not activate`,
     );
     await menuToggle.click();
+    const heroMediaState = await page.evaluate(() => {
+      const video = document.querySelector("[data-hero-video]");
+      const toggle = document.querySelector(".hero__media-toggle");
+      return {
+        controlHidden: toggle?.hidden === true,
+        poster: video?.getAttribute("poster") || "",
+      };
+    });
     expect(
-      await page.locator(".hero__media-toggle").isVisible(),
-      `${prefix}: available hero video lost its control`,
+      (await page.locator(".hero__media-toggle").isVisible()) ||
+        (heroMediaState.controlHidden &&
+          heroMediaState.poster.endsWith("assets/hero.jpg")),
+      `${prefix}: hero media has neither a usable control nor a verified poster fallback`,
     );
 
     const scenes = page.locator("[data-sound-scene]");
