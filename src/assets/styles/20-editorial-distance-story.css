@@ -447,6 +447,7 @@
   gap: clamp(2rem, 5vw, 6rem);
   align-items: start;
   border-top: 1px solid var(--line-dark);
+  border-bottom: 1px solid var(--line-dark);
 }
 
 .distance-story__visual {
@@ -569,31 +570,70 @@
 
 .distance-story__sequence {
   display: grid;
-  grid-template-columns: repeat(3, minmax(1.5rem, 1fr)) auto;
+  gap: 0.65rem;
+}
+
+.distance-story__sequence-meta {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: var(--type-micro);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.distance-story__sequence-meta > span {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.distance-story__sequence-meta small,
+.distance-story__sequence-meta i,
+.distance-story__sequence-meta > b em {
+  color: var(--paper-dim);
+  font-size: 0.76em;
+  font-style: normal;
+}
+
+.distance-story__sequence-meta > span b,
+.distance-story__sequence-meta > b {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+  margin: 0;
+  font-size: var(--type-label);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.distance-story__sequence-meta > b em {
+  margin-right: 0.2em;
+}
+
+.distance-story__sequence-meta strong {
+  color: var(--acid);
+  font: inherit;
+}
+
+.distance-story__sequence-track {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(1.5rem, 1fr));
   gap: 0.45rem;
   align-items: center;
 }
 
-.distance-story__sequence span {
+.distance-story__sequence-track > span {
   height: 0.18rem;
   background: rgba(241, 245, 237, 0.28);
   transform: skewX(-18deg);
   transition: background-color 360ms var(--ease-move);
 }
 
-.distance-story__sequence span.is-active,
-.distance-story__sequence span.is-complete {
+.distance-story__sequence-track > span.is-active,
+.distance-story__sequence-track > span.is-complete {
   background: var(--acid);
-}
-
-.distance-story__sequence b {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.3em;
-  margin-left: 0.35rem;
-  font-size: var(--type-label);
-  letter-spacing: 0.06em;
-  white-space: nowrap;
 }
 
 .distance-story__sequence b small {
@@ -628,7 +668,7 @@
 }
 
 .distance-story__chapters {
-  border-bottom: 1px solid var(--line-dark);
+  min-width: 0;
 }
 
 .distance-card {
@@ -671,8 +711,8 @@
 }
 
 .distance-card.is-active .distance-card__index {
-  border-color: var(--orange);
-  color: var(--orange);
+  border-color: var(--distance-index-color);
+  color: var(--distance-index-color);
 }
 
 .distance-card.is-active .distance-card__value {

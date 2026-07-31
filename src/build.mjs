@@ -228,6 +228,7 @@ const locales = {
       totalUnit: "км",
       sequenceLabel: "Этап",
       sequenceOf: "из",
+      sequenceTotal: "всего",
       totalFormulaLabel: "100 плюс 10 010 плюс 1 001 равно 11 111 километров",
       mediaKicker: "Дубай · архив проекта «1111»",
       items: [
@@ -695,6 +696,7 @@ const locales = {
       totalUnit: "km",
       sequenceLabel: "Stage",
       sequenceOf: "of",
+      sequenceTotal: "total",
       totalFormulaLabel: "100 plus 10,010 plus 1,001 equals 11,111 kilometres",
       mediaKicker: "Dubai · Project “1111” archive",
       items: [
@@ -1111,14 +1113,15 @@ function renderDistanceValue(value, unit, className) {
     </p>`;
 }
 
-function renderSequenceTotal(value, unit) {
+function renderSequenceTotal(value, unit, label) {
   const groups = value.split(" ");
+  const labelMarkup = label ? `<em>${label}</em>` : "";
 
   if (groups.length === 1) {
-    return `<b><span>${value}</span><small>${unit}</small></b>`;
+    return `<b>${labelMarkup}<span>${value}</span><small>${unit}</small></b>`;
   }
 
-  return `<b><span class="distance-story__sequence-total">${groups
+  return `<b>${labelMarkup}<span class="distance-story__sequence-total">${groups
     .map((group) => `<span>${group}</span>`)
     .join("")}</span><small>${unit}</small></b>`;
 }
@@ -1161,7 +1164,7 @@ function renderDistance(items, l) {
             aria-label="${l.distance.sequenceLabel} ${index + 1} / ${items.length}. ${l.distance.totalLabel}: ${l.distance.totalValue} ${l.distance.totalUnit}"
           >
             <span class="distance-card__sequence-label">${l.distance.sequenceLabel} ${index + 1} ${l.distance.sequenceOf} ${items.length}</span>
-            ${renderSequenceTotal(l.distance.totalValue, l.distance.totalUnit)}
+            ${renderSequenceTotal(l.distance.totalValue, l.distance.totalUnit, l.distance.sequenceTotal)}
             ${mobileSequence}
           </div>
           <ul class="detail-list">
@@ -1228,11 +1231,16 @@ function renderDistanceEquation(distance) {
 function renderMetrics(items, className) {
   return items
     .map(
-      ([value, label]) => `
-        <div class="${className}">
+      ([value, label]) => {
+        const glyphCount = Array.from(value.replaceAll(/\s/g, "")).length;
+        const density = glyphCount <= 3 ? "short" : glyphCount <= 5 ? "medium" : "long";
+
+        return `
+        <div class="${className}" data-metric-density="${density}">
           <strong data-optical-start>${value}</strong>
           <span>${label}</span>
-        </div>`,
+        </div>`;
+      },
     )
     .join("");
 }
@@ -1870,13 +1878,21 @@ function renderPage(l) {
               <small data-distance-live-unit>${l.distance.items[0].unit}</small>
             </p>
             <div class="distance-story__sequence">
-              ${l.distance.items
-                .map(
-                  (item, index) =>
-                    `<span class="${index === 0 ? "is-active" : ""}" data-distance-sequence="${index}"></span>`,
-                )
-                .join("")}
-              ${renderSequenceTotal(l.distance.totalValue, l.distance.totalUnit)}
+              <div class="distance-story__sequence-meta">
+                <span>
+                  <small>${l.distance.sequenceLabel}</small>
+                  <b><strong data-distance-sequence-current>${l.distance.items[0].index}</strong><i>${l.distance.sequenceOf} ${String(l.distance.items.length).padStart(2, "0")}</i></b>
+                </span>
+                ${renderSequenceTotal(l.distance.totalValue, l.distance.totalUnit, l.distance.sequenceTotal)}
+              </div>
+              <div class="distance-story__sequence-track">
+                ${l.distance.items
+                  .map(
+                    (item, index) =>
+                      `<span class="${index === 0 ? "is-active" : ""}" data-distance-sequence="${index}"></span>`,
+                  )
+                  .join("")}
+              </div>
             </div>
           </div>
         </div>

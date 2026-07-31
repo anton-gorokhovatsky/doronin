@@ -57,6 +57,9 @@ async function capture(browser, origin, spec) {
       await proof.scrollIntoViewIfNeeded();
       await proof.locator("summary").click();
     }
+    if (Number.isInteger(spec.audioScene)) {
+      await page.locator("[data-sound-scene]").nth(spec.audioScene).click();
+    }
     if (spec.keyboardFocus) {
       for (let index = 0; index < spec.keyboardFocus; index += 1) {
         await page.keyboard.press("Tab");
@@ -65,6 +68,9 @@ async function capture(browser, origin, spec) {
     if (spec.menuBottom) {
       await page.locator(".site-nav__cta").press("End");
       await page.waitForTimeout(100);
+    }
+    if (spec.target) {
+      await page.locator(spec.target).first().scrollIntoViewIfNeeded();
     }
 
     await page.waitForTimeout(180);
@@ -105,6 +111,18 @@ async function capture(browser, origin, spec) {
         phaseFixture: document.body.dataset.phaseFixture || null,
         scrollWidth: document.documentElement.scrollWidth,
         theme: document.documentElement.dataset.theme || "system",
+        resolvedTheme: document.documentElement.classList.contains("theme-dark")
+          ? "dark"
+          : "light",
+        partnerMetricsFit: (() => {
+          const container = document.querySelector(".partner-proof__metrics");
+          if (!container) return null;
+          const bounds = container.getBoundingClientRect();
+          return [...container.querySelectorAll("strong")].every((value) => {
+            const box = value.getBoundingClientRect();
+            return box.left >= bounds.left - 1 && box.right <= bounds.right + 1;
+          });
+        })(),
       };
     });
     expect(
@@ -132,6 +150,12 @@ async function capture(browser, origin, spec) {
           (await page.locator(`[data-project-phase-item="${spec.expectedPhase}"]`).getAttribute("aria-current")) === "step",
         `${spec.name}: deterministic ${spec.expectedPhase} state missing`,
       );
+    }
+    if (spec.theme === "dark") {
+      expect(metrics.resolvedTheme === "dark", `${spec.name}: dark theme did not resolve`);
+    }
+    if (spec.target === ".partners__closing") {
+      expect(metrics.partnerMetricsFit, `${spec.name}: partner metrics overflow`);
     }
 
     const file = resolve(outputRoot, `${spec.name}.png`);
@@ -243,6 +267,48 @@ const specs = [
     locale: "en",
     theme: "dark",
     viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-390-dark-distance-stage",
+    path: "/?gate=ru-390-dark-distance#distance",
+    locale: "ru",
+    theme: "dark",
+    target: ".distance-card",
+    viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-390-dark-audio-scene-02",
+    path: "/?gate=ru-390-dark-audio#top",
+    locale: "ru",
+    theme: "dark",
+    audioScene: 1,
+    target: ".audio-story",
+    viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-390-dark-proof-open",
+    path: "/?gate=ru-390-dark-proof#proof",
+    locale: "ru",
+    theme: "dark",
+    proofOpen: true,
+    target: ".proof-source",
+    viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-390-dark-partner-closing",
+    path: "/?gate=ru-390-dark-partners#partners",
+    locale: "ru",
+    theme: "dark",
+    target: ".partners__closing",
+    viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-1440-light-partner-formats",
+    path: "/?gate=ru-1440-light-partners#partners",
+    locale: "ru",
+    theme: "light",
+    target: ".partner-formats__list",
+    viewport: { width: 1440, height: 900 },
   },
   {
     name: "ru-390-light-top",

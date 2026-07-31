@@ -386,19 +386,11 @@ const productionGlassMaterial = normalizeCss(`
   --glass-filter: blur(22px) saturate(1.16);
   --glass-shadow: 0 1.25rem 3.5rem rgba(0, 0, 0, 0.18);
 `);
-const productionDarkGlassMaterial = normalizeCss(`
-  --glass-material:
-    linear-gradient(128deg, rgba(12, 48, 50, 0.34), rgba(6, 16, 24, 0.2)),
-    linear-gradient(rgba(223, 255, 56, 0.025), transparent),
-    linear-gradient(rgba(2, 17, 22, 0.8), rgba(1, 10, 15, 0.8));
-  --glass-border: rgba(183, 220, 213, 0.26);
-  --glass-filter: blur(26px) saturate(1.24);
-  --glass-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.34);
-`);
 const audioStoryRule = css.match(/\.audio-story\s*\{([^}]*)\}/s)?.[1] || "";
 const diaryRule = css.match(/\.diary\s*\{([^}]*)\}/s)?.[1] || "";
-const mobileNavLinkRule = [...css.matchAll(/\.site-nav__link\s*\{([^}]*)\}/gs)]
-  .at(-1)?.[1] || "";
+const mobileNavLinkRules = [
+  ...css.matchAll(/\.site-nav__link\s*\{([^}]*)\}/gs),
+].map(([, rule]) => rule);
 
 expect(
   sourceStyleManifest ===
@@ -472,8 +464,7 @@ expect(
   "css: дневник, источники, мобильный индекс интервью и партнёрский процесс должны быть оформлены",
 );
 expect(
-  normalizedCss.includes(productionGlassMaterial) &&
-    normalizedCss.split(productionDarkGlassMaterial).length === 3 &&
+  normalizedCss.split(productionGlassMaterial).length === 3 &&
     (css.match(/background:\s*var\(--glass-material\)/g) || []).length >= 8 &&
     !css.includes("--panel-material:") &&
     !css.includes("--glass-surface-soft:") &&
@@ -497,7 +488,7 @@ expect(
     /padding-top:\s*clamp\(2\.75rem,\s*4\.5vw,\s*4\.5rem\)/.test(
       diaryRule,
     ) &&
-    /border:\s*0/.test(mobileNavLinkRule) &&
+    mobileNavLinkRules.some((rule) => /border:\s*0/.test(rule)) &&
     /\.site-nav__live\s*\{[^}]*border-bottom:\s*1px solid var\(--line-light\)/s.test(
       css,
     ) &&
@@ -505,6 +496,14 @@ expect(
       css,
     ),
   "css: разделители должны оставаться только на смысловых границах без двойной линии audio → diary",
+);
+expect(
+  (css.match(/:root\.theme-dark\s*\{/g) || []).length === 1 &&
+    !css.includes(':root[data-theme="dark"]') &&
+    !css.includes("@media (prefers-color-scheme: dark)") &&
+    app.includes("syncResolvedTheme") &&
+    app.includes('classList.toggle(\n    "theme-dark"'),
+  "theme: ночные токены должны иметь один источник и единый resolved-theme класс",
 );
 expect(
   css.includes("@media (prefers-reduced-motion: reduce)") &&

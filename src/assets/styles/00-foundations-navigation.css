@@ -80,6 +80,7 @@
   --label-index-shadow: none;
   --distance-active-color: var(--text-editorial);
   --distance-active-glow: none;
+  --distance-index-color: var(--orange);
   --proof-title-color: var(--text-proof);
   --partners-title-color: var(--text-partners);
   --manifesto-mark-opacity: 0.065;
@@ -96,6 +97,13 @@
   --glass-border: rgba(217, 226, 217, 0.24);
   --glass-filter: blur(22px) saturate(1.16);
   --glass-shadow: 0 1.25rem 3.5rem rgba(0, 0, 0, 0.18);
+  --action-min-height: 3.5rem;
+  --action-padding-block: 0.95rem;
+  --action-padding-inline: 1.1rem;
+  --action-gap: 1.25rem;
+  --contact-row-min-height: 2.5rem;
+  --contact-icon-gap: 0.55rem;
+  --contact-underline-color: color-mix(in srgb, currentColor 42%, transparent);
   --display: "Micra", "Arial Black", sans-serif;
   --body: "Commissioner", "Helvetica Neue", Arial, sans-serif;
   --sans: var(--body);
@@ -220,6 +228,15 @@ a {
 .icon--telegram {
   width: 0.95rem;
   height: 0.95rem;
+}
+
+:where(.site-nav__contacts, .partners__channels, .site-footer__contacts) a {
+  gap: var(--contact-icon-gap);
+  min-height: var(--contact-row-min-height);
+  text-decoration-line: underline;
+  text-decoration-color: var(--contact-underline-color);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
 }
 
 :where(.site-nav__contacts, .partners__channels, .site-footer__contacts)
@@ -447,11 +464,37 @@ a {
 
 @media (min-width: 961px) {
   .site-header {
+    isolation: isolate;
     grid-template-columns: 1fr auto 1fr;
     min-height: 5rem;
     gap: clamp(0.75rem, 1.6vw, 2rem);
     padding-block: 0.55rem;
+    border-bottom: 0;
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .site-header::before {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    border-bottom: 1px solid var(--glass-border);
     background: var(--glass-material);
+    box-shadow: var(--glass-shadow);
+    content: "";
+    pointer-events: none;
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
+  }
+
+  .site-header > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .site-header::after {
+    z-index: 2;
   }
 
   .site-logo {
@@ -470,7 +513,9 @@ a {
     position: relative;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.75rem;
+    width: 11rem;
     min-height: 2.75rem;
     padding: 0.55rem 0.75rem;
     color: var(--paper);
@@ -478,17 +523,11 @@ a {
   }
 
   .menu-toggle__label {
-    display: none;
+    display: block;
   }
 
   .menu-toggle__current {
-    display: block;
-    width: 14ch;
-    overflow: hidden;
-    line-height: 1;
-    text-align: right;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: none;
   }
 
   .menu-toggle__icon {

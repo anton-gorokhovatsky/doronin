@@ -18,12 +18,31 @@ if (localFixtureHost && requestedTextScale === "200") {
   document.documentElement.dataset.textFixture = "200";
 }
 const supportedThemes = new Set(["system", "light", "dark"]);
+const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
 const storedTheme = document.documentElement.dataset.theme;
 let activeTheme = supportedThemes.has(requestedTheme)
   ? requestedTheme
   : supportedThemes.has(storedTheme)
     ? storedTheme
     : "system";
+
+function syncResolvedTheme() {
+  const resolvedTheme =
+    activeTheme === "system"
+      ? systemThemeQuery.matches
+        ? "dark"
+        : "light"
+      : activeTheme;
+
+  document.documentElement.classList.toggle(
+    "theme-dark",
+    resolvedTheme === "dark",
+  );
+  document.documentElement.classList.toggle(
+    "theme-light",
+    resolvedTheme === "light",
+  );
+}
 
 function applyTheme(theme, persist = true) {
   activeTheme = supportedThemes.has(theme) ? theme : "system";
@@ -33,6 +52,8 @@ function applyTheme(theme, persist = true) {
   } else {
     document.documentElement.dataset.theme = activeTheme;
   }
+
+  syncResolvedTheme();
 
   for (const button of document.querySelectorAll("[data-theme-option]")) {
     button.setAttribute(
@@ -74,6 +95,12 @@ function applyTheme(theme, persist = true) {
 }
 
 applyTheme(activeTheme, false);
+
+systemThemeQuery.addEventListener("change", () => {
+  if (activeTheme === "system") {
+    syncResolvedTheme();
+  }
+});
 
 function syncOpticalStart(element) {
   if (!element) {
@@ -455,6 +482,23 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
     updateSoundProgress();
   }
 
+  function revealSoundScene(button) {
+    const storyline = button.closest(".audio-story__storyline");
+    const item = button.closest("li");
+
+    if (!storyline || !item || window.matchMedia("(min-width: 641px)").matches) {
+      return;
+    }
+
+    const storylineRect = storyline.getBoundingClientRect();
+    const itemRect = item.getBoundingClientRect();
+
+    storyline.scrollTo({
+      left: storyline.scrollLeft + itemRect.left - storylineRect.left,
+      behavior: reducedMotion.matches ? "auto" : "smooth",
+    });
+  }
+
   async function selectSoundScene(index, shouldPlay = true) {
     const nextButton = soundSceneButtons[index];
 
@@ -474,6 +518,7 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
 
     resetSoundWave();
     syncSoundControls();
+    revealSoundScene(nextButton);
 
     if (shouldPlay) {
       try {
@@ -657,6 +702,9 @@ if (distanceStory) {
   const distanceSequence = [
     ...distanceStory.querySelectorAll("[data-distance-sequence]"),
   ];
+  const distanceSequenceCurrent = distanceStory.querySelector(
+    "[data-distance-sequence-current]",
+  );
   const distanceSaveData = navigator.connection?.saveData === true;
   let activeDistanceIndex = 0;
   let distanceStoryVisible = false;
@@ -716,6 +764,10 @@ if (distanceStory) {
 
     if (distanceLiveUnit) {
       distanceLiveUnit.textContent = activeCard.dataset.distanceUnit;
+    }
+
+    if (distanceSequenceCurrent) {
+      distanceSequenceCurrent.textContent = activeCard.dataset.distanceIndex;
     }
 
     for (const [stepIndex, step] of distanceSequence.entries()) {
