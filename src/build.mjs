@@ -976,10 +976,21 @@ const locales = {
 
 function renderNav(items, { track = false } = {}) {
   return items
-    .map(
-      ([href, label]) =>
-        `<a class="site-nav__link" href="${href}"${track ? ` data-nav-track data-nav-title="${label}"` : ""}>${label}</a>`,
-    )
+    .map(([href, label]) => {
+      const analyticsGoal = ["#about", "#distance"].includes(href)
+        ? "project_explore"
+        : href === "#partners"
+          ? "partner_interest"
+          : "";
+      const analyticsAttribute = analyticsGoal
+        ? ` data-analytics-goal="${analyticsGoal}"`
+        : "";
+      const trackingAttributes = track
+        ? ` data-nav-track data-nav-title="${label}"`
+        : "";
+
+      return `<a class="site-nav__link" href="${href}"${analyticsAttribute}${trackingAttributes}>${label}</a>`;
+    })
     .join("");
 }
 
@@ -1533,7 +1544,7 @@ function renderPage(l) {
         </div>
       </details>
       <a class="language-switch" data-language-switch href="${l.alternateHref}" hreflang="${l.lang === "ru" ? "en" : "ru"}">${l.alternateLabel}</a>
-      <a class="header-cta" href="#partners">${l.headerCta}</a>
+      <a class="header-cta" href="#partners" data-analytics-goal="partner_interest">${l.headerCta}</a>
     </div>
   </header>
 
@@ -1578,8 +1589,8 @@ function renderPage(l) {
         </h1>
         <p class="hero__intro">${l.hero.intro}</p>
         <div class="hero__actions">
-          <a class="button button--primary" href="#distance">${l.hero.primaryCta}${icons.down}</a>
-          <a class="button button--ghost" href="#partners">${l.hero.secondaryCta}</a>
+          <a class="button button--primary" href="#distance" data-analytics-goal="project_explore">${l.hero.primaryCta}${icons.down}</a>
+          <a class="button button--ghost" href="#partners" data-analytics-goal="partner_interest">${l.hero.secondaryCta}</a>
         </div>
       </div>
 

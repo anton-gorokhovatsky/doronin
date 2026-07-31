@@ -88,6 +88,43 @@ for (const button of document.querySelectorAll("[data-theme-option]")) {
   });
 }
 
+const proofSources = document.querySelector(".proof-sources");
+
+if (proofSources) {
+  const proofSourcesSummary = proofSources.querySelector("summary");
+  let proofSourcesScrollY = null;
+
+  function rememberProofSourcesPosition(event) {
+    if (
+      event.type === "keydown" &&
+      event.key !== "Enter" &&
+      event.key !== " "
+    ) {
+      return;
+    }
+
+    proofSourcesScrollY = window.scrollY;
+  }
+
+  proofSourcesSummary?.addEventListener(
+    "pointerdown",
+    rememberProofSourcesPosition,
+  );
+  proofSourcesSummary?.addEventListener(
+    "keydown",
+    rememberProofSourcesPosition,
+  );
+  proofSources.addEventListener("toggle", () => {
+    if (proofSourcesScrollY === null) {
+      return;
+    }
+
+    const restoreScrollY = proofSourcesScrollY;
+    proofSourcesScrollY = null;
+    requestAnimationFrame(() => window.scrollTo(0, restoreScrollY));
+  });
+}
+
 const heroVideo = document.querySelector("[data-hero-video]");
 const videoToggle = document.querySelector("[data-video-toggle]");
 const effortAudio = document.querySelector("[data-effort-audio]");
@@ -99,7 +136,10 @@ const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 if (heroVideo && videoToggle) {
   const videoToggleLabel = videoToggle.querySelector("[data-video-toggle-label]");
+  const heroVideoSources = Array.from(heroVideo.querySelectorAll("source"));
+  const failedHeroVideoSources = new Set();
   let userPausedVideo = false;
+  let heroVideoUnavailable = false;
 
   function syncVideoToggle() {
     const isPlaying = !heroVideo.paused && !heroVideo.ended;
@@ -116,7 +156,7 @@ if (heroVideo && videoToggle) {
   }
 
   async function playHeroVideo() {
-    if (document.visibilityState !== "visible") {
+    if (heroVideoUnavailable || document.visibilityState !== "visible") {
       return;
     }
 
@@ -125,6 +165,37 @@ if (heroVideo && videoToggle) {
     } catch {
       syncVideoToggle();
     }
+  }
+
+  function useHeroVideoFallback() {
+    if (heroVideoUnavailable) {
+      return;
+    }
+
+    heroVideoUnavailable = true;
+    userPausedVideo = true;
+    heroVideo.pause();
+    videoToggle.hidden = true;
+    syncVideoToggle();
+  }
+
+  function handleHeroVideoSourceError(event) {
+    failedHeroVideoSources.add(event.currentTarget);
+
+    const eligibleSources = heroVideoSources.filter(
+      (source) => !source.media || window.matchMedia(source.media).matches,
+    );
+
+    if (
+      eligibleSources.length &&
+      eligibleSources.every((source) => failedHeroVideoSources.has(source))
+    ) {
+      useHeroVideoFallback();
+    }
+  }
+
+  for (const source of heroVideoSources) {
+    source.addEventListener("error", handleHeroVideoSourceError);
   }
 
   videoToggle.addEventListener("click", () => {
@@ -140,6 +211,7 @@ if (heroVideo && videoToggle) {
   heroVideo.addEventListener("play", syncVideoToggle);
   heroVideo.addEventListener("pause", syncVideoToggle);
   heroVideo.addEventListener("ended", syncVideoToggle);
+  heroVideo.addEventListener("error", useHeroVideoFallback);
 
   reducedMotion.addEventListener?.("change", (event) => {
     if (event.matches) {
@@ -159,7 +231,7 @@ if (heroVideo && videoToggle) {
 
   syncVideoToggle();
 
-  if (!reducedMotion.matches) {
+  if (!reducedMotion.matches && !heroVideoUnavailable) {
     playHeroVideo();
   }
 }
@@ -1074,20 +1146,16 @@ if (siteHeader && headerNavigationTargets.length) {
       }
     }
 
-    const headerIsCondensed =
-      desktopNavigation.matches &&
-      window.scrollY > Math.min(220, window.innerHeight * 0.2);
+    const navigationIsOpen = Boolean(siteHeader.querySelector(".nav-shell[open]"));
+    const headerIsCondensed = navigationIsOpen
+      ? headerWasCondensed
+      : desktopNavigation.matches &&
+        window.scrollY > Math.min(220, window.innerHeight * 0.2);
 
     siteHeader.style.setProperty("--header-progress", String(progress));
     siteHeader.classList.toggle("is-condensed", headerIsCondensed);
 
-    if (headerIsCondensed !== headerWasCondensed) {
-      for (const navigation of document.querySelectorAll(".nav-shell")) {
-        navigation.removeAttribute("open");
-      }
-
-      headerWasCondensed = headerIsCondensed;
-    }
+    headerWasCondensed = headerIsCondensed;
 
     for (const item of headerNavigationTargets) {
       if (item === activeItem) {

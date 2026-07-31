@@ -186,10 +186,15 @@ for (const [lang, path] of pages) {
     `${lang}: каждая звуковая сцена должна иметь редакционный контекст`,
   );
   expect(
-    ["diary_open", "film_open", "contact_email", "contact_telegram"].every(
-      (goal) => html.includes(`data-analytics-goal="${goal}"`),
-    ),
-    `${lang}: дневник, фильм и оба канала связи должны иметь явные цели Метрики`,
+    [
+      "project_explore",
+      "partner_interest",
+      "diary_open",
+      "film_open",
+      "contact_email",
+      "contact_telegram",
+    ].every((goal) => html.includes(`data-analytics-goal="${goal}"`)),
+    `${lang}: ключевые маршруты, дневник, фильм и оба канала связи должны иметь явные цели Метрики`,
   );
   expect(
     [...html.matchAll(/<a\b[^>]*target="_blank"[^>]*>/g)].every(([link]) =>
@@ -395,6 +400,12 @@ expect(
   app.includes('diaryVideoFrame.classList.add("has-custom-control")') &&
     app.includes("diaryVideo.controls = true"),
   "js: фирменный запуск дневника должен прогрессивно возвращать нативное управление",
+);
+expect(
+  app.includes("heroVideoSources") &&
+    app.includes('source.addEventListener("error", handleHeroVideoSourceError)') &&
+    app.includes("videoToggle.hidden = true"),
+  "js: отказ всех подходящих hero-video источников должен оставлять постер без ложного управления",
 );
 expect(
   app.includes("document.body.dataset.projectPhase = projectPhase") &&
