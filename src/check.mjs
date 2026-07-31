@@ -218,8 +218,10 @@ for (const [lang, path] of pages) {
   }
 
   expect(
-    html.includes("family=Commissioner") && !html.includes("family=Manrope"),
-    `${lang}: основной шрифт должен загружаться как Commissioner`,
+    !html.includes("fonts.googleapis.com") &&
+      !html.includes("fonts.gstatic.com") &&
+      !html.includes("family=Manrope"),
+    `${lang}: основной шрифт должен загружаться локально без внешнего font-сервиса`,
   );
   expect(
     html.includes("https://mc.yandex.ru/metrika/tag.js?id=111159425") &&
@@ -238,8 +240,19 @@ expect(
   "css: отсутствует progressive enhancement для висячей пунктуации",
 );
 expect(
-  /--type-hero:\s*clamp\([^;]*calc\(/s.test(css),
-  "css: крупная типографика должна зависеть от rem и viewport",
+  /--type-display-hero:\s*clamp\([^;]*calc\(/s.test(css) &&
+    /--type-display-section:\s*clamp\([^;]*calc\(/s.test(css) &&
+    /--type-metric-total:\s*clamp\([^;]*calc\(/s.test(css),
+  "css: display-заголовки и метрики должны зависеть от rem и viewport",
+);
+expect(
+  /font-family:\s*"Commissioner"[\s\S]*?Commissioner-Cyrillic\.woff2[\s\S]*?font-weight:\s*400 800/s.test(
+    css,
+  ) &&
+    /font-family:\s*"Commissioner"[\s\S]*?Commissioner-Latin\.woff2[\s\S]*?font-weight:\s*400 800/s.test(
+      css,
+    ),
+  "css: Commissioner должен быть локальным variable-шрифтом для кириллицы и латиницы",
 );
 expect(
   css.includes("text-wrap: balance") && css.includes("text-wrap: pretty"),

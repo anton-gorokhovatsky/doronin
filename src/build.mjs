@@ -1222,9 +1222,6 @@ function renderPage(l) {
     data-dark-href="${l.assetBase}assets/favicon-dark.svg"
   >
   <script src="${l.assetBase}assets/theme-init.js?v=${assetVersion}"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="${l.assetBase}assets/styles.css?v=${assetVersion}">
   <script src="${l.assetBase}assets/app.js?v=${assetVersion}" defer></script>
   <!-- Yandex.Metrika counter -->
@@ -1511,7 +1508,7 @@ function renderPage(l) {
       ${renderStory(l.story.items, l)}
       <p class="story__credit">
         <a href="${shared.photoHref}" target="_blank" rel="noopener noreferrer">
-          ${l.story.credit}${icons.external}
+          <span class="story__credit-label">${l.story.credit}</span>${icons.external}
         </a>
         <span>${l.story.dates}</span>
       </p>
