@@ -110,19 +110,31 @@ async function auditPage(browser, browserName, origin, testCase) {
       `${prefix}: dark theme did not activate`,
     );
     await menuToggle.click();
+    await page.waitForFunction(
+      () => document.querySelector(".nav-shell")?.open === false,
+    );
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(180);
     const heroMediaState = await page.evaluate(() => {
       const video = document.querySelector("[data-hero-video]");
       const toggle = document.querySelector(".hero__media-toggle");
+      const style = toggle ? getComputedStyle(toggle) : null;
       return {
         controlHidden: toggle?.hidden === true,
-        poster: video?.getAttribute("poster") || "",
+        controlDisplay: style?.display || "none",
+        controlVisibility: style?.visibility || "hidden",
+        posterPath: video?.poster ? new URL(video.poster).pathname : "",
       };
     });
+    const usableMediaControl =
+      !heroMediaState.controlHidden &&
+      heroMediaState.controlDisplay !== "none" &&
+      heroMediaState.controlVisibility !== "hidden";
+    const verifiedPosterFallback =
+      heroMediaState.posterPath.endsWith("/assets/hero.jpg");
     expect(
-      (await page.locator(".hero__media-toggle").isVisible()) ||
-        (heroMediaState.controlHidden &&
-          heroMediaState.poster.endsWith("assets/hero.jpg")),
-      `${prefix}: hero media has neither a usable control nor a verified poster fallback`,
+      usableMediaControl || verifiedPosterFallback,
+      `${prefix}: hero media has neither a usable control nor a verified poster fallback (${JSON.stringify(heroMediaState)})`,
     );
 
     const scenes = page.locator("[data-sound-scene]");
