@@ -65,12 +65,16 @@ const locales = {
     skip: "Перейти к содержанию",
     homeLabel: "11 111 — на главную",
     menu: "Меню",
+    navLiveKicker: "Сейчас",
+    navLiveLabel: "Дневник",
     nav: [
-      ["#distance", "11 111 км"],
-      ["#diary", "Дневник"],
-      ["#viktor", "Виктор Доронин"],
-      ["#proof", "Фильм и сериал"],
-      ["#adventures", "Другие проекты"],
+      ["#about", "Проект"],
+      ["#distance", "Дистанция"],
+      ["#viktor", "О герое"],
+      ["#proof", "Фильм «1111»"],
+      ["#adventures", "Приключения"],
+      ["#interviews", "Интервью"],
+      ["#partners", "Партнёрам"],
     ],
     headerCta: "Партнёрам",
     hero: {
@@ -523,12 +527,16 @@ const locales = {
     skip: "Skip to content",
     homeLabel: "11 111 — home",
     menu: "Menu",
+    navLiveKicker: "Now",
+    navLiveLabel: "Diary",
     nav: [
-      ["#distance", "11,111 km"],
-      ["#diary", "Diary"],
-      ["#viktor", "Viktor Doronin"],
-      ["#proof", "Film and series"],
-      ["#adventures", "Other projects"],
+      ["#about", "Project"],
+      ["#distance", "Distance"],
+      ["#viktor", "Protagonist"],
+      ["#proof", "Film “1111”"],
+      ["#adventures", "Adventures"],
+      ["#interviews", "Interviews"],
+      ["#partners", "Partners"],
     ],
     headerCta: "For partners",
     hero: {
@@ -966,9 +974,12 @@ const locales = {
   },
 };
 
-function renderNav(items) {
+function renderNav(items, { track = false } = {}) {
   return items
-    .map(([href, label]) => `<a class="site-nav__link" href="${href}">${label}</a>`)
+    .map(
+      ([href, label]) =>
+        `<a class="site-nav__link" href="${href}"${track ? ` data-nav-track data-nav-title="${label}"` : ""}>${label}</a>`,
+    )
     .join("");
 }
 
@@ -1477,15 +1488,24 @@ function renderPage(l) {
       <img src="${l.assetBase}assets/logo.svg" alt="" width="512" height="231">
     </a>
 
-    <details class="nav-shell" open>
+    <details class="nav-shell">
       <summary class="menu-toggle" aria-label="${l.menu}">
         <span class="menu-toggle__label">${l.menu}</span>
         <span class="menu-toggle__current" data-current-chapter>${l.nav[0][1]}</span>
         <span class="menu-toggle__icon" aria-hidden="true"></span>
       </summary>
       <nav class="site-nav" aria-label="${l.menu}">
+        <a
+          class="site-nav__live"
+          href="#diary"
+          data-nav-track
+          data-nav-title="${l.navLiveLabel}"
+        >
+          <span>${l.navLiveKicker}</span>
+          <strong>${l.navLiveLabel}</strong>
+        </a>
         <div class="site-nav__primary">
-          ${renderNav(l.nav)}
+          ${renderNav(l.nav, { track: true })}
         </div>
         <div class="site-nav__utility">
           <div class="site-nav__language">
@@ -1730,7 +1750,7 @@ function renderPage(l) {
       </ol>
     </section>
 
-    <section class="manifesto section" aria-labelledby="manifesto-title">
+    <section class="manifesto section" id="about" aria-labelledby="manifesto-title">
       <div class="section-label">
         <span>01</span>
         <p>${l.manifesto.eyebrow}</p>

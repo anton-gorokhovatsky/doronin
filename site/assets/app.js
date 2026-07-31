@@ -965,14 +965,8 @@ if (diaryVideo) {
 const desktopNavigation = window.matchMedia("(min-width: 961px)");
 
 function syncNavigationMode() {
-  const header = document.querySelector(".site-header");
-  const isCondensed = header?.classList.contains("is-condensed");
-
   for (const navigation of document.querySelectorAll(".nav-shell")) {
-    navigation.toggleAttribute(
-      "open",
-      desktopNavigation.matches && !isCondensed,
-    );
+    navigation.removeAttribute("open");
   }
 }
 
@@ -981,25 +975,20 @@ desktopNavigation.addEventListener?.("change", syncNavigationMode);
 
 for (const navigation of document.querySelectorAll(".nav-shell")) {
   navigation.addEventListener("click", (event) => {
-    const isCondensed = document
-      .querySelector(".site-header")
-      ?.classList.contains("is-condensed");
-
-    if (
-      event.target.closest("a") &&
-      (!desktopNavigation.matches || isCondensed)
-    ) {
+    if (event.target.closest("a")) {
       navigation.removeAttribute("open");
+    }
+  });
+
+  navigation.addEventListener("toggle", () => {
+    if (navigation.open) {
+      document.querySelector(".header-theme[open]")?.removeAttribute("open");
     }
   });
 }
 
 document.addEventListener("keydown", (event) => {
-  const isCondensed = document
-    .querySelector(".site-header")
-    ?.classList.contains("is-condensed");
-
-  if (event.key === "Escape" && (!desktopNavigation.matches || isCondensed)) {
+  if (event.key === "Escape") {
     for (const navigation of document.querySelectorAll(".nav-shell[open]")) {
       navigation.removeAttribute("open");
       navigation.querySelector("summary")?.focus();
@@ -1010,6 +999,18 @@ document.addEventListener("keydown", (event) => {
     document.querySelector(".header-theme[open]")?.removeAttribute("open");
   }
 });
+
+for (const themeMenu of document.querySelectorAll(".header-theme")) {
+  themeMenu.addEventListener("toggle", () => {
+    if (!themeMenu.open) {
+      return;
+    }
+
+    for (const navigation of document.querySelectorAll(".nav-shell[open]")) {
+      navigation.removeAttribute("open");
+    }
+  });
+}
 
 for (const languageSwitch of document.querySelectorAll("[data-language-switch]")) {
   languageSwitch.addEventListener("click", () => {
@@ -1038,7 +1039,7 @@ if (siteHeader && heroSection && "IntersectionObserver" in window) {
 }
 
 const headerNavigationLinks = [
-  ...document.querySelectorAll(".site-nav__primary .site-nav__link"),
+  ...document.querySelectorAll(".site-nav [data-nav-track]"),
 ];
 const headerNavigationTargets = headerNavigationLinks
   .map((link) => {
@@ -1059,9 +1060,15 @@ if (siteHeader && headerNavigationTargets.length) {
     const progress =
       scrollRange > 0 ? Math.max(0.025, window.scrollY / scrollRange) : 0.025;
     const readingLine = window.scrollY + window.innerHeight * 0.38;
-    let activeItem = headerNavigationTargets[0];
+    let activeItem =
+      headerNavigationTargets.find(({ link }) => link.hash === "#about") ||
+      headerNavigationTargets[0];
 
-    for (const item of headerNavigationTargets) {
+    const orderedTargets = [...headerNavigationTargets].sort(
+      (first, second) => first.target.offsetTop - second.target.offsetTop,
+    );
+
+    for (const item of orderedTargets) {
       if (item.target.offsetTop <= readingLine) {
         activeItem = item;
       }
@@ -1076,10 +1083,7 @@ if (siteHeader && headerNavigationTargets.length) {
 
     if (headerIsCondensed !== headerWasCondensed) {
       for (const navigation of document.querySelectorAll(".nav-shell")) {
-        navigation.toggleAttribute(
-          "open",
-          desktopNavigation.matches && !headerIsCondensed,
-        );
+        navigation.removeAttribute("open");
       }
 
       headerWasCondensed = headerIsCondensed;
@@ -1096,7 +1100,8 @@ if (siteHeader && headerNavigationTargets.length) {
     const currentChapter = siteHeader.querySelector("[data-current-chapter]");
 
     if (currentChapter) {
-      currentChapter.textContent = activeItem.link.textContent.trim();
+      currentChapter.textContent =
+        activeItem.link.dataset.navTitle || activeItem.link.textContent.trim();
     }
   }
 

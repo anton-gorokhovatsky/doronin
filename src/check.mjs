@@ -68,6 +68,32 @@ for (const [lang, path] of pages) {
       ),
     `${lang}: меню относится к шапке, а управление видео — к кадру первого экрана`,
   );
+  const headerNavigation =
+    html.match(/<nav class="site-nav"[\s\S]*?<\/nav>/u)?.[0] || "";
+  const headerChapterTargets = [
+    "#about",
+    "#distance",
+    "#viktor",
+    "#proof",
+    "#adventures",
+    "#interviews",
+    "#partners",
+  ];
+  expect(
+    headerNavigation.includes('class="site-nav__live"') &&
+      headerNavigation.includes('href="#diary"') &&
+      (headerNavigation.match(/class="site-nav__link"/g) || []).length ===
+        headerChapterTargets.length &&
+      headerChapterTargets.every((target) =>
+        headerNavigation.includes(`href="${target}"`),
+      ),
+    `${lang}: меню должно содержать отдельный живой дневник и семь реальных глав страницы`,
+  );
+  expect(
+    html.includes('<details class="nav-shell">') &&
+      !html.includes('<details class="nav-shell" open>'),
+    `${lang}: оглавление должно открываться по запросу, а не занимать шапку списком по умолчанию`,
+  );
   const heroMediaControls =
     html.match(
       /<div class="hero__media-controls">([\s\S]*?)<\/div>/u,
@@ -333,13 +359,12 @@ expect(
   "css: дневник, источники, мобильный индекс интервью и партнёрский процесс должны быть оформлены",
 );
 expect(
-  css.includes("--glass-surface-soft:") &&
-    css.includes("--glass-surface:") &&
-    css.includes("--glass-surface-strong:") &&
+  css.includes("--glass-material:") &&
     css.includes("--glass-filter:") &&
-    (css.match(/background:\s*var\(--glass-surface(?:-soft|-strong)?\)/g) || [])
-      .length >= 10,
-  "css: меню и плавающие медиаконтролы должны использовать одну систему матового стекла",
+    (css.match(/background:\s*var\(--glass-material\)/g) || []).length >= 13 &&
+    !css.includes("--glass-surface-soft:") &&
+    !css.includes("--glass-surface-strong:"),
+  "css: меню и полупрозрачные интерфейсные поверхности должны использовать единый материал матового стекла",
 );
 expect(
   css.includes("@media (prefers-reduced-motion: reduce)") &&
