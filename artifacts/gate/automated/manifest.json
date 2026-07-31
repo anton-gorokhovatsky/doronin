@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-31T21:53:00.111Z",
+  "generatedAt": "2026-07-31T23:36:59.897Z",
   "captures": [
     {
       "name": "ru-1440-system-top",
@@ -11,7 +11,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-system-top.png",
-      "hash": "7ac2c7b153400ca8965bb8d0dfb7805e953b1a4315db6bf282042226c2588bdc",
+      "hash": "1f68d87e0eb88ad4ee8337c998af24244ea94b7cebb233336cdd55d328d6e261",
       "metrics": {
         "activeElement": "body",
         "clientWidth": 1440,
@@ -21,6 +21,40 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
+        "menuCtaVisible": true,
+        "themeOverlap": false,
+        "projectPhase": "before",
+        "phaseFixture": null,
+        "scrollWidth": 1440,
+        "theme": "system",
+        "resolvedTheme": "light",
+        "partnerMetricsFit": true
+      }
+    },
+    {
+      "name": "ru-1440-system-menu",
+      "path": "/?gate=ru-1440-menu#top",
+      "locale": "ru",
+      "theme": "system",
+      "menuOpen": true,
+      "expectMenuFit": true,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-system-menu.png",
+      "hash": "d694ed8a9ea8065b1895098e8e661d21da9d698df924811131e2247e78328594",
+      "metrics": {
+        "activeElement": "summary.menu-toggle",
+        "clientWidth": 1440,
+        "ctaVisible": true,
+        "fontSize": "16px",
+        "heroPaused": true,
+        "videoToggleHidden": true,
+        "lang": "ru",
+        "menuOpen": true,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -42,7 +76,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-dark-proof-open.png",
-      "hash": "d4bbeb62013c1c979a7f75fb63c63db13569faaf24790acf1dc9637ae1b18816",
+      "hash": "330e03d20337eb531ab2cf8c8287342b052b3949843e8575050c700e6fb1102a",
       "metrics": {
         "activeElement": "summary",
         "clientWidth": 1440,
@@ -52,6 +86,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -72,7 +107,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-system-top.png",
-      "hash": "db58ccc3d1dfc368f5ebf715858bb44f95ca6795d20e91a4d257f1d0020d723b",
+      "hash": "548f8c5d3d0443c958d95c089e6884f83ff7cf543a5e90578a95195797e64c0a",
       "metrics": {
         "activeElement": "body",
         "clientWidth": 390,
@@ -82,6 +117,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -98,12 +134,13 @@
       "locale": "ru",
       "theme": "system",
       "menuOpen": true,
+      "expectMenuFit": true,
       "viewport": {
         "width": 390,
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-system-menu.png",
-      "hash": "e9af4ddfbd9d9ec47b0d77fe271ed7801af0a268e6b3da1d50c5f096b49c3f23",
+      "hash": "1e64e1bc095481b1631012107d02a174bad5f9c216d88925cc8e64331e2f4268",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "clientWidth": 390,
@@ -113,6 +150,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": true,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -133,7 +171,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-320-system-top.png",
-      "hash": "eeeb1f96491fd37ca1d5ce7403bd21dad17d2744d88c0d6106bc58c205fa741e",
+      "hash": "6478624ef8afb31805b221b62818430120d869a556c6ff2a6885c33edb603312",
       "metrics": {
         "activeElement": "body",
         "clientWidth": 320,
@@ -143,6 +181,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -165,7 +204,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-text-200-menu.png",
-      "hash": "96651f14d3b1468b07ce516c7ab48ffe898ef6361d6deb75e74709867e748c36",
+      "hash": "6ef2af15f86288a816f630d5756c9d24a2bb43a096970827c414bac5293e6966",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "clientWidth": 390,
@@ -175,6 +214,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": true,
+        "menuFits": false,
         "menuCtaVisible": false,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -198,9 +238,9 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-text-200-menu-bottom.png",
-      "hash": "03e3b3ad4af4b5c006184a0413f1de1c704644849e992ac5e4a46464db10786f",
+      "hash": "c8b20803d2e655c7762d0b1709451882aee02f2d3ef4b5c657a6d4f467ae4fa2",
       "metrics": {
-        "activeElement": "a.site-nav__cta",
+        "activeElement": "a.site-nav__cta.action-primary",
         "clientWidth": 390,
         "ctaVisible": true,
         "fontSize": "32px",
@@ -208,6 +248,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": true,
+        "menuFits": false,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -229,7 +270,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-keyboard-focus.png",
-      "hash": "92a2a60a04592601eb5f10f8d693d208d7601e8d2dfff3d4771b2e304a20ae0a",
+      "hash": "8dcfd5b37045f0ce35ba7034a2e0d76c0d62b9796ab3f36efd2d4540d479e6d5",
       "metrics": {
         "activeElement": "button",
         "clientWidth": 390,
@@ -239,6 +280,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -261,7 +303,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-reduced-motion.png",
-      "hash": "6719c1d48d97e4d14d7d028a8137c5f045d29b88693f66f61531f0af939e1b0e",
+      "hash": "844e1fa2bfae2f18f8b46295570d623d855973bc1c1307e0d53007290ef597df",
       "metrics": {
         "activeElement": "body",
         "clientWidth": 1440,
@@ -271,6 +313,7 @@
         "videoToggleHidden": false,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -292,7 +335,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-video-fallback.png",
-      "hash": "8bbfa40de8c3cc5d4e26410ca6104d441db2285a1ac54cb82a96bc287f0e758f",
+      "hash": "8345f45874d0e2390250a7438753af9c397ffaa33f31f99ce091cf17a29929f6",
       "metrics": {
         "activeElement": "body",
         "clientWidth": 1440,
@@ -302,6 +345,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -322,7 +366,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/en-1440-light-top.png",
-      "hash": "b6c5bce8485b93116ffc78747ba564019693a2861f0ba2c0ccf17c32e052e4ec",
+      "hash": "bbc5b0e0fcbeace47000d2784228a35cb9af60734aaa5ad6ae0606343dc5308e",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "clientWidth": 1440,
@@ -332,6 +376,7 @@
         "videoToggleHidden": true,
         "lang": "en",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -352,7 +397,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/en-390-dark-top.png",
-      "hash": "5177c68ead9f4c4a1d98524df9ed0f06fbbb38e273eb310ce8f8052296e4b52c",
+      "hash": "683c49c8cd833cfa014801a627af663dbb3e74cc8b67de1d7e41fde8192b26aa",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "clientWidth": 390,
@@ -362,6 +407,7 @@
         "videoToggleHidden": true,
         "lang": "en",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -383,7 +429,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-dark-distance-stage.png",
-      "hash": "9b5a31f31fbec68cbc5d58754e683e2dec2bcfaec4f0f7bef8427461bead1466",
+      "hash": "eca029c6993845f09f251c578aa59495f7cd8d742f06d683666ff7c7fb2587fb",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "clientWidth": 390,
@@ -393,6 +439,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -400,6 +447,38 @@
         "scrollWidth": 390,
         "theme": "dark",
         "resolvedTheme": "dark",
+        "partnerMetricsFit": true
+      }
+    },
+    {
+      "name": "ru-1440-light-partner-closing",
+      "path": "/?gate=ru-1440-light-partner-closing#partners",
+      "locale": "ru",
+      "theme": "light",
+      "target": ".partners__closing",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-light-partner-closing.png",
+      "hash": "cdac0d62b9f4f953694708c46ba713cf137429a23913442d9ff7b666e4dfa6fa",
+      "metrics": {
+        "activeElement": "summary.menu-toggle",
+        "clientWidth": 1440,
+        "ctaVisible": true,
+        "fontSize": "16px",
+        "heroPaused": true,
+        "videoToggleHidden": true,
+        "lang": "ru",
+        "menuOpen": false,
+        "menuFits": true,
+        "menuCtaVisible": true,
+        "themeOverlap": false,
+        "projectPhase": "before",
+        "phaseFixture": null,
+        "scrollWidth": 1440,
+        "theme": "light",
+        "resolvedTheme": "light",
         "partnerMetricsFit": true
       }
     },
@@ -415,7 +494,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-dark-audio-scene-02.png",
-      "hash": "50b4315164469468f273b75fab0990c0343e1cb14cb9f1d527d715808968dd01",
+      "hash": "a954c0af4db15be53976580fc6ff3d51d8ab199a6ca5a3623c228b470adf05b7",
       "metrics": {
         "activeElement": "button",
         "clientWidth": 390,
@@ -425,6 +504,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -447,7 +527,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-dark-proof-open.png",
-      "hash": "b3a4344ef26ec2dc1091e0b24555ec29e988062b163d283aa5088ee0fd9e3fb3",
+      "hash": "14ad416791f50ec6ee7a3fde08744e1f2a8e281c3f6cac92cd03f0adda9e1672",
       "metrics": {
         "activeElement": "summary",
         "clientWidth": 390,
@@ -457,6 +537,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -478,7 +559,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-dark-partner-closing.png",
-      "hash": "74a271347722613aeefa2c0f6c97f79f3faf596cd90d7829f30d0e8fa97177e9",
+      "hash": "2960f96375bd5febf081e26fa7e30cb007c07afd4736b20fa8f34292cc745f68",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "clientWidth": 390,
@@ -488,6 +569,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -509,7 +591,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-light-partner-formats.png",
-      "hash": "3673b2e7551e141022a0ce4a85189c7e87e9748ea971fe3431bd81cbbd6bf637",
+      "hash": "c4ca2df7bb32cc3dff02cd0a6c33f011d1e8261d75e6518243fab8cb8d990727",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "clientWidth": 1440,
@@ -519,6 +601,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -539,7 +622,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-light-top.png",
-      "hash": "db58ccc3d1dfc368f5ebf715858bb44f95ca6795d20e91a4d257f1d0020d723b",
+      "hash": "548f8c5d3d0443c958d95c089e6884f83ff7cf543a5e90578a95195797e64c0a",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "clientWidth": 390,
@@ -549,6 +632,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -569,7 +653,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/en-1440-system-top.png",
-      "hash": "c809ecf7713a4b44309cb0c0d15ad4a4fb92785df8064a342293b70acc3c04c3",
+      "hash": "36ff8cf6710f8b3f40021d9d9e956ab31fed9135f55fc9ef41f67c736475950c",
       "metrics": {
         "activeElement": "body",
         "clientWidth": 1440,
@@ -579,6 +663,7 @@
         "videoToggleHidden": true,
         "lang": "en",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -600,7 +685,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-phase-before.png",
-      "hash": "ce7f8d71a8ab273235bf4bdcd177c2932a4c4943ae1a356db72fe3ff2d9b7d38",
+      "hash": "258800dffe7152a99f39178973685116270e41a6cdcb5aa0e812a3f11c5b817e",
       "metrics": {
         "activeElement": "body",
         "clientWidth": 1440,
@@ -610,6 +695,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "before",
@@ -631,7 +717,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-phase-active.png",
-      "hash": "8a78e7682bbc31ed5b8c35ddf286f732db4d7a1531b08c89f1c521d3347ed0c4",
+      "hash": "e8321261dc75bdf4f4cb11a624331df4b7d6c3e60c0c11901798e69643e6dea6",
       "metrics": {
         "activeElement": "body",
         "clientWidth": 1440,
@@ -641,6 +727,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "active",
@@ -662,7 +749,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-phase-finished.png",
-      "hash": "c06837be164a0e29b7eaea5cd74fcbdc123ab42b172c21bbe8fd5726f6d97c88",
+      "hash": "978ebec009108abc56179b30e54e080065c44ef286e640761fb2582734363ca0",
       "metrics": {
         "activeElement": "body",
         "clientWidth": 1440,
@@ -672,6 +759,7 @@
         "videoToggleHidden": true,
         "lang": "ru",
         "menuOpen": false,
+        "menuFits": true,
         "menuCtaVisible": true,
         "themeOverlap": false,
         "projectPhase": "finished",

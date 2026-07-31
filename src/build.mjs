@@ -166,7 +166,7 @@ const locales = {
         },
       ],
       primaryCta: "Как это устроено",
-      secondaryCta: "Войти в историю",
+      secondaryCta: "Партнёрам",
       statusFallback: "Старт 1 декабря 2026",
       statusMeta: "11 111 км · 31 день",
       beforeForms: ["день до старта", "дня до старта", "дней до старта"],
@@ -549,7 +549,7 @@ const locales = {
       themeDark: "Тёмная",
       emailCta: "Написать по почте",
       telegramCta: "Написать в Telegram",
-      partnerCta: "Стать частью истории",
+      partnerCta: "Обсудить участие",
       languageCta: "English version",
       legal: "2026 ИП Доронин В. В. · ИНН 344 406 202 270",
       designCredit: "Дизайн и разработка",
@@ -635,7 +635,7 @@ const locales = {
         },
       ],
       primaryCta: "See the challenge",
-      secondaryCta: "Become part of it",
+      secondaryCta: "For partners",
       statusFallback: "Starts December 1, 2026",
       statusMeta: "11,111 km · 31 days",
       beforeForms: ["day to start", "days to start", "days to start"],
@@ -1017,7 +1017,7 @@ const locales = {
       themeDark: "Dark",
       emailCta: "Send an email",
       telegramCta: "Message on Telegram",
-      partnerCta: "Become part of the story",
+      partnerCta: "Discuss a partnership",
       languageCta: "Русская версия",
       legal: "2026 · Sole proprietor Viktor Doronin · TIN 344 406 202 270",
       designCredit: "Design and development",
@@ -1605,10 +1605,10 @@ function renderPage(l) {
           ${renderThemeSwitcher(l)}
           <div class="site-nav__contacts">
             <span>${l.footer.contactLabel}</span>
-            <a href="mailto:${shared.email}" data-analytics-goal="contact_email">${icons.mail}${l.footer.emailCta}</a>
-            <a href="${shared.telegramHref}" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">${icons.telegram}${l.footer.telegramCta}</a>
+            <a class="contact-action" href="${mailHref}" data-analytics-goal="contact_email">${icons.mail}${l.footer.emailCta}</a>
+            <a class="contact-action" href="${shared.telegramHref}" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">${icons.telegram}${l.footer.telegramCta}</a>
           </div>
-          <a class="site-nav__cta" href="${mailHref}" data-analytics-goal="contact_email"><span>${l.footer.partnerCta}</span>${icons.external}</a>
+          <a class="site-nav__cta action-primary" href="${mailHref}" data-analytics-goal="contact_email"><span>${l.footer.partnerCta}</span>${icons.external}</a>
         </div>
       </nav>
     </details>
@@ -1660,7 +1660,7 @@ function renderPage(l) {
         </h1>
         <p class="hero__intro">${l.hero.intro}</p>
         <div class="hero__actions">
-          <a class="button button--primary" href="#distance" data-analytics-goal="project_explore">${l.hero.primaryCta}${icons.down}</a>
+          <a class="button button--primary action-primary" href="#distance" data-analytics-goal="project_explore">${l.hero.primaryCta}${icons.down}</a>
           <a class="button button--ghost" href="#partners" data-analytics-goal="partner_interest">${l.hero.secondaryCta}</a>
         </div>
       </div>
@@ -2035,10 +2035,10 @@ function renderPage(l) {
         <div class="partners__contact">
           <h3 class="partners__cta">${l.partners.cta}</h3>
           <div class="partners__channels">
-            <a href="${mailHref}" data-analytics-goal="contact_email" aria-label="${l.partners.emailLabel}">
+            <a class="contact-action" href="${mailHref}" data-analytics-goal="contact_email" aria-label="${l.partners.emailLabel}">
               ${icons.mail}${l.partners.emailCta}
             </a>
-            <a href="${shared.telegramHref}" data-analytics-goal="contact_telegram" aria-label="${l.partners.telegramLabel}" target="_blank" rel="noopener noreferrer">
+            <a class="contact-action" href="${shared.telegramHref}" data-analytics-goal="contact_telegram" aria-label="${l.partners.telegramLabel}" target="_blank" rel="noopener noreferrer">
               ${icons.telegram}${l.partners.telegramCta}
             </a>
           </div>
@@ -2062,7 +2062,7 @@ function renderPage(l) {
         >${l.footer.titleLineOne}</span>
         <span data-footer-countdown data-optical-start aria-live="polite">${l.footer.titleLineTwo}</span>
       </h2>
-      <a class="site-footer__cta" href="${mailHref}" data-analytics-goal="contact_email">
+      <a class="site-footer__cta action-primary" href="${mailHref}" data-analytics-goal="contact_email">
         ${l.footer.partnerCta}${icons.external}
       </a>
     </div>
@@ -2075,8 +2075,8 @@ function renderPage(l) {
 
       <div class="site-footer__contacts">
         <p>${l.footer.contactLabel}</p>
-        <a href="mailto:${shared.email}" data-analytics-goal="contact_email">${icons.mail}${l.footer.emailCta}</a>
-        <a href="${shared.telegramHref}" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">${icons.telegram}${l.footer.telegramCta}</a>
+        <a class="contact-action" href="${mailHref}" data-analytics-goal="contact_email">${icons.mail}${l.footer.emailCta}</a>
+        <a class="contact-action" href="${shared.telegramHref}" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">${icons.telegram}${l.footer.telegramCta}</a>
       </div>
 
       <div class="site-footer__utility">

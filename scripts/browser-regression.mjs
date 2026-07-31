@@ -113,8 +113,7 @@ async function auditPage(browser, browserName, origin, testCase) {
     const material = await page.evaluate((mobile) => {
       const surfaces = mobile
         ? [
-            [document.querySelector(".site-logo"), null],
-            [document.querySelector(".menu-toggle"), null],
+            [document.querySelector(".site-header"), null],
             [document.querySelector(".site-nav"), null],
           ]
         : [
@@ -133,22 +132,92 @@ async function auditPage(browser, browserName, origin, testCase) {
       material.every((value) => JSON.stringify(value) === JSON.stringify(material[0])),
       `${prefix}: interface material diverged`,
     );
+    const controlBackgrounds = await page.evaluate((mobile) =>
+      (mobile
+        ? [".site-logo", ".menu-toggle"]
+        : [".site-logo", ".menu-toggle", ".language-switch", ".header-cta"]
+      ).map((selector) => {
+        const style = getComputedStyle(document.querySelector(selector));
+        return [style.backgroundImage, style.backgroundColor];
+      }),
+      testCase.viewport.width <= 960,
+    );
+    expect(
+      controlBackgrounds.every(
+        ([image, color]) => image === "none" && color === "rgba(0, 0, 0, 0)",
+      ),
+      `${prefix}: header controls gained a separate fill`,
+    );
     if (testCase.viewport.width > 960) {
-      const controlBackgrounds = await page.evaluate(() =>
-        [".site-logo", ".menu-toggle", ".language-switch", ".header-cta"].map(
-          (selector) => {
-            const style = getComputedStyle(document.querySelector(selector));
-            return [style.backgroundImage, style.backgroundColor];
-          },
-        ),
-      );
+      const desktopCluster = await page.evaluate(() => {
+        const toggle = document.querySelector(".menu-toggle").getBoundingClientRect();
+        const actions = document.querySelector(".header-actions").getBoundingClientRect();
+        return {
+          gap: actions.left - toggle.right,
+          verticalDelta: Math.abs(
+            toggle.top + toggle.height / 2 - (actions.top + actions.height / 2),
+          ),
+        };
+      });
       expect(
-        controlBackgrounds.every(
-          ([image, color]) => image === "none" && color === "rgba(0, 0, 0, 0)",
-        ),
-        `${prefix}: outlined header controls gained a separate fill`,
+        desktopCluster.gap >= 0 &&
+          desktopCluster.gap <= 32 &&
+          desktopCluster.verticalDelta <= 1,
+        `${prefix}: desktop menu is detached from the service cluster`,
+      );
+    } else {
+      const mobileMenu = await nav.evaluate((element) => ({
+        clientHeight: element.clientHeight,
+        scrollHeight: element.scrollHeight,
+        top: element.getBoundingClientRect().top,
+        headerBottom: document.querySelector(".site-header").getBoundingClientRect().bottom,
+      }));
+      expect(
+        mobileMenu.scrollHeight <= mobileMenu.clientHeight &&
+          near(mobileMenu.top, mobileMenu.headerBottom, 2),
+        `${prefix}: regular mobile menu scrolls or is detached from the header`,
       );
     }
+
+    const actionSystem = await page.evaluate(() => {
+      const selectors = [".button--primary", ".site-nav__cta", ".site-footer__cta"];
+      const core = selectors.map((selector) => {
+        const style = getComputedStyle(document.querySelector(selector));
+        return [
+          style.backgroundColor,
+          style.color,
+          style.minHeight,
+          style.fontWeight,
+          style.textTransform,
+        ];
+      });
+      return {
+        core,
+        menuLabel: document
+          .querySelector(".site-nav__cta span")
+          ?.textContent.trim()
+          .replace(/\s+/g, " "),
+        footerLabel: document
+          .querySelector(".site-footer__cta")
+          ?.textContent.trim()
+          .replace(/\s+/g, " "),
+        partnerBackground: getComputedStyle(
+          document.querySelector(".partners__closing"),
+        ).backgroundColor,
+        primaryBackground: getComputedStyle(
+          document.querySelector(".button--primary"),
+        ).backgroundColor,
+      };
+    });
+    expect(
+      actionSystem.core.every(
+        (value) => JSON.stringify(value) === JSON.stringify(actionSystem.core[0]),
+      ) &&
+        actionSystem.menuLabel === testCase.conversionLabel &&
+        actionSystem.footerLabel === testCase.conversionLabel &&
+        actionSystem.partnerBackground === actionSystem.primaryBackground,
+      `${prefix}: primary CTA system diverged (${JSON.stringify(actionSystem)})`,
+    );
 
     await nav.getByRole("button", { name: testCase.lightLabel, exact: true }).click();
     expect(
@@ -210,8 +279,12 @@ async function auditPage(browser, browserName, origin, testCase) {
     }
 
     const proof = page.locator(".proof-sources");
-    await proof.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(100);
+    await page.evaluate(() => {
+      const previous = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = "auto";
+      document.querySelector(".proof-sources").scrollIntoView({ block: "center" });
+      document.documentElement.style.scrollBehavior = previous;
+    });
     const beforeOpen = await page.evaluate(() => scrollY);
     await proof.locator("summary").click();
     await page.waitForTimeout(120);
@@ -335,6 +408,7 @@ const cases = [
     darkLabel: "Тёмная",
     lightLabel: "Светлая",
     menuLabel: "МЕНЮ",
+    conversionLabel: "Обсудить участие",
   },
   {
     name: "RU 390×844",
@@ -343,6 +417,7 @@ const cases = [
     darkLabel: "Тёмная",
     lightLabel: "Светлая",
     menuLabel: "МЕНЮ",
+    conversionLabel: "Обсудить участие",
   },
   {
     name: "EN 320×844",
@@ -351,6 +426,7 @@ const cases = [
     darkLabel: "Dark",
     lightLabel: "Light",
     menuLabel: "MENU",
+    conversionLabel: "Discuss a partnership",
   },
 ];
 

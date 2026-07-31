@@ -89,6 +89,10 @@ async function capture(browser, origin, spec) {
         videoToggleHidden: document.querySelector(".hero__media-toggle")?.hidden ?? null,
         lang: document.documentElement.lang,
         menuOpen: document.querySelector(".nav-shell")?.hasAttribute("open") || false,
+        menuFits: (() => {
+          const menu = document.querySelector(".site-nav");
+          return menu ? menu.scrollHeight <= menu.clientHeight : null;
+        })(),
         menuCtaVisible: (() => {
           const rect = document.querySelector(".site-nav__cta")?.getBoundingClientRect();
           return Boolean(rect && rect.top >= 0 && rect.bottom <= innerHeight);
@@ -143,6 +147,9 @@ async function capture(browser, origin, spec) {
       expect(metrics.menuCtaVisible, `${spec.name}: menu CTA is not reachable`);
       expect(!metrics.themeOverlap, `${spec.name}: theme labels overlap`);
     }
+    if (spec.expectMenuFit) {
+      expect(metrics.menuOpen && metrics.menuFits, `${spec.name}: menu requires scrolling`);
+    }
     if (spec.expectedPhase) {
       expect(
         metrics.projectPhase === spec.expectedPhase &&
@@ -181,6 +188,15 @@ const specs = [
     viewport: { width: 1440, height: 900 },
   },
   {
+    name: "ru-1440-system-menu",
+    path: "/?gate=ru-1440-menu#top",
+    locale: "ru",
+    theme: "system",
+    menuOpen: true,
+    expectMenuFit: true,
+    viewport: { width: 1440, height: 900 },
+  },
+  {
     name: "ru-1440-dark-proof-open",
     path: "/?gate=ru-1440-dark-proof#proof",
     locale: "ru",
@@ -201,6 +217,7 @@ const specs = [
     locale: "ru",
     theme: "system",
     menuOpen: true,
+    expectMenuFit: true,
     viewport: { width: 390, height: 844 },
   },
   {
@@ -275,6 +292,14 @@ const specs = [
     theme: "dark",
     target: ".distance-card",
     viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-1440-light-partner-closing",
+    path: "/?gate=ru-1440-light-partner-closing#partners",
+    locale: "ru",
+    theme: "light",
+    target: ".partners__closing",
+    viewport: { width: 1440, height: 900 },
   },
   {
     name: "ru-390-dark-audio-scene-02",
