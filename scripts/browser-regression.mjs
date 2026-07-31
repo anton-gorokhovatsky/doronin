@@ -285,13 +285,17 @@ async function auditPage(browser, browserName, origin, testCase) {
       document.querySelector(".proof-sources").scrollIntoView({ block: "center" });
       document.documentElement.style.scrollBehavior = previous;
     });
-    const beforeOpen = await page.evaluate(() => scrollY);
+    const beforeOpen = await proof.locator("summary").evaluate((element) =>
+      element.getBoundingClientRect().top,
+    );
     await proof.locator("summary").click();
     await page.waitForTimeout(120);
-    const afterOpen = await page.evaluate(() => scrollY);
+    const afterOpen = await proof.locator("summary").evaluate((element) =>
+      element.getBoundingClientRect().top,
+    );
     expect(
       Math.abs(afterOpen - beforeOpen) <= 1,
-      `${prefix}: proof disclosure shifted scroll by ${afterOpen - beforeOpen}px`,
+      `${prefix}: proof disclosure shifted its anchor by ${afterOpen - beforeOpen}px`,
     );
 
     if (testCase.viewport.width <= 390) {
