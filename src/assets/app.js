@@ -1,4 +1,22 @@
-const requestedTheme = new URLSearchParams(window.location.search).get("theme");
+const requestParameters = new URLSearchParams(window.location.search);
+const requestedTheme = requestParameters.get("theme");
+const requestedPhase = requestParameters.get("phase");
+const requestedTextScale = requestParameters.get("text");
+const phaseFixtureDates = {
+  before: "2026-07-31T12:00:00+03:00",
+  active: "2026-12-15T12:00:00+03:00",
+  finished: "2027-01-02T12:00:00+03:00",
+};
+const localFixtureHost = /^(?:127(?:\.\d{1,3}){3}|localhost|\[::1\])$/i.test(
+  window.location.hostname,
+);
+const phaseFixture =
+  localFixtureHost && Object.hasOwn(phaseFixtureDates, requestedPhase)
+    ? requestedPhase
+    : null;
+if (localFixtureHost && requestedTextScale === "200") {
+  document.documentElement.dataset.textFixture = "200";
+}
 const supportedThemes = new Set(["system", "light", "dark"]);
 const storedTheme = document.documentElement.dataset.theme;
 let activeTheme = supportedThemes.has(requestedTheme)
@@ -71,10 +89,41 @@ function syncOpticalStart(element) {
   }
 }
 
-function reachGoal(goal) {
-  if (goal && typeof window.ym === "function") {
-    window.ym(111159425, "reachGoal", goal);
+const analyticsRegistryNode = document.querySelector(
+  "#analytics-goal-registry",
+);
+let analyticsRegistry = { counterId: 111159425, goals: [] };
+
+try {
+  analyticsRegistry = JSON.parse(analyticsRegistryNode?.textContent || "{}");
+} catch {}
+
+const analyticsGoals = new Map(
+  Array.isArray(analyticsRegistry.goals)
+    ? analyticsRegistry.goals.map((goal) => [goal.id, goal])
+    : [],
+);
+const analyticsSafeValue = /^[a-z0-9_-]{1,48}$/i;
+
+function reachGoal(goal, params = {}) {
+  const definition = analyticsGoals.get(goal);
+
+  if (!definition || typeof window.ym !== "function") {
+    return;
   }
+
+  const safeParams = Object.fromEntries(
+    (definition.params || [])
+      .filter((key) => analyticsSafeValue.test(String(params[key] || "")))
+      .map((key) => [key, String(params[key])]),
+  );
+
+  window.ym(
+    analyticsRegistry.counterId,
+    "reachGoal",
+    goal,
+    safeParams,
+  );
 }
 
 for (const element of document.querySelectorAll("[data-optical-start]")) {
@@ -83,8 +132,8 @@ for (const element of document.querySelectorAll("[data-optical-start]")) {
 
 for (const button of document.querySelectorAll("[data-theme-option]")) {
   button.addEventListener("click", () => {
+    reachGoal("theme_change", { theme: button.dataset.themeOption });
     applyTheme(button.dataset.themeOption);
-    button.closest(".header-theme")?.removeAttribute("open");
   });
 }
 
@@ -92,36 +141,58 @@ const proofSources = document.querySelector(".proof-sources");
 
 if (proofSources) {
   const proofSourcesSummary = proofSources.querySelector("summary");
-  let proofSourcesScrollY = null;
+  let proofSourcesRestoreFrame = 0;
+  let proofSourcesPreviousScrollBehavior = null;
 
-  function rememberProofSourcesPosition(event) {
-    if (
-      event.type === "keydown" &&
-      event.key !== "Enter" &&
-      event.key !== " "
-    ) {
-      return;
+  function stopProofSourcesRestoration() {
+    if (proofSourcesRestoreFrame) {
+      cancelAnimationFrame(proofSourcesRestoreFrame);
+      proofSourcesRestoreFrame = 0;
     }
 
-    proofSourcesScrollY = window.scrollY;
+    if (proofSourcesPreviousScrollBehavior !== null) {
+      document.documentElement.style.scrollBehavior =
+        proofSourcesPreviousScrollBehavior;
+      proofSourcesPreviousScrollBehavior = null;
+    }
   }
 
-  proofSourcesSummary?.addEventListener(
-    "pointerdown",
-    rememberProofSourcesPosition,
-  );
-  proofSourcesSummary?.addEventListener(
-    "keydown",
-    rememberProofSourcesPosition,
-  );
-  proofSources.addEventListener("toggle", () => {
-    if (proofSourcesScrollY === null) {
-      return;
+  proofSourcesSummary?.addEventListener("click", (event) => {
+    event.preventDefault();
+    if (!proofSources.open) {
+      reachGoal("proof_open");
     }
 
-    const restoreScrollY = proofSourcesScrollY;
-    proofSourcesScrollY = null;
-    requestAnimationFrame(() => window.scrollTo(0, restoreScrollY));
+    const anchorTop = proofSourcesSummary.getBoundingClientRect().top;
+    const root = document.documentElement;
+    let restorePass = 0;
+
+    stopProofSourcesRestoration();
+    proofSourcesPreviousScrollBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    proofSources.open = !proofSources.open;
+
+    function restoreProofSourcesPosition() {
+      proofSourcesRestoreFrame = 0;
+
+      const offset = proofSourcesSummary.getBoundingClientRect().top - anchorTop;
+
+      if (Math.abs(offset) > 0.5) {
+        window.scrollBy(0, offset);
+      }
+
+      restorePass += 1;
+
+      if (restorePass < 6) {
+        proofSourcesRestoreFrame = requestAnimationFrame(
+          restoreProofSourcesPosition,
+        );
+      } else {
+        stopProofSourcesRestoration();
+      }
+    }
+
+    restoreProofSourcesPosition();
   });
 }
 
@@ -201,9 +272,11 @@ if (heroVideo && videoToggle) {
   videoToggle.addEventListener("click", () => {
     if (heroVideo.paused) {
       userPausedVideo = false;
+      reachGoal("hero_video_resume");
       playHeroVideo();
     } else {
       userPausedVideo = true;
+      reachGoal("hero_video_pause");
       heroVideo.pause();
     }
   });
@@ -414,6 +487,7 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
 
   for (const [index, button] of soundSceneButtons.entries()) {
     button.addEventListener("click", async () => {
+      reachGoal("sound_scene_select", { scene: String(index + 1) });
       if (index !== activeSoundScene) {
         selectSoundScene(index);
         return;
@@ -823,10 +897,14 @@ const eventStatus = document.querySelector("[data-event-status]");
 if (eventStatus) {
   const start = new Date(eventStatus.dataset.start);
   const end = new Date(eventStatus.dataset.end);
-  const now = new Date();
+  const now = phaseFixture
+    ? new Date(phaseFixtureDates[phaseFixture])
+    : new Date();
   const value = eventStatus.querySelector("[data-status-value]");
   const label = eventStatus.querySelector("[data-status-label]");
   const update = eventStatus.querySelector("[data-status-update]");
+  const updateText = eventStatus.querySelector("[data-status-update-text]");
+  const updateSource = eventStatus.querySelector("[data-status-source]");
   const railElement = eventStatus.querySelector(".event-status__rail");
   const rail = [
     ...eventStatus.querySelectorAll("[data-status-day]"),
@@ -929,9 +1007,19 @@ if (eventStatus) {
         eventStatus.dataset.liveNote,
       ].filter(Boolean);
 
-      update.textContent = `${eventStatus.dataset.latestUpdate}: ${parts.join(" · ")}`;
+      updateText.textContent = `${eventStatus.dataset.latestUpdate}: ${parts.join(" · ")}`;
+      if (
+        updateSource &&
+        eventStatus.dataset.liveSourceLabel &&
+        eventStatus.dataset.liveSourceUrl
+      ) {
+        updateSource.textContent = `${eventStatus.dataset.sourceLabel}: ${eventStatus.dataset.liveSourceLabel}`;
+        updateSource.href = eventStatus.dataset.liveSourceUrl;
+        updateSource.hidden = false;
+      }
     } else {
-      update.textContent = eventStatus.dataset.statusPending;
+      updateText.textContent = eventStatus.dataset.statusPending;
+      if (updateSource) updateSource.hidden = true;
     }
 
     update.hidden = false;
@@ -956,6 +1044,9 @@ if (eventStatus) {
   }
 
   document.body.dataset.projectPhase = projectPhase;
+  if (phaseFixture) {
+    document.body.dataset.phaseFixture = phaseFixture;
+  }
 
   for (const phaseCopy of document.querySelectorAll("[data-phase-copy]")) {
     const copy = phaseCopy.dataset[projectPhase];
@@ -1046,17 +1137,18 @@ syncNavigationMode();
 desktopNavigation.addEventListener?.("change", syncNavigationMode);
 
 for (const navigation of document.querySelectorAll(".nav-shell")) {
+  navigation.addEventListener("toggle", () => {
+    if (navigation.open) {
+      reachGoal("menu_open", { location: "header" });
+    }
+  });
+
   navigation.addEventListener("click", (event) => {
     if (event.target.closest("a")) {
       navigation.removeAttribute("open");
     }
   });
 
-  navigation.addEventListener("toggle", () => {
-    if (navigation.open) {
-      document.querySelector(".header-theme[open]")?.removeAttribute("open");
-    }
-  });
 }
 
 document.addEventListener("keydown", (event) => {
@@ -1067,25 +1159,19 @@ document.addEventListener("keydown", (event) => {
     }
   }
 
-  if (event.key === "Escape") {
-    document.querySelector(".header-theme[open]")?.removeAttribute("open");
-  }
 });
-
-for (const themeMenu of document.querySelectorAll(".header-theme")) {
-  themeMenu.addEventListener("toggle", () => {
-    if (!themeMenu.open) {
-      return;
-    }
-
-    for (const navigation of document.querySelectorAll(".nav-shell[open]")) {
-      navigation.removeAttribute("open");
-    }
-  });
-}
 
 for (const languageSwitch of document.querySelectorAll("[data-language-switch]")) {
   languageSwitch.addEventListener("click", () => {
+    reachGoal("language_switch", {
+      language: languageSwitch.hreflang,
+      location: languageSwitch.closest(".site-nav")
+        ? "menu"
+        : languageSwitch.closest("footer")
+          ? "footer"
+          : "header",
+    });
+
     if (!window.location.hash) {
       return;
     }
@@ -1113,6 +1199,13 @@ if (siteHeader && heroSection && "IntersectionObserver" in window) {
 const headerNavigationLinks = [
   ...document.querySelectorAll(".site-nav [data-nav-track]"),
 ];
+for (const link of headerNavigationLinks) {
+  link.addEventListener("click", () => {
+    reachGoal("chapter_navigation", {
+      chapter: link.hash.slice(1) || "top",
+    });
+  });
+}
 const headerNavigationTargets = headerNavigationLinks
   .map((link) => {
     const target = document.querySelector(link.hash);

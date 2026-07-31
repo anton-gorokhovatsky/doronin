@@ -16,14 +16,40 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  quality:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install browser engines
+        run: pnpm exec playwright install --with-deps chromium webkit
+
+      - name: Run release gate
+        run: pnpm gate
+
+      - name: Upload gate screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-gate-screenshots
+          path: artifacts/gate/automated
+
+      - name: Build deployable site
+        run: pnpm run build:site
 
       - name: Setup Pages
         uses: actions/configure-pages@v6
@@ -32,6 +58,14 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: site
+
+  deploy:
+    needs: quality
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
 
       - name: Deploy
         id: deployment

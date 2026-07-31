@@ -1,3 +1,9 @@
 .DS_Store
 preview/
 tmp/
+node_modules/
+test-results/
+.pnpm-store/
+artifacts/gate/debug-*.png
+/site/assets/* 2.*
+/site/assets/**/* 2.*

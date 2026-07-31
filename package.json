@@ -1,0 +1,19 @@
+{
+  "name": "11-111-site",
+  "private": true,
+  "packageManager": "pnpm@11.9.0",
+  "type": "module",
+  "scripts": {
+    "build": "node src/build.mjs",
+    "build:site": "node src/build.mjs site",
+    "check": "node src/check.mjs",
+    "status:check": "node scripts/validate-project-status.mjs",
+    "status:update": "node scripts/update-project-status.mjs",
+    "test:browser": "node scripts/browser-regression.mjs",
+    "gate:screenshots": "node scripts/screenshot-gate.mjs",
+    "gate": "node scripts/release-gate.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.61.1"
+  }
+}

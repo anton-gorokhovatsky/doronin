@@ -1,4 +1,6 @@
 {
+  "version": 1,
+  "verified": false,
   "updatedAt": null,
   "distanceKm": null,
   "discipline": {
@@ -8,5 +10,12 @@
   "note": {
     "ru": null,
     "en": null
+  },
+  "source": {
+    "label": {
+      "ru": null,
+      "en": null
+    },
+    "url": null
   }
 }

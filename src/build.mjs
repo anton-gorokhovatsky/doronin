@@ -1,19 +1,56 @@
 import { createHash } from "node:crypto";
-import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-const outputRoot = resolve(process.argv[2] || "preview");
+import { validateProjectStatus } from "./project-status-validation.mjs";
+
+const outputName = process.argv[2] || "preview";
+const allowedOutputRoots = new Set([resolve("preview"), resolve("site")]);
+const outputRoot = resolve(outputName);
+if (!allowedOutputRoots.has(outputRoot)) {
+  throw new Error("Build output must be either preview or site.");
+}
 const assetSource = resolve("src/assets");
 const assetOutput = resolve(outputRoot, "assets");
+const styleModulesRoot = resolve(assetSource, "styles");
+const styleModuleNames = [
+  "00-foundations-navigation.css",
+  "10-hero-audio.css",
+  "20-editorial-distance-story.css",
+  "30-proof-adventures-interviews.css",
+  "40-partners-footer.css",
+  "50-responsive.css",
+  "60-themes-accessibility.css",
+];
+const styleBundle = (
+  await Promise.all(
+    styleModuleNames.map((file) => readFile(resolve(styleModulesRoot, file), "utf8")),
+  )
+).join("");
 const projectStatus = JSON.parse(
   await readFile(resolve("src/project-status.json"), "utf8"),
 );
+const projectStatusErrors = validateProjectStatus(projectStatus);
+if (projectStatusErrors.length) {
+  throw new Error(
+    `Invalid project status:\n${projectStatusErrors.map((error) => `- ${error}`).join("\n")}`,
+  );
+}
+const analyticsRegistry = JSON.parse(
+  await readFile(resolve("src/analytics-goals.json"), "utf8"),
+);
+const analyticsRegistryJson = JSON.stringify(analyticsRegistry).replace(
+  /</g,
+  "\\u003c",
+);
 const assetVersion = createHash("sha256")
-  .update(await readFile(resolve(assetSource, "styles.css")))
+  .update(styleBundle)
   .update(await readFile(resolve(assetSource, "app.js")))
   .update(await readFile(resolve(assetSource, "theme-init.js")))
   .digest("hex")
   .slice(0, 10);
+
+await rm(outputRoot, { recursive: true, force: true });
 
 const shared = {
   email: "anesterova88@gmail.com",
@@ -38,6 +75,7 @@ const shared = {
 };
 
 const hasVerifiedProjectStatus =
+  projectStatus.verified === true &&
   typeof projectStatus.updatedAt === "string" &&
   projectStatus.updatedAt.length > 0 &&
   Number.isFinite(projectStatus.distanceKm) &&
@@ -135,6 +173,7 @@ const locales = {
       activeLabel: "день из 31",
       finishedLabel: "Плановый период проекта завершён",
       latestUpdate: "Последнее подтверждённое обновление",
+      sourceLabel: "Источник",
       statusPending:
         "Подтверждённые данные появятся после обновления команды",
       footLabel: "Не спортивное событие",
@@ -154,6 +193,8 @@ const locales = {
       videoLabel:
         "Видео из дневника подготовки: Виктор Доронин проходит тестирование на велосипеде",
       videoPlayLabel: "Воспроизвести видео из дневника, 15 секунд",
+      videoPlayCta: "Смотреть видео",
+      videoDuration: "00:15",
       lead:
         "После 60 дней базовой работы Виктор сверил ощущения с цифрами: газоанализ, лактат, мощность и пульс.",
       facts: [
@@ -185,6 +226,8 @@ const locales = {
       totalLabel: "Итого за 31 день",
       totalValue: "11 111",
       totalUnit: "км",
+      sequenceLabel: "Этап",
+      sequenceOf: "из",
       totalFormulaLabel: "100 плюс 10 010 плюс 1 001 равно 11 111 километров",
       mediaKicker: "Дубай · архив проекта «1111»",
       items: [
@@ -320,6 +363,7 @@ const locales = {
       externalLabel: "Откроется ВКонтакте в новой вкладке",
       sourcesTitle: "Факты и источники",
       sourcesUpdated: "Проверено 31 июля 2026",
+      sourceLabel: "Источники",
       sources: [
         {
           title: "≈1,3 млн просмотров",
@@ -597,6 +641,7 @@ const locales = {
       activeLabel: "day of 31",
       finishedLabel: "The scheduled project period has ended",
       latestUpdate: "Latest verified update",
+      sourceLabel: "Source",
       statusPending: "Verified figures will appear after the team’s update",
       footLabel: "Not a sporting event",
       footText: "A story you can become part of",
@@ -615,6 +660,8 @@ const locales = {
       videoLabel:
         "Training diary video: Viktor Doronin undergoes a cycling test",
       videoPlayLabel: "Play the 15-second training diary video",
+      videoPlayCta: "Watch video",
+      videoDuration: "00:15",
       lead:
         "After 60 days of base work, Viktor checked perception against data: gas analysis, lactate, power and heart rate.",
       facts: [
@@ -646,6 +693,8 @@ const locales = {
       totalLabel: "Total over 31 days",
       totalValue: "11,111",
       totalUnit: "km",
+      sequenceLabel: "Stage",
+      sequenceOf: "of",
       totalFormulaLabel: "100 plus 10,010 plus 1,001 equals 11,111 kilometres",
       mediaKicker: "Dubai · Project “1111” archive",
       items: [
@@ -781,6 +830,7 @@ const locales = {
       externalLabel: "Opens VK in a new tab",
       sourcesTitle: "Facts and sources",
       sourcesUpdated: "Checked July 31, 2026",
+      sourceLabel: "Sources",
       sources: [
         {
           title: "≈1.3M views",
@@ -1007,6 +1057,14 @@ function renderThemeSwitcher(l) {
 }
 
 const icons = {
+  mail: `
+    <svg class="icon icon--mail" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M2.5 4.25h11v7.5h-11zM3 4.75 8 8.5l5-3.75"></path>
+    </svg>`,
+  telegram: `
+    <svg class="icon icon--telegram" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="m2.5 7.5 11-4.25-3.2 9.5-3.2-3-2.25 1.65.7-3.15 5.2-3.1-4.3 3.8"></path>
+    </svg>`,
   external: `
     <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M4 12 12 4M6 4h6v6"></path>
@@ -1053,23 +1111,23 @@ function renderDistanceValue(value, unit, className) {
     </p>`;
 }
 
-function renderSequenceTotal(value) {
+function renderSequenceTotal(value, unit) {
   const groups = value.split(" ");
 
   if (groups.length === 1) {
-    return `<b>${value}</b>`;
+    return `<b><span>${value}</span><small>${unit}</small></b>`;
   }
 
-  return `<b class="distance-story__sequence-total">${groups
+  return `<b><span class="distance-story__sequence-total">${groups
     .map((group) => `<span>${group}</span>`)
-    .join("")}</b>`;
+    .join("")}</span><small>${unit}</small></b>`;
 }
 
 function renderDistance(items, l) {
   return items
     .map((item, index) => {
       const mobileSequence = items
-        .map((_, stepIndex) => {
+        .map((sequenceItem, stepIndex) => {
           const state =
             stepIndex < index
               ? "is-complete"
@@ -1077,7 +1135,7 @@ function renderDistance(items, l) {
                 ? "is-active"
                 : "";
 
-          return `<span class="${state}"></span>`;
+          return `<span class="distance-card__sequence-step ${state}" aria-hidden="true"><i></i><small>${sequenceItem.index} ${sequenceItem.label}</small></span>`;
         })
         .join("");
 
@@ -1098,9 +1156,13 @@ function renderDistance(items, l) {
             <h3>${item.label}</h3>
           </div>
           ${renderDistanceValue(item.value, item.unit, "distance-card__value")}
-          <div class="distance-card__mobile-sequence" aria-hidden="true">
+          <div
+            class="distance-card__mobile-sequence"
+            aria-label="${l.distance.sequenceLabel} ${index + 1} / ${items.length}. ${l.distance.totalLabel}: ${l.distance.totalValue} ${l.distance.totalUnit}"
+          >
+            <span class="distance-card__sequence-label">${l.distance.sequenceLabel} ${index + 1} ${l.distance.sequenceOf} ${items.length}</span>
+            ${renderSequenceTotal(l.distance.totalValue, l.distance.totalUnit)}
             ${mobileSequence}
-            ${renderSequenceTotal(l.distance.totalValue)}
           </div>
           <ul class="detail-list">
             ${item.details.map((detail) => `<li>${detail}</li>`).join("")}
@@ -1204,19 +1266,23 @@ function renderPartnerProcess(partners) {
 function renderProofSources(proof) {
   return proof.sources
     .map(
-      (source) => `
+      (source, index) => `
         <article class="proof-source">
+          <span class="proof-source__index" aria-hidden="true">${String(index + 1).padStart(2, "0")}</span>
           <h3>${source.title}</h3>
           <p>${source.body}</p>
           ${
             source.links.length
               ? `<div class="proof-source__links">
-                  ${source.links
-                    .map(
-                      ([label, href]) =>
-                        `<a href="${href}" target="_blank" rel="noopener noreferrer">${label}${icons.external}</a>`,
-                    )
-                    .join("")}
+                  <span>${proof.sourceLabel}</span>
+                  <div>
+                    ${source.links
+                      .map(
+                        ([label, href]) =>
+                          `<a href="${href}" target="_blank" rel="noopener noreferrer">${label}${icons.external}</a>`,
+                      )
+                      .join("")}
+                  </div>
                 </div>`
               : ""
           }
@@ -1426,12 +1492,16 @@ function renderPage(l) {
         distanceKm: String(projectStatus.distanceKm),
         discipline: escapeAttribute(projectStatus.discipline[l.lang]),
         note: escapeAttribute(projectStatus.note?.[l.lang] || ""),
+        sourceLabel: escapeAttribute(projectStatus.source.label[l.lang]),
+        sourceUrl: escapeAttribute(projectStatus.source.url),
       }
     : {
         updatedAt: "",
         distanceKm: "",
         discipline: "",
         note: "",
+        sourceLabel: "",
+        sourceUrl: "",
       };
 
   return typographHtml(`<!doctype html>
@@ -1492,6 +1562,7 @@ function renderPage(l) {
 </head>
 <body data-project-phase="before">
   <noscript><div><img src="https://mc.yandex.ru/watch/111159425" style="position:absolute; left:-9999px;" alt=""></div></noscript>
+  <script type="application/json" id="analytics-goal-registry">${analyticsRegistryJson}</script>
   <a class="skip-link" href="#main">${l.skip}</a>
 
   <header class="site-header is-over-hero">
@@ -1526,23 +1597,15 @@ function renderPage(l) {
           ${renderThemeSwitcher(l)}
           <div class="site-nav__contacts">
             <span>${l.footer.contactLabel}</span>
-            <a href="mailto:${shared.email}" data-analytics-goal="contact_email">${l.footer.emailCta}${icons.external}</a>
-            <a href="${shared.telegramHref}" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">${l.footer.telegramCta}${icons.external}</a>
+            <a href="mailto:${shared.email}" data-analytics-goal="contact_email">${icons.mail}${l.footer.emailCta}</a>
+            <a href="${shared.telegramHref}" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">${icons.telegram}${l.footer.telegramCta}</a>
           </div>
-          <a class="site-nav__cta" href="${mailHref}" data-analytics-goal="contact_email">${l.footer.partnerCta}${icons.external}</a>
+          <a class="site-nav__cta" href="${mailHref}" data-analytics-goal="contact_email"><span>${l.footer.partnerCta}</span>${icons.external}</a>
         </div>
       </nav>
     </details>
 
     <div class="header-actions">
-      <details class="header-theme">
-        <summary aria-label="${l.footer.themeLabel}">
-          <span aria-hidden="true"></span>
-        </summary>
-        <div class="header-theme__panel">
-          ${renderThemeSwitcher(l)}
-        </div>
-      </details>
       <a class="language-switch" data-language-switch href="${l.alternateHref}" hreflang="${l.lang === "ru" ? "en" : "ru"}">${l.alternateLabel}</a>
       <a class="header-cta" href="#partners" data-analytics-goal="partner_interest">${l.headerCta}</a>
     </div>
@@ -1616,6 +1679,9 @@ function renderPage(l) {
         data-live-unit="${l.distance.totalUnit}"
         data-live-discipline="${liveStatus.discipline}"
         data-live-note="${liveStatus.note}"
+        data-source-label="${l.hero.sourceLabel}"
+        data-live-source-label="${liveStatus.sourceLabel}"
+        data-live-source-url="${liveStatus.sourceUrl}"
       >
         <span class="event-status__meta">${l.hero.statusMeta}</span>
         <span class="event-status__rail" aria-hidden="true">
@@ -1627,7 +1693,10 @@ function renderPage(l) {
         </span>
         <span class="event-status__value" data-status-value data-optical-start>01.12</span>
         <span class="event-status__label" data-status-label>${l.hero.statusFallback}</span>
-        <span class="event-status__update" data-status-update hidden></span>
+        <span class="event-status__update" data-status-update hidden>
+          <span data-status-update-text></span>
+          <a data-status-source hidden target="_blank" rel="noopener noreferrer"></a>
+        </span>
       </div>
 
       <div class="hero__foot">
@@ -1683,17 +1752,17 @@ function renderPage(l) {
             )
             .join("")}
         </ol>
-      </div>
-      <div class="audio-story__contexts" data-sound-contexts aria-live="polite">
-        ${l.hero.audioScenes
-          .map(
-            (scene, index) => `
-              <p data-sound-context="${index}"${index === 0 ? "" : " hidden"}>
-                <strong>${String(index + 1).padStart(2, "0")} · ${scene.title}</strong>
-                <span>${scene.context}</span>
-              </p>`,
-          )
-          .join("")}
+        <div class="audio-story__contexts" data-sound-contexts aria-live="polite">
+          ${l.hero.audioScenes
+            .map(
+              (scene, index) => `
+                <p data-sound-context="${index}"${index === 0 ? "" : " hidden"}>
+                  <strong>${String(index + 1).padStart(2, "0")} · ${scene.title}</strong>
+                  <span>${scene.context}</span>
+                </p>`,
+            )
+            .join("")}
+        </div>
       </div>
       <audio
         data-effort-audio
@@ -1731,9 +1800,13 @@ function renderPage(l) {
           aria-label="${l.diary.videoPlayLabel}"
           data-diary-video-play
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="m9 6 9 6-9 6Z"></path>
-          </svg>
+          <span class="diary__play-label">${l.diary.videoPlayCta}</span>
+          <span class="diary__play-meta">
+            <time datetime="PT15S">${l.diary.videoDuration}</time>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="m9 6 9 6-9 6Z"></path>
+            </svg>
+          </span>
         </button>
         <figcaption class="sr-only">${l.diary.imageAlt}</figcaption>
       </figure>
@@ -1803,7 +1876,7 @@ function renderPage(l) {
                     `<span class="${index === 0 ? "is-active" : ""}" data-distance-sequence="${index}"></span>`,
                 )
                 .join("")}
-              ${renderSequenceTotal(l.distance.totalValue)}
+              ${renderSequenceTotal(l.distance.totalValue, l.distance.totalUnit)}
             </div>
           </div>
         </div>
@@ -1947,10 +2020,10 @@ function renderPage(l) {
           <h3 class="partners__cta">${l.partners.cta}</h3>
           <div class="partners__channels">
             <a href="${mailHref}" data-analytics-goal="contact_email" aria-label="${l.partners.emailLabel}">
-              ${l.partners.emailCta}${icons.external}
+              ${icons.mail}${l.partners.emailCta}
             </a>
             <a href="${shared.telegramHref}" data-analytics-goal="contact_telegram" aria-label="${l.partners.telegramLabel}" target="_blank" rel="noopener noreferrer">
-              ${l.partners.telegramCta}${icons.external}
+              ${icons.telegram}${l.partners.telegramCta}
             </a>
           </div>
           <p class="partners__person">
@@ -1982,13 +2055,12 @@ function renderPage(l) {
       <nav class="site-footer__nav" aria-label="${l.footer.navLabel}">
         <p>${l.footer.navLabel}</p>
         ${renderNav(l.nav)}
-        <a class="site-nav__link" href="#partners">${l.headerCta}</a>
       </nav>
 
       <div class="site-footer__contacts">
         <p>${l.footer.contactLabel}</p>
-        <a href="mailto:${shared.email}" data-analytics-goal="contact_email">${l.footer.emailCta}${icons.external}</a>
-        <a href="${shared.telegramHref}" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">${l.footer.telegramCta}${icons.external}</a>
+        <a href="mailto:${shared.email}" data-analytics-goal="contact_email">${icons.mail}${l.footer.emailCta}</a>
+        <a href="${shared.telegramHref}" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">${icons.telegram}${l.footer.telegramCta}</a>
       </div>
 
       <div class="site-footer__utility">
@@ -2028,7 +2100,12 @@ function renderPage(l) {
 }
 
 await mkdir(assetOutput, { recursive: true });
-await cp(assetSource, assetOutput, { recursive: true });
+await cp(assetSource, assetOutput, {
+  recursive: true,
+  filter: (source) =>
+    source !== styleModulesRoot && !source.startsWith(`${styleModulesRoot}/`),
+});
+await writeFile(resolve(assetOutput, "styles.css"), styleBundle, "utf8");
 
 for (const locale of Object.values(locales)) {
   const outputPath = resolve(outputRoot, locale.outputPath);

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://11111.life/schemas/project-status.schema.json",
+  "title": "11 111 verified project status",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "verified",
+    "updatedAt",
+    "distanceKm",
+    "discipline",
+    "note",
+    "source"
+  ],
+  "properties": {
+    "version": { "const": 1 },
+    "verified": { "type": "boolean" },
+    "updatedAt": { "type": ["string", "null"], "format": "date-time" },
+    "distanceKm": { "type": ["number", "null"], "minimum": 0, "maximum": 11111 },
+    "discipline": { "$ref": "#/$defs/localizedRequired" },
+    "note": { "$ref": "#/$defs/localizedOptional" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "url"],
+      "properties": {
+        "label": { "$ref": "#/$defs/localizedRequired" },
+        "url": { "type": ["string", "null"], "format": "uri" }
+      }
+    }
+  },
+  "$defs": {
+    "localizedRequired": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ru", "en"],
+      "properties": {
+        "ru": { "type": ["string", "null"], "minLength": 1 },
+        "en": { "type": ["string", "null"], "minLength": 1 }
+      }
+    },
+    "localizedOptional": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ru", "en"],
+      "properties": {
+        "ru": { "type": ["string", "null"] },
+        "en": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

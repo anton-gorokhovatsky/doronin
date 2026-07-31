@@ -1,12 +1,44 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
+import { validateProjectStatus } from "./project-status-validation.mjs";
+
 const outputRoot = resolve(process.argv[2] || "preview");
 const pages = [
   ["ru", resolve(outputRoot, "index.html")],
   ["en", resolve(outputRoot, "en/index.html")],
 ];
 const failures = [];
+const projectStatus = JSON.parse(
+  await readFile(resolve("src/project-status.json"), "utf8"),
+);
+const projectStatusErrors = validateProjectStatus(projectStatus);
+const analyticsRegistry = JSON.parse(
+  await readFile(resolve("src/analytics-goals.json"), "utf8"),
+);
+const analyticsGoalIds = analyticsRegistry.goals.map(({ id }) => id);
+const analyticsGoalIdSet = new Set(analyticsGoalIds);
+const triggeredAnalyticsGoals = new Set();
+const requiredAnalyticsGoals = [
+  "menu_open",
+  "chapter_navigation",
+  "project_explore",
+  "partner_interest",
+  "language_switch",
+  "theme_change",
+  "hero_video_pause",
+  "hero_video_resume",
+  "proof_open",
+  "sound_scene_select",
+  "sound_story_start",
+  "sound_story_complete",
+  "diary_video_start",
+  "diary_video_complete",
+  "diary_open",
+  "film_open",
+  "contact_email",
+  "contact_telegram",
+];
 
 function expect(condition, message) {
   if (!condition) {
@@ -16,6 +48,15 @@ function expect(condition, message) {
 
 for (const [lang, path] of pages) {
   const html = await readFile(path, "utf8");
+  const embeddedAnalyticsRegistry = html.match(
+    /<script type="application\/json" id="analytics-goal-registry">([^<]+)<\/script>/,
+  )?.[1];
+  const staticAnalyticsGoals = [
+    ...html.matchAll(/\bdata-analytics-goal="([a-z0-9_-]+)"/g),
+  ].map(([, goal]) => goal);
+  for (const goal of staticAnalyticsGoals) {
+    triggeredAnalyticsGoals.add(goal);
+  }
   const textFragments = html
     .replace(/<svg[\s\S]*?<\/svg>/g, " ")
     .split(/<[^>]+>/g);
@@ -31,6 +72,10 @@ for (const [lang, path] of pages) {
   expect(
     (html.match(/<h1\b/g) || []).length === 1,
     `${lang}: на странице должен быть ровно один h1`,
+  );
+  expect(
+    (html.match(/<link\b[^>]*\brel="stylesheet"/g) || []).length === 1,
+    `${lang}: production должен загружать один собранный CSS`,
   );
   expect(
     [...html.matchAll(/<img\b[^>]*>/g)].every(([image]) =>
@@ -119,9 +164,9 @@ for (const [lang, path] of pages) {
     `${lang}: фоновое видео должно запускаться только без звука и сохранять постерный fallback`,
   );
   expect(
-    (html.match(/\bdata-theme-option="/g) || []).length === 9 &&
-      html.includes('class="header-theme"'),
-    `${lang}: тема должна быть доступна в шапке, меню и подвале в трёх явных режимах`,
+    (html.match(/\bdata-theme-option="/g) || []).length === 6 &&
+      !html.includes('class="header-theme"'),
+    `${lang}: тема должна быть доступна в общем меню и подвале в трёх явных режимах без отдельного dropdown`,
   );
   expect(
     (html.match(/\bdata-status-day\b/g) || []).length === 31,
@@ -186,15 +231,14 @@ for (const [lang, path] of pages) {
     `${lang}: каждая звуковая сцена должна иметь редакционный контекст`,
   );
   expect(
-    [
-      "project_explore",
-      "partner_interest",
-      "diary_open",
-      "film_open",
-      "contact_email",
-      "contact_telegram",
-    ].every((goal) => html.includes(`data-analytics-goal="${goal}"`)),
-    `${lang}: ключевые маршруты, дневник, фильм и оба канала связи должны иметь явные цели Метрики`,
+    staticAnalyticsGoals.every((goal) => analyticsGoalIdSet.has(goal)),
+    `${lang}: HTML не должен отправлять цели вне единого реестра Метрики`,
+  );
+  expect(
+    embeddedAnalyticsRegistry &&
+      JSON.stringify(JSON.parse(embeddedAnalyticsRegistry)) ===
+        JSON.stringify(analyticsRegistry),
+    `${lang}: страница должна получать точный машиночитаемый реестр целей Метрики`,
   );
   expect(
     [...html.matchAll(/<a\b[^>]*target="_blank"[^>]*>/g)].every(([link]) =>
@@ -305,6 +349,70 @@ for (const [lang, path] of pages) {
 
 const css = await readFile(resolve(outputRoot, "assets/styles.css"), "utf8");
 const app = await readFile(resolve(outputRoot, "assets/app.js"), "utf8");
+for (const [, goal] of app.matchAll(/\breachGoal\("([a-z0-9_-]+)"/g)) {
+  triggeredAnalyticsGoals.add(goal);
+}
+const styleModuleNames = [
+  "00-foundations-navigation.css",
+  "10-hero-audio.css",
+  "20-editorial-distance-story.css",
+  "30-proof-adventures-interviews.css",
+  "40-partners-footer.css",
+  "50-responsive.css",
+  "60-themes-accessibility.css",
+];
+const sourceStyleManifest = await readFile(resolve("src/assets/styles.css"), "utf8");
+const sourceStyleBundle = (
+  await Promise.all(
+    styleModuleNames.map((file) =>
+      readFile(resolve("src/assets/styles", file), "utf8"),
+    ),
+  )
+).join("");
+const [logoSvg, faviconAdaptive, faviconLight, faviconDark] = await Promise.all(
+  ["logo.svg", "favicon-adaptive.svg", "favicon-light.svg", "favicon-dark.svg"].map(
+    (file) => readFile(resolve(outputRoot, `assets/${file}`), "utf8"),
+  ),
+);
+const svgPaths = (svg) => [...svg.matchAll(/<path\b[^>]*\bd="([^"]+)"/g)].map(([, path]) => path);
+const normalizeCss = (value) => value.replace(/\s+/g, " ").trim();
+const normalizedCss = normalizeCss(css);
+const productionGlassMaterial = normalizeCss(`
+  --glass-material:
+    linear-gradient(135deg, rgba(18, 67, 49, 0.26), rgba(2, 24, 17, 0.18)),
+    linear-gradient(rgba(241, 245, 237, 0.035), rgba(241, 245, 237, 0)),
+    linear-gradient(rgba(2, 30, 21, 0.72), rgba(2, 24, 17, 0.72));
+  --glass-border: rgba(217, 226, 217, 0.24);
+  --glass-filter: blur(22px) saturate(1.16);
+  --glass-shadow: 0 1.25rem 3.5rem rgba(0, 0, 0, 0.18);
+`);
+const productionDarkGlassMaterial = normalizeCss(`
+  --glass-material:
+    linear-gradient(128deg, rgba(12, 48, 50, 0.34), rgba(6, 16, 24, 0.2)),
+    linear-gradient(rgba(223, 255, 56, 0.025), transparent),
+    linear-gradient(rgba(2, 17, 22, 0.8), rgba(1, 10, 15, 0.8));
+  --glass-border: rgba(183, 220, 213, 0.26);
+  --glass-filter: blur(26px) saturate(1.24);
+  --glass-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.34);
+`);
+const audioStoryRule = css.match(/\.audio-story\s*\{([^}]*)\}/s)?.[1] || "";
+const diaryRule = css.match(/\.diary\s*\{([^}]*)\}/s)?.[1] || "";
+const mobileNavLinkRule = [...css.matchAll(/\.site-nav__link\s*\{([^}]*)\}/gs)]
+  .at(-1)?.[1] || "";
+
+expect(
+  sourceStyleManifest ===
+    `${styleModuleNames.map((file) => `@import "./styles/${file}";`).join("\n")}\n` &&
+    sourceStyleBundle === css,
+  "css: семь исходных модулей должны без дрейфа собираться в один production styles.css",
+);
+expect(
+  projectStatusErrors.length === 0 &&
+    app.includes("[data-status-update-text]") &&
+    app.includes("[data-status-source]") &&
+    app.includes("dataset.liveSourceUrl"),
+  `status: схема, локали, HTTPS-источник и вывод подтверждённого обновления должны быть валидны${projectStatusErrors.length ? ` (${projectStatusErrors.join("; ")})` : ""}`,
+);
 expect(
   css.includes("hanging-punctuation: first allow-end last"),
   "css: отсутствует progressive enhancement для висячей пунктуации",
@@ -364,12 +472,39 @@ expect(
   "css: дневник, источники, мобильный индекс интервью и партнёрский процесс должны быть оформлены",
 );
 expect(
-  css.includes("--glass-material:") &&
-    css.includes("--glass-filter:") &&
-    (css.match(/background:\s*var\(--glass-material\)/g) || []).length >= 13 &&
+  normalizedCss.includes(productionGlassMaterial) &&
+    normalizedCss.split(productionDarkGlassMaterial).length === 3 &&
+    (css.match(/background:\s*var\(--glass-material\)/g) || []).length >= 8 &&
+    !css.includes("--panel-material:") &&
     !css.includes("--glass-surface-soft:") &&
     !css.includes("--glass-surface-strong:"),
-  "css: меню и полупрозрачные интерфейсные поверхности должны использовать единый материал матового стекла",
+  "css: материал должен буквально совпадать с production-рецептом во всех темах",
+);
+expect(
+  [faviconAdaptive, faviconLight, faviconDark].every(
+    (svg) =>
+      svg.includes('viewBox="0 0 512 231"') &&
+      JSON.stringify(svgPaths(svg)) === JSON.stringify(svgPaths(logoSvg)),
+  ) &&
+    faviconAdaptive.includes("prefers-color-scheme: dark") &&
+    faviconLight.includes('fill="#000"') &&
+    faviconDark.includes('fill="#fff"'),
+  "favicon: полный знак из logo.svg должен сохранять точный кроп и контраст в system/light/dark",
+);
+expect(
+  /border-top:\s*1px solid var\(--line-light\)/.test(audioStoryRule) &&
+    !/border-bottom:/.test(audioStoryRule) &&
+    /padding-top:\s*clamp\(2\.75rem,\s*4\.5vw,\s*4\.5rem\)/.test(
+      diaryRule,
+    ) &&
+    /border:\s*0/.test(mobileNavLinkRule) &&
+    /\.site-nav__live\s*\{[^}]*border-bottom:\s*1px solid var\(--line-light\)/s.test(
+      css,
+    ) &&
+    /\.site-nav__utility\s*\{[^}]*border-top:\s*1px solid var\(--line-light\)/s.test(
+      css,
+    ),
+  "css: разделители должны оставаться только на смысловых границах без двойной линии audio → diary",
 );
 expect(
   css.includes("@media (prefers-reduced-motion: reduce)") &&
@@ -389,12 +524,26 @@ expect(
   "css: основной и нейтральный текстовые слои должны использовать Commissioner",
 );
 expect(
-  app.includes('reachGoal("sound_story_start")') &&
-    app.includes('reachGoal("sound_story_complete")') &&
-    app.includes('reachGoal("diary_video_start")') &&
-    app.includes('reachGoal("diary_video_complete")') &&
-    app.includes("[data-analytics-goal]"),
-  "js: запуск и завершение медиасцен и ключевые переходы должны отправлять цели Метрики",
+  analyticsRegistry.counterId === 111159425 &&
+    new Set(analyticsGoalIds).size === analyticsGoalIds.length &&
+    JSON.stringify([...analyticsGoalIds].sort()) ===
+      JSON.stringify([...requiredAnalyticsGoals].sort()) &&
+    analyticsGoalIds.every((goal) => triggeredAnalyticsGoals.has(goal)) &&
+    [...triggeredAnalyticsGoals].every((goal) => analyticsGoalIdSet.has(goal)) &&
+    analyticsRegistry.goals.every(
+      ({ id, params }) =>
+        /^[a-z0-9_-]+$/.test(id) &&
+        Array.isArray(params) &&
+        params.every(
+          (param) =>
+            ["chapter", "language", "location", "scene", "theme"].includes(
+              param,
+            ),
+        ),
+    ) &&
+    app.includes("analyticsSafeValue") &&
+    app.includes("analyticsGoals.get(goal)"),
+  "analytics: полный privacy-safe реестр должен точно совпадать с реальными HTML/JS-триггерами",
 );
 expect(
   app.includes('diaryVideoFrame.classList.add("has-custom-control")') &&
@@ -409,9 +558,14 @@ expect(
 );
 expect(
   app.includes("document.body.dataset.projectPhase = projectPhase") &&
+    app.includes("phaseFixtureDates") &&
+    app.includes("localFixtureHost") &&
+    app.includes("document.body.dataset.phaseFixture = phaseFixture") &&
+    app.includes('requestedTextScale === "200"') &&
+    css.includes('html[data-text-fixture="200"]') &&
     app.includes("[data-project-phase-item]") &&
     app.includes("[data-phase-copy]"),
-  "js: подготовка, 31 день и архив должны переключаться как три состояния сайта",
+  "js: подготовка, 31 день и архив должны иметь три состояния и локальные детерминированные fixtures",
 );
 
 if (failures.length > 0) {

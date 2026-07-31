@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "counterId": 111159425,
+  "goals": [
+    { "id": "menu_open", "category": "navigation", "params": ["location"] },
+    { "id": "chapter_navigation", "category": "navigation", "params": ["chapter"] },
+    { "id": "project_explore", "category": "conversion", "params": [] },
+    { "id": "partner_interest", "category": "conversion", "params": [] },
+    { "id": "language_switch", "category": "preference", "params": ["language", "location"] },
+    { "id": "theme_change", "category": "preference", "params": ["theme"] },
+    { "id": "hero_video_pause", "category": "media", "params": [] },
+    { "id": "hero_video_resume", "category": "media", "params": [] },
+    { "id": "proof_open", "category": "evidence", "params": [] },
+    { "id": "sound_scene_select", "category": "media", "params": ["scene"] },
+    { "id": "sound_story_start", "category": "media", "params": [] },
+    { "id": "sound_story_complete", "category": "media", "params": [] },
+    { "id": "diary_video_start", "category": "media", "params": [] },
+    { "id": "diary_video_complete", "category": "media", "params": [] },
+    { "id": "diary_open", "category": "content", "params": [] },
+    { "id": "film_open", "category": "content", "params": [] },
+    { "id": "contact_email", "category": "contact", "params": [] },
+    { "id": "contact_telegram", "category": "contact", "params": [] }
+  ]
+}
