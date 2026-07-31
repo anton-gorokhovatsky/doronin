@@ -289,7 +289,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       element.getBoundingClientRect().top,
     );
     await proof.locator("summary").click();
-    await page.waitForTimeout(120);
+    await page.waitForTimeout(380);
     const afterOpen = await proof.locator("summary").evaluate((element) =>
       element.getBoundingClientRect().top,
     );

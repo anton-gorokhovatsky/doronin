@@ -192,7 +192,7 @@ if (proofSources) {
 
     const anchorTop = proofSourcesSummary.getBoundingClientRect().top;
     const root = document.documentElement;
-    let restorePass = 0;
+    const restoreUntil = performance.now() + 320;
 
     stopProofSourcesRestoration();
     proofSourcesPreviousScrollBehavior = root.style.scrollBehavior;
@@ -208,9 +208,7 @@ if (proofSources) {
         window.scrollBy(0, offset);
       }
 
-      restorePass += 1;
-
-      if (restorePass < 6) {
+      if (performance.now() < restoreUntil) {
         proofSourcesRestoreFrame = requestAnimationFrame(
           restoreProofSourcesPosition,
         );
