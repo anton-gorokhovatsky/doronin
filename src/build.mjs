@@ -19,8 +19,16 @@ const shared = {
   email: "anesterova88@gmail.com",
   telegramHref: "https://t.me/alraunean",
   viktorTelegramHref: "https://t.me/doroninvdele",
+  diaryPostHref: "https://t.me/doroninvdele/484",
   viktorInstagramHref: "https://www.instagram.com/victordoronin/",
-  filmHref: "https://vk.com/video-224465212_456239107",
+  filmHref: "https://vkvideo.ru/video-224465212_456239107",
+  serialHrefs: [
+    "https://vkvideo.ru/video-224465212_456239087",
+    "https://vkvideo.ru/video-224465212_456239090",
+    "https://vkvideo.ru/video-224465212_456239091",
+    "https://vkvideo.ru/video-224465212_456239094",
+    "https://vkvideo.ru/video-224465212_456239097",
+  ],
   dustyDumbbellsHref: "https://dustydumbbells.com/",
   gastrodinamikaHref: "https://www.instagram.com/gstrdnmc/",
   photoHref: "https://khanayphoto.ru/",
@@ -59,6 +67,7 @@ const locales = {
     menu: "Меню",
     nav: [
       ["#distance", "11 111 км"],
+      ["#diary", "Дневник"],
       ["#viktor", "Виктор Доронин"],
       ["#proof", "Фильм и сериал"],
       ["#adventures", "Другие проекты"],
@@ -87,26 +96,31 @@ const locales = {
           title: "Дыхание",
           file: "audio-scene-01.m4a",
           duration: "13.973333",
+          context: "Дыхание и шаги в момент предельной нагрузки.",
         },
         {
           title: "Голос",
           file: "audio-scene-02.m4a",
           duration: "50.410667",
+          context: "Фрагмент речи из документального фильма «1111».",
         },
         {
           title: "Вода",
           file: "audio-scene-03.m4a",
           duration: "23.658667",
+          context: "Вода бассейна и ритм гребка.",
         },
         {
           title: "Ритм",
           file: "audio-scene-04.m4a",
           duration: "20.138667",
+          context: "Механический ритм длинной тренировки.",
         },
         {
           title: "Скорость",
           file: "audio-scene-05.m4a",
           duration: "16.298667",
+          context: "Ветер и шум движения на скорости.",
         },
       ],
       primaryCta: "Как это устроено",
@@ -121,6 +135,37 @@ const locales = {
         "Подтверждённые данные появятся после обновления команды",
       footLabel: "Не спортивное событие",
       footText: "История, в которую можно войти",
+    },
+    diary: {
+      phaseBefore: "Дневник подготовки",
+      phaseActive: "31 день проекта",
+      phaseFinished: "Архив истории",
+      title: "Что дальше?",
+      date: "2026-03-23",
+      dateLabel: "23 марта 2026",
+      image: "diary-2026-03-23.jpg",
+      video: "diary-2026-03-23.mp4",
+      imageAlt:
+        "Виктор Доронин проходит тестирование на велосипеде с газоанализатором",
+      videoLabel:
+        "Видео из дневника подготовки: Виктор Доронин проходит тестирование на велосипеде",
+      videoPlayLabel: "Воспроизвести видео из дневника, 15 секунд",
+      lead:
+        "После 60 дней базовой работы Виктор сверил ощущения с цифрами: газоанализ, лактат, мощность и пульс.",
+      facts: [
+        ["60 дней", "базовой подготовки"],
+        ["203 часа", "нагрузки"],
+      ],
+      note:
+        "Следующий цикл — три месяца работы над силой и скоростью, затем повторный тест.",
+      cta: "Читать запись в Telegram",
+      externalLabel: "Откроется дневник Виктора в Telegram",
+      phasesLabel: "Состояния проекта",
+      phases: [
+        ["before", "Подготовка", "Дневник, тренировки и сбор команды"],
+        ["active", "31 день", "Ежедневный ход дистанции"],
+        ["finished", "После финиша", "Фильм, результаты и архив"],
+      ],
     },
     manifesto: {
       eyebrow: "Цель проекта",
@@ -262,13 +307,48 @@ const locales = {
       body:
         "Аудитория готова к длинным форматам. Честность работает лучше глянца. История продолжает жить после финиша.",
       metrics: [
-        ["1,3+ млн", "просмотров сериала"],
-        ["85 000+", "просмотров фильма"],
+        ["≈1,3 млн", "просмотров пяти серий и фильма"],
+        ["92 000+", "просмотров фильма"],
         ["+310%", "рост аудитории героя"],
         ["25+", "федеральных СМИ"],
       ],
       filmCta: "Смотреть фильм о проекте «1111»",
       externalLabel: "Откроется ВКонтакте в новой вкладке",
+      sourcesTitle: "Факты и источники",
+      sourcesUpdated: "Проверено 31 июля 2026",
+      sources: [
+        {
+          title: "≈1,3 млн просмотров",
+          body:
+            "Пять серий — 233, 239, 231, 231 и 273 тыс.; фильм — 92,1 тыс. Суммарно — около 1,299 млн просмотров.",
+          links: [
+            ["Серия 1", shared.serialHrefs[0]],
+            ["Серия 2", shared.serialHrefs[1]],
+            ["Серия 3", shared.serialHrefs[2]],
+            ["Серия 4", shared.serialHrefs[3]],
+            ["Серия 5", shared.serialHrefs[4]],
+            ["Фильм", shared.filmHref],
+          ],
+        },
+        {
+          title: "Спортивная история Виктора",
+          body:
+            "Участие в чемпионатах мира Ironman и Marathon des Sables подтверждены описанием документального проекта.",
+          links: [["Описание фильма", shared.filmHref]],
+        },
+        {
+          title: "+310% и 25+ СМИ",
+          body:
+            "Результаты коммуникационной кампании проекта «1111» по данным команды проекта.",
+          links: [],
+        },
+        {
+          title: "Формат «11 111»",
+          body:
+            "Статус первой попытки 31-дневного ультратриатлона — утверждение команды проекта; независимая фиксация будет добавлена после старта.",
+          links: [],
+        },
+      ],
     },
     adventures: {
       eyebrow: "Не первый предел",
@@ -373,9 +453,24 @@ const locales = {
           "Совместно рассказываем историю до старта, во время проекта и после финиша.",
         ],
       ],
+      processLabel: "Как начинается работа",
+      process: [
+        [
+          "Сверяем задачу",
+          "Определяем, что партнёр хочет изменить и где это честно встречается с проектом.",
+        ],
+        [
+          "Собираем роль",
+          "Фиксируем формат, ресурсы, контент и измеримый результат.",
+        ],
+        [
+          "Проходим путь",
+          "Работаем до старта, все 31 день проекта и после финиша.",
+        ],
+      ],
       proofLabel: "Опыт, который уже работает",
       proof: [
-        ["1,3+ млн", "просмотров сериала"],
+        ["≈1,3 млн", "просмотров пяти серий и фильма"],
         ["+310%", "рост аудитории"],
         ["25+", "федеральных СМИ"],
       ],
@@ -430,6 +525,7 @@ const locales = {
     menu: "Menu",
     nav: [
       ["#distance", "11,111 km"],
+      ["#diary", "Diary"],
       ["#viktor", "Viktor Doronin"],
       ["#proof", "Film and series"],
       ["#adventures", "Other projects"],
@@ -458,26 +554,31 @@ const locales = {
           title: "Breath",
           file: "audio-scene-01.m4a",
           duration: "13.973333",
+          context: "Breath and footsteps at the limit of an effort.",
         },
         {
           title: "Voice",
           file: "audio-scene-02.m4a",
           duration: "50.410667",
+          context: "A spoken fragment from the documentary film “1111”.",
         },
         {
           title: "Water",
           file: "audio-scene-03.m4a",
           duration: "23.658667",
+          context: "Pool water and the rhythm of each stroke.",
         },
         {
           title: "Rhythm",
           file: "audio-scene-04.m4a",
           duration: "20.138667",
+          context: "The mechanical rhythm of a long training session.",
         },
         {
           title: "Speed",
           file: "audio-scene-05.m4a",
           duration: "16.298667",
+          context: "Wind and the sound of movement at speed.",
         },
       ],
       primaryCta: "See the challenge",
@@ -491,6 +592,37 @@ const locales = {
       statusPending: "Verified figures will appear after the team’s update",
       footLabel: "Not a sporting event",
       footText: "A story you can become part of",
+    },
+    diary: {
+      phaseBefore: "Training diary",
+      phaseActive: "31 days underway",
+      phaseFinished: "Story archive",
+      title: "What comes next?",
+      date: "2026-03-23",
+      dateLabel: "March 23, 2026",
+      image: "diary-2026-03-23.jpg",
+      video: "diary-2026-03-23.mp4",
+      imageAlt:
+        "Viktor Doronin undergoes a cycling test while wearing a gas-analysis mask",
+      videoLabel:
+        "Training diary video: Viktor Doronin undergoes a cycling test",
+      videoPlayLabel: "Play the 15-second training diary video",
+      lead:
+        "After 60 days of base work, Viktor checked perception against data: gas analysis, lactate, power and heart rate.",
+      facts: [
+        ["60 days", "of base training"],
+        ["203 hours", "of training load"],
+      ],
+      note:
+        "The next cycle is three months of strength and speed work, followed by a repeat test.",
+      cta: "Read the update on Telegram",
+      externalLabel: "Opens Viktor’s training diary on Telegram",
+      phasesLabel: "Project states",
+      phases: [
+        ["before", "Preparation", "Training diary and team building"],
+        ["active", "31 days", "Daily progress across the distance"],
+        ["finished", "After the finish", "Film, results and archive"],
+      ],
     },
     manifesto: {
       eyebrow: "Project goal",
@@ -632,13 +764,48 @@ const locales = {
       body:
         "The audience embraces long-form stories. Honesty outperforms gloss. The project lives on after the finish.",
       metrics: [
-        ["1.3M+", "documentary series views"],
-        ["85,000+", "film views"],
+        ["≈1.3M", "views across five episodes and the film"],
+        ["92,000+", "film views"],
         ["+310%", "growth in Viktor’s audience"],
         ["25+", "federal media outlets"],
       ],
       filmCta: "Watch the film about Project “1111”",
       externalLabel: "Opens VK in a new tab",
+      sourcesTitle: "Facts and sources",
+      sourcesUpdated: "Checked July 31, 2026",
+      sources: [
+        {
+          title: "≈1.3M views",
+          body:
+            "The five episodes have 233k, 239k, 231k, 231k and 273k views; the film has 92.1k. Combined total: approximately 1.299M views.",
+          links: [
+            ["Episode 1", shared.serialHrefs[0]],
+            ["Episode 2", shared.serialHrefs[1]],
+            ["Episode 3", shared.serialHrefs[2]],
+            ["Episode 4", shared.serialHrefs[3]],
+            ["Episode 5", shared.serialHrefs[4]],
+            ["Film", shared.filmHref],
+          ],
+        },
+        {
+          title: "Viktor’s sporting record",
+          body:
+            "Ironman World Championship participation and Marathon des Sables are documented in the film description.",
+          links: [["Film description", shared.filmHref]],
+        },
+        {
+          title: "+310% and 25+ media outlets",
+          body:
+            "Communication results from Project “1111”, as reported by the project team.",
+          links: [],
+        },
+        {
+          title: "The “11 111” format",
+          body:
+            "The first-attempt status of the 31-day ultra-triathlon is a project-team claim; independent documentation will be added after the start.",
+          links: [],
+        },
+      ],
     },
     adventures: {
       eyebrow: "Not his first limit",
@@ -743,9 +910,24 @@ const locales = {
           "We tell the story together before the start, throughout the project and after the finish.",
         ],
       ],
+      processLabel: "How the work begins",
+      process: [
+        [
+          "Align the objective",
+          "Define what the partner wants to change and where that meets the project honestly.",
+        ],
+        [
+          "Build the role",
+          "Set the format, resources, content and a measurable outcome.",
+        ],
+        [
+          "Share the journey",
+          "Work before the start, throughout all 31 days and after the finish.",
+        ],
+      ],
       proofLabel: "Experience that already works",
       proof: [
-        ["1.3M+", "documentary series views"],
+        ["≈1.3M", "views across five episodes and the film"],
         ["+310%", "audience growth"],
         ["25+", "federal media outlets"],
       ],
@@ -984,6 +1166,55 @@ function renderPartnerFormats(partners) {
     .join("");
 }
 
+function renderPartnerProcess(partners) {
+  return partners.process
+    .map(
+      ([title, body], index) => `
+        <li class="partner-process__step">
+          <span>${String(index + 1).padStart(2, "0")}</span>
+          <strong>${title}</strong>
+          <p>${body}</p>
+        </li>`,
+    )
+    .join("");
+}
+
+function renderProofSources(proof) {
+  return proof.sources
+    .map(
+      (source) => `
+        <article class="proof-source">
+          <h3>${source.title}</h3>
+          <p>${source.body}</p>
+          ${
+            source.links.length
+              ? `<div class="proof-source__links">
+                  ${source.links
+                    .map(
+                      ([label, href]) =>
+                        `<a href="${href}" target="_blank" rel="noopener noreferrer">${label}${icons.external}</a>`,
+                    )
+                    .join("")}
+                </div>`
+              : ""
+          }
+        </article>`,
+    )
+    .join("");
+}
+
+function renderProjectPhases(diary) {
+  return diary.phases
+    .map(
+      ([phase, title, body]) => `
+        <li data-project-phase-item="${phase}">
+          <span>${title}</span>
+          <p>${body}</p>
+        </li>`,
+    )
+    .join("");
+}
+
 function renderAdventures(items, l) {
   return items
     .map(
@@ -1009,7 +1240,7 @@ function renderInterviews(items, l) {
     .map(
       (item, index) => `
         <a
-          class="interview-card${index === 0 ? " interview-card--featured" : ""}"
+          class="interview-card${index === 0 ? " interview-card--featured" : " interview-card--index"}"
           href="${item.href}"
           target="_blank"
           rel="noopener noreferrer"
@@ -1237,7 +1468,7 @@ function renderPage(l) {
   </script>
   <!-- /Yandex.Metrika counter -->
 </head>
-<body>
+<body data-project-phase="before">
   <noscript><div><img src="https://mc.yandex.ru/watch/111159425" style="position:absolute; left:-9999px;" alt=""></div></noscript>
   <a class="skip-link" href="#main">${l.skip}</a>
 
@@ -1264,10 +1495,10 @@ function renderPage(l) {
           ${renderThemeSwitcher(l)}
           <div class="site-nav__contacts">
             <span>${l.footer.contactLabel}</span>
-            <a href="mailto:${shared.email}">${l.footer.emailCta}${icons.external}</a>
-            <a href="${shared.telegramHref}" target="_blank" rel="noopener noreferrer">${l.footer.telegramCta}${icons.external}</a>
+            <a href="mailto:${shared.email}" data-analytics-goal="contact_email">${l.footer.emailCta}${icons.external}</a>
+            <a href="${shared.telegramHref}" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">${l.footer.telegramCta}${icons.external}</a>
           </div>
-          <a class="site-nav__cta" href="${mailHref}">${l.footer.partnerCta}${icons.external}</a>
+          <a class="site-nav__cta" href="${mailHref}" data-analytics-goal="contact_email">${l.footer.partnerCta}${icons.external}</a>
         </div>
       </nav>
     </details>
@@ -1422,11 +1653,81 @@ function renderPage(l) {
             .join("")}
         </ol>
       </div>
+      <div class="audio-story__contexts" data-sound-contexts aria-live="polite">
+        ${l.hero.audioScenes
+          .map(
+            (scene, index) => `
+              <p data-sound-context="${index}"${index === 0 ? "" : " hidden"}>
+                <strong>${String(index + 1).padStart(2, "0")} · ${scene.title}</strong>
+                <span>${scene.context}</span>
+              </p>`,
+          )
+          .join("")}
+      </div>
       <audio
         data-effort-audio
         preload="metadata"
         src="${l.assetBase}assets/${l.hero.audioScenes[0].file}"
       ></audio>
+    </section>
+
+    <section class="diary section section--light" id="diary" aria-labelledby="diary-title">
+      <div class="diary__heading">
+        <p
+          class="diary__eyebrow"
+          data-phase-copy
+          data-before="${l.diary.phaseBefore}"
+          data-active="${l.diary.phaseActive}"
+          data-finished="${l.diary.phaseFinished}"
+        >${l.diary.phaseBefore}</p>
+        <time datetime="${l.diary.date}">${l.diary.dateLabel}</time>
+      </div>
+      <figure class="diary__media">
+        <video
+          src="${l.assetBase}assets/${l.diary.video}"
+          poster="${l.assetBase}assets/${l.diary.image}"
+          width="720"
+          height="1280"
+          preload="metadata"
+          controls
+          playsinline
+          aria-label="${l.diary.videoLabel}"
+          data-diary-video
+        ></video>
+        <button
+          class="diary__play"
+          type="button"
+          aria-label="${l.diary.videoPlayLabel}"
+          data-diary-video-play
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="m9 6 9 6-9 6Z"></path>
+          </svg>
+        </button>
+        <figcaption class="sr-only">${l.diary.imageAlt}</figcaption>
+      </figure>
+      <div class="diary__copy">
+        <h2 id="diary-title">${l.diary.title}</h2>
+        <p class="diary__lead">${l.diary.lead}</p>
+        <div class="diary__facts">
+          ${renderMetrics(l.diary.facts, "diary__fact")}
+        </div>
+        <p class="diary__note">${l.diary.note}</p>
+        <a
+          class="text-link text-link--dark"
+          href="${shared.diaryPostHref}"
+          data-analytics-goal="diary_open"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span class="text-link__label">${l.diary.cta}</span>
+          ${icons.external}
+          <span class="sr-only">${l.diary.externalLabel}</span>
+        </a>
+      </div>
+      <ol class="project-phases" aria-label="${l.diary.phasesLabel}">
+        ${renderProjectPhases(l.diary)}
+      </ol>
     </section>
 
     <section class="manifesto section" aria-labelledby="manifesto-title">
@@ -1525,7 +1826,7 @@ function renderPage(l) {
         </div>
         <h2 id="proof-title">${l.proof.title}</h2>
         <p>${l.proof.body}</p>
-        <a class="text-link" href="${shared.filmHref}" target="_blank" rel="noopener noreferrer">
+        <a class="text-link" href="${shared.filmHref}" data-analytics-goal="film_open" target="_blank" rel="noopener noreferrer">
           <span class="text-link__label">${l.proof.filmCta}</span>
           ${icons.external}
           <span class="sr-only">${l.proof.externalLabel}</span>
@@ -1534,6 +1835,16 @@ function renderPage(l) {
       <div class="proof-metrics">
         ${renderMetrics(l.proof.metrics, "proof-metric")}
       </div>
+      <details class="proof-sources">
+        <summary>
+          <span>${l.proof.sourcesTitle}</span>
+          <small>${l.proof.sourcesUpdated}</small>
+          ${icons.down}
+        </summary>
+        <div class="proof-sources__grid">
+          ${renderProofSources(l.proof)}
+        </div>
+      </details>
     </section>
 
     <div class="velocity-cut velocity-cut--out-of-proof" aria-hidden="true"></div>
@@ -1588,6 +1899,12 @@ function renderPage(l) {
           </ol>
         </div>
       </div>
+      <div class="partner-process">
+        <p class="partner-process__label">${l.partners.processLabel}</p>
+        <ol class="partner-process__list">
+          ${renderPartnerProcess(l.partners)}
+        </ol>
+      </div>
       <div class="partners__closing" id="partner-contact">
         <div class="partner-proof">
           <p class="partner-proof__label">${l.partners.proofLabel}</p>
@@ -1598,10 +1915,10 @@ function renderPage(l) {
         <div class="partners__contact">
           <h3 class="partners__cta">${l.partners.cta}</h3>
           <div class="partners__channels">
-            <a href="${mailHref}" aria-label="${l.partners.emailLabel}">
+            <a href="${mailHref}" data-analytics-goal="contact_email" aria-label="${l.partners.emailLabel}">
               ${l.partners.emailCta}${icons.external}
             </a>
-            <a href="${shared.telegramHref}" aria-label="${l.partners.telegramLabel}" target="_blank" rel="noopener noreferrer">
+            <a href="${shared.telegramHref}" data-analytics-goal="contact_telegram" aria-label="${l.partners.telegramLabel}" target="_blank" rel="noopener noreferrer">
               ${l.partners.telegramCta}${icons.external}
             </a>
           </div>
@@ -1625,7 +1942,7 @@ function renderPage(l) {
         >${l.footer.titleLineOne}</span>
         <span data-footer-countdown data-optical-start aria-live="polite">${l.footer.titleLineTwo}</span>
       </h2>
-      <a class="site-footer__cta" href="${mailHref}">
+      <a class="site-footer__cta" href="${mailHref}" data-analytics-goal="contact_email">
         ${l.footer.partnerCta}${icons.external}
       </a>
     </div>
@@ -1639,8 +1956,8 @@ function renderPage(l) {
 
       <div class="site-footer__contacts">
         <p>${l.footer.contactLabel}</p>
-        <a href="mailto:${shared.email}">${l.footer.emailCta}${icons.external}</a>
-        <a href="${shared.telegramHref}" target="_blank" rel="noopener noreferrer">${l.footer.telegramCta}${icons.external}</a>
+        <a href="mailto:${shared.email}" data-analytics-goal="contact_email">${l.footer.emailCta}${icons.external}</a>
+        <a href="${shared.telegramHref}" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">${l.footer.telegramCta}${icons.external}</a>
       </div>
 
       <div class="site-footer__utility">
@@ -1658,6 +1975,7 @@ function renderPage(l) {
     <a
       class="site-footer__after-credits"
       href="${shared.viktorTelegramHref}"
+      data-analytics-goal="diary_open"
       target="_blank"
       rel="noopener noreferrer"
     >

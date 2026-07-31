@@ -103,13 +103,16 @@ for (const [lang, path] of pages) {
   );
   expect(
     (html.match(/class="partner-format"/g) || []).length === 3 &&
+      (html.match(/class="partner-process__step"/g) || []).length === 3 &&
       (html.match(/class="partner-proof__metric"/g) || []).length === 3,
-    `${lang}: партнёрский сценарий должен содержать три формата и три доказательства`,
+    `${lang}: партнёрский сценарий должен содержать три формата, три шага и три доказательства`,
   );
   expect(
     html.includes('id="interviews"') &&
-      (html.match(/class="interview-card(?:\s|")/g) || []).length === 8,
-    `${lang}: редакционная глава интервью должна содержать все восемь выпусков`,
+      (html.match(/class="interview-card(?:\s|")/g) || []).length === 8 &&
+      (html.match(/interview-card--featured/g) || []).length === 1 &&
+      (html.match(/interview-card--index/g) || []).length === 7,
+    `${lang}: интервью должны содержать один главный выпуск и индекс остальных семи`,
   );
   expect(
     html.includes('class="partners__intro"') &&
@@ -133,6 +136,34 @@ for (const [lang, path] of pages) {
     html.includes('class="site-footer__after-credits"') &&
       html.includes("data-footer-countdown"),
     `${lang}: в подвале должна быть послетитровая реплика`,
+  );
+  expect(
+    html.includes('id="diary"') &&
+      html.includes("https://t.me/doroninvdele/484") &&
+      html.includes("assets/diary-2026-03-23.mp4") &&
+      html.includes("data-diary-video") &&
+      html.includes("data-diary-video-play") &&
+      (html.match(/class="diary__fact"/g) || []).length === 2 &&
+      (html.match(/data-project-phase-item="/g) || []).length === 3,
+    `${lang}: дневник должен содержать видео подтверждённого эпизода и три состояния проекта`,
+  );
+  expect(
+    html.includes('class="proof-sources"') &&
+      html.includes("https://vkvideo.ru/video-224465212_456239107") &&
+      [87, 90, 91, 94, 97].every((suffix) =>
+        html.includes(`https://vkvideo.ru/video-224465212_4562390${suffix}`),
+      ),
+    `${lang}: доказательный слой должен ссылаться на пять серий и фильм`,
+  );
+  expect(
+    (html.match(/\bdata-sound-context="/g) || []).length === 5,
+    `${lang}: каждая звуковая сцена должна иметь редакционный контекст`,
+  );
+  expect(
+    ["diary_open", "film_open", "contact_email", "contact_telegram"].every(
+      (goal) => html.includes(`data-analytics-goal="${goal}"`),
+    ),
+    `${lang}: дневник, фильм и оба канала связи должны иметь явные цели Метрики`,
   );
   expect(
     [...html.matchAll(/<a\b[^>]*target="_blank"[^>]*>/g)].every(([link]) =>
@@ -159,8 +190,10 @@ for (const [lang, path] of pages) {
       "ru: масштаб проекта должен иметь типографские разделители",
     );
     expect(
-      visibleText.includes("1,3+ млн") && !visibleText.includes("1,3 млн+"),
-      "ru: знак плюса относится к числу, а млн остаётся единицей",
+      visibleText.includes("≈1,3 млн") &&
+        visibleText.includes("92 000+") &&
+        visibleText.includes("Проверено 31 июля 2026"),
+      "ru: просмотры сериала и фильма должны быть актуальными и датированными",
     );
     expect(
       visibleText.includes("Экипировка") &&
@@ -170,7 +203,7 @@ for (const [lang, path] of pages) {
     );
     expect(
       visibleText.includes("Дневник подготовки") &&
-        !visibleText.includes("Дневник подготовки Виктора"),
+        !visibleText.includes(">Дневник подготовки Виктора<"),
       "ru: послетитровая ссылка не должна повторять имя героя",
     );
     expect(
@@ -203,8 +236,14 @@ for (const [lang, path] of pages) {
     );
     expect(
       visibleText.includes("Training diary") &&
-        !visibleText.includes("Viktor’s training diary"),
+        !html.includes(">Viktor’s training diary<"),
       "en: послетитровая ссылка не должна повторять имя героя",
+    );
+    expect(
+      visibleText.includes("≈1.3M") &&
+        visibleText.includes("92,000+") &&
+        visibleText.includes("Checked July 31, 2026"),
+      "en: series and film views must be current and dated",
     );
     expect(
       visibleText.includes("About Viktor") &&
@@ -287,6 +326,22 @@ expect(
   "css: партнёрские и редакционные действия должны иметь ясное интерактивное состояние",
 );
 expect(
+  css.includes(".diary__media") &&
+    css.includes(".proof-sources__grid") &&
+    css.includes(".interview-card--index .interview-card__media") &&
+    css.includes(".partner-process__list"),
+  "css: дневник, источники, мобильный индекс интервью и партнёрский процесс должны быть оформлены",
+);
+expect(
+  css.includes("--glass-surface-soft:") &&
+    css.includes("--glass-surface:") &&
+    css.includes("--glass-surface-strong:") &&
+    css.includes("--glass-filter:") &&
+    (css.match(/background:\s*var\(--glass-surface(?:-soft|-strong)?\)/g) || [])
+      .length >= 10,
+  "css: меню и плавающие медиаконтролы должны использовать одну систему матового стекла",
+);
+expect(
   css.includes("@media (prefers-reduced-motion: reduce)") &&
     app.includes('matchMedia("(prefers-reduced-motion: reduce)")') &&
     app.includes("heroVideo.pause()"),
@@ -302,6 +357,25 @@ expect(
     css.includes("--sans: var(--body)") &&
     !css.includes('--body: "Manrope"'),
   "css: основной и нейтральный текстовые слои должны использовать Commissioner",
+);
+expect(
+  app.includes('reachGoal("sound_story_start")') &&
+    app.includes('reachGoal("sound_story_complete")') &&
+    app.includes('reachGoal("diary_video_start")') &&
+    app.includes('reachGoal("diary_video_complete")') &&
+    app.includes("[data-analytics-goal]"),
+  "js: запуск и завершение медиасцен и ключевые переходы должны отправлять цели Метрики",
+);
+expect(
+  app.includes('diaryVideoFrame.classList.add("has-custom-control")') &&
+    app.includes("diaryVideo.controls = true"),
+  "js: фирменный запуск дневника должен прогрессивно возвращать нативное управление",
+);
+expect(
+  app.includes("document.body.dataset.projectPhase = projectPhase") &&
+    app.includes("[data-project-phase-item]") &&
+    app.includes("[data-phase-copy]"),
+  "js: подготовка, 31 день и архив должны переключаться как три состояния сайта",
 );
 
 if (failures.length > 0) {

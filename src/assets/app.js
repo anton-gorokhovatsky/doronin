@@ -71,6 +71,12 @@ function syncOpticalStart(element) {
   }
 }
 
+function reachGoal(goal) {
+  if (goal && typeof window.ym === "function") {
+    window.ym(111159425, "reachGoal", goal);
+  }
+}
+
 for (const element of document.querySelectorAll("[data-optical-start]")) {
   syncOpticalStart(element);
 }
@@ -159,6 +165,9 @@ if (heroVideo && videoToggle) {
 }
 
 if (effortAudio && soundPlayer && soundSceneButtons.length) {
+  const soundContexts = Array.from(
+    document.querySelectorAll("[data-sound-context]"),
+  );
   let activeSoundScene = Math.max(
     0,
     soundSceneButtons.findIndex(
@@ -169,6 +178,8 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
   let soundAudioContext;
   let soundAnalyser;
   let soundFrequencyData;
+  let soundStoryStarted = false;
+  let soundStoryCompleted = false;
 
   function soundWaveBars() {
     return Array.from(
@@ -288,6 +299,10 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
       button.setAttribute("aria-label", title ? `${label}: ${title}` : label);
     }
 
+    for (const [index, context] of soundContexts.entries()) {
+      context.hidden = index !== activeSoundScene;
+    }
+
     window.cancelAnimationFrame(soundProgressFrame);
     if (!isPlaying) {
       resetSoundWave();
@@ -354,12 +369,24 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
     });
   }
 
-  effortAudio.addEventListener("play", syncSoundControls);
+  effortAudio.addEventListener("play", () => {
+    if (!soundStoryStarted) {
+      soundStoryStarted = true;
+      reachGoal("sound_story_start");
+    }
+
+    syncSoundControls();
+  });
   effortAudio.addEventListener("pause", syncSoundControls);
   effortAudio.addEventListener("ended", () => {
     if (activeSoundScene < soundSceneButtons.length - 1) {
       selectSoundScene(activeSoundScene + 1);
     } else {
+      if (!soundStoryCompleted) {
+        soundStoryCompleted = true;
+        reachGoal("sound_story_complete");
+      }
+
       syncSoundControls();
     }
   });
@@ -739,6 +766,7 @@ if (eventStatus) {
   let showLiveUpdate = false;
   let footerStatusText = "";
   let footerPrefixMode = "before";
+  let projectPhase = "before";
 
   if (now < start) {
     const days = Math.max(1, Math.ceil((start - now) / day));
@@ -779,6 +807,7 @@ if (eventStatus) {
     progressSegments = projectDay;
     showLiveUpdate = true;
     footerPrefixMode = "active";
+    projectPhase = "active";
     value.textContent = String(projectDay).padStart(2, "0");
     label.textContent = eventStatus.dataset.active;
     footerStatusText = `${value.textContent} ${label.textContent}`;
@@ -786,6 +815,7 @@ if (eventStatus) {
     progressSegments = 31;
     showLiveUpdate = true;
     footerPrefixMode = "finished";
+    projectPhase = "finished";
     value.textContent = "31/31";
     label.textContent = eventStatus.dataset.finished;
     footerStatusText = label.textContent;
@@ -853,7 +883,83 @@ if (eventStatus) {
     footerPrefix.textContent = footerPrefix.dataset[footerPrefixMode];
   }
 
+  document.body.dataset.projectPhase = projectPhase;
+
+  for (const phaseCopy of document.querySelectorAll("[data-phase-copy]")) {
+    const copy = phaseCopy.dataset[projectPhase];
+
+    if (copy) {
+      phaseCopy.textContent = copy;
+    }
+  }
+
+  for (const phaseItem of document.querySelectorAll(
+    "[data-project-phase-item]",
+  )) {
+    if (phaseItem.dataset.projectPhaseItem === projectPhase) {
+      phaseItem.setAttribute("aria-current", "step");
+    } else {
+      phaseItem.removeAttribute("aria-current");
+    }
+  }
+
   syncOpticalStart(value);
+}
+
+for (const analyticsTarget of document.querySelectorAll(
+  "[data-analytics-goal]",
+)) {
+  analyticsTarget.addEventListener("click", () => {
+    reachGoal(analyticsTarget.dataset.analyticsGoal);
+  });
+}
+
+const diaryVideo = document.querySelector("[data-diary-video]");
+const diaryVideoPlay = document.querySelector("[data-diary-video-play]");
+const diaryVideoFrame = diaryVideo?.closest(".diary__media");
+
+if (diaryVideo) {
+  let diaryStarted = false;
+  let diaryCompleted = false;
+
+  if (diaryVideoPlay && diaryVideoFrame) {
+    diaryVideo.controls = false;
+    diaryVideoFrame.classList.add("has-custom-control");
+
+    diaryVideoPlay.addEventListener("click", async () => {
+      diaryVideo.controls = true;
+
+      try {
+        await diaryVideo.play();
+      } catch {
+        diaryVideo.controls = true;
+        diaryVideoFrame.classList.remove("has-custom-control");
+      }
+    });
+
+    diaryVideo.addEventListener("error", () => {
+      diaryVideo.controls = true;
+      diaryVideoFrame.classList.remove("has-custom-control");
+    });
+  }
+
+  diaryVideo.addEventListener("play", () => {
+    diaryVideoFrame?.classList.add("has-started");
+
+    if (!diaryStarted) {
+      reachGoal("diary_video_start");
+      diaryStarted = true;
+    }
+  });
+
+  diaryVideo.addEventListener("ended", () => {
+    diaryVideoFrame?.classList.remove("has-started");
+
+    if (!diaryCompleted) {
+      reachGoal("diary_video_complete");
+      diaryCompleted = true;
+    }
+  });
 }
 
 const desktopNavigation = window.matchMedia("(min-width: 961px)");
