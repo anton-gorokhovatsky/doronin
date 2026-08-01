@@ -169,6 +169,7 @@ const proofSources = document.querySelector(".proof-sources");
 if (proofSources) {
   const proofSourcesSummary = proofSources.querySelector("summary");
   let proofSourcesRestoreFrame = 0;
+  let proofSourcesPreviousOverflowAnchor = null;
   let proofSourcesPreviousScrollBehavior = null;
 
   function stopProofSourcesRestoration() {
@@ -181,6 +182,12 @@ if (proofSources) {
       document.documentElement.style.scrollBehavior =
         proofSourcesPreviousScrollBehavior;
       proofSourcesPreviousScrollBehavior = null;
+    }
+
+    if (proofSourcesPreviousOverflowAnchor !== null) {
+      document.documentElement.style.overflowAnchor =
+        proofSourcesPreviousOverflowAnchor;
+      proofSourcesPreviousOverflowAnchor = null;
     }
   }
 
@@ -196,7 +203,9 @@ if (proofSources) {
 
     stopProofSourcesRestoration();
     proofSourcesPreviousScrollBehavior = root.style.scrollBehavior;
+    proofSourcesPreviousOverflowAnchor = root.style.overflowAnchor;
     root.style.scrollBehavior = "auto";
+    root.style.overflowAnchor = "none";
     proofSources.open = !proofSources.open;
 
     function restoreProofSourcesPosition() {

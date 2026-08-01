@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-31T23:52:06.540Z",
+  "generatedAt": "2026-07-31T23:59:52.681Z",
   "captures": [
     {
       "name": "ru-1440-system-top",
@@ -11,7 +11,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-system-top.png",
-      "hash": "665baa2f20dd0c05eebcbf8921a62c5308e32023c4e2676032530853183cf18c",
+      "hash": "ec98ae7881c055cd4ba3097e2e8fc5dae361ee0abdf58288c80d8023555c6f2d",
       "metrics": {
         "activeElement": "body",
         "clientWidth": 1440,
@@ -44,7 +44,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-system-menu.png",
-      "hash": "a517885aa519ea29f0599d006c091d952d9609a590126a2d83af30d1b0ce8868",
+      "hash": "ca021384890b3de2007d903636cb09b02d53712ee5bed16e1c31894636ccc13e",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "clientWidth": 1440,
@@ -204,7 +204,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-text-200-menu.png",
-      "hash": "6085141170fd300aec01b6cebf5f152e816b635ca92a7bb62586e4cb5e0af037",
+      "hash": "c46fa8ebf2e27cffce8f2a5e7d3f028d18f912075cc15337296a2bea49110d56",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "clientWidth": 390,
@@ -270,7 +270,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-keyboard-focus.png",
-      "hash": "765dae25a5a2f03e5eb4df7a83c8b4d344aa65e311c567080d8b39f2fa667ff8",
+      "hash": "2437e6eb3ab97a5babfe77c1340adffe7bd3c8db501b47807744c73d22799e37",
       "metrics": {
         "activeElement": "button",
         "clientWidth": 390,
@@ -335,7 +335,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-video-fallback.png",
-      "hash": "0a08a108d097332258e7332bd002dd8f563eab2029a9bf947a987001c317a7ee",
+      "hash": "679480a627b08e9385b1c68e20fecf2ed981377b38f26292ac09eac880353c70",
       "metrics": {
         "activeElement": "body",
         "clientWidth": 1440,
@@ -366,7 +366,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/en-1440-light-top.png",
-      "hash": "ef0f4a0327057b99b7cef7e96ee9d7b97478ce684ceb2f4b6b89b5fc44e7ed73",
+      "hash": "8bc467465c940a6caa6994d84c707048927abd36ac565e69db15e470d7b83f5a",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "clientWidth": 1440,
@@ -494,7 +494,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-dark-audio-scene-02.png",
-      "hash": "9ccc9fb6fcc42d29a14dca448a8363d254fe8113b4875e5617c0192d4351503e",
+      "hash": "060a8f3b74b315eb90af689915eac65602cb266aefb86b31ee25dea168f1fd82",
       "metrics": {
         "activeElement": "button",
         "clientWidth": 390,
@@ -653,7 +653,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/en-1440-system-top.png",
-      "hash": "fa318527dfcf98294e79b4be9aae0b095a90c038e579ab06f3428e68ae09f831",
+      "hash": "741145f2b95123b6fc1348546e5f312edd08ead5fb0382a441e877a0ef0cc326",
       "metrics": {
         "activeElement": "body",
         "clientWidth": 1440,
@@ -685,7 +685,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-phase-before.png",
-      "hash": "55cccb8021f191bee252576c09cc21dc41004e27243b538fdc78c5866b0ba94e",
+      "hash": "8eac69d02761fc27b89b56a607be9c2afe0d8740ef428d3bc58f3953b06bc1e9",
       "metrics": {
         "activeElement": "body",
         "clientWidth": 1440,
@@ -717,7 +717,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-phase-active.png",
-      "hash": "bda0d00d2431332688da54542f072646485a523c352f5ca33d42632598fc255c",
+      "hash": "c647b3620f77dbb92f4ee233fb0e7ec21e9742c4553aaccf139ffda35a5acbea",
       "metrics": {
         "activeElement": "body",
         "clientWidth": 1440,
@@ -749,7 +749,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-phase-finished.png",
-      "hash": "1c006c0b6d54fe01faa4051fd78dfd6c2c681a56126935f45d1b37f886253770",
+      "hash": "028739fa2182c8736efa8479e3712d2af350515c74eb68eb4f4803b67ae15061",
       "metrics": {
         "activeElement": "body",
         "clientWidth": 1440,
