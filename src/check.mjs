@@ -125,7 +125,7 @@ for (const [lang, path] of pages) {
     "#partners",
   ];
   expect(
-    headerNavigation.includes('class="site-nav__live"') &&
+    headerNavigation.includes('class="site-nav__diary"') &&
       headerNavigation.includes('href="#diary"') &&
       (headerNavigation.match(/class="site-nav__link"/g) || []).length ===
         headerChapterTargets.length &&
@@ -338,11 +338,13 @@ for (const [lang, path] of pages) {
     `${lang}: основной шрифт должен загружаться локально без внешнего font-сервиса`,
   );
   expect(
-    (html.match(/data-motion-option=/g) || []).length === 2 &&
-      (html.match(/data-analytics-option=/g) || []).length === 2 &&
+    !headerNavigation.includes("data-motion-option") &&
+      !headerNavigation.includes("data-analytics-option") &&
+      (headerNavigation.match(/data-theme-option=/g) || []).length === 3 &&
+      (headerNavigation.match(/data-language-switch/g) || []).length === 1 &&
       (html.match(/data-theme-option=/g) || []).length === 6 &&
       (html.match(/data-language-switch/g) || []).length === 2,
-    `${lang}: меню и подвал должны содержать полный набор локали, темы, движения и аналитики`,
+    `${lang}: полноэкранное меню должно оставлять только близко сгруппированные язык и тему, дублируемые в подвале`,
   );
 }
 
@@ -358,6 +360,7 @@ const styleModuleNames = [
   "30-proof-adventures-interviews.css",
   "40-partners-footer.css",
   "50-responsive.css",
+  "55-editorial-menu.css",
   "60-themes-accessibility.css",
 ];
 const sourceStyleManifest = await readFile(resolve("src/assets/styles.css"), "utf8");
@@ -395,7 +398,7 @@ expect(
   sourceStyleManifest ===
     `${styleModuleNames.map((file) => `@import "./styles/${file}";`).join("\n")}\n` &&
     sourceStyleBundle === css,
-  "css: семь исходных модулей должны без дрейфа собираться в один production styles.css",
+  "css: восемь исходных модулей должны без дрейфа собираться в один production styles.css",
 );
 expect(
   projectStatusErrors.length === 0 &&
@@ -439,6 +442,15 @@ expect(
   "css: декабрь должен завершать календарную шкалу красной зоной",
 );
 expect(
+  /\.distance-story__counter\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)[^}]*width:\s*min\(24rem,/s.test(
+    css,
+  ) &&
+    /\.distance-story__sequence-track\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(1\.5rem,\s*1fr\)\)[^}]*width:\s*100%[^}]*min-width:\s*0/s.test(
+      css,
+    ),
+  "css: шкала трёх видов спорта должна сохранять одну физическую ширину независимо от значения",
+);
+expect(
   css.includes(".button:hover .icon--down") &&
     css.includes(".button:hover .icon--external") &&
     !css.includes(".button:hover .icon {"),
@@ -464,7 +476,7 @@ expect(
 );
 expect(
   normalizedCss.split(productionGlassMaterial).length === 3 &&
-    (css.match(/background:\s*var\(--glass-material\)/g) || []).length >= 7 &&
+    (css.match(/background:\s*var\(--glass-material\)/g) || []).length >= 6 &&
     css.includes(".site-header:has(.nav-shell[open])::before") &&
     !css.includes("--panel-material:") &&
     !css.includes("--glass-surface-soft:") &&
@@ -483,7 +495,10 @@ expect(
   "favicon: полный знак из logo.svg должен сохранять точный кроп и контраст в system/light/dark",
 );
 expect(
-  /border-top:\s*1px solid var\(--line-light\)/.test(audioStoryRule) &&
+  /border-top:\s*0/.test(audioStoryRule) &&
+    /\.audio-story::before\s*\{[^}]*height:\s*1px[^}]*linear-gradient\(90deg,\s*var\(--acid\)/s.test(
+      css,
+    ) &&
     !/border-bottom:/.test(audioStoryRule) &&
     /padding-top:\s*clamp\(2\.75rem,\s*4\.5vw,\s*4\.5rem\)/.test(
       diaryRule,
@@ -495,8 +510,9 @@ expect(
     !/\.site-nav__utility\s*\{[^}]*border-top:\s*1px solid var\(--line-light\)/s.test(
       css,
     ) &&
-    /\.partners::before\s*\{[^}]*grid-row:\s*1\s*\/\s*4/s.test(css) &&
-    /\.partners::after\s*\{[^}]*grid-row:\s*1\s*\/\s*4/s.test(css),
+    /\.partners__stage\s*\{[^}]*isolation:\s*isolate/s.test(css) &&
+    /\.partners__stage-media\s*\{[^}]*position:\s*absolute/s.test(css) &&
+    !/\.partners::(?:before|after)\s*\{[^}]*grid-row:/s.test(css),
   "css: разделители должны оставаться только на смысловых границах без двойной линии audio → diary",
 );
 expect(

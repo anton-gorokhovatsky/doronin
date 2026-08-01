@@ -528,6 +528,7 @@
   top: clamp(1rem, 2vw, 1.75rem);
   left: clamp(1rem, 2vw, 1.75rem);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   width: min(24rem, calc(100% - clamp(2rem, 4vw, 3.5rem)));
   color: var(--paper);
   pointer-events: none;
@@ -551,6 +552,7 @@
   display: flex;
   align-items: baseline;
   gap: 0.16em;
+  min-width: 0;
   margin: 0.75rem 0 1rem;
   font-family: var(--display);
   font-variant-numeric: tabular-nums;
@@ -571,6 +573,7 @@
 .distance-story__sequence {
   display: grid;
   gap: 0.65rem;
+  min-width: 0;
 }
 
 .distance-story__sequence-meta {
@@ -622,6 +625,8 @@
   grid-template-columns: repeat(3, minmax(1.5rem, 1fr));
   gap: 0.45rem;
   align-items: center;
+  width: 100%;
+  min-width: 0;
 }
 
 .distance-story__sequence-track > span {

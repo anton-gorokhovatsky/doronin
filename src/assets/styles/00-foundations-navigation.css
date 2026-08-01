@@ -353,6 +353,75 @@ a {
   height: auto;
 }
 
+.header-status {
+  display: grid;
+  grid-column: 2;
+  grid-template-columns: auto minmax(4.75rem, 7rem);
+  align-items: center;
+  justify-self: center;
+  gap: 0.7rem;
+  min-width: 0;
+  color: var(--paper-dim);
+}
+
+.header-status__reading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+
+.header-status__reading strong {
+  color: var(--paper);
+  font-family: var(--display);
+  font-size: var(--type-display-small);
+  line-height: 0.9;
+}
+
+.header-status__reading span {
+  max-width: 7ch;
+  color: rgba(217, 226, 217, 0.62);
+  font-size: var(--type-micro);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.05;
+  text-transform: uppercase;
+  white-space: normal;
+}
+
+.header-status__rail {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 0.12rem;
+  align-items: end;
+  height: 0.28rem;
+}
+
+.header-status__rail i {
+  display: block;
+  height: 1px;
+  background: rgba(217, 226, 217, 0.22);
+  transform: skewX(-24deg);
+}
+
+.header-status__rail i.is-elapsed {
+  background: rgba(223, 255, 56, 0.62);
+}
+
+.header-status__rail i.is-current {
+  height: 0.2rem;
+  background: var(--acid);
+}
+
+.header-status__rail i:last-child {
+  background: rgba(255, 91, 61, 0.62);
+}
+
+.site-header:has(.nav-shell[open]) .header-status {
+  visibility: hidden;
+  opacity: 0;
+}
+
 .nav-shell {
   justify-self: center;
 }
@@ -484,6 +553,10 @@ a {
 }
 
 @media (min-width: 961px) {
+  .header-status {
+    display: none;
+  }
+
   .site-header {
     isolation: isolate;
     grid-template-columns: auto minmax(0, 1fr) auto auto;
@@ -505,8 +578,14 @@ a {
     box-shadow: var(--glass-shadow);
     content: "";
     pointer-events: none;
+    opacity: 1;
     -webkit-backdrop-filter: var(--glass-filter);
     backdrop-filter: var(--glass-filter);
+    transition: opacity 180ms var(--ease-move);
+  }
+
+  .site-header.is-over-hero:not(:has(.nav-shell[open]))::before {
+    opacity: 0;
   }
 
   .site-header > * {
@@ -754,9 +833,8 @@ a {
   }
 
   .site-nav__settings {
-    display: grid;
-    align-content: center;
-    gap: 0.55rem;
+    align-self: center;
+    min-width: 0;
   }
 
   .site-nav__setting {
@@ -783,7 +861,6 @@ a {
     min-height: 2.1rem;
     padding: 0.35rem 0.3rem;
     border: 0;
-    border-bottom: 2px solid transparent;
     background: transparent;
     color: var(--paper-dim);
     font-size: var(--type-micro);
@@ -795,7 +872,6 @@ a {
 
   .site-nav__setting-options
     :where(button[aria-pressed="true"], span[aria-current="page"]) {
-    border-bottom-color: var(--acid);
     color: var(--paper);
   }
 

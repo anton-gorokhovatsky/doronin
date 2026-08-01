@@ -38,9 +38,9 @@
     data-light-href="./assets/favicon-light.svg"
     data-dark-href="./assets/favicon-dark.svg"
   >
-  <script src="./assets/theme-init.js?v=8f994d506a"></script>
-  <link rel="stylesheet" href="./assets/styles.css?v=8f994d506a">
-  <script src="./assets/app.js?v=8f994d506a" defer></script>
+  <script src="./assets/theme-init.js?v=c6a093f84a"></script>
+  <link rel="stylesheet" href="./assets/styles.css?v=c6a093f84a">
+  <script src="./assets/app.js?v=c6a093f84a" defer></script>
 </head>
 <body data-project-phase="before">
   <script type="application/json" id="analytics-goal-registry">{"version":1,"counterId":111159425,"goals":[{"id":"menu_open","category":"navigation","params":["location"]},{"id":"chapter_navigation","category":"navigation","params":["chapter"]},{"id":"project_explore","category":"conversion","params":[]},{"id":"partner_interest","category":"conversion","params":[]},{"id":"language_switch","category":"preference","params":["language","location"]},{"id":"theme_change","category":"preference","params":["theme"]},{"id":"hero_video_pause","category":"media","params":[]},{"id":"hero_video_resume","category":"media","params":[]},{"id":"proof_open","category":"evidence","params":[]},{"id":"sound_scene_select","category":"media","params":["scene"]},{"id":"sound_story_start","category":"media","params":[]},{"id":"sound_story_complete","category":"media","params":[]},{"id":"diary_video_start","category":"media","params":[]},{"id":"diary_video_complete","category":"media","params":[]},{"id":"diary_open","category":"content","params":[]},{"id":"film_open","category":"content","params":[]},{"id":"contact_email","category":"contact","params":[]},{"id":"contact_telegram","category":"contact","params":[]}]}</script>
@@ -51,6 +51,16 @@
       <img src="./assets/logo.svg" alt="" width="512" height="231">
     </a>
 
+    <div class="header-status" data-menu-status aria-live="polite">
+      <span class="header-status__reading">
+        <strong data-menu-status-value data-optical-start>…</strong>
+        <span data-menu-status-label>Старт 1 декабря 2026</span>
+      </span>
+      <span class="header-status__rail" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </span>
+    </div>
+
     <details class="nav-shell">
       <summary class="menu-toggle" aria-label="Меню">
         <span class="menu-toggle__label">Меню</span>
@@ -59,33 +69,56 @@
       </summary>
       <nav class="site-nav" aria-label="Меню">
         <div class="site-nav__chapters">
-          <a
-            class="site-nav__live"
-            href="#diary"
-            data-nav-track
-            data-nav-title="Дневник"
-          >
-            <span>Сейчас</span>
-            <strong>Дневник</strong>
-          </a>
+          <div class="site-nav__preview" aria-hidden="true">
+            <figure class="site-nav__preview-media">
+              <img
+                src="./assets/hero.jpg"
+                alt=""
+                width="1600"
+                height="900"
+                data-menu-preview-image
+              >
+            </figure>
+            <span class="site-nav__preview-kicker">Маршрут · 07 глав</span>
+            <strong class="site-nav__preview-index" data-menu-preview-index>01</strong>
+            <span class="site-nav__preview-title" data-menu-preview-title>Проект</span>
+          </div>
           <div class="site-nav__primary">
-            <a class="site-nav__link" href="#about" data-analytics-goal="project_explore" data-nav-track data-nav-title="Проект">Проект</a><a class="site-nav__link" href="#distance" data-analytics-goal="project_explore" data-nav-track data-nav-title="Дистанция">Дистанция</a><a class="site-nav__link" href="#viktor" data-nav-track data-nav-title="О герое">О герое</a><a class="site-nav__link" href="#proof" data-nav-track data-nav-title="Фильм «1111»">Фильм «1111»</a><a class="site-nav__link" href="#adventures" data-nav-track data-nav-title="Приключения">Приключения</a><a class="site-nav__link" href="#interviews" data-nav-track data-nav-title="Интервью">Интервью</a><a class="site-nav__link" href="#partners" data-analytics-goal="partner_interest" data-nav-track data-nav-title="Партнёрам">Партнёрам</a>
+            <a class="site-nav__link" href="#about" data-analytics-goal="project_explore" data-nav-track data-nav-title="Проект" data-nav-index="01" data-nav-image="./assets/hero.jpg">Проект</a><a class="site-nav__link" href="#distance" data-analytics-goal="project_explore" data-nav-track data-nav-title="Дистанция" data-nav-index="02" data-nav-image="./assets/distance-bike-presence.jpg">Дистанция</a><a class="site-nav__link" href="#viktor" data-nav-track data-nav-title="О герое" data-nav-index="03" data-nav-image="./assets/portrait.jpg">О герое</a><a class="site-nav__link" href="#proof" data-nav-track data-nav-title="Фильм «1111»" data-nav-index="04" data-nav-image="./assets/story-bridge.jpg">Фильм «1111»</a><a class="site-nav__link" href="#adventures" data-nav-track data-nav-title="Приключения" data-nav-index="05" data-nav-image="./assets/adventure-ladoga.jpg">Приключения</a><a class="site-nav__link" href="#interviews" data-nav-track data-nav-title="Интервью" data-nav-index="06" data-nav-image="./assets/interview-04.jpg">Интервью</a><a class="site-nav__link" href="#partners" data-analytics-goal="partner_interest" data-nav-track data-nav-title="Партнёрам" data-nav-index="07" data-nav-image="./assets/partner-community-motion.jpg">Партнёрам</a>
           </div>
         </div>
         <div class="site-nav__utility" aria-label="Настройки">
-          <div class="site-nav__status" data-menu-status>
-            <span class="site-nav__status-meta">11 111 км · 31 день</span>
-            <div class="site-nav__status-reading">
-              <strong data-menu-status-value data-optical-start>…</strong>
-              <span data-menu-status-label>Старт 1 декабря 2026</span>
+          <div class="site-nav__journey">
+            <a
+              class="site-nav__diary"
+              href="#diary"
+              data-nav-track
+              data-nav-title="Дневник"
+            >
+              <span>
+                <strong>Дневник подготовки</strong>
+                <small>Тренировки, команда и путь к старту</small>
+              </span>
+
+    <svg class="icon icon--down" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M8 3v10M4.5 9.5 8 13l3.5-3.5"></path>
+    </svg>
+            </a>
+            <div class="site-nav__status" data-menu-status>
+              <span class="site-nav__status-meta">11 111 км · 31 день</span>
+              <div class="site-nav__status-reading">
+                <strong data-menu-status-value data-optical-start>…</strong>
+                <span data-menu-status-label>Старт 1 декабря 2026</span>
+              </div>
             </div>
           </div>
+          <div class="site-nav__actions">
 
     <div class="site-nav__settings" aria-label="Настройки">
       <div class="site-nav__setting site-nav__setting--language">
         <span class="site-nav__setting-label">Язык</span>
         <div class="site-nav__setting-options">
-          <span aria-current="page">Русский</span>
+          <span data-language-code="RU" aria-current="page">Русский</span>
           <a data-language-switch href="./en/" hreflang="en">English</a>
         </div>
       </div>
@@ -97,31 +130,18 @@
           <button type="button" data-theme-option="dark" aria-pressed="false">Тёмная</button>
         </div>
       </div>
-      <div class="site-nav__setting" role="group" aria-label="Движение">
-        <span class="site-nav__setting-label">Движение</span>
-        <div class="site-nav__setting-options">
-          <button type="button" data-motion-option="system" aria-pressed="true">Система</button>
-          <button type="button" data-motion-option="reduced" aria-pressed="false">Меньше</button>
-        </div>
-      </div>
-      <div class="site-nav__setting" role="group" aria-label="Аналитика">
-        <span class="site-nav__setting-label">Аналитика</span>
-        <div class="site-nav__setting-options">
-          <button type="button" data-analytics-option="on" aria-pressed="true">Вкл</button>
-          <button type="button" data-analytics-option="off" aria-pressed="false">Выкл</button>
-        </div>
-      </div>
     </div>
-          <a class="site-nav__cta action-primary" href="mailto:anesterova88@gmail.com?subject=%D0%9F%D0%B0%D1%80%D1%82%D0%BD%D1%91%D1%80%D1%81%D1%82%D0%B2%D0%BE%20%D1%81%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%BE%D0%BC%2011%20111" data-analytics-goal="contact_email"><span>Обсудить участие</span>
+            <a class="site-nav__cta action-primary" href="mailto:anesterova88@gmail.com?subject=%D0%9F%D0%B0%D1%80%D1%82%D0%BD%D1%91%D1%80%D1%81%D1%82%D0%B2%D0%BE%20%D1%81%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%BE%D0%BC%2011%20111" data-analytics-goal="contact_email"><span>Обсудить участие</span>
     <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M4 12 12 4M6 4h6v6"></path>
     </svg></a>
+          </div>
         </div>
       </nav>
     </details>
 
     <div class="header-actions">
-      <a class="header-cta" href="#partners" data-analytics-goal="partner_interest">Партнёрам</a>
+      <a class="header-cta" href="#partner-contact" data-analytics-goal="partner_interest">Обсудить участие</a>
     </div>
   </header>
 
@@ -166,11 +186,11 @@
         </h1>
         <p class="hero__intro">Первый в мире 31-дневный ультратриатлон.</p>
         <div class="hero__actions">
-          <a class="button button--primary action-primary" href="#distance" data-analytics-goal="project_explore">Как это устроено
+          <a class="button button--primary action-primary" href="#partners" data-analytics-goal="partner_interest">Обсудить участие
     <svg class="icon icon--down" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M8 3v10M4.5 9.5 8 13l3.5-3.5"></path>
     </svg></a>
-          <a class="button button--ghost" href="#partners" data-analytics-goal="partner_interest">Партнёрам</a>
+          <a class="button button--ghost" href="#distance" data-analytics-goal="project_explore">Как это устроено</a>
         </div>
       </div>
 
@@ -1346,17 +1366,28 @@
     <div class="velocity-cut velocity-cut--into-partners" aria-hidden="true"></div>
 
     <section class="partners section" id="partners" aria-labelledby="partners-title">
-      <div class="partners__intro">
-        <div class="section-label">
-          <span>07</span>
-          <p>Партнёрам</p>
+      <div class="partners__stage">
+        <figure class="partners__stage-media">
+          <img
+            src="./assets/partner-community-motion.jpg"
+            alt="Виктор Доронин среди участников бегового старта."
+            width="1800"
+            height="1200"
+            loading="lazy"
+          >
+        </figure>
+        <div class="partners__intro">
+          <div class="section-label">
+            <span>07</span>
+            <p>Партнёрам</p>
+          </div>
+          <p class="partners__countdown" data-partner-countdown aria-live="polite">Старт 1 декабря 2026</p>
+          <h2 id="partners-title">Пройти вместе</h2>
         </div>
-        <p class="partners__countdown" data-partner-countdown aria-live="polite">Старт 1 декабря 2026</p>
-        <h2 id="partners-title">Пройти вместе</h2>
-      </div>
-      <div class="partners__pitch">
-        <p class="partners__lead">Не интеграция.<br>Общий путь.</p>
-        <p class="partners__body">11 111 км начинаются задолго до первого километра. Мы приглашаем тех, кто хочет не наблюдать со стороны, а пройти эту историю вместе с Виктором — до старта, все 31 день и после финиша.</p>
+        <div class="partners__pitch">
+          <p class="partners__lead">Не интеграция.<br>Общий путь.</p>
+          <p class="partners__body">11 111 км начинаются задолго до первого километра. Мы приглашаем тех, кто хочет не наблюдать со стороны, а пройти эту историю вместе с Виктором — до старта, все 31 день и после финиша.</p>
+        </div>
       </div>
       <div class="partners__offer">
         <div class="partner-formats">
@@ -1423,24 +1454,26 @@
         </div>
         <div class="partners__contact">
           <h3 class="partners__cta">Обсудить участие</h3>
-          <div class="partners__channels">
-            <a class="contact-action" href="mailto:anesterova88@gmail.com?subject=%D0%9F%D0%B0%D1%80%D1%82%D0%BD%D1%91%D1%80%D1%81%D1%82%D0%B2%D0%BE%20%D1%81%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%BE%D0%BC%2011%20111" data-analytics-goal="contact_email" aria-label="Написать Анне Нестеровой">
-              Написать по почте
+          <div class="partners__contact-module">
+            <p class="partners__person">
+              <span>Контакт</span>
+              <strong>Анна Нестерова</strong>
+            </p>
+            <div class="partners__channels">
+              <a class="contact-action" href="mailto:anesterova88@gmail.com?subject=%D0%9F%D0%B0%D1%80%D1%82%D0%BD%D1%91%D1%80%D1%81%D1%82%D0%B2%D0%BE%20%D1%81%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%BE%D0%BC%2011%20111" data-analytics-goal="contact_email" aria-label="Написать Анне Нестеровой">
+                <span>Написать по почте</span>
     <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M4 12 12 4M6 4h6v6"></path>
     </svg>
-            </a>
-            <a class="contact-action" href="https://t.me/alraunean" data-analytics-goal="contact_telegram" aria-label="Написать Анне Нестеровой в Telegram" target="_blank" rel="noopener noreferrer">
-              Написать в Telegram
+              </a>
+              <a class="contact-action" href="https://t.me/alraunean" data-analytics-goal="contact_telegram" aria-label="Написать Анне Нестеровой в Telegram" target="_blank" rel="noopener noreferrer">
+                <span>Написать в Telegram</span>
     <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M4 12 12 4M6 4h6v6"></path>
     </svg>
-            </a>
+              </a>
+            </div>
           </div>
-          <p class="partners__person">
-            <span>Контакт</span>
-            <strong>Анна Нестерова</strong>
-          </p>
         </div>
       </div>
     </section>
@@ -1470,18 +1503,6 @@
         <p>Навигация</p>
         <a class="site-nav__link" href="#about" data-analytics-goal="project_explore">Проект</a><a class="site-nav__link" href="#distance" data-analytics-goal="project_explore">Дистанция</a><a class="site-nav__link" href="#viktor">О герое</a><a class="site-nav__link" href="#proof">Фильм «1111»</a><a class="site-nav__link" href="#adventures">Приключения</a><a class="site-nav__link" href="#interviews">Интервью</a><a class="site-nav__link" href="#partners" data-analytics-goal="partner_interest">Партнёрам</a>
       </nav>
-
-      <div class="site-footer__contacts">
-        <p>Связаться</p>
-        <a class="contact-action" href="mailto:anesterova88@gmail.com?subject=%D0%9F%D0%B0%D1%80%D1%82%D0%BD%D1%91%D1%80%D1%81%D1%82%D0%B2%D0%BE%20%D1%81%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%BE%D0%BC%2011%20111" data-analytics-goal="contact_email">
-    <svg class="icon icon--mail" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-      <path d="M2.5 4.25h11v7.5h-11zM3 4.75 8 8.5l5-3.75"></path>
-    </svg>Написать по почте</a>
-        <a class="contact-action" href="https://t.me/alraunean" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">
-    <svg class="icon icon--telegram" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-      <path d="m2.5 7.5 11-4.25-3.2 9.5-3.2-3-2.25 1.65.7-3.15 5.2-3.1-4.3 3.8"></path>
-    </svg>Написать в Telegram</a>
-      </div>
 
       <div class="site-footer__utility">
         <p>Сайт</p>

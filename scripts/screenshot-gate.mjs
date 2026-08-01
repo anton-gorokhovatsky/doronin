@@ -265,6 +265,15 @@ const specs = [
     viewport: { width: 320, height: 844 },
   },
   {
+    name: "ru-320-system-menu",
+    path: "/?gate=ru-320-menu#top",
+    locale: "ru",
+    theme: "system",
+    menuOpen: true,
+    expectMenuFit: true,
+    viewport: { width: 320, height: 844 },
+  },
+  {
     name: "ru-390-text-200-menu",
     path: "/?gate=ru-390-text-200&text=200#top",
     locale: "ru",
@@ -412,9 +421,14 @@ const specs = [
   },
 ];
 
+const screenshotFilter = process.env.SCREENSHOT_FILTER;
+const selectedSpecs = screenshotFilter
+  ? specs.filter((spec) => spec.name.includes(screenshotFilter))
+  : specs;
+
 const manifest = [];
 try {
-  for (const spec of specs) manifest.push(await capture(browser, server.origin, spec));
+  for (const spec of selectedSpecs) manifest.push(await capture(browser, server.origin, spec));
 } finally {
   await browser.close();
   await server.close();

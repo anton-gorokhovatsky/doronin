@@ -20,6 +20,7 @@ const styleModuleNames = [
   "30-proof-adventures-interviews.css",
   "40-partners-footer.css",
   "50-responsive.css",
+  "55-editorial-menu.css",
   "60-themes-accessibility.css",
 ];
 const styleBundle = (
@@ -105,6 +106,9 @@ const locales = {
     menu: "Меню",
     navLiveKicker: "Сейчас",
     navLiveLabel: "Дневник",
+    navRouteKicker: "Маршрут · 07 глав",
+    navDiaryLabel: "Дневник подготовки",
+    navDiaryNote: "Тренировки, команда и путь к старту",
     nav: [
       ["#about", "Проект"],
       ["#distance", "Дистанция"],
@@ -114,7 +118,7 @@ const locales = {
       ["#interviews", "Интервью"],
       ["#partners", "Партнёрам"],
     ],
-    headerCta: "Партнёрам",
+    headerCta: "Обсудить участие",
     hero: {
       kicker: "1–31 декабря 2026 · Виктор Доронин",
       lineOne: ["11 111", "км"],
@@ -165,8 +169,8 @@ const locales = {
           context: "Ветер и шум движения на скорости.",
         },
       ],
-      primaryCta: "Как это устроено",
-      secondaryCta: "Партнёрам",
+      primaryCta: "Обсудить участие",
+      secondaryCta: "Как это устроено",
       statusFallback: "Старт 1 декабря 2026",
       statusMeta: "11 111 км · 31 день",
       beforeForms: ["день до старта", "дня до старта", "дней до старта"],
@@ -484,6 +488,7 @@ const locales = {
     partners: {
       eyebrow: "Партнёрам",
       title: "Пройти вместе",
+      imageAlt: "Виктор Доронин среди участников бегового старта.",
       lead: "Не интеграция.<br>Общий путь.",
       body:
         "11 111 км начинаются задолго до первого километра. Мы приглашаем тех, кто хочет не наблюдать со стороны, а пройти эту историю вместе с Виктором — до старта, все 31 день и после финиша.",
@@ -583,6 +588,9 @@ const locales = {
     menu: "Menu",
     navLiveKicker: "Now",
     navLiveLabel: "Diary",
+    navRouteKicker: "Route · 07 chapters",
+    navDiaryLabel: "Training diary",
+    navDiaryNote: "Training, the team and the road to the start",
     nav: [
       ["#about", "Project"],
       ["#distance", "Distance"],
@@ -592,7 +600,7 @@ const locales = {
       ["#interviews", "Interviews"],
       ["#partners", "Partners"],
     ],
-    headerCta: "For partners",
+    headerCta: "Discuss partnership",
     hero: {
       kicker: "December 1–31, 2026 · Viktor Doronin",
       lineOne: ["11,111", "km"],
@@ -643,8 +651,8 @@ const locales = {
           context: "Wind and the sound of movement at speed.",
         },
       ],
-      primaryCta: "See the challenge",
-      secondaryCta: "For partners",
+      primaryCta: "Discuss a partnership",
+      secondaryCta: "See the challenge",
       statusFallback: "Starts December 1, 2026",
       statusMeta: "11,111 km · 31 days",
       beforeForms: ["day to start", "days to start", "days to start"],
@@ -961,6 +969,7 @@ const locales = {
     partners: {
       eyebrow: "For partners",
       title: "Take the journey together",
+      imageAlt: "Viktor Doronin among runners before the start.",
       lead: "Not an integration.<br>A shared journey.",
       body:
         "11,111 km begin long before the first kilometre. We invite those who want to do more than watch from the sidelines — to follow this story with Viktor before the start, through all 31 days and beyond the finish.",
@@ -1044,9 +1053,19 @@ const locales = {
   },
 };
 
-function renderNav(items, { track = false } = {}) {
+const navigationPreviewImages = [
+  "hero.jpg",
+  "distance-bike-presence.jpg",
+  "portrait.jpg",
+  "story-bridge.jpg",
+  "adventure-ladoga.jpg",
+  "interview-04.jpg",
+  "partner-community-motion.jpg",
+];
+
+function renderNav(items, { track = false, assetBase = "" } = {}) {
   return items
-    .map(([href, label]) => {
+    .map(([href, label], index) => {
       const analyticsGoal = ["#about", "#distance"].includes(href)
         ? "project_explore"
         : href === "#partners"
@@ -1056,7 +1075,7 @@ function renderNav(items, { track = false } = {}) {
         ? ` data-analytics-goal="${analyticsGoal}"`
         : "";
       const trackingAttributes = track
-        ? ` data-nav-track data-nav-title="${label}"`
+        ? ` data-nav-track data-nav-title="${label}" data-nav-index="${String(index + 1).padStart(2, "0")}" data-nav-image="${assetBase}assets/${navigationPreviewImages[index]}"`
         : "";
 
       return `<a class="site-nav__link" href="${href}"${analyticsAttribute}${trackingAttributes}>${label}</a>`;
@@ -1082,7 +1101,7 @@ function renderMenuSettings(l) {
       <div class="site-nav__setting site-nav__setting--language">
         <span class="site-nav__setting-label">${l.footer.languageLabel}</span>
         <div class="site-nav__setting-options">
-          <span aria-current="page">${l.footer.languageCurrent}</span>
+          <span data-language-code="${l.lang.toUpperCase()}" aria-current="page">${l.footer.languageCurrent}</span>
           <a data-language-switch href="${l.alternateHref}" hreflang="${l.lang === "ru" ? "en" : "ru"}">${l.footer.languageAlternate}</a>
         </div>
       </div>
@@ -1092,20 +1111,6 @@ function renderMenuSettings(l) {
           <button type="button" data-theme-option="system" aria-pressed="true">${l.footer.themeSystem}</button>
           <button type="button" data-theme-option="light" aria-pressed="false">${l.footer.themeLight}</button>
           <button type="button" data-theme-option="dark" aria-pressed="false">${l.footer.themeDark}</button>
-        </div>
-      </div>
-      <div class="site-nav__setting" role="group" aria-label="${l.footer.motionLabel}">
-        <span class="site-nav__setting-label">${l.footer.motionLabel}</span>
-        <div class="site-nav__setting-options">
-          <button type="button" data-motion-option="system" aria-pressed="true">${l.footer.motionSystem}</button>
-          <button type="button" data-motion-option="reduced" aria-pressed="false">${l.footer.motionReduced}</button>
-        </div>
-      </div>
-      <div class="site-nav__setting" role="group" aria-label="${l.footer.analyticsLabel}">
-        <span class="site-nav__setting-label">${l.footer.analyticsLabel}</span>
-        <div class="site-nav__setting-options">
-          <button type="button" data-analytics-option="on" aria-pressed="true">${l.footer.analyticsOn}</button>
-          <button type="button" data-analytics-option="off" aria-pressed="false">${l.footer.analyticsOff}</button>
         </div>
       </div>
     </div>`;
@@ -1618,6 +1623,16 @@ function renderPage(l) {
       <img src="${l.assetBase}assets/logo.svg" alt="" width="512" height="231">
     </a>
 
+    <div class="header-status" data-menu-status aria-live="polite">
+      <span class="header-status__reading">
+        <strong data-menu-status-value data-optical-start>…</strong>
+        <span data-menu-status-label>${l.hero.statusFallback}</span>
+      </span>
+      <span class="header-status__rail" aria-hidden="true">
+        ${Array.from({ length: 12 }, () => "<i></i>").join("")}
+      </span>
+    </div>
+
     <details class="nav-shell">
       <summary class="menu-toggle" aria-label="${l.menu}">
         <span class="menu-toggle__label">${l.menu}</span>
@@ -1626,35 +1641,56 @@ function renderPage(l) {
       </summary>
       <nav class="site-nav" aria-label="${l.menu}">
         <div class="site-nav__chapters">
-          <a
-            class="site-nav__live"
-            href="#diary"
-            data-nav-track
-            data-nav-title="${l.navLiveLabel}"
-          >
-            <span>${l.navLiveKicker}</span>
-            <strong>${l.navLiveLabel}</strong>
-          </a>
+          <div class="site-nav__preview" aria-hidden="true">
+            <figure class="site-nav__preview-media">
+              <img
+                src="${l.assetBase}assets/${navigationPreviewImages[0]}"
+                alt=""
+                width="1600"
+                height="900"
+                data-menu-preview-image
+              >
+            </figure>
+            <span class="site-nav__preview-kicker">${l.navRouteKicker}</span>
+            <strong class="site-nav__preview-index" data-menu-preview-index>01</strong>
+            <span class="site-nav__preview-title" data-menu-preview-title>${l.nav[0][1]}</span>
+          </div>
           <div class="site-nav__primary">
-            ${renderNav(l.nav, { track: true })}
+            ${renderNav(l.nav, { track: true, assetBase: l.assetBase })}
           </div>
         </div>
         <div class="site-nav__utility" aria-label="${l.footer.settingsLabel}">
-          <div class="site-nav__status" data-menu-status>
-            <span class="site-nav__status-meta">${l.hero.statusMeta}</span>
-            <div class="site-nav__status-reading">
-              <strong data-menu-status-value data-optical-start>…</strong>
-              <span data-menu-status-label>${l.hero.statusFallback}</span>
+          <div class="site-nav__journey">
+            <a
+              class="site-nav__diary"
+              href="#diary"
+              data-nav-track
+              data-nav-title="${l.navLiveLabel}"
+            >
+              <span>
+                <strong>${l.navDiaryLabel}</strong>
+                <small>${l.navDiaryNote}</small>
+              </span>
+              ${icons.down}
+            </a>
+            <div class="site-nav__status" data-menu-status>
+              <span class="site-nav__status-meta">${l.hero.statusMeta}</span>
+              <div class="site-nav__status-reading">
+                <strong data-menu-status-value data-optical-start>…</strong>
+                <span data-menu-status-label>${l.hero.statusFallback}</span>
+              </div>
             </div>
           </div>
-          ${renderMenuSettings(l)}
-          <a class="site-nav__cta action-primary" href="${mailHref}" data-analytics-goal="contact_email"><span>${l.footer.partnerCta}</span>${icons.external}</a>
+          <div class="site-nav__actions">
+            ${renderMenuSettings(l)}
+            <a class="site-nav__cta action-primary" href="${mailHref}" data-analytics-goal="contact_email"><span>${l.footer.partnerCta}</span>${icons.external}</a>
+          </div>
         </div>
       </nav>
     </details>
 
     <div class="header-actions">
-      <a class="header-cta" href="#partners" data-analytics-goal="partner_interest">${l.headerCta}</a>
+      <a class="header-cta" href="#partner-contact" data-analytics-goal="partner_interest">${l.headerCta}</a>
     </div>
   </header>
 
@@ -1699,8 +1735,8 @@ function renderPage(l) {
         </h1>
         <p class="hero__intro">${l.hero.intro}</p>
         <div class="hero__actions">
-          <a class="button button--primary action-primary" href="#distance" data-analytics-goal="project_explore">${l.hero.primaryCta}${icons.down}</a>
-          <a class="button button--ghost" href="#partners" data-analytics-goal="partner_interest">${l.hero.secondaryCta}</a>
+          <a class="button button--primary action-primary" href="#partners" data-analytics-goal="partner_interest">${l.hero.primaryCta}${icons.down}</a>
+          <a class="button button--ghost" href="#distance" data-analytics-goal="project_explore">${l.hero.secondaryCta}</a>
         </div>
       </div>
 
@@ -2038,17 +2074,28 @@ function renderPage(l) {
     <div class="velocity-cut velocity-cut--into-partners" aria-hidden="true"></div>
 
     <section class="partners section" id="partners" aria-labelledby="partners-title">
-      <div class="partners__intro">
-        <div class="section-label">
-          <span>07</span>
-          <p>${l.partners.eyebrow}</p>
+      <div class="partners__stage">
+        <figure class="partners__stage-media">
+          <img
+            src="${l.assetBase}assets/partner-community-motion.jpg"
+            alt="${l.partners.imageAlt}"
+            width="1800"
+            height="1200"
+            loading="lazy"
+          >
+        </figure>
+        <div class="partners__intro">
+          <div class="section-label">
+            <span>07</span>
+            <p>${l.partners.eyebrow}</p>
+          </div>
+          <p class="partners__countdown" data-partner-countdown aria-live="polite">${l.hero.statusFallback}</p>
+          <h2 id="partners-title">${l.partners.title}</h2>
         </div>
-        <p class="partners__countdown" data-partner-countdown aria-live="polite">${l.hero.statusFallback}</p>
-        <h2 id="partners-title">${l.partners.title}</h2>
-      </div>
-      <div class="partners__pitch">
-        <p class="partners__lead">${l.partners.lead}</p>
-        <p class="partners__body">${l.partners.body}</p>
+        <div class="partners__pitch">
+          <p class="partners__lead">${l.partners.lead}</p>
+          <p class="partners__body">${l.partners.body}</p>
+        </div>
       </div>
       <div class="partners__offer">
         <div class="partner-formats">
@@ -2073,18 +2120,20 @@ function renderPage(l) {
         </div>
         <div class="partners__contact">
           <h3 class="partners__cta">${l.partners.cta}</h3>
-          <div class="partners__channels">
-            <a class="contact-action" href="${mailHref}" data-analytics-goal="contact_email" aria-label="${l.partners.emailLabel}">
-              ${l.partners.emailCta}${icons.external}
-            </a>
-            <a class="contact-action" href="${shared.telegramHref}" data-analytics-goal="contact_telegram" aria-label="${l.partners.telegramLabel}" target="_blank" rel="noopener noreferrer">
-              ${l.partners.telegramCta}${icons.external}
-            </a>
+          <div class="partners__contact-module">
+            <p class="partners__person">
+              <span>${l.partners.contacts}</span>
+              <strong>${l.partners.person}</strong>
+            </p>
+            <div class="partners__channels">
+              <a class="contact-action" href="${mailHref}" data-analytics-goal="contact_email" aria-label="${l.partners.emailLabel}">
+                <span>${l.partners.emailCta}</span>${icons.external}
+              </a>
+              <a class="contact-action" href="${shared.telegramHref}" data-analytics-goal="contact_telegram" aria-label="${l.partners.telegramLabel}" target="_blank" rel="noopener noreferrer">
+                <span>${l.partners.telegramCta}</span>${icons.external}
+              </a>
+            </div>
           </div>
-          <p class="partners__person">
-            <span>${l.partners.contacts}</span>
-            <strong>${l.partners.person}</strong>
-          </p>
         </div>
       </div>
     </section>
@@ -2111,12 +2160,6 @@ function renderPage(l) {
         <p>${l.footer.navLabel}</p>
         ${renderNav(l.nav)}
       </nav>
-
-      <div class="site-footer__contacts">
-        <p>${l.footer.contactLabel}</p>
-        <a class="contact-action" href="${mailHref}" data-analytics-goal="contact_email">${icons.mail}${l.footer.emailCta}</a>
-        <a class="contact-action" href="${shared.telegramHref}" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">${icons.telegram}${l.footer.telegramCta}</a>
-      </div>
 
       <div class="site-footer__utility">
         <p>${l.footer.utilityLabel}</p>

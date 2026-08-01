@@ -1304,6 +1304,21 @@ if (eventStatus) {
     );
   }
 
+  const headerProgress = Math.max(
+    0,
+    Math.min(12, Math.round((progressSegments / visibleSegments) * 12)),
+  );
+
+  for (const headerRail of document.querySelectorAll(".header-status__rail")) {
+    [...headerRail.children].forEach((segment, index) => {
+      segment.classList.toggle("is-elapsed", index < headerProgress);
+      segment.classList.toggle(
+        "is-current",
+        headerProgress > 0 && index === headerProgress - 1,
+      );
+    });
+  }
+
   const footerCountdown = document.querySelector("[data-footer-countdown]");
   const footerPrefix = document.querySelector("[data-footer-prefix]");
 
@@ -1458,20 +1473,94 @@ for (const languageSwitch of document.querySelectorAll("[data-language-switch]")
 const siteHeader = document.querySelector(".site-header");
 const heroSection = document.querySelector(".hero");
 
-if (siteHeader && heroSection && "IntersectionObserver" in window) {
-  const heroHeaderObserver = new IntersectionObserver(
-    ([entry]) => {
-      siteHeader.classList.toggle("is-over-hero", entry.isIntersecting);
-    },
-    { rootMargin: "0px 0px -84% 0px" },
-  );
+if (siteHeader && heroSection) {
+  const heroHeaderTrigger = heroSection.querySelector(".hero__kicker");
+  let heroHeaderFrame = 0;
 
-  heroHeaderObserver.observe(heroSection);
+  function syncHeroHeaderState() {
+    heroHeaderFrame = 0;
+
+    if (!heroHeaderTrigger) {
+      siteHeader.classList.toggle(
+        "is-over-hero",
+        heroSection.getBoundingClientRect().bottom >
+          siteHeader.getBoundingClientRect().bottom,
+      );
+      return;
+    }
+
+    const headerBottom = siteHeader.getBoundingClientRect().bottom;
+    const firstTextTop = heroHeaderTrigger.getBoundingClientRect().top;
+
+    siteHeader.classList.toggle(
+      "is-over-hero",
+      firstTextTop > headerBottom + 12,
+    );
+  }
+
+  function requestHeroHeaderSync() {
+    if (!heroHeaderFrame) {
+      heroHeaderFrame = requestAnimationFrame(syncHeroHeaderState);
+    }
+  }
+
+  syncHeroHeaderState();
+  window.addEventListener("scroll", requestHeroHeaderSync, { passive: true });
+  window.addEventListener("resize", requestHeroHeaderSync);
 }
 
 const headerNavigationLinks = [
   ...document.querySelectorAll(".site-nav [data-nav-track]"),
 ];
+const menuPreviewIndex = document.querySelector("[data-menu-preview-index]");
+const menuPreviewTitle = document.querySelector("[data-menu-preview-title]");
+const menuPreviewImage = document.querySelector("[data-menu-preview-image]");
+const menuPreviewLinks = headerNavigationLinks.filter(
+  (link) => link.dataset.navIndex,
+);
+
+function syncMenuPreview(link) {
+  if (!link?.dataset.navIndex || !menuPreviewIndex || !menuPreviewTitle) return;
+
+  menuPreviewIndex.textContent = link.dataset.navIndex;
+  menuPreviewTitle.textContent =
+    link.dataset.navTitle || link.textContent.trim();
+
+  if (
+    menuPreviewImage &&
+    link.dataset.navImage &&
+    menuPreviewImage.getAttribute("src") !== link.dataset.navImage
+  ) {
+    menuPreviewImage.setAttribute("src", link.dataset.navImage);
+    menuPreviewImage.classList.remove("is-changing");
+    requestAnimationFrame(() => menuPreviewImage.classList.add("is-changing"));
+  }
+}
+
+function restoreMenuPreview() {
+  syncMenuPreview(
+    menuPreviewLinks.find((link) => link.getAttribute("aria-current") === "location") ||
+      menuPreviewLinks[0],
+  );
+}
+
+for (const link of menuPreviewLinks) {
+  link.addEventListener("pointerenter", () => syncMenuPreview(link));
+  link.addEventListener("focus", () => syncMenuPreview(link));
+}
+
+document.querySelector(".site-nav__primary")?.addEventListener(
+  "pointerleave",
+  restoreMenuPreview,
+);
+document.querySelector(".site-nav__primary")?.addEventListener("focusout", () => {
+  requestAnimationFrame(() => {
+    if (!document.querySelector(".site-nav__primary")?.contains(document.activeElement)) {
+      restoreMenuPreview();
+    }
+  });
+});
+
 for (const link of headerNavigationLinks) {
   link.addEventListener("click", () => {
     reachGoal("chapter_navigation", {
@@ -1536,6 +1625,13 @@ if (siteHeader && headerNavigationTargets.length) {
     if (currentChapter) {
       currentChapter.textContent =
         activeItem.link.dataset.navTitle || activeItem.link.textContent.trim();
+    }
+
+    if (
+      !document.querySelector(".site-nav__primary")?.matches(":hover") &&
+      !document.querySelector(".site-nav__primary")?.contains(document.activeElement)
+    ) {
+      restoreMenuPreview();
     }
   }
 

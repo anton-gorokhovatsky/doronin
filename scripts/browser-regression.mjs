@@ -194,40 +194,37 @@ async function auditPage(browser, browserName, origin, testCase) {
         `${prefix}: desktop interface material diverged`,
       );
     }
-    const controlBackgrounds = await page.evaluate((mobile) =>
-      (mobile
-        ? [".site-logo", ".menu-toggle"]
-        : [".site-logo", ".menu-toggle", ".header-cta"]
-      ).map((selector) => {
+    const controlMaterials = await page.evaluate(() => {
+      const read = (selector) => {
         const style = getComputedStyle(document.querySelector(selector));
-        return [style.backgroundImage, style.backgroundColor];
-      }),
-      testCase.viewport.width <= 960,
-    );
-    expect(
-      controlBackgrounds.every(
-        ([image, color]) => image === "none" && color === "rgba(0, 0, 0, 0)",
-      ),
-      `${prefix}: header controls gained a separate fill`,
-    );
-    if (testCase.viewport.width > 960) {
-      const desktopCluster = await page.evaluate(() => {
-        const toggle = document.querySelector(".menu-toggle").getBoundingClientRect();
-        const actions = document.querySelector(".header-actions").getBoundingClientRect();
         return {
-          gap: actions.left - toggle.right,
-          verticalDelta: Math.abs(
-            toggle.top + toggle.height / 2 - (actions.top + actions.height / 2),
-          ),
+          backgroundColor: style.backgroundColor,
+          backgroundImage: style.backgroundImage,
+          visibility: style.visibility,
         };
-      });
+      };
+      return {
+        logo: read(".site-logo"),
+        menu: read(".menu-toggle"),
+        headerCta: read(".header-cta"),
+      };
+    });
+    if (testCase.viewport.width <= 960) {
       expect(
-        desktopCluster.gap >= 0 &&
-          desktopCluster.gap <= 32 &&
-          desktopCluster.verticalDelta <= 1,
-        `${prefix}: desktop menu is detached from the service cluster`,
+        controlMaterials.logo.backgroundImage === "none" &&
+          controlMaterials.logo.backgroundColor === "rgba(0, 0, 0, 0)" &&
+          controlMaterials.menu.backgroundImage === material.layer.backgroundImage,
+        `${prefix}: mobile open-state controls do not share the accepted material (${JSON.stringify(controlMaterials)})`,
       );
     } else {
+      expect(
+        controlMaterials.logo.backgroundImage === material.nav.backgroundImage &&
+          controlMaterials.menu.backgroundImage === material.nav.backgroundImage &&
+          controlMaterials.headerCta.visibility === "hidden",
+        `${prefix}: desktop open-state controls diverged from the menu material (${JSON.stringify(controlMaterials)})`,
+      );
+    }
+    if (testCase.viewport.width <= 960) {
       const mobileMenu = await nav.evaluate((element) => ({
         clientHeight: element.clientHeight,
         scrollHeight: element.scrollHeight,
@@ -241,6 +238,36 @@ async function auditPage(browser, browserName, origin, testCase) {
       );
     }
 
+    const menuComposition = await nav.evaluate((element) => {
+      const settings = [...element.querySelectorAll(".site-nav__setting")];
+      const diary = element.querySelector(".site-nav__diary");
+      const cta = element.querySelector(".site-nav__cta").getBoundingClientRect();
+      return {
+        settings: settings.map((setting) =>
+          setting.textContent.trim().replace(/\s+/g, " "),
+        ),
+        forbiddenControls: element.querySelectorAll(
+          "[data-motion-option], [data-analytics-option], .site-nav__settings summary",
+        ).length,
+        diaryHref: diary?.getAttribute("href") || "",
+        diaryDescription: diary?.querySelector("small")?.textContent.trim() || "",
+        ctaRightDelta: Math.abs(innerWidth - cta.right),
+      };
+    });
+    expect(
+      menuComposition.settings.length === 2 &&
+        menuComposition.forbiddenControls === 0 &&
+        menuComposition.diaryHref.length > 0 &&
+        menuComposition.diaryDescription.length > 0,
+      `${prefix}: menu utility composition regressed (${JSON.stringify(menuComposition)})`,
+    );
+    if (testCase.viewport.width > 960) {
+      expect(
+        menuComposition.ctaRightDelta <= 1,
+        `${prefix}: menu CTA no longer reaches the right edge`,
+      );
+    }
+
     const actionSystem = await page.evaluate(() => {
       const selectors = [".button--primary", ".site-nav__cta", ".site-footer__cta"];
       const core = selectors.map((selector) => {
@@ -248,13 +275,15 @@ async function auditPage(browser, browserName, origin, testCase) {
         return [
           style.backgroundColor,
           style.color,
-          style.minHeight,
           style.fontWeight,
           style.textTransform,
         ];
       });
       return {
         core,
+        minHeights: selectors.map((selector) =>
+          parseFloat(getComputedStyle(document.querySelector(selector)).minHeight),
+        ),
         menuLabel: document
           .querySelector(".site-nav__cta span")
           ?.textContent.trim()
@@ -275,6 +304,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       actionSystem.core.every(
         (value) => JSON.stringify(value) === JSON.stringify(actionSystem.core[0]),
       ) &&
+        actionSystem.minHeights.every((height) => height >= 56) &&
         actionSystem.menuLabel === testCase.conversionLabel &&
         actionSystem.footerLabel === testCase.conversionLabel &&
         actionSystem.partnerBackground === actionSystem.primaryBackground,
@@ -294,54 +324,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       `${prefix}: dark theme did not activate`,
     );
 
-    await nav.locator('[data-motion-option="reduced"]').click();
-    const reducedMotionState = await page.evaluate(() => ({
-      classApplied: document.documentElement.classList.contains("motion-reduced"),
-      videoPaused: document.querySelector("[data-hero-video]")?.paused,
-      pressed: document
-        .querySelector('.site-nav [data-motion-option="reduced"]')
-        ?.getAttribute("aria-pressed"),
-    }));
-    expect(
-      reducedMotionState.classApplied &&
-        reducedMotionState.videoPaused &&
-        reducedMotionState.pressed === "true",
-      `${prefix}: menu reduced-motion preference is not functional (${JSON.stringify(reducedMotionState)})`,
-    );
-    await nav.locator('[data-motion-option="system"]').click();
-
-    const analyticsGoalsBeforeOptOut = await page.evaluate(() =>
-      window.__analyticsCalls.filter(([, command]) => command === "reachGoal")
-        .length,
-    );
-    await nav.locator('[data-analytics-option="off"]').click();
-    const analyticsOptOutState = await page.evaluate(() => ({
-      pressed: document
-        .querySelector('.site-nav [data-analytics-option="off"]')
-        ?.getAttribute("aria-pressed"),
-      destruct: window.__analyticsCalls.some(
-        ([counterId, command]) =>
-          counterId === 111159425 && command === "destruct",
-      ),
-    }));
     await nav.locator('[data-theme-option="system"]').click();
-    const analyticsGoalsAfterOptOut = await page.evaluate(() =>
-      window.__analyticsCalls.filter(([, command]) => command === "reachGoal")
-        .length,
-    );
-    expect(
-      analyticsOptOutState.pressed === "true" &&
-        analyticsOptOutState.destruct &&
-        analyticsGoalsAfterOptOut === analyticsGoalsBeforeOptOut,
-      `${prefix}: analytics opt-out is not functional (${JSON.stringify({ analyticsOptOutState, analyticsGoalsBeforeOptOut, analyticsGoalsAfterOptOut })})`,
-    );
-    await nav.locator('[data-analytics-option="on"]').click();
-    expect(
-      (await nav
-        .locator('[data-analytics-option="on"]')
-        .getAttribute("aria-pressed")) === "true",
-      `${prefix}: analytics opt-in did not restore the active state`,
-    );
     await menuToggle.click();
     await page.waitForFunction(
       () => document.querySelector(".nav-shell")?.open === false,
