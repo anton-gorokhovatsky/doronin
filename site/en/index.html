@@ -38,24 +38,11 @@
     data-light-href="../assets/favicon-light.svg"
     data-dark-href="../assets/favicon-dark.svg"
   >
-  <script src="../assets/theme-init.js?v=98d6d09a19"></script>
-  <link rel="stylesheet" href="../assets/styles.css?v=98d6d09a19">
-  <script src="../assets/app.js?v=98d6d09a19" defer></script>
-  <!-- Yandex.Metrika counter -->
-  <script type="text/javascript">
-    (function(m,e,t,r,i,k,a){
-      m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-      m[i].l=1*new Date();
-      for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=111159425', 'ym');
-
-    ym(111159425, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
-  </script>
-  <!-- /Yandex.Metrika counter -->
+  <script src="../assets/theme-init.js?v=8f994d506a"></script>
+  <link rel="stylesheet" href="../assets/styles.css?v=8f994d506a">
+  <script src="../assets/app.js?v=8f994d506a" defer></script>
 </head>
 <body data-project-phase="before">
-  <noscript><div><img src="https://mc.yandex.ru/watch/111159425" style="position:absolute; left:-9999px;" alt=""></div></noscript>
   <script type="application/json" id="analytics-goal-registry">{"version":1,"counterId":111159425,"goals":[{"id":"menu_open","category":"navigation","params":["location"]},{"id":"chapter_navigation","category":"navigation","params":["chapter"]},{"id":"project_explore","category":"conversion","params":[]},{"id":"partner_interest","category":"conversion","params":[]},{"id":"language_switch","category":"preference","params":["language","location"]},{"id":"theme_change","category":"preference","params":["theme"]},{"id":"hero_video_pause","category":"media","params":[]},{"id":"hero_video_resume","category":"media","params":[]},{"id":"proof_open","category":"evidence","params":[]},{"id":"sound_scene_select","category":"media","params":["scene"]},{"id":"sound_story_start","category":"media","params":[]},{"id":"sound_story_complete","category":"media","params":[]},{"id":"diary_video_start","category":"media","params":[]},{"id":"diary_video_complete","category":"media","params":[]},{"id":"diary_open","category":"content","params":[]},{"id":"film_open","category":"content","params":[]},{"id":"contact_email","category":"contact","params":[]},{"id":"contact_telegram","category":"contact","params":[]}]}</script>
   <a class="skip-link" href="#main">Skip to content</a>
 
@@ -71,44 +58,61 @@
         <span class="menu-toggle__icon" aria-hidden="true"></span>
       </summary>
       <nav class="site-nav" aria-label="Menu">
-        <a
-          class="site-nav__live"
-          href="#diary"
-          data-nav-track
-          data-nav-title="Diary"
-        >
-          <span>Now</span>
-          <strong>Diary</strong>
-        </a>
-        <div class="site-nav__primary">
-          <a class="site-nav__link" href="#about" data-analytics-goal="project_explore" data-nav-track data-nav-title="Project">Project</a><a class="site-nav__link" href="#distance" data-analytics-goal="project_explore" data-nav-track data-nav-title="Distance">Distance</a><a class="site-nav__link" href="#viktor" data-nav-track data-nav-title="Protagonist">Protagonist</a><a class="site-nav__link" href="#proof" data-nav-track data-nav-title="Film “1111”">Film “1111”</a><a class="site-nav__link" href="#adventures" data-nav-track data-nav-title="Adventures">Adventures</a><a class="site-nav__link" href="#interviews" data-nav-track data-nav-title="Interviews">Interviews</a><a class="site-nav__link" href="#partners" data-analytics-goal="partner_interest" data-nav-track data-nav-title="Partners">Partners</a>
+        <div class="site-nav__chapters">
+          <a
+            class="site-nav__live"
+            href="#diary"
+            data-nav-track
+            data-nav-title="Diary"
+          >
+            <span>Now</span>
+            <strong>Diary</strong>
+          </a>
+          <div class="site-nav__primary">
+            <a class="site-nav__link" href="#about" data-analytics-goal="project_explore" data-nav-track data-nav-title="Project">Project</a><a class="site-nav__link" href="#distance" data-analytics-goal="project_explore" data-nav-track data-nav-title="Distance">Distance</a><a class="site-nav__link" href="#viktor" data-nav-track data-nav-title="Protagonist">Protagonist</a><a class="site-nav__link" href="#proof" data-nav-track data-nav-title="Film “1111”">Film “1111”</a><a class="site-nav__link" href="#adventures" data-nav-track data-nav-title="Adventures">Adventures</a><a class="site-nav__link" href="#interviews" data-nav-track data-nav-title="Interviews">Interviews</a><a class="site-nav__link" href="#partners" data-analytics-goal="partner_interest" data-nav-track data-nav-title="Partners">Partners</a>
+          </div>
         </div>
-        <div class="site-nav__utility">
-          <div class="site-nav__language">
-            <span>Language</span>
-            <a data-language-switch href="../" hreflang="ru">Русская версия</a>
+        <div class="site-nav__utility" aria-label="Settings">
+          <div class="site-nav__status" data-menu-status>
+            <span class="site-nav__status-meta">11,111 km · 31 days</span>
+            <div class="site-nav__status-reading">
+              <strong data-menu-status-value data-optical-start>…</strong>
+              <span data-menu-status-label>Starts December 1, 2026</span>
+            </div>
           </div>
 
-    <div class="theme-switcher" role="group" aria-label="Theme">
-      <span class="theme-switcher__label">Theme</span>
-      <div class="theme-switcher__options">
-        <button type="button" data-theme-option="system" aria-pressed="true">System</button>
-        <button type="button" data-theme-option="light" aria-pressed="false">Light</button>
-        <button type="button" data-theme-option="dark" aria-pressed="false">Dark</button>
+    <div class="site-nav__settings" aria-label="Settings">
+      <div class="site-nav__setting site-nav__setting--language">
+        <span class="site-nav__setting-label">Language</span>
+        <div class="site-nav__setting-options">
+          <span aria-current="page">English</span>
+          <a data-language-switch href="../" hreflang="ru">Русский</a>
+        </div>
+      </div>
+      <div class="site-nav__setting" role="group" aria-label="Theme">
+        <span class="site-nav__setting-label">Theme</span>
+        <div class="site-nav__setting-options site-nav__setting-options--theme">
+          <button type="button" data-theme-option="system" aria-pressed="true">System</button>
+          <button type="button" data-theme-option="light" aria-pressed="false">Light</button>
+          <button type="button" data-theme-option="dark" aria-pressed="false">Dark</button>
+        </div>
+      </div>
+      <div class="site-nav__setting" role="group" aria-label="Motion">
+        <span class="site-nav__setting-label">Motion</span>
+        <div class="site-nav__setting-options">
+          <button type="button" data-motion-option="system" aria-pressed="true">System</button>
+          <button type="button" data-motion-option="reduced" aria-pressed="false">Reduced</button>
+        </div>
+      </div>
+      <div class="site-nav__setting" role="group" aria-label="Analytics">
+        <span class="site-nav__setting-label">Analytics</span>
+        <div class="site-nav__setting-options">
+          <button type="button" data-analytics-option="on" aria-pressed="true">On</button>
+          <button type="button" data-analytics-option="off" aria-pressed="false">Off</button>
+        </div>
       </div>
     </div>
-          <div class="site-nav__contacts">
-            <span>Get in touch</span>
-            <a href="mailto:anesterova88@gmail.com" data-analytics-goal="contact_email">
-    <svg class="icon icon--mail" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-      <path d="M2.5 4.25h11v7.5h-11zM3 4.75 8 8.5l5-3.75"></path>
-    </svg>Send an email</a>
-            <a href="https://t.me/alraunean" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">
-    <svg class="icon icon--telegram" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-      <path d="m2.5 7.5 11-4.25-3.2 9.5-3.2-3-2.25 1.65.7-3.15 5.2-3.1-4.3 3.8"></path>
-    </svg>Message on Telegram</a>
-          </div>
-          <a class="site-nav__cta" href="mailto:anesterova88@gmail.com?subject=Partnership%20with%20Project%2011%20111" data-analytics-goal="contact_email"><span>Become part of the story</span>
+          <a class="site-nav__cta action-primary" href="mailto:anesterova88@gmail.com?subject=Partnership%20with%20Project%2011%20111" data-analytics-goal="contact_email"><span>Discuss a partnership</span>
     <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M4 12 12 4M6 4h6v6"></path>
     </svg></a>
@@ -117,7 +121,6 @@
     </details>
 
     <div class="header-actions">
-      <a class="language-switch" data-language-switch href="../" hreflang="ru">RU</a>
       <a class="header-cta" href="#partners" data-analytics-goal="partner_interest">For partners</a>
     </div>
   </header>
@@ -163,11 +166,11 @@
         </h1>
         <p class="hero__intro">The world’s first 31-day ultra-triathlon.</p>
         <div class="hero__actions">
-          <a class="button button--primary" href="#distance" data-analytics-goal="project_explore">See the challenge
+          <a class="button button--primary action-primary" href="#distance" data-analytics-goal="project_explore">See the challenge
     <svg class="icon icon--down" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M8 3v10M4.5 9.5 8 13l3.5-3.5"></path>
     </svg></a>
-          <a class="button button--ghost" href="#partners" data-analytics-goal="partner_interest">Become part of it</a>
+          <a class="button button--ghost" href="#partners" data-analytics-goal="partner_interest">For partners</a>
         </div>
       </div>
 
@@ -443,11 +446,11 @@
         <p class="diary__lead">After 60 days of base work, Viktor checked perception against data: gas analysis, lactate, power and heart rate.</p>
         <div class="diary__facts">
 
-        <div class="diary__fact">
+        <div class="diary__fact" data-metric-density="long">
           <strong data-optical-start>60 days</strong>
           <span>of base training</span>
         </div>
-        <div class="diary__fact">
+        <div class="diary__fact" data-metric-density="long">
           <strong data-optical-start>203 hours</strong>
           <span>of training load</span>
         </div>
@@ -584,8 +587,16 @@
               <small data-distance-live-unit>km</small>
             </p>
             <div class="distance-story__sequence">
-              <span class="is-active" data-distance-sequence="0"></span><span class="" data-distance-sequence="1"></span><span class="" data-distance-sequence="2"></span>
-              <b><span>11,111</span><small>km</small></b>
+              <div class="distance-story__sequence-meta">
+                <span>
+                  <small>Stage</small>
+                  <b><strong data-distance-sequence-current>01</strong><i>of 03</i></b>
+                </span>
+                <b><em>total</em><span>11,111</span><small>km</small></b>
+              </div>
+              <div class="distance-story__sequence-track">
+                <span class="is-active" data-distance-sequence="0"></span><span class="" data-distance-sequence="1"></span><span class="" data-distance-sequence="2"></span>
+              </div>
             </div>
           </div>
         </div>
@@ -617,7 +628,7 @@
             aria-label="Stage 1 / 3. Total over 31 days: 11,111 km"
           >
             <span class="distance-card__sequence-label">Stage 1 of 3</span>
-            <b><span>11,111</span><small>km</small></b>
+            <b><em>total</em><span>11,111</span><small>km</small></b>
             <span class="distance-card__sequence-step is-active" aria-hidden="true"><i></i><small>01 swimming</small></span><span class="distance-card__sequence-step " aria-hidden="true"><i></i><small>02 cycling</small></span><span class="distance-card__sequence-step " aria-hidden="true"><i></i><small>03 running</small></span>
           </div>
           <ul class="detail-list">
@@ -650,7 +661,7 @@
             aria-label="Stage 2 / 3. Total over 31 days: 11,111 km"
           >
             <span class="distance-card__sequence-label">Stage 2 of 3</span>
-            <b><span>11,111</span><small>km</small></b>
+            <b><em>total</em><span>11,111</span><small>km</small></b>
             <span class="distance-card__sequence-step is-complete" aria-hidden="true"><i></i><small>01 swimming</small></span><span class="distance-card__sequence-step is-active" aria-hidden="true"><i></i><small>02 cycling</small></span><span class="distance-card__sequence-step " aria-hidden="true"><i></i><small>03 running</small></span>
           </div>
           <ul class="detail-list">
@@ -683,7 +694,7 @@
             aria-label="Stage 3 / 3. Total over 31 days: 11,111 km"
           >
             <span class="distance-card__sequence-label">Stage 3 of 3</span>
-            <b><span>11,111</span><small>km</small></b>
+            <b><em>total</em><span>11,111</span><small>km</small></b>
             <span class="distance-card__sequence-step is-complete" aria-hidden="true"><i></i><small>01 swimming</small></span><span class="distance-card__sequence-step is-complete" aria-hidden="true"><i></i><small>02 cycling</small></span><span class="distance-card__sequence-step is-active" aria-hidden="true"><i></i><small>03 running</small></span>
           </div>
           <ul class="detail-list">
@@ -738,19 +749,19 @@
         <p class="athlete__quote">He does not sell a story.<br>He lives it.</p>
         <div class="achievement-grid">
 
-        <div class="achievement">
+        <div class="achievement" data-metric-density="short">
           <strong data-optical-start>4×</strong>
           <span>Ironman World Championship Kona participant</span>
         </div>
-        <div class="achievement">
+        <div class="achievement" data-metric-density="long">
           <strong data-optical-start>252.8 km</strong>
           <span>Marathon des Sables in the Sahara</span>
         </div>
-        <div class="achievement">
+        <div class="achievement" data-metric-density="long">
           <strong data-optical-start>17,696 m</strong>
           <span>Double Everesting elevation gain in one ride</span>
         </div>
-        <div class="achievement">
+        <div class="achievement" data-metric-density="long">
           <strong data-optical-start>58 hours</strong>
           <span>1,111 km ultra-triathlon without sleep</span>
         </div>
@@ -923,19 +934,19 @@
       </div>
       <div class="proof-metrics">
 
-        <div class="proof-metric">
+        <div class="proof-metric" data-metric-density="medium">
           <strong data-optical-start>≈1.3M</strong>
           <span>views across five episodes and the film</span>
         </div>
-        <div class="proof-metric">
+        <div class="proof-metric" data-metric-density="long">
           <strong data-optical-start>92,000+</strong>
           <span>film views</span>
         </div>
-        <div class="proof-metric">
+        <div class="proof-metric" data-metric-density="medium">
           <strong data-optical-start>+310%</strong>
           <span>growth in Viktor’s audience</span>
         </div>
-        <div class="proof-metric">
+        <div class="proof-metric" data-metric-density="short">
           <strong data-optical-start>25+</strong>
           <span>federal media outlets</span>
         </div>
@@ -1396,15 +1407,15 @@
           <p class="partner-proof__label">Experience that already works</p>
           <div class="partner-proof__metrics">
 
-        <div class="partner-proof__metric">
+        <div class="partner-proof__metric" data-metric-density="medium">
           <strong data-optical-start>≈1.3M</strong>
           <span>views across five episodes and the film</span>
         </div>
-        <div class="partner-proof__metric">
+        <div class="partner-proof__metric" data-metric-density="medium">
           <strong data-optical-start>+310%</strong>
           <span>audience growth</span>
         </div>
-        <div class="partner-proof__metric">
+        <div class="partner-proof__metric" data-metric-density="short">
           <strong data-optical-start>25+</strong>
           <span>federal media outlets</span>
         </div>
@@ -1413,17 +1424,17 @@
         <div class="partners__contact">
           <h3 class="partners__cta">Discuss a partnership</h3>
           <div class="partners__channels">
-            <a href="mailto:anesterova88@gmail.com?subject=Partnership%20with%20Project%2011%20111" data-analytics-goal="contact_email" aria-label="Email Anna Nesterova">
-
-    <svg class="icon icon--mail" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-      <path d="M2.5 4.25h11v7.5h-11zM3 4.75 8 8.5l5-3.75"></path>
-    </svg>Send an email
+            <a class="contact-action" href="mailto:anesterova88@gmail.com?subject=Partnership%20with%20Project%2011%20111" data-analytics-goal="contact_email" aria-label="Email Anna Nesterova">
+              Send an email
+    <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M4 12 12 4M6 4h6v6"></path>
+    </svg>
             </a>
-            <a href="https://t.me/alraunean" data-analytics-goal="contact_telegram" aria-label="Message Anna Nesterova on Telegram" target="_blank" rel="noopener noreferrer">
-
-    <svg class="icon icon--telegram" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-      <path d="m2.5 7.5 11-4.25-3.2 9.5-3.2-3-2.25 1.65.7-3.15 5.2-3.1-4.3 3.8"></path>
-    </svg>Message on Telegram
+            <a class="contact-action" href="https://t.me/alraunean" data-analytics-goal="contact_telegram" aria-label="Message Anna Nesterova on Telegram" target="_blank" rel="noopener noreferrer">
+              Message on Telegram
+    <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M4 12 12 4M6 4h6v6"></path>
+    </svg>
             </a>
           </div>
           <p class="partners__person">
@@ -1446,8 +1457,8 @@
         >The story begins in</span>
         <span data-footer-countdown data-optical-start aria-live="polite">soon</span>
       </h2>
-      <a class="site-footer__cta" href="mailto:anesterova88@gmail.com?subject=Partnership%20with%20Project%2011%20111" data-analytics-goal="contact_email">
-        Become part of the story
+      <a class="site-footer__cta action-primary" href="mailto:anesterova88@gmail.com?subject=Partnership%20with%20Project%2011%20111" data-analytics-goal="contact_email">
+        Discuss a partnership
     <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M4 12 12 4M6 4h6v6"></path>
     </svg>
@@ -1462,11 +1473,11 @@
 
       <div class="site-footer__contacts">
         <p>Get in touch</p>
-        <a href="mailto:anesterova88@gmail.com" data-analytics-goal="contact_email">
+        <a class="contact-action" href="mailto:anesterova88@gmail.com?subject=Partnership%20with%20Project%2011%20111" data-analytics-goal="contact_email">
     <svg class="icon icon--mail" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M2.5 4.25h11v7.5h-11zM3 4.75 8 8.5l5-3.75"></path>
     </svg>Send an email</a>
-        <a href="https://t.me/alraunean" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">
+        <a class="contact-action" href="https://t.me/alraunean" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">
     <svg class="icon icon--telegram" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="m2.5 7.5 11-4.25-3.2 9.5-3.2-3-2.25 1.65.7-3.15 5.2-3.1-4.3 3.8"></path>
     </svg>Message on Telegram</a>

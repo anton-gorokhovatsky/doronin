@@ -82,6 +82,10 @@ async function capture(browser, origin, spec) {
         activeElement: active
           ? `${active.tagName.toLowerCase()}${active.className ? `.${String(active.className).trim().replace(/\s+/g, ".")}` : ""}`
           : null,
+        htmlClass: document.documentElement.className,
+        menuPrimaryColumns: getComputedStyle(
+          document.querySelector(".site-nav__primary"),
+        ).gridTemplateColumns,
         clientWidth: document.documentElement.clientWidth,
         ctaVisible: Boolean(cta && cta.width > 0 && cta.height > 0),
         fontSize: getComputedStyle(document.documentElement).fontSize,
@@ -97,6 +101,34 @@ async function capture(browser, origin, spec) {
           const rect = document.querySelector(".site-nav__cta")?.getBoundingClientRect();
           return Boolean(rect && rect.top >= 0 && rect.bottom <= innerHeight);
         })(),
+        menuItemOverlap: (() => {
+          const boxes = [
+            ...document.querySelectorAll(
+              ".site-nav .site-nav__live, .site-nav .site-nav__link, .site-nav .site-nav__status, .site-nav .site-nav__setting, .site-nav .site-nav__cta",
+            ),
+          ].map((element) => element.getBoundingClientRect());
+          return boxes.some((first, index) =>
+            boxes.slice(index + 1).some(
+              (second) =>
+                first.left < second.right - 1 &&
+                first.right > second.left + 1 &&
+                first.top < second.bottom - 1 &&
+                first.bottom > second.top + 1,
+            ),
+          );
+        })(),
+        menuItemOverflow: [
+          ...document.querySelectorAll(
+            ".site-nav .site-nav__live, .site-nav .site-nav__link, .site-nav .site-nav__status, .site-nav .site-nav__setting, .site-nav .site-nav__cta",
+          ),
+        ]
+          .filter((element) => element.scrollWidth > element.clientWidth + 1)
+          .map((element) => ({
+            className: element.className,
+            clientWidth: element.clientWidth,
+            scrollWidth: element.scrollWidth,
+            text: element.textContent.trim().replace(/\s+/g, " ").slice(0, 80),
+          })),
         themeOverlap: (() => {
           const boxes = [...document.querySelectorAll(".site-nav .theme-switcher button")].map(
             (button) => button.getBoundingClientRect(),
@@ -142,6 +174,11 @@ async function capture(browser, origin, spec) {
     }
     if (spec.textScale) {
       expect(parseFloat(metrics.fontSize) >= 31.9, `${spec.name}: 200% text scale missing`);
+      expect(!metrics.menuItemOverlap, `${spec.name}: menu items overlap at 200% text`);
+      expect(
+        metrics.menuItemOverflow.length === 0,
+        `${spec.name}: menu item clips at 200% text (${JSON.stringify({ htmlClass: metrics.htmlClass, menuPrimaryColumns: metrics.menuPrimaryColumns, items: metrics.menuItemOverflow })})`,
+      );
     }
     if (spec.menuBottom) {
       expect(metrics.menuCtaVisible, `${spec.name}: menu CTA is not reachable`);

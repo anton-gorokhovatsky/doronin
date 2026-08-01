@@ -16,14 +16,49 @@ const phaseFixture =
     : null;
 if (localFixtureHost && requestedTextScale === "200") {
   document.documentElement.dataset.textFixture = "200";
+  document.documentElement.classList.add("text-enlarged");
 }
+
+function syncTextEnlargement() {
+  const rootFontSize = Number.parseFloat(
+    getComputedStyle(document.documentElement).fontSize,
+  );
+  document.documentElement.classList.toggle(
+    "text-enlarged",
+    document.documentElement.dataset.textFixture === "200" ||
+      (Number.isFinite(rootFontSize) && rootFontSize >= 24),
+  );
+}
+
+syncTextEnlargement();
+window.addEventListener("resize", syncTextEnlargement, { passive: true });
+
 const supportedThemes = new Set(["system", "light", "dark"]);
+const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
 const storedTheme = document.documentElement.dataset.theme;
 let activeTheme = supportedThemes.has(requestedTheme)
   ? requestedTheme
   : supportedThemes.has(storedTheme)
     ? storedTheme
     : "system";
+
+function syncResolvedTheme() {
+  const resolvedTheme =
+    activeTheme === "system"
+      ? systemThemeQuery.matches
+        ? "dark"
+        : "light"
+      : activeTheme;
+
+  document.documentElement.classList.toggle(
+    "theme-dark",
+    resolvedTheme === "dark",
+  );
+  document.documentElement.classList.toggle(
+    "theme-light",
+    resolvedTheme === "light",
+  );
+}
 
 function applyTheme(theme, persist = true) {
   activeTheme = supportedThemes.has(theme) ? theme : "system";
@@ -33,6 +68,8 @@ function applyTheme(theme, persist = true) {
   } else {
     document.documentElement.dataset.theme = activeTheme;
   }
+
+  syncResolvedTheme();
 
   for (const button of document.querySelectorAll("[data-theme-option]")) {
     button.setAttribute(
@@ -75,6 +112,96 @@ function applyTheme(theme, persist = true) {
 
 applyTheme(activeTheme, false);
 
+systemThemeQuery.addEventListener("change", () => {
+  if (activeTheme === "system") {
+    syncResolvedTheme();
+  }
+});
+
+const supportedMotionPreferences = new Set(["system", "reduced"]);
+const systemReducedMotionQuery = window.matchMedia(
+  "(prefers-reduced-motion: reduce)",
+);
+let storedMotionPreference = "system";
+
+try {
+  storedMotionPreference = localStorage.getItem("motion") || "system";
+} catch {}
+
+let activeMotionPreference = supportedMotionPreferences.has(
+  storedMotionPreference,
+)
+  ? storedMotionPreference
+  : "system";
+const motionChangeListeners = new Set();
+const reducedMotion = {
+  get matches() {
+    return (
+      activeMotionPreference === "reduced" ||
+      (activeMotionPreference === "system" && systemReducedMotionQuery.matches)
+    );
+  },
+  addEventListener(type, listener) {
+    if (type === "change") motionChangeListeners.add(listener);
+  },
+  removeEventListener(type, listener) {
+    if (type === "change") motionChangeListeners.delete(listener);
+  },
+};
+
+function emitMotionPreferenceChange() {
+  const event = { matches: reducedMotion.matches };
+
+  for (const listener of motionChangeListeners) {
+    listener(event);
+  }
+}
+
+function syncMotionPreference() {
+  document.documentElement.classList.toggle(
+    "motion-reduced",
+    reducedMotion.matches,
+  );
+
+  for (const button of document.querySelectorAll("[data-motion-option]")) {
+    button.setAttribute(
+      "aria-pressed",
+      String(button.dataset.motionOption === activeMotionPreference),
+    );
+  }
+}
+
+function applyMotionPreference(preference, persist = true) {
+  const wasReduced = reducedMotion.matches;
+  activeMotionPreference = supportedMotionPreferences.has(preference)
+    ? preference
+    : "system";
+  syncMotionPreference();
+
+  if (persist) {
+    try {
+      if (activeMotionPreference === "system") {
+        localStorage.removeItem("motion");
+      } else {
+        localStorage.setItem("motion", activeMotionPreference);
+      }
+    } catch {}
+  }
+
+  if (wasReduced !== reducedMotion.matches) {
+    emitMotionPreferenceChange();
+  }
+}
+
+applyMotionPreference(activeMotionPreference, false);
+
+systemReducedMotionQuery.addEventListener?.("change", () => {
+  if (activeMotionPreference === "system") {
+    syncMotionPreference();
+    emitMotionPreferenceChange();
+  }
+});
+
 function syncOpticalStart(element) {
   if (!element) {
     return;
@@ -104,11 +231,90 @@ const analyticsGoals = new Map(
     : [],
 );
 const analyticsSafeValue = /^[a-z0-9_-]{1,48}$/i;
+let analyticsEnabled = true;
+let analyticsInitialized = false;
+
+try {
+  analyticsEnabled = localStorage.getItem("analytics") !== "off";
+} catch {}
+
+function syncAnalyticsPreference() {
+  for (const button of document.querySelectorAll("[data-analytics-option]")) {
+    button.setAttribute(
+      "aria-pressed",
+      String(
+        button.dataset.analyticsOption === (analyticsEnabled ? "on" : "off"),
+      ),
+    );
+  }
+}
+
+function initializeAnalytics() {
+  if (!analyticsEnabled || analyticsInitialized) {
+    return;
+  }
+
+  if (typeof window.ym !== "function") {
+    window.ym = function (...args) {
+      (window.ym.a ||= []).push(args);
+    };
+    window.ym.l = Date.now();
+  }
+
+  if (!document.querySelector("[data-analytics-loader]")) {
+    const loader = document.createElement("script");
+    loader.async = true;
+    loader.dataset.analyticsLoader = "";
+    loader.src = `https://mc.yandex.ru/metrika/tag.js?id=${analyticsRegistry.counterId}`;
+    document.head.append(loader);
+  }
+
+  window.ym(analyticsRegistry.counterId, "init", {
+    ssr: true,
+    webvisor: true,
+    clickmap: true,
+    ecommerce: "dataLayer",
+    referrer: document.referrer,
+    url: window.location.href,
+    accurateTrackBounce: true,
+    trackLinks: true,
+  });
+  analyticsInitialized = true;
+}
+
+function applyAnalyticsPreference(preference, persist = true) {
+  const shouldEnable = preference !== "off";
+
+  if (!shouldEnable && analyticsInitialized && typeof window.ym === "function") {
+    window.ym(analyticsRegistry.counterId, "destruct");
+    analyticsInitialized = false;
+  }
+
+  analyticsEnabled = shouldEnable;
+
+  if (persist) {
+    try {
+      if (analyticsEnabled) {
+        localStorage.removeItem("analytics");
+      } else {
+        localStorage.setItem("analytics", "off");
+      }
+    } catch {}
+  }
+
+  syncAnalyticsPreference();
+
+  if (analyticsEnabled) {
+    initializeAnalytics();
+  }
+}
+
+applyAnalyticsPreference(analyticsEnabled ? "on" : "off", false);
 
 function reachGoal(goal, params = {}) {
   const definition = analyticsGoals.get(goal);
 
-  if (!definition || typeof window.ym !== "function") {
+  if (!analyticsEnabled || !definition || typeof window.ym !== "function") {
     return;
   }
 
@@ -137,14 +343,27 @@ for (const button of document.querySelectorAll("[data-theme-option]")) {
   });
 }
 
+for (const button of document.querySelectorAll("[data-motion-option]")) {
+  button.addEventListener("click", () => {
+    applyMotionPreference(button.dataset.motionOption);
+  });
+}
+
+for (const button of document.querySelectorAll("[data-analytics-option]")) {
+  button.addEventListener("click", () => {
+    applyAnalyticsPreference(button.dataset.analyticsOption);
+  });
+}
+
 const proofSources = document.querySelector(".proof-sources");
 
 if (proofSources) {
   const proofSourcesSummary = proofSources.querySelector("summary");
   let proofSourcesRestoreFrame = 0;
+  let proofSourcesPreviousOverflowAnchor = null;
   let proofSourcesPreviousScrollBehavior = null;
 
-  function stopProofSourcesRestoration() {
+  function stopProofSourcesRestoration({ restoreOverflowAnchor = true } = {}) {
     if (proofSourcesRestoreFrame) {
       cancelAnimationFrame(proofSourcesRestoreFrame);
       proofSourcesRestoreFrame = 0;
@@ -154,6 +373,15 @@ if (proofSources) {
       document.documentElement.style.scrollBehavior =
         proofSourcesPreviousScrollBehavior;
       proofSourcesPreviousScrollBehavior = null;
+    }
+
+    if (
+      restoreOverflowAnchor &&
+      proofSourcesPreviousOverflowAnchor !== null
+    ) {
+      document.documentElement.style.overflowAnchor =
+        proofSourcesPreviousOverflowAnchor;
+      proofSourcesPreviousOverflowAnchor = null;
     }
   }
 
@@ -165,11 +393,13 @@ if (proofSources) {
 
     const anchorTop = proofSourcesSummary.getBoundingClientRect().top;
     const root = document.documentElement;
-    let restorePass = 0;
+    const restoreUntil = performance.now() + 320;
 
     stopProofSourcesRestoration();
     proofSourcesPreviousScrollBehavior = root.style.scrollBehavior;
+    proofSourcesPreviousOverflowAnchor = root.style.overflowAnchor;
     root.style.scrollBehavior = "auto";
+    root.style.overflowAnchor = "none";
     proofSources.open = !proofSources.open;
 
     function restoreProofSourcesPosition() {
@@ -181,14 +411,14 @@ if (proofSources) {
         window.scrollBy(0, offset);
       }
 
-      restorePass += 1;
-
-      if (restorePass < 6) {
+      if (performance.now() < restoreUntil) {
         proofSourcesRestoreFrame = requestAnimationFrame(
           restoreProofSourcesPosition,
         );
       } else {
-        stopProofSourcesRestoration();
+        stopProofSourcesRestoration({
+          restoreOverflowAnchor: !proofSources.open,
+        });
       }
     }
 
@@ -203,7 +433,6 @@ const soundPlayer = document.querySelector("[data-sound-player]");
 const soundSceneButtons = Array.from(
   document.querySelectorAll("[data-sound-scene]"),
 );
-const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 if (heroVideo && videoToggle) {
   const videoToggleLabel = videoToggle.querySelector("[data-video-toggle-label]");
@@ -455,6 +684,23 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
     updateSoundProgress();
   }
 
+  function revealSoundScene(button) {
+    const storyline = button.closest(".audio-story__storyline");
+    const item = button.closest("li");
+
+    if (!storyline || !item || window.matchMedia("(min-width: 641px)").matches) {
+      return;
+    }
+
+    const storylineRect = storyline.getBoundingClientRect();
+    const itemRect = item.getBoundingClientRect();
+
+    storyline.scrollTo({
+      left: storyline.scrollLeft + itemRect.left - storylineRect.left,
+      behavior: reducedMotion.matches ? "auto" : "smooth",
+    });
+  }
+
   async function selectSoundScene(index, shouldPlay = true) {
     const nextButton = soundSceneButtons[index];
 
@@ -474,6 +720,7 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
 
     resetSoundWave();
     syncSoundControls();
+    revealSoundScene(nextButton);
 
     if (shouldPlay) {
       try {
@@ -657,6 +904,9 @@ if (distanceStory) {
   const distanceSequence = [
     ...distanceStory.querySelectorAll("[data-distance-sequence]"),
   ];
+  const distanceSequenceCurrent = distanceStory.querySelector(
+    "[data-distance-sequence-current]",
+  );
   const distanceSaveData = navigator.connection?.saveData === true;
   let activeDistanceIndex = 0;
   let distanceStoryVisible = false;
@@ -716,6 +966,10 @@ if (distanceStory) {
 
     if (distanceLiveUnit) {
       distanceLiveUnit.textContent = activeCard.dataset.distanceUnit;
+    }
+
+    if (distanceSequenceCurrent) {
+      distanceSequenceCurrent.textContent = activeCard.dataset.distanceIndex;
     }
 
     for (const [stepIndex, step] of distanceSequence.entries()) {
@@ -1029,6 +1283,25 @@ if (eventStatus) {
 
   if (partnerCountdown) {
     partnerCountdown.textContent = `${value.textContent} · ${label.textContent}`;
+  }
+
+  for (const menuStatus of document.querySelectorAll("[data-menu-status]")) {
+    const menuValue = menuStatus.querySelector("[data-menu-status-value]");
+    const menuLabel = menuStatus.querySelector("[data-menu-status-label]");
+
+    if (menuValue) {
+      menuValue.textContent = value.textContent;
+      syncOpticalStart(menuValue);
+    }
+
+    if (menuLabel) {
+      menuLabel.textContent = label.textContent;
+    }
+
+    menuStatus.setAttribute(
+      "aria-label",
+      `${value.textContent} ${label.textContent}`,
+    );
   }
 
   const footerCountdown = document.querySelector("[data-footer-countdown]");

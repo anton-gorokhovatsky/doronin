@@ -338,12 +338,11 @@ for (const [lang, path] of pages) {
     `${lang}: основной шрифт должен загружаться локально без внешнего font-сервиса`,
   );
   expect(
-    html.includes("https://mc.yandex.ru/metrika/tag.js?id=111159425") &&
-      html.includes("ym(111159425, 'init'") &&
-      html.includes("https://mc.yandex.ru/watch/111159425") &&
-      html.split("https://mc.yandex.ru/metrika/tag.js?id=111159425").length ===
-        2,
-    `${lang}: счётчик Яндекс Метрики 111159425 должен присутствовать один раз`,
+    (html.match(/data-motion-option=/g) || []).length === 2 &&
+      (html.match(/data-analytics-option=/g) || []).length === 2 &&
+      (html.match(/data-theme-option=/g) || []).length === 6 &&
+      (html.match(/data-language-switch/g) || []).length === 2,
+    `${lang}: меню и подвал должны содержать полный набор локали, темы, движения и аналитики`,
   );
 }
 
@@ -465,7 +464,8 @@ expect(
 );
 expect(
   normalizedCss.split(productionGlassMaterial).length === 3 &&
-    (css.match(/background:\s*var\(--glass-material\)/g) || []).length >= 8 &&
+    (css.match(/background:\s*var\(--glass-material\)/g) || []).length >= 7 &&
+    css.includes(".site-header:has(.nav-shell[open])::before") &&
     !css.includes("--panel-material:") &&
     !css.includes("--glass-surface-soft:") &&
     !css.includes("--glass-surface-strong:"),
@@ -489,12 +489,14 @@ expect(
       diaryRule,
     ) &&
     mobileNavLinkRules.some((rule) => /border:\s*0/.test(rule)) &&
-    /\.site-nav__live\s*\{[^}]*border-bottom:\s*1px solid var\(--line-light\)/s.test(
+    !/\.site-nav__live\s*\{[^}]*border-bottom:\s*1px solid var\(--line-light\)/s.test(
       css,
     ) &&
-    /\.site-nav__utility\s*\{[^}]*border-top:\s*1px solid var\(--line-light\)/s.test(
+    !/\.site-nav__utility\s*\{[^}]*border-top:\s*1px solid var\(--line-light\)/s.test(
       css,
-    ),
+    ) &&
+    /\.partners::before\s*\{[^}]*grid-row:\s*1\s*\/\s*4/s.test(css) &&
+    /\.partners::after\s*\{[^}]*grid-row:\s*1\s*\/\s*4/s.test(css),
   "css: разделители должны оставаться только на смысловых границах без двойной линии audio → diary",
 );
 expect(
@@ -507,7 +509,8 @@ expect(
 );
 expect(
   css.includes("@media (prefers-reduced-motion: reduce)") &&
-    app.includes('matchMedia("(prefers-reduced-motion: reduce)")') &&
+    /matchMedia\(\s*"\(prefers-reduced-motion: reduce\)"\s*,?\s*\)/s.test(app) &&
+    app.includes('classList.toggle(\n    "motion-reduced"') &&
     app.includes("heroVideo.pause()"),
   "motion: reduced-motion должен отключать автоматическое движение и останавливать первый экран",
 );
@@ -541,7 +544,11 @@ expect(
         ),
     ) &&
     app.includes("analyticsSafeValue") &&
-    app.includes("analyticsGoals.get(goal)"),
+    app.includes("analyticsGoals.get(goal)") &&
+    app.includes("https://mc.yandex.ru/metrika/tag.js?id=") &&
+    app.includes('window.ym(analyticsRegistry.counterId, "init"') &&
+    app.includes('window.ym(analyticsRegistry.counterId, "destruct"') &&
+    app.includes('localStorage.getItem("analytics") !== "off"'),
   "analytics: полный privacy-safe реестр должен точно совпадать с реальными HTML/JS-триггерами",
 );
 expect(

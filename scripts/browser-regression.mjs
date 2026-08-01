@@ -32,6 +32,12 @@ async function auditPage(browser, browserName, origin, testCase) {
   try {
     await page.goto(`${origin}${testCase.path}`, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => document.fonts.ready);
+    await page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        ),
+    );
 
     const prefix = `${browserName} ${testCase.name}`;
     const geometry = await page.evaluate(() => ({
@@ -74,12 +80,15 @@ async function auditPage(browser, browserName, origin, testCase) {
       const firstScreen = await page.evaluate(() => {
         const heroContent = document.querySelector(".hero__content").getBoundingClientRect();
         const status = document.querySelector(".event-status").getBoundingClientRect();
+        const statusValue = document.querySelector(".event-status__value").getBoundingClientRect();
+        const statusLabel = document.querySelector(".event-status__label").getBoundingClientRect();
         const secondary = getComputedStyle(document.querySelector(".button--ghost"));
         return {
           heroHeight: heroContent.height,
           innerHeight,
           statusTop: status.top,
           heroBottom: heroContent.bottom,
+          statusBottomDelta: Math.abs(statusValue.bottom - statusLabel.bottom),
           secondaryDisplay: secondary.display,
         };
       });
@@ -89,21 +98,51 @@ async function auditPage(browser, browserName, origin, testCase) {
           firstScreen.secondaryDisplay === "none",
         `${prefix}: mobile first screen/status boundary is invalid (${JSON.stringify(firstScreen)})`,
       );
+      if (testCase.viewport.width > 360) {
+        expect(
+          firstScreen.statusBottomDelta <= 1,
+          `${prefix}: countdown value and label bottoms diverge by ${firstScreen.statusBottomDelta}px`,
+        );
+      }
     }
 
     const initialBox = await menuToggle.boundingBox();
     expect(initialBox, `${prefix}: menu trigger has no box`);
+    const initialHeaderLayout = await page.evaluate(() => {
+      const header = document.querySelector(".site-header").getBoundingClientRect();
+      const actions = document.querySelector(".header-actions").getBoundingClientRect();
+      return {
+        innerWidth,
+        clientWidth: document.documentElement.clientWidth,
+        bodyWidth: document.body.getBoundingClientRect().width,
+        header: { left: header.left, right: header.right, width: header.width },
+        actions: { left: actions.left, right: actions.right, width: actions.width },
+        classes: document.querySelector(".site-header").className,
+      };
+    });
     for (const y of [220, 900, 1500]) {
       await page.evaluate((top) => window.scrollTo(0, top), y);
       await page.waitForTimeout(80);
       const box = await menuToggle.boundingBox();
       expect(box, `${prefix}: menu trigger disappeared at ${y}`);
+      const currentHeaderLayout = await page.evaluate(() => {
+        const header = document.querySelector(".site-header").getBoundingClientRect();
+        const actions = document.querySelector(".header-actions").getBoundingClientRect();
+        return {
+          innerWidth,
+          clientWidth: document.documentElement.clientWidth,
+          bodyWidth: document.body.getBoundingClientRect().width,
+          header: { left: header.left, right: header.right, width: header.width },
+          actions: { left: actions.left, right: actions.right, width: actions.width },
+          classes: document.querySelector(".site-header").className,
+        };
+      });
       expect(
         near(box.x, initialBox.x) &&
           near(box.y, initialBox.y) &&
           near(box.width, initialBox.width) &&
           near(box.height, initialBox.height),
-        `${prefix}: menu trigger moved at scroll ${y}`,
+        `${prefix}: menu trigger moved at scroll ${y} (${JSON.stringify({ initialBox, box, initialHeaderLayout, currentHeaderLayout })})`,
       );
     }
 
@@ -111,31 +150,54 @@ async function auditPage(browser, browserName, origin, testCase) {
     const nav = page.locator(".site-nav");
     await nav.waitFor({ state: "visible" });
     const material = await page.evaluate((mobile) => {
-      const surfaces = mobile
-        ? [
-            [document.querySelector(".site-header"), null],
-            [document.querySelector(".site-nav"), null],
-          ]
-        : [
-            [document.querySelector(".site-header"), "::before"],
-            [document.querySelector(".site-nav"), null],
-          ];
-      return surfaces.map(([element, pseudo]) => {
+      const readSurface = (element, pseudo = null) => {
         const style = getComputedStyle(element, pseudo);
-        return [
-          style.backgroundImage,
-          style.backdropFilter,
-        ];
-      });
+        return {
+          backgroundColor: style.backgroundColor,
+          backgroundImage: style.backgroundImage,
+          backdropFilter: style.backdropFilter,
+          height: style.height,
+        };
+      };
+
+      if (mobile) {
+        return {
+          header: readSurface(document.querySelector(".site-header")),
+          layer: readSurface(document.querySelector(".site-header"), "::before"),
+          nav: readSurface(document.querySelector(".site-nav")),
+          viewportHeight: innerHeight,
+        };
+      }
+
+      return {
+        header: readSurface(document.querySelector(".site-header"), "::before"),
+        nav: readSurface(document.querySelector(".site-nav")),
+      };
     }, testCase.viewport.width <= 960);
-    expect(
-      material.every((value) => JSON.stringify(value) === JSON.stringify(material[0])),
-      `${prefix}: interface material diverged`,
-    );
+    if (testCase.viewport.width <= 960) {
+      expect(
+        material.layer.backgroundImage !== "none" &&
+          material.layer.backdropFilter !== "none" &&
+          near(parseFloat(material.layer.height), material.viewportHeight, 1) &&
+          [material.header, material.nav].every(
+            (surface) =>
+              surface.backgroundImage === "none" &&
+              surface.backgroundColor === "rgba(0, 0, 0, 0)" &&
+              surface.backdropFilter === "none",
+          ),
+        `${prefix}: mobile menu must use one viewport-sized compositing layer (${JSON.stringify(material)})`,
+      );
+    } else {
+      expect(
+        material.header.backgroundImage === material.nav.backgroundImage &&
+          material.header.backdropFilter === material.nav.backdropFilter,
+        `${prefix}: desktop interface material diverged`,
+      );
+    }
     const controlBackgrounds = await page.evaluate((mobile) =>
       (mobile
         ? [".site-logo", ".menu-toggle"]
-        : [".site-logo", ".menu-toggle", ".language-switch", ".header-cta"]
+        : [".site-logo", ".menu-toggle", ".header-cta"]
       ).map((selector) => {
         const style = getComputedStyle(document.querySelector(selector));
         return [style.backgroundImage, style.backgroundColor];
@@ -230,6 +292,55 @@ async function auditPage(browser, browserName, origin, testCase) {
       (await page.locator("html").getAttribute("data-theme")) === "dark" &&
         (await page.locator("html").getAttribute("class")).includes("theme-dark"),
       `${prefix}: dark theme did not activate`,
+    );
+
+    await nav.locator('[data-motion-option="reduced"]').click();
+    const reducedMotionState = await page.evaluate(() => ({
+      classApplied: document.documentElement.classList.contains("motion-reduced"),
+      videoPaused: document.querySelector("[data-hero-video]")?.paused,
+      pressed: document
+        .querySelector('.site-nav [data-motion-option="reduced"]')
+        ?.getAttribute("aria-pressed"),
+    }));
+    expect(
+      reducedMotionState.classApplied &&
+        reducedMotionState.videoPaused &&
+        reducedMotionState.pressed === "true",
+      `${prefix}: menu reduced-motion preference is not functional (${JSON.stringify(reducedMotionState)})`,
+    );
+    await nav.locator('[data-motion-option="system"]').click();
+
+    const analyticsGoalsBeforeOptOut = await page.evaluate(() =>
+      window.__analyticsCalls.filter(([, command]) => command === "reachGoal")
+        .length,
+    );
+    await nav.locator('[data-analytics-option="off"]').click();
+    const analyticsOptOutState = await page.evaluate(() => ({
+      pressed: document
+        .querySelector('.site-nav [data-analytics-option="off"]')
+        ?.getAttribute("aria-pressed"),
+      destruct: window.__analyticsCalls.some(
+        ([counterId, command]) =>
+          counterId === 111159425 && command === "destruct",
+      ),
+    }));
+    await nav.locator('[data-theme-option="system"]').click();
+    const analyticsGoalsAfterOptOut = await page.evaluate(() =>
+      window.__analyticsCalls.filter(([, command]) => command === "reachGoal")
+        .length,
+    );
+    expect(
+      analyticsOptOutState.pressed === "true" &&
+        analyticsOptOutState.destruct &&
+        analyticsGoalsAfterOptOut === analyticsGoalsBeforeOptOut,
+      `${prefix}: analytics opt-out is not functional (${JSON.stringify({ analyticsOptOutState, analyticsGoalsBeforeOptOut, analyticsGoalsAfterOptOut })})`,
+    );
+    await nav.locator('[data-analytics-option="on"]').click();
+    expect(
+      (await nav
+        .locator('[data-analytics-option="on"]')
+        .getAttribute("aria-pressed")) === "true",
+      `${prefix}: analytics opt-in did not restore the active state`,
     );
     await menuToggle.click();
     await page.waitForFunction(

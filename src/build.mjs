@@ -543,10 +543,19 @@ const locales = {
       contactLabel: "Связаться",
       utilityLabel: "Сайт",
       languageLabel: "Язык",
+      languageCurrent: "Русский",
+      languageAlternate: "English",
       themeLabel: "Тема",
       themeSystem: "Система",
       themeLight: "Светлая",
       themeDark: "Тёмная",
+      settingsLabel: "Настройки",
+      motionLabel: "Движение",
+      motionSystem: "Система",
+      motionReduced: "Меньше",
+      analyticsLabel: "Аналитика",
+      analyticsOn: "Вкл",
+      analyticsOff: "Выкл",
       emailCta: "Написать по почте",
       telegramCta: "Написать в Telegram",
       partnerCta: "Обсудить участие",
@@ -1011,10 +1020,19 @@ const locales = {
       contactLabel: "Get in touch",
       utilityLabel: "Website",
       languageLabel: "Language",
+      languageCurrent: "English",
+      languageAlternate: "Русский",
       themeLabel: "Theme",
       themeSystem: "System",
       themeLight: "Light",
       themeDark: "Dark",
+      settingsLabel: "Settings",
+      motionLabel: "Motion",
+      motionSystem: "System",
+      motionReduced: "Reduced",
+      analyticsLabel: "Analytics",
+      analyticsOn: "On",
+      analyticsOff: "Off",
       emailCta: "Send an email",
       telegramCta: "Message on Telegram",
       partnerCta: "Discuss a partnership",
@@ -1054,6 +1072,41 @@ function renderThemeSwitcher(l) {
         <button type="button" data-theme-option="system" aria-pressed="true">${l.footer.themeSystem}</button>
         <button type="button" data-theme-option="light" aria-pressed="false">${l.footer.themeLight}</button>
         <button type="button" data-theme-option="dark" aria-pressed="false">${l.footer.themeDark}</button>
+      </div>
+    </div>`;
+}
+
+function renderMenuSettings(l) {
+  return `
+    <div class="site-nav__settings" aria-label="${l.footer.settingsLabel}">
+      <div class="site-nav__setting site-nav__setting--language">
+        <span class="site-nav__setting-label">${l.footer.languageLabel}</span>
+        <div class="site-nav__setting-options">
+          <span aria-current="page">${l.footer.languageCurrent}</span>
+          <a data-language-switch href="${l.alternateHref}" hreflang="${l.lang === "ru" ? "en" : "ru"}">${l.footer.languageAlternate}</a>
+        </div>
+      </div>
+      <div class="site-nav__setting" role="group" aria-label="${l.footer.themeLabel}">
+        <span class="site-nav__setting-label">${l.footer.themeLabel}</span>
+        <div class="site-nav__setting-options site-nav__setting-options--theme">
+          <button type="button" data-theme-option="system" aria-pressed="true">${l.footer.themeSystem}</button>
+          <button type="button" data-theme-option="light" aria-pressed="false">${l.footer.themeLight}</button>
+          <button type="button" data-theme-option="dark" aria-pressed="false">${l.footer.themeDark}</button>
+        </div>
+      </div>
+      <div class="site-nav__setting" role="group" aria-label="${l.footer.motionLabel}">
+        <span class="site-nav__setting-label">${l.footer.motionLabel}</span>
+        <div class="site-nav__setting-options">
+          <button type="button" data-motion-option="system" aria-pressed="true">${l.footer.motionSystem}</button>
+          <button type="button" data-motion-option="reduced" aria-pressed="false">${l.footer.motionReduced}</button>
+        </div>
+      </div>
+      <div class="site-nav__setting" role="group" aria-label="${l.footer.analyticsLabel}">
+        <span class="site-nav__setting-label">${l.footer.analyticsLabel}</span>
+        <div class="site-nav__setting-options">
+          <button type="button" data-analytics-option="on" aria-pressed="true">${l.footer.analyticsOn}</button>
+          <button type="button" data-analytics-option="off" aria-pressed="false">${l.footer.analyticsOff}</button>
+        </div>
       </div>
     </div>`;
 }
@@ -1555,21 +1608,8 @@ function renderPage(l) {
   <script src="${l.assetBase}assets/theme-init.js?v=${assetVersion}"></script>
   <link rel="stylesheet" href="${l.assetBase}assets/styles.css?v=${assetVersion}">
   <script src="${l.assetBase}assets/app.js?v=${assetVersion}" defer></script>
-  <!-- Yandex.Metrika counter -->
-  <script type="text/javascript">
-    (function(m,e,t,r,i,k,a){
-      m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-      m[i].l=1*new Date();
-      for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=111159425', 'ym');
-
-    ym(111159425, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
-  </script>
-  <!-- /Yandex.Metrika counter -->
 </head>
 <body data-project-phase="before">
-  <noscript><div><img src="https://mc.yandex.ru/watch/111159425" style="position:absolute; left:-9999px;" alt=""></div></noscript>
   <script type="application/json" id="analytics-goal-registry">${analyticsRegistryJson}</script>
   <a class="skip-link" href="#main">${l.skip}</a>
 
@@ -1585,36 +1625,35 @@ function renderPage(l) {
         <span class="menu-toggle__icon" aria-hidden="true"></span>
       </summary>
       <nav class="site-nav" aria-label="${l.menu}">
-        <a
-          class="site-nav__live"
-          href="#diary"
-          data-nav-track
-          data-nav-title="${l.navLiveLabel}"
-        >
-          <span>${l.navLiveKicker}</span>
-          <strong>${l.navLiveLabel}</strong>
-        </a>
-        <div class="site-nav__primary">
-          ${renderNav(l.nav, { track: true })}
+        <div class="site-nav__chapters">
+          <a
+            class="site-nav__live"
+            href="#diary"
+            data-nav-track
+            data-nav-title="${l.navLiveLabel}"
+          >
+            <span>${l.navLiveKicker}</span>
+            <strong>${l.navLiveLabel}</strong>
+          </a>
+          <div class="site-nav__primary">
+            ${renderNav(l.nav, { track: true })}
+          </div>
         </div>
-        <div class="site-nav__utility">
-          <div class="site-nav__language">
-            <span>${l.footer.languageLabel}</span>
-            <a data-language-switch href="${l.alternateHref}" hreflang="${l.lang === "ru" ? "en" : "ru"}">${l.footer.languageCta}</a>
+        <div class="site-nav__utility" aria-label="${l.footer.settingsLabel}">
+          <div class="site-nav__status" data-menu-status>
+            <span class="site-nav__status-meta">${l.hero.statusMeta}</span>
+            <div class="site-nav__status-reading">
+              <strong data-menu-status-value data-optical-start>…</strong>
+              <span data-menu-status-label>${l.hero.statusFallback}</span>
+            </div>
           </div>
-          ${renderThemeSwitcher(l)}
-          <div class="site-nav__contacts">
-            <span>${l.footer.contactLabel}</span>
-            <a class="contact-action" href="${mailHref}" data-analytics-goal="contact_email">${icons.mail}${l.footer.emailCta}</a>
-            <a class="contact-action" href="${shared.telegramHref}" data-analytics-goal="contact_telegram" target="_blank" rel="noopener noreferrer">${icons.telegram}${l.footer.telegramCta}</a>
-          </div>
+          ${renderMenuSettings(l)}
           <a class="site-nav__cta action-primary" href="${mailHref}" data-analytics-goal="contact_email"><span>${l.footer.partnerCta}</span>${icons.external}</a>
         </div>
       </nav>
     </details>
 
     <div class="header-actions">
-      <a class="language-switch" data-language-switch href="${l.alternateHref}" hreflang="${l.lang === "ru" ? "en" : "ru"}">${l.alternateLabel}</a>
       <a class="header-cta" href="#partners" data-analytics-goal="partner_interest">${l.headerCta}</a>
     </div>
   </header>
@@ -2036,10 +2075,10 @@ function renderPage(l) {
           <h3 class="partners__cta">${l.partners.cta}</h3>
           <div class="partners__channels">
             <a class="contact-action" href="${mailHref}" data-analytics-goal="contact_email" aria-label="${l.partners.emailLabel}">
-              ${icons.mail}${l.partners.emailCta}
+              ${l.partners.emailCta}${icons.external}
             </a>
             <a class="contact-action" href="${shared.telegramHref}" data-analytics-goal="contact_telegram" aria-label="${l.partners.telegramLabel}" target="_blank" rel="noopener noreferrer">
-              ${icons.telegram}${l.partners.telegramCta}
+              ${l.partners.telegramCta}${icons.external}
             </a>
           </div>
           <p class="partners__person">

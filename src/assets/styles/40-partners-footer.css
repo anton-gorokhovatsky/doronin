@@ -1,6 +1,5 @@
 .partners {
   --partners-column-gap: clamp(1.5rem, 3vw, 3.5rem);
-  --partners-photo-height: clamp(42rem, 72vw, 68rem);
   --partners-line: rgba(241, 245, 237, 0.22);
   --partner-closing-background: var(--acid);
   --partner-closing-text: var(--ink);
@@ -22,10 +21,10 @@
 }
 
 .partners::before {
-  position: absolute;
-  z-index: -1;
-  inset: 0 0 auto;
-  height: var(--partners-photo-height);
+  z-index: 0;
+  grid-column: 1 / -1;
+  grid-row: 1 / 4;
+  margin-inline: calc(-1 * var(--page-gutter));
   background:
     linear-gradient(180deg, rgba(2, 22, 15, 0.16) 0%, rgba(2, 22, 15, 0.48) 58%, var(--ink-deep) 100%),
     linear-gradient(90deg, rgba(2, 22, 15, 0.82) 0%, rgba(2, 22, 15, 0.32) 58%, rgba(2, 22, 15, 0.38) 100%),
@@ -35,9 +34,10 @@
 }
 
 .partners::after {
-  position: absolute;
-  z-index: 0;
-  inset: var(--partners-photo-height) 0 0;
+  z-index: 1;
+  grid-column: 1 / -1;
+  grid-row: 1 / 4;
+  margin-inline: calc(-1 * var(--page-gutter));
   background: var(--glass-material);
   content: "";
   pointer-events: none;
@@ -47,11 +47,12 @@
 
 .partners > * {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .partners__intro {
   grid-column: 1 / -1;
+  grid-row: 1;
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   column-gap: var(--partners-column-gap);
@@ -59,11 +60,13 @@
 
 .partners__offer {
   grid-column: 1 / -1;
+  grid-row: 3;
   align-self: start;
 }
 
 .partners__closing {
   grid-column: 1 / -1;
+  grid-row: 5;
   position: relative;
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -108,6 +111,7 @@
 
 .partners__pitch {
   grid-column: 1 / -1;
+  grid-row: 2;
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   align-items: start;
@@ -196,6 +200,7 @@
 
 .partner-process {
   grid-column: 1 / -1;
+  grid-row: 4;
   min-width: 0;
 }
 
@@ -331,17 +336,16 @@
 
 .partners__channels {
   grid-column: 8 / -1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.55rem;
+  display: grid;
+  justify-items: start;
+  gap: 0.6rem;
 }
 
 .partners__channels a {
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: var(--contact-icon-gap);
+  justify-content: space-between;
+  gap: 0.75rem;
   width: fit-content;
   min-height: var(--contact-row-min-height);
   padding: 0;
@@ -349,7 +353,7 @@
   background: transparent;
   color: inherit;
   font-size: var(--type-action);
-  font-weight: 700;
+  font-weight: 650;
   text-decoration: underline;
   text-decoration-color: var(--contact-underline-color);
   text-underline-offset: 0.25em;

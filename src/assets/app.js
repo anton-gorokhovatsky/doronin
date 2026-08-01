@@ -16,7 +16,23 @@ const phaseFixture =
     : null;
 if (localFixtureHost && requestedTextScale === "200") {
   document.documentElement.dataset.textFixture = "200";
+  document.documentElement.classList.add("text-enlarged");
 }
+
+function syncTextEnlargement() {
+  const rootFontSize = Number.parseFloat(
+    getComputedStyle(document.documentElement).fontSize,
+  );
+  document.documentElement.classList.toggle(
+    "text-enlarged",
+    document.documentElement.dataset.textFixture === "200" ||
+      (Number.isFinite(rootFontSize) && rootFontSize >= 24),
+  );
+}
+
+syncTextEnlargement();
+window.addEventListener("resize", syncTextEnlargement, { passive: true });
+
 const supportedThemes = new Set(["system", "light", "dark"]);
 const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
 const storedTheme = document.documentElement.dataset.theme;
@@ -102,6 +118,90 @@ systemThemeQuery.addEventListener("change", () => {
   }
 });
 
+const supportedMotionPreferences = new Set(["system", "reduced"]);
+const systemReducedMotionQuery = window.matchMedia(
+  "(prefers-reduced-motion: reduce)",
+);
+let storedMotionPreference = "system";
+
+try {
+  storedMotionPreference = localStorage.getItem("motion") || "system";
+} catch {}
+
+let activeMotionPreference = supportedMotionPreferences.has(
+  storedMotionPreference,
+)
+  ? storedMotionPreference
+  : "system";
+const motionChangeListeners = new Set();
+const reducedMotion = {
+  get matches() {
+    return (
+      activeMotionPreference === "reduced" ||
+      (activeMotionPreference === "system" && systemReducedMotionQuery.matches)
+    );
+  },
+  addEventListener(type, listener) {
+    if (type === "change") motionChangeListeners.add(listener);
+  },
+  removeEventListener(type, listener) {
+    if (type === "change") motionChangeListeners.delete(listener);
+  },
+};
+
+function emitMotionPreferenceChange() {
+  const event = { matches: reducedMotion.matches };
+
+  for (const listener of motionChangeListeners) {
+    listener(event);
+  }
+}
+
+function syncMotionPreference() {
+  document.documentElement.classList.toggle(
+    "motion-reduced",
+    reducedMotion.matches,
+  );
+
+  for (const button of document.querySelectorAll("[data-motion-option]")) {
+    button.setAttribute(
+      "aria-pressed",
+      String(button.dataset.motionOption === activeMotionPreference),
+    );
+  }
+}
+
+function applyMotionPreference(preference, persist = true) {
+  const wasReduced = reducedMotion.matches;
+  activeMotionPreference = supportedMotionPreferences.has(preference)
+    ? preference
+    : "system";
+  syncMotionPreference();
+
+  if (persist) {
+    try {
+      if (activeMotionPreference === "system") {
+        localStorage.removeItem("motion");
+      } else {
+        localStorage.setItem("motion", activeMotionPreference);
+      }
+    } catch {}
+  }
+
+  if (wasReduced !== reducedMotion.matches) {
+    emitMotionPreferenceChange();
+  }
+}
+
+applyMotionPreference(activeMotionPreference, false);
+
+systemReducedMotionQuery.addEventListener?.("change", () => {
+  if (activeMotionPreference === "system") {
+    syncMotionPreference();
+    emitMotionPreferenceChange();
+  }
+});
+
 function syncOpticalStart(element) {
   if (!element) {
     return;
@@ -131,11 +231,90 @@ const analyticsGoals = new Map(
     : [],
 );
 const analyticsSafeValue = /^[a-z0-9_-]{1,48}$/i;
+let analyticsEnabled = true;
+let analyticsInitialized = false;
+
+try {
+  analyticsEnabled = localStorage.getItem("analytics") !== "off";
+} catch {}
+
+function syncAnalyticsPreference() {
+  for (const button of document.querySelectorAll("[data-analytics-option]")) {
+    button.setAttribute(
+      "aria-pressed",
+      String(
+        button.dataset.analyticsOption === (analyticsEnabled ? "on" : "off"),
+      ),
+    );
+  }
+}
+
+function initializeAnalytics() {
+  if (!analyticsEnabled || analyticsInitialized) {
+    return;
+  }
+
+  if (typeof window.ym !== "function") {
+    window.ym = function (...args) {
+      (window.ym.a ||= []).push(args);
+    };
+    window.ym.l = Date.now();
+  }
+
+  if (!document.querySelector("[data-analytics-loader]")) {
+    const loader = document.createElement("script");
+    loader.async = true;
+    loader.dataset.analyticsLoader = "";
+    loader.src = `https://mc.yandex.ru/metrika/tag.js?id=${analyticsRegistry.counterId}`;
+    document.head.append(loader);
+  }
+
+  window.ym(analyticsRegistry.counterId, "init", {
+    ssr: true,
+    webvisor: true,
+    clickmap: true,
+    ecommerce: "dataLayer",
+    referrer: document.referrer,
+    url: window.location.href,
+    accurateTrackBounce: true,
+    trackLinks: true,
+  });
+  analyticsInitialized = true;
+}
+
+function applyAnalyticsPreference(preference, persist = true) {
+  const shouldEnable = preference !== "off";
+
+  if (!shouldEnable && analyticsInitialized && typeof window.ym === "function") {
+    window.ym(analyticsRegistry.counterId, "destruct");
+    analyticsInitialized = false;
+  }
+
+  analyticsEnabled = shouldEnable;
+
+  if (persist) {
+    try {
+      if (analyticsEnabled) {
+        localStorage.removeItem("analytics");
+      } else {
+        localStorage.setItem("analytics", "off");
+      }
+    } catch {}
+  }
+
+  syncAnalyticsPreference();
+
+  if (analyticsEnabled) {
+    initializeAnalytics();
+  }
+}
+
+applyAnalyticsPreference(analyticsEnabled ? "on" : "off", false);
 
 function reachGoal(goal, params = {}) {
   const definition = analyticsGoals.get(goal);
 
-  if (!definition || typeof window.ym !== "function") {
+  if (!analyticsEnabled || !definition || typeof window.ym !== "function") {
     return;
   }
 
@@ -161,6 +340,18 @@ for (const button of document.querySelectorAll("[data-theme-option]")) {
   button.addEventListener("click", () => {
     reachGoal("theme_change", { theme: button.dataset.themeOption });
     applyTheme(button.dataset.themeOption);
+  });
+}
+
+for (const button of document.querySelectorAll("[data-motion-option]")) {
+  button.addEventListener("click", () => {
+    applyMotionPreference(button.dataset.motionOption);
+  });
+}
+
+for (const button of document.querySelectorAll("[data-analytics-option]")) {
+  button.addEventListener("click", () => {
+    applyAnalyticsPreference(button.dataset.analyticsOption);
   });
 }
 
@@ -242,7 +433,6 @@ const soundPlayer = document.querySelector("[data-sound-player]");
 const soundSceneButtons = Array.from(
   document.querySelectorAll("[data-sound-scene]"),
 );
-const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 if (heroVideo && videoToggle) {
   const videoToggleLabel = videoToggle.querySelector("[data-video-toggle-label]");
@@ -1093,6 +1283,25 @@ if (eventStatus) {
 
   if (partnerCountdown) {
     partnerCountdown.textContent = `${value.textContent} · ${label.textContent}`;
+  }
+
+  for (const menuStatus of document.querySelectorAll("[data-menu-status]")) {
+    const menuValue = menuStatus.querySelector("[data-menu-status-value]");
+    const menuLabel = menuStatus.querySelector("[data-menu-status-label]");
+
+    if (menuValue) {
+      menuValue.textContent = value.textContent;
+      syncOpticalStart(menuValue);
+    }
+
+    if (menuLabel) {
+      menuLabel.textContent = label.textContent;
+    }
+
+    menuStatus.setAttribute(
+      "aria-label",
+      `${value.textContent} ${label.textContent}`,
+    );
   }
 
   const footerCountdown = document.querySelector("[data-footer-countdown]");
