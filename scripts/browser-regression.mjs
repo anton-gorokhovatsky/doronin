@@ -59,6 +59,23 @@ async function auditPage(browser, browserName, origin, testCase) {
           testCase.menuLabel,
         `${prefix}: menu trigger does not use the stable Menu label`,
       );
+      const triggerTypography = await menuToggle.evaluate((element) => {
+        const label = getComputedStyle(
+          element.querySelector(".menu-toggle__label"),
+        );
+        const current = getComputedStyle(
+          element.querySelector(".menu-toggle__current"),
+        );
+        return {
+          label: [label.fontSize, label.fontWeight],
+          current: [current.fontSize, current.fontWeight],
+        };
+      });
+      expect(
+        JSON.stringify(triggerTypography.label) ===
+          JSON.stringify(triggerTypography.current),
+        `${prefix}: current chapter changes the menu typography on scroll (${JSON.stringify(triggerTypography)})`,
+      );
       const triggerAlignment = await menuToggle.evaluate((element) => {
         const label = element.querySelector(".menu-toggle__label").getBoundingClientRect();
         const icon = element.querySelector(".menu-toggle__icon").getBoundingClientRect();
@@ -107,7 +124,9 @@ async function auditPage(browser, browserName, origin, testCase) {
     }
 
     const initialBox = await menuToggle.boundingBox();
+    const initialLogoBox = await page.locator(".site-logo img").boundingBox();
     expect(initialBox, `${prefix}: menu trigger has no box`);
+    expect(initialLogoBox, `${prefix}: hero logo has no visible box`);
     const initialHeaderLayout = await page.evaluate(() => {
       const header = document.querySelector(".site-header").getBoundingClientRect();
       const actions = document.querySelector(".header-actions").getBoundingClientRect();
@@ -146,9 +165,83 @@ async function auditPage(browser, browserName, origin, testCase) {
       );
     }
 
+    if (testCase.viewport.width > 960) {
+      await page.locator("#adventures").scrollIntoViewIfNeeded();
+      await page.waitForTimeout(80);
+      const longChapter = await menuToggle.evaluate((element) => {
+        const current = element.querySelector(".menu-toggle__current");
+        const source = document.querySelector('.site-nav__link[href="#adventures"]');
+        return {
+          current: current.textContent.trim(),
+          source: source.textContent.trim(),
+          clientWidth: current.clientWidth,
+          scrollWidth: current.scrollWidth,
+        };
+      });
+      expect(
+        longChapter.current === longChapter.source &&
+          longChapter.scrollWidth <= longChapter.clientWidth + 1,
+        `${prefix}: long current chapter is clipped (${JSON.stringify(longChapter)})`,
+      );
+
+      await menuToggle.hover();
+      await page.waitForTimeout(220);
+      const menuHover = await menuToggle.evaluate((element) => {
+        const style = getComputedStyle(element);
+        const current = getComputedStyle(
+          element.querySelector(".menu-toggle__current"),
+        );
+        const primary = getComputedStyle(document.querySelector(".button--primary"));
+        return {
+          color: style.color,
+          currentColor: current.color,
+          borderColor: style.borderColor,
+          acid: primary.backgroundColor,
+        };
+      });
+      expect(
+        menuHover.color === menuHover.acid &&
+          menuHover.currentColor === menuHover.acid &&
+          menuHover.borderColor === menuHover.acid,
+        `${prefix}: scrolled Menu hover lost its acid state (${JSON.stringify(menuHover)})`,
+      );
+
+      const headerCta = page.locator(".header-cta");
+      await headerCta.hover();
+      const headerCtaHover = await headerCta.evaluate((element) => {
+        const style = getComputedStyle(element);
+        const primary = getComputedStyle(document.querySelector(".button--primary"));
+        return {
+          backgroundColor: style.backgroundColor,
+          color: style.color,
+          expectedBackground: primary.backgroundColor,
+          expectedColor: primary.color,
+        };
+      });
+      expect(
+        headerCtaHover.backgroundColor === headerCtaHover.expectedBackground &&
+          headerCtaHover.color === headerCtaHover.expectedColor,
+        `${prefix}: header CTA hover exposes a low-contrast transition (${JSON.stringify(headerCtaHover)})`,
+      );
+
+      await menuToggle.hover();
+    }
+
     await menuToggle.click();
     const nav = page.locator(".site-nav");
     await nav.waitFor({ state: "visible" });
+    const openBox = await menuToggle.boundingBox();
+    const openLogoBox = await page.locator(".site-logo img").boundingBox();
+    expect(
+      openBox && near(openBox.x + openBox.width, initialBox.x + initialBox.width, 1),
+      `${prefix}: open control no longer keeps the closed Menu edge (${JSON.stringify({ initialBox, openBox })})`,
+    );
+    expect(
+      openLogoBox &&
+        near(openLogoBox.x, initialLogoBox.x, 1) &&
+        near(openLogoBox.width, initialLogoBox.width, 1),
+      `${prefix}: logo changes axis or scale when the menu opens (${JSON.stringify({ initialLogoBox, openLogoBox })})`,
+    );
     const material = await page.evaluate((mobile) => {
       const readSurface = (element, pseudo = null) => {
         const style = getComputedStyle(element, pseudo);
@@ -213,28 +306,33 @@ async function auditPage(browser, browserName, origin, testCase) {
       expect(
         controlMaterials.logo.backgroundImage === "none" &&
           controlMaterials.logo.backgroundColor === "rgba(0, 0, 0, 0)" &&
-          controlMaterials.menu.backgroundImage === material.layer.backgroundImage,
-        `${prefix}: mobile open-state controls do not share the accepted material (${JSON.stringify(controlMaterials)})`,
+          controlMaterials.menu.backgroundImage === "none" &&
+          controlMaterials.menu.backgroundColor === "rgba(0, 0, 0, 0)",
+        `${prefix}: mobile open Menu control must remain an outline on the shared material (${JSON.stringify(controlMaterials)})`,
       );
     } else {
       expect(
-        controlMaterials.logo.backgroundImage === material.nav.backgroundImage &&
-          controlMaterials.menu.backgroundImage === material.nav.backgroundImage &&
+        controlMaterials.logo.backgroundImage === "none" &&
+          controlMaterials.logo.backgroundColor === "rgba(0, 0, 0, 0)" &&
+          controlMaterials.menu.backgroundImage === "none" &&
+          controlMaterials.menu.backgroundColor === "rgba(0, 0, 0, 0)" &&
           controlMaterials.headerCta.visibility === "hidden",
-        `${prefix}: desktop open-state controls diverged from the menu material (${JSON.stringify(controlMaterials)})`,
+        `${prefix}: desktop open Menu control must remain an outline on the shared material (${JSON.stringify(controlMaterials)})`,
       );
     }
     if (testCase.viewport.width <= 960) {
       const mobileMenu = await nav.evaluate((element) => ({
         clientHeight: element.clientHeight,
         scrollHeight: element.scrollHeight,
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
         top: element.getBoundingClientRect().top,
         headerBottom: document.querySelector(".site-header").getBoundingClientRect().bottom,
       }));
       expect(
-        mobileMenu.scrollHeight <= mobileMenu.clientHeight &&
+        mobileMenu.scrollWidth <= mobileMenu.clientWidth + 1 &&
           near(mobileMenu.top, mobileMenu.headerBottom, 2),
-        `${prefix}: regular mobile menu scrolls or is detached from the header`,
+        `${prefix}: mobile menu overflows horizontally or is detached from the header`,
       );
     }
 
@@ -265,6 +363,102 @@ async function auditPage(browser, browserName, origin, testCase) {
       expect(
         menuComposition.ctaRightDelta <= 1,
         `${prefix}: menu CTA no longer reaches the right edge`,
+      );
+    }
+
+    const proximity = await nav.evaluate((element) => {
+      const rect = (selector) =>
+        element.querySelector(selector)?.getBoundingClientRect() || null;
+      const textRect = (selector) => {
+        const node = element.querySelector(selector);
+        if (!node) return null;
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        return range.getBoundingClientRect();
+      };
+      const diaryTitle = rect(".site-nav__diary-title strong");
+      const diaryArrow = rect(".site-nav__diary-title .icon");
+      const diaryDescription = rect(".site-nav__diary small");
+      const diary = rect(".site-nav__diary");
+      const status = rect(".site-nav__status");
+      const firstRoute = rect(".site-nav__primary > .site-nav__link");
+      const lastRoute = rect(".site-nav__primary > .site-nav__link:last-child");
+      const firstSettingLabel = rect(".site-nav__setting-label");
+      const preview = rect(".site-nav__preview");
+      const previewIndex = textRect(".site-nav__preview-index");
+      const previewTitle = textRect(".site-nav__preview-title");
+      const previewKicker = rect(".site-nav__preview-kicker");
+      const logo =
+        document.querySelector(".site-logo img")?.getBoundingClientRect() || null;
+      const settingLabels = [...element.querySelectorAll(".site-nav__setting-label")]
+        .map((node) => node.getBoundingClientRect().left);
+      const mobileLeftAxes = [
+        logo?.left,
+        firstRoute?.left,
+        diary?.left,
+        firstSettingLabel?.left,
+      ].filter(Number.isFinite);
+
+      return {
+        diaryArrowGap:
+          diaryTitle && diaryArrow ? diaryArrow.left - diaryTitle.right : null,
+        diaryDescriptionGap:
+          diaryTitle && diaryDescription
+            ? diaryDescription.top - diaryTitle.bottom
+            : null,
+        diaryStatusCenterDelta:
+          diary && status
+            ? Math.abs(
+                diary.top + diary.height / 2 - (status.top + status.height / 2),
+              )
+            : null,
+        routeSettingsDelta:
+          firstRoute && firstSettingLabel
+            ? Math.abs(firstRoute.left - firstSettingLabel.left)
+            : null,
+        settingLabelsDelta:
+          settingLabels.length > 1
+            ? Math.max(...settingLabels) - Math.min(...settingLabels)
+            : 0,
+        routeDiaryGap:
+          lastRoute && diary ? diary.top - lastRoute.bottom : null,
+        mobileLeftAxisDelta:
+          mobileLeftAxes.length > 1
+            ? Math.max(...mobileLeftAxes) - Math.min(...mobileLeftAxes)
+            : 0,
+        previewLogoDelta:
+          previewKicker && logo ? Math.abs(previewKicker.left - logo.left) : null,
+        previewIndexShare:
+          preview && previewIndex ? previewIndex.width / preview.width : null,
+        previewTypeRatio:
+          previewIndex && previewTitle
+            ? previewIndex.height / previewTitle.height
+            : null,
+      };
+    });
+    expect(
+      proximity.diaryArrowGap >= 0 &&
+        proximity.diaryArrowGap <= 12 &&
+        proximity.diaryDescriptionGap >= 0 &&
+        proximity.diaryDescriptionGap <= 8,
+      `${prefix}: diary title, arrow, and description violate proximity (${JSON.stringify(proximity)})`,
+    );
+    if (testCase.viewport.width <= 960) {
+      expect(
+        proximity.settingLabelsDelta <= 1 &&
+          proximity.mobileLeftAxisDelta <= 1 &&
+          proximity.routeDiaryGap >= 28,
+        `${prefix}: mobile menu axes or route-to-diary grouping regressed (${JSON.stringify(proximity)})`,
+      );
+    }
+    if (testCase.viewport.width > 960) {
+      expect(
+        proximity.routeSettingsDelta <= 1 &&
+          proximity.previewLogoDelta <= 1 &&
+          proximity.diaryStatusCenterDelta <= 4 &&
+          proximity.previewIndexShare <= 0.48 &&
+          proximity.previewTypeRatio <= 3.25,
+        `${prefix}: desktop menu axes or preview hierarchy regressed (${JSON.stringify(proximity)})`,
       );
     }
 
@@ -371,6 +565,28 @@ async function auditPage(browser, browserName, origin, testCase) {
         `${prefix}: mobile audio rail does not reveal/snap the selected track (${JSON.stringify(audioRail)})`,
       );
     }
+    const audioProximity = await page.locator(".audio-story").evaluate((element) => {
+      const meta = element.querySelector(".audio-story__meta").getBoundingClientRect();
+      const title = element.querySelector(".audio-story__copy h2").getBoundingClientRect();
+      const contexts = element.querySelector(".audio-story__contexts");
+      const activeContext = contexts.querySelector("p:not([hidden])");
+      const contextStyle = getComputedStyle(contexts);
+      const segmentStyle = getComputedStyle(contexts, "::before");
+      return {
+        metaTitleRatio: meta.height / title.height,
+        contextBorderWidth: parseFloat(contextStyle.borderTopWidth),
+        contextSegmentWidth: parseFloat(segmentStyle.width),
+        activeContextTop: activeContext.getBoundingClientRect().top,
+        contextsTop: contexts.getBoundingClientRect().top,
+      };
+    });
+    expect(
+      audioProximity.metaTitleRatio < 0.75 &&
+        audioProximity.contextBorderWidth >= 1 &&
+        audioProximity.contextSegmentWidth > 0 &&
+        Math.abs(audioProximity.activeContextTop - audioProximity.contextsTop) <= 24,
+      `${prefix}: audio hierarchy or selected-track context regressed (${JSON.stringify(audioProximity)})`,
+    );
 
     const proof = page.locator(".proof-sources");
     const proofScrollBehavior = await page.evaluate(() => {
@@ -426,6 +642,32 @@ async function auditPage(browser, browserName, origin, testCase) {
       },
     );
     expect(partnerMetricsFit, `${prefix}: partner metric overflows its grid`);
+    const partnerProximity = await page.locator(".partners__contact-module").evaluate(
+      (element) => {
+        const label = element.querySelector(".partners__person span").getBoundingClientRect();
+        const person = element.querySelector(".partners__person strong").getBoundingClientRect();
+        return {
+          contactGap: person.left - label.right,
+        };
+      },
+    );
+    expect(
+      partnerProximity.contactGap >= 0 && partnerProximity.contactGap <= 16,
+      `${prefix}: partner contact label and person violate proximity (${JSON.stringify(partnerProximity)})`,
+    );
+    const firstPartnerAction = page.locator(".partners__channels a").first();
+    await firstPartnerAction.hover();
+    await page.waitForTimeout(220);
+    const partnerHover = await firstPartnerAction.evaluate((element) => ({
+      backgroundColor: getComputedStyle(element).backgroundColor,
+      textDecorationColor: getComputedStyle(element.querySelector("span"))
+        .textDecorationColor,
+    }));
+    expect(
+      partnerHover.backgroundColor === "rgba(0, 0, 0, 0)" &&
+        partnerHover.textDecorationColor !== "rgba(0, 0, 0, 0)",
+      `${prefix}: partner CTA hover creates a false card or loses its cue (${JSON.stringify(partnerHover)})`,
+    );
 
     if (testCase.viewport.width <= 390) {
       expect(

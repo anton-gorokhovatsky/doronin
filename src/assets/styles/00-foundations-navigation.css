@@ -542,9 +542,7 @@ a {
   padding: 0.78rem 1rem;
   border: 1px solid var(--glass-border);
   background: transparent;
-  transition:
-    color 160ms var(--ease-move),
-    background-color 160ms var(--ease-move);
+  transition: border-color 160ms var(--ease-move);
 }
 
 .header-cta:hover {

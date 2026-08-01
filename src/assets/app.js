@@ -660,6 +660,11 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
   function syncSoundControls() {
     const isPlaying = !effortAudio.paused && !effortAudio.ended;
 
+    soundPlayer.style.setProperty(
+      "--active-scene-index",
+      String(activeSoundScene),
+    );
+
     for (const [index, button] of soundSceneButtons.entries()) {
       const isActive = index === activeSoundScene;
       const label =
@@ -1525,6 +1530,11 @@ function syncMenuPreview(link) {
   menuPreviewIndex.textContent = link.dataset.navIndex;
   menuPreviewTitle.textContent =
     link.dataset.navTitle || link.textContent.trim();
+
+  if (menuPreviewImage) {
+    menuPreviewImage.style.objectPosition =
+      link.dataset.navPosition || "50% 50%";
+  }
 
   if (
     menuPreviewImage &&

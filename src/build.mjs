@@ -1053,14 +1053,16 @@ const locales = {
   },
 };
 
-const navigationPreviewImages = [
-  "hero.jpg",
-  "distance-bike-presence.jpg",
-  "portrait.jpg",
-  "story-bridge.jpg",
-  "adventure-ladoga.jpg",
-  "interview-04.jpg",
-  "partner-community-motion.jpg",
+// Menu-only film stills come from the project folder supplied by the client;
+// section media below keeps its own editorial crop and loading contract.
+const navigationPreviews = [
+  { file: "hero.jpg", position: "50% 50%" },
+  { file: "nav-adventures-film.jpg", position: "57% 50%" },
+  { file: "portrait.jpg", position: "62% 50%" },
+  { file: "nav-film-detail.jpg", position: "50% 50%" },
+  { file: "nav-adventures-aerial-straight.jpg", position: "50% 50%" },
+  { file: "nav-interview-studio.jpg", position: "58% 50%" },
+  { file: "partner-community-motion.jpg", position: "50% 50%" },
 ];
 
 function renderNav(items, { track = false, assetBase = "" } = {}) {
@@ -1075,7 +1077,7 @@ function renderNav(items, { track = false, assetBase = "" } = {}) {
         ? ` data-analytics-goal="${analyticsGoal}"`
         : "";
       const trackingAttributes = track
-        ? ` data-nav-track data-nav-title="${label}" data-nav-index="${String(index + 1).padStart(2, "0")}" data-nav-image="${assetBase}assets/${navigationPreviewImages[index]}"`
+        ? ` data-nav-track data-nav-title="${label}" data-nav-index="${String(index + 1).padStart(2, "0")}" data-nav-image="${assetBase}assets/${navigationPreviews[index].file}" data-nav-position="${navigationPreviews[index].position}"`
         : "";
 
       return `<a class="site-nav__link" href="${href}"${analyticsAttribute}${trackingAttributes}>${label}</a>`;
@@ -1644,10 +1646,11 @@ function renderPage(l) {
           <div class="site-nav__preview" aria-hidden="true">
             <figure class="site-nav__preview-media">
               <img
-                src="${l.assetBase}assets/${navigationPreviewImages[0]}"
+                src="${l.assetBase}assets/${navigationPreviews[0].file}"
                 alt=""
                 width="1600"
                 height="900"
+                style="object-position: ${navigationPreviews[0].position}"
                 data-menu-preview-image
               >
             </figure>
@@ -1667,11 +1670,13 @@ function renderPage(l) {
               data-nav-track
               data-nav-title="${l.navLiveLabel}"
             >
-              <span>
-                <strong>${l.navDiaryLabel}</strong>
+              <span class="site-nav__diary-copy">
+                <span class="site-nav__diary-title">
+                  <strong>${l.navDiaryLabel}</strong>
+                  ${icons.down}
+                </span>
                 <small>${l.navDiaryNote}</small>
               </span>
-              ${icons.down}
             </a>
             <div class="site-nav__status" data-menu-status>
               <span class="site-nav__status-meta">${l.hero.statusMeta}</span>
@@ -2164,8 +2169,10 @@ function renderPage(l) {
       <div class="site-footer__utility">
         <p>${l.footer.utilityLabel}</p>
         ${renderThemeSwitcher(l)}
-        <a data-language-switch href="${l.alternateHref}" hreflang="${l.lang === "ru" ? "en" : "ru"}">${l.footer.languageCta}${icons.external}</a>
-        <a href="#top">${l.footer.top}${icons.up}</a>
+        <div class="site-footer__utility-links">
+          <a data-language-switch href="${l.alternateHref}" hreflang="${l.lang === "ru" ? "en" : "ru"}">${l.footer.languageCta}${icons.external}</a>
+          <a href="#top">${l.footer.top}${icons.up}</a>
+        </div>
       </div>
     </div>
 
