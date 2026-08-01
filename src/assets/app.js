@@ -172,7 +172,7 @@ if (proofSources) {
   let proofSourcesPreviousOverflowAnchor = null;
   let proofSourcesPreviousScrollBehavior = null;
 
-  function stopProofSourcesRestoration() {
+  function stopProofSourcesRestoration({ restoreOverflowAnchor = true } = {}) {
     if (proofSourcesRestoreFrame) {
       cancelAnimationFrame(proofSourcesRestoreFrame);
       proofSourcesRestoreFrame = 0;
@@ -184,7 +184,10 @@ if (proofSources) {
       proofSourcesPreviousScrollBehavior = null;
     }
 
-    if (proofSourcesPreviousOverflowAnchor !== null) {
+    if (
+      restoreOverflowAnchor &&
+      proofSourcesPreviousOverflowAnchor !== null
+    ) {
       document.documentElement.style.overflowAnchor =
         proofSourcesPreviousOverflowAnchor;
       proofSourcesPreviousOverflowAnchor = null;
@@ -222,7 +225,9 @@ if (proofSources) {
           restoreProofSourcesPosition,
         );
       } else {
-        stopProofSourcesRestoration();
+        stopProofSourcesRestoration({
+          restoreOverflowAnchor: !proofSources.open,
+        });
       }
     }
 
