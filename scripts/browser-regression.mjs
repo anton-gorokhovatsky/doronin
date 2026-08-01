@@ -279,12 +279,17 @@ async function auditPage(browser, browserName, origin, testCase) {
     }
 
     const proof = page.locator(".proof-sources");
-    await page.evaluate(() => {
-      const previous = document.documentElement.style.scrollBehavior;
-      document.documentElement.style.scrollBehavior = "auto";
-      document.querySelector(".proof-sources").scrollIntoView({ block: "center" });
-      document.documentElement.style.scrollBehavior = previous;
+    const proofScrollBehavior = await page.evaluate(() => {
+      const root = document.documentElement;
+      const previous = root.style.scrollBehavior;
+      root.style.scrollBehavior = "auto";
+      document.querySelector(".proof-sources").scrollIntoView({
+        behavior: "instant",
+        block: "center",
+      });
+      return previous;
     });
+    await page.waitForTimeout(80);
     const beforeOpen = await proof.locator("summary").evaluate((element) =>
       element.getBoundingClientRect().top,
     );
@@ -293,6 +298,9 @@ async function auditPage(browser, browserName, origin, testCase) {
     const afterOpen = await proof.locator("summary").evaluate((element) =>
       element.getBoundingClientRect().top,
     );
+    await page.evaluate((previous) => {
+      document.documentElement.style.scrollBehavior = previous;
+    }, proofScrollBehavior);
     expect(
       Math.abs(afterOpen - beforeOpen) <= 1,
       `${prefix}: proof disclosure shifted its anchor by ${afterOpen - beforeOpen}px`,
