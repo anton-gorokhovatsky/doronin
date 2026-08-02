@@ -37,7 +37,7 @@ async function capture(browser, origin, spec) {
     viewport: spec.viewport,
   });
   if (spec.blockVideo !== false) {
-    await context.route("**/*.mp4", (route) => route.abort());
+    await context.route(/\.mp4(?:\?.*)?$/u, (route) => route.abort());
   }
   const page = await context.newPage();
   await page.route("https://mc.yandex.ru/**", (route) => route.abort());
