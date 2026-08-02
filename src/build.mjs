@@ -50,6 +50,11 @@ const assetVersion = createHash("sha256")
   .update(await readFile(resolve(assetSource, "theme-init.js")))
   .digest("hex")
   .slice(0, 10);
+const heroVideoVersion = createHash("sha256")
+  .update(await readFile(resolve(assetSource, "hero-loop.mp4")))
+  .update(await readFile(resolve(assetSource, "hero-loop-mobile.mp4")))
+  .digest("hex")
+  .slice(0, 10);
 
 await rm(outputRoot, { recursive: true, force: true });
 
@@ -1718,8 +1723,8 @@ function renderPage(l) {
           poster="${l.assetBase}assets/hero.jpg"
           aria-hidden="true"
         >
-          <source src="${l.assetBase}assets/hero-loop-mobile.mp4" type="video/mp4" media="(max-width: 640px)">
-          <source src="${l.assetBase}assets/hero-loop.mp4" type="video/mp4">
+          <source src="${l.assetBase}assets/hero-loop-mobile.mp4?v=${heroVideoVersion}" type="video/mp4" media="(max-width: 640px)">
+          <source src="${l.assetBase}assets/hero-loop.mp4?v=${heroVideoVersion}" type="video/mp4">
         </video>
       </figure>
       <div class="hero__veil" aria-hidden="true"></div>
