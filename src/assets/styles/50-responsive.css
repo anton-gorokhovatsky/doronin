@@ -898,6 +898,16 @@
       clamp(2rem, 6svh, 3.25rem);
   }
 
+  .hero__kicker,
+  .hero__intro {
+    hanging-punctuation: none;
+    text-wrap: wrap;
+  }
+
+  .hero__intro {
+    max-width: 31ch;
+  }
+
   .hero__title {
     max-width: 100%;
   }
