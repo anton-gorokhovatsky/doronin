@@ -994,7 +994,7 @@
 
   .audio-story__contexts::before {
     left: 0;
-    width: 82%;
+    width: min(82vw, 100%);
   }
 
   .audio-story__contexts p {
