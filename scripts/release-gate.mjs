@@ -6,6 +6,7 @@ const steps = [
   ["Status schema", process.execPath, ["scripts/validate-project-status.mjs"]],
   ["Production build", process.execPath, ["src/build.mjs"]],
   ["Static contract", process.execPath, ["src/check.mjs"]],
+  ["Accessibility matrix", process.execPath, ["scripts/accessibility-gate.mjs"]],
   ["Chromium/WebKit regression", process.execPath, ["scripts/browser-regression.mjs"]],
   ["Screenshot gate", process.execPath, ["scripts/screenshot-gate.mjs"]],
   ["Whitespace/errors", "git", ["diff", "--check"]],

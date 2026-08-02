@@ -356,13 +356,15 @@
 }
 
 .audio-story__storyline button strong {
-  overflow: hidden;
+  min-width: 0;
+  overflow: visible;
   color: currentColor;
   font-size: var(--type-micro);
   line-height: 1.25;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
   text-transform: uppercase;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .audio-story__storyline button[data-playing="true"] .audio-story__wave {

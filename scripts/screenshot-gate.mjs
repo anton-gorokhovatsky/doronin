@@ -32,6 +32,7 @@ async function selectTheme(page, locale, theme, keepMenuOpen = false) {
 async function capture(browser, origin, spec) {
   const context = await browser.newContext({
     colorScheme: spec.colorScheme || "light",
+    forcedColors: spec.forcedColors || "none",
     reducedMotion: spec.reducedMotion || "no-preference",
     viewport: spec.viewport,
   });
@@ -59,6 +60,45 @@ async function capture(browser, origin, spec) {
     }
     if (Number.isInteger(spec.audioScene)) {
       await page.locator("[data-sound-scene]").nth(spec.audioScene).click();
+    }
+    if (Number.isFinite(spec.videoFrame)) {
+      await page.locator("[data-hero-video]").evaluate(
+        async (video, frame) => {
+          if (video.readyState < 1) {
+            await new Promise((resolve, reject) => {
+              const timeout = setTimeout(
+                () => reject(new Error("Hero video metadata timeout")),
+                5000,
+              );
+              video.addEventListener(
+                "loadedmetadata",
+                () => {
+                  clearTimeout(timeout);
+                  resolve();
+                },
+                { once: true },
+              );
+              video.addEventListener(
+                "error",
+                () => {
+                  clearTimeout(timeout);
+                  reject(new Error("Hero video failed before frame capture"));
+                },
+                { once: true },
+              );
+            });
+          }
+          video.pause();
+          video.currentTime = Math.max(
+            0,
+            Math.min(video.duration - 0.05, video.duration * frame),
+          );
+          await new Promise((resolve) =>
+            video.addEventListener("seeked", resolve, { once: true }),
+          );
+        },
+        spec.videoFrame,
+      );
     }
     if (spec.keyboardFocus) {
       for (let index = 0; index < spec.keyboardFocus; index += 1) {
@@ -89,6 +129,7 @@ async function capture(browser, origin, spec) {
         clientWidth: document.documentElement.clientWidth,
         ctaVisible: Boolean(cta && cta.width > 0 && cta.height > 0),
         fontSize: getComputedStyle(document.documentElement).fontSize,
+        forcedColors: matchMedia("(forced-colors: active)").matches,
         heroPaused: video ? video.paused : null,
         videoToggleHidden: document.querySelector(".hero__media-toggle")?.hidden ?? null,
         lang: document.documentElement.lang,
@@ -171,6 +212,9 @@ async function capture(browser, origin, spec) {
     }
     if (spec.expectVideoFallback) {
       expect(metrics.videoToggleHidden === true, `${spec.name}: failed video kept a false control`);
+    }
+    if (spec.forcedColors === "active") {
+      expect(metrics.forcedColors, `${spec.name}: forced colors did not activate`);
     }
     if (spec.textScale) {
       expect(parseFloat(metrics.fontSize) >= 31.9, `${spec.name}: 200% text scale missing`);
@@ -316,6 +360,42 @@ const specs = [
     theme: "system",
     expectVideoFallback: true,
     viewport: { width: 1440, height: 900 },
+  },
+  ...[0.12, 0.5, 0.88].map((videoFrame, index) => ({
+    name: `ru-1440-video-contrast-${index + 1}`,
+    path: `/?gate=ru-video-contrast-${index + 1}#top`,
+    locale: "ru",
+    theme: "system",
+    blockVideo: false,
+    videoFrame,
+    viewport: { width: 1440, height: 900 },
+  })),
+  {
+    name: "ru-1280-forced-colors-top",
+    path: "/?gate=ru-forced-colors#top",
+    locale: "ru",
+    theme: "system",
+    forcedColors: "active",
+    blockVideo: false,
+    viewport: { width: 1280, height: 720 },
+  },
+  {
+    name: "ru-1280-text-200-athlete",
+    path: "/?gate=ru-text-200-athlete&text=200#about",
+    locale: "ru",
+    theme: "system",
+    target: ".athlete",
+    textScale: 200,
+    viewport: { width: 1280, height: 720 },
+  },
+  {
+    name: "ru-1280-text-200-footer",
+    path: "/?gate=ru-text-200-footer&text=200#partners",
+    locale: "ru",
+    theme: "system",
+    target: ".site-footer__intro",
+    textScale: 200,
+    viewport: { width: 1280, height: 720 },
   },
   {
     name: "en-1440-light-top",

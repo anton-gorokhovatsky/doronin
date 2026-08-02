@@ -1419,10 +1419,62 @@ if (diaryVideo) {
 }
 
 const desktopNavigation = window.matchMedia("(min-width: 961px)");
+const menuFocusableSelector = [
+  "summary",
+  "a[href]",
+  "button:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+const menuIsolationState = new Map();
+
+function getMenuFocusables(navigation) {
+  return [...navigation.querySelectorAll(menuFocusableSelector)].filter(
+    (element) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return (
+        !element.inert &&
+        style.display !== "none" &&
+        style.visibility !== "hidden" &&
+        rect.width > 0 &&
+        rect.height > 0
+      );
+    },
+  );
+}
+
+function syncMenuIsolation(navigation) {
+  const header = navigation.closest(".site-header");
+
+  if (navigation.open) {
+    const targets = [
+      ...[...document.body.children].filter(
+        (element) => element !== header && !["SCRIPT", "STYLE"].includes(element.tagName),
+      ),
+      ...[...(header?.children || [])].filter(
+        (element) => element !== navigation,
+      ),
+    ];
+
+    for (const target of targets) {
+      if (!menuIsolationState.has(target)) {
+        menuIsolationState.set(target, target.inert);
+      }
+      target.inert = true;
+    }
+    return;
+  }
+
+  for (const [target, wasInert] of menuIsolationState) {
+    target.inert = wasInert;
+  }
+  menuIsolationState.clear();
+}
 
 function syncNavigationMode() {
   for (const navigation of document.querySelectorAll(".nav-shell")) {
     navigation.removeAttribute("open");
+    syncMenuIsolation(navigation);
   }
 }
 
@@ -1431,6 +1483,8 @@ desktopNavigation.addEventListener?.("change", syncNavigationMode);
 
 for (const navigation of document.querySelectorAll(".nav-shell")) {
   navigation.addEventListener("toggle", () => {
+    syncMenuIsolation(navigation);
+
     if (navigation.open) {
       reachGoal("menu_open", { location: "header" });
     }
@@ -1445,9 +1499,35 @@ for (const navigation of document.querySelectorAll(".nav-shell")) {
 }
 
 document.addEventListener("keydown", (event) => {
+  const openNavigation = document.querySelector(".nav-shell[open]");
+
+  if (event.key === "Tab" && openNavigation) {
+    const focusables = getMenuFocusables(openNavigation);
+    const first = focusables[0];
+    const last = focusables.at(-1);
+    const active = document.activeElement;
+
+    if (!first || !last) {
+      event.preventDefault();
+      return;
+    }
+
+    if (!openNavigation.contains(active)) {
+      event.preventDefault();
+      first.focus();
+    } else if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
   if (event.key === "Escape") {
     for (const navigation of document.querySelectorAll(".nav-shell[open]")) {
       navigation.removeAttribute("open");
+      syncMenuIsolation(navigation);
       navigation.querySelector("summary")?.focus();
     }
   }

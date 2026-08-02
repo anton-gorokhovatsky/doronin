@@ -539,7 +539,7 @@
 
 .site-footer__intro {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 25rem);
   gap: 2.5rem;
   align-items: end;
   padding-top: 1.25rem;
@@ -579,7 +579,8 @@
   justify-content: space-between;
   align-self: end;
   gap: var(--action-gap);
-  min-width: min(100%, 25rem);
+  min-width: 0;
+  width: 100%;
   min-height: var(--action-min-height);
   padding: var(--action-padding-block) var(--action-padding-inline);
   border: 0;
@@ -588,6 +589,7 @@
   font-size: var(--type-action);
   font-weight: 700;
   letter-spacing: 0.06em;
+  overflow-wrap: anywhere;
   text-transform: uppercase;
   transition:
     background-color 180ms var(--ease-move),

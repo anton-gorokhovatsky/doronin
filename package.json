@@ -9,11 +9,13 @@
     "check": "node src/check.mjs",
     "status:check": "node scripts/validate-project-status.mjs",
     "status:update": "node scripts/update-project-status.mjs",
+    "test:a11y": "node scripts/accessibility-gate.mjs",
     "test:browser": "node scripts/browser-regression.mjs",
     "gate:screenshots": "node scripts/screenshot-gate.mjs",
     "gate": "node scripts/release-gate.mjs"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.12.1",
     "playwright": "1.61.1"
   }
 }

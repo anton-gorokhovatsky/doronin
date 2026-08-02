@@ -504,7 +504,7 @@ const locales = {
         ],
         [
           "Медиа",
-          "Совместно рассказываем историю до старта, во время проекта и после финиша.",
+          "Вместе фиксируем реальный ход проекта и превращаем его в последовательную медийную историю.",
         ],
       ],
       processLabel: "Как начинается работа",
@@ -519,7 +519,7 @@ const locales = {
         ],
         [
           "Проходим путь",
-          "Работаем до старта, все 31 день проекта и после финиша.",
+          "Ведём работу от первого решения до итогового результата.",
         ],
       ],
       proofLabel: "Опыт, который уже работает",
@@ -985,7 +985,7 @@ const locales = {
         ],
         [
           "Media",
-          "We tell the story together before the start, throughout the project and after the finish.",
+          "Together, we document the project as it unfolds and shape it into one coherent media story.",
         ],
       ],
       processLabel: "How the work begins",
@@ -1000,7 +1000,7 @@ const locales = {
         ],
         [
           "Share the journey",
-          "Work before the start, throughout all 31 days and after the finish.",
+          "Work from the first decision to the final result.",
         ],
       ],
       proofLabel: "Experience that already works",

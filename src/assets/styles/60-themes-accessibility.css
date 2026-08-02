@@ -174,3 +174,71 @@ html.motion-reduced *::after {
 html[data-text-fixture="200"] {
   font-size: 200%;
 }
+
+/* Text-only zoom does not change CSS media-query widths. Collapse editorial
+ * columns whose rem-based minimums would otherwise force a second horizontal
+ * reading direction at 200% text. */
+:root.text-enlarged .athlete {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3rem;
+}
+
+:root.text-enlarged .athlete__media {
+  position: relative;
+  top: auto;
+  width: min(100%, 34rem);
+}
+
+:root.text-enlarged .proof-source,
+:root.text-enlarged .proof-source:nth-child(even) {
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.75rem 1rem;
+}
+
+:root.text-enlarged .proof-source h3,
+:root.text-enlarged .proof-source p,
+:root.text-enlarged .proof-source__links {
+  grid-column: 2;
+}
+
+:root.text-enlarged .proof-source__links > div {
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(6.25rem, 100%), 1fr)
+  );
+}
+
+:root.text-enlarged .site-footer__directory {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2rem;
+}
+
+:root.text-enlarged .site-footer__intro {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 2rem;
+}
+
+:root.text-enlarged .site-footer h2 span:last-child {
+  white-space: normal;
+}
+
+:root.text-enlarged .site-footer__cta {
+  min-width: 0;
+  width: min(100%, 25rem);
+  overflow-wrap: anywhere;
+}
+
+:root.text-enlarged .site-footer__nav,
+:root.text-enlarged .site-footer__utility {
+  grid-column: 1;
+}
+
+:root.text-enlarged .site-footer__nav {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+:root.text-enlarged .site-footer__nav .site-nav__link {
+  overflow: visible;
+  overflow-wrap: anywhere;
+}
