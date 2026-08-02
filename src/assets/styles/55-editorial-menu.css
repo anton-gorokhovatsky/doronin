@@ -1441,6 +1441,36 @@
   }
 }
 
+@media (max-width: 640px) {
+  :root .site-nav__journey {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.75rem;
+  }
+
+  :root .site-nav__status {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: start;
+  }
+
+  :root .site-nav__settings {
+    gap: 0.8rem;
+  }
+
+  :root .site-nav__setting {
+    min-height: 2.75rem;
+  }
+
+  :root .site-nav__setting-options {
+    gap: 0.75rem;
+  }
+
+  :root .site-nav__setting-options :where(button, a, span) {
+    min-height: 2.75rem;
+    padding: 0.45rem 0.4rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .nav-shell[open] .site-nav,
   .site-nav__preview-media img.is-changing {

@@ -230,6 +230,25 @@ async function auditPage(browser, browserName, origin, testCase) {
     await menuToggle.click();
     const nav = page.locator(".site-nav");
     await nav.waitFor({ state: "visible" });
+    await page.evaluate(
+      () => new Promise((resolve) => requestAnimationFrame(resolve)),
+    );
+    const previewChapter = await nav.evaluate((element) => ({
+      activeIndex:
+        element.querySelector('.site-nav__link[aria-current="location"]')
+          ?.dataset.navIndex ||
+        element.querySelector(".site-nav__link[data-nav-index]")?.dataset
+          .navIndex ||
+        "",
+      previewIndex:
+        element.querySelector("[data-menu-preview-index]")?.textContent.trim() ||
+        "",
+    }));
+    expect(
+      previewChapter.activeIndex &&
+        previewChapter.previewIndex === previewChapter.activeIndex,
+      `${prefix}: menu preview is detached from the current chapter (${JSON.stringify(previewChapter)})`,
+    );
     const openBox = await menuToggle.boundingBox();
     const openLogoBox = await page.locator(".site-logo img").boundingBox();
     expect(
@@ -340,6 +359,13 @@ async function auditPage(browser, browserName, origin, testCase) {
       const settings = [...element.querySelectorAll(".site-nav__setting")];
       const diary = element.querySelector(".site-nav__diary");
       const cta = element.querySelector(".site-nav__cta").getBoundingClientRect();
+      const navBox = element.getBoundingClientRect();
+      const status = element.querySelector(".site-nav__status").getBoundingClientRect();
+      const settingTargets = [
+        ...element.querySelectorAll(
+          ".site-nav__setting-options button, .site-nav__setting-options a",
+        ),
+      ].map((target) => target.getBoundingClientRect());
       return {
         settings: settings.map((setting) =>
           setting.textContent.trim().replace(/\s+/g, " "),
@@ -350,6 +376,10 @@ async function auditPage(browser, browserName, origin, testCase) {
         diaryHref: diary?.getAttribute("href") || "",
         diaryDescription: diary?.querySelector("small")?.textContent.trim() || "",
         ctaRightDelta: Math.abs(innerWidth - cta.right),
+        statusRightOverflow: Math.max(0, status.right - navBox.right),
+        settingTargetMinHeight: Math.min(
+          ...settingTargets.map((target) => target.height),
+        ),
       };
     });
     expect(
@@ -363,6 +393,12 @@ async function auditPage(browser, browserName, origin, testCase) {
       expect(
         menuComposition.ctaRightDelta <= 1,
         `${prefix}: menu CTA no longer reaches the right edge`,
+      );
+    } else {
+      expect(
+        menuComposition.statusRightOverflow <= 1 &&
+          menuComposition.settingTargetMinHeight >= 44,
+        `${prefix}: mobile status clips or settings targets are too small (${JSON.stringify(menuComposition)})`,
       );
     }
 
@@ -412,6 +448,8 @@ async function auditPage(browser, browserName, origin, testCase) {
                 diary.top + diary.height / 2 - (status.top + status.height / 2),
               )
             : null,
+        diaryStatusGap:
+          diary && status ? status.top - diary.bottom : null,
         routeSettingsDelta:
           firstRoute && firstSettingLabel
             ? Math.abs(firstRoute.left - firstSettingLabel.left)
@@ -447,7 +485,9 @@ async function auditPage(browser, browserName, origin, testCase) {
       expect(
         proximity.settingLabelsDelta <= 1 &&
           proximity.mobileLeftAxisDelta <= 1 &&
-          proximity.routeDiaryGap >= 28,
+          proximity.routeDiaryGap >= 28 &&
+          proximity.diaryStatusGap >= 28 &&
+          proximity.diaryStatusGap <= 40,
         `${prefix}: mobile menu axes or route-to-diary grouping regressed (${JSON.stringify(proximity)})`,
       );
     }
