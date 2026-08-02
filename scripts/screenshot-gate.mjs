@@ -231,6 +231,12 @@ async function capture(browser, origin, spec) {
     if (spec.expectMenuFit) {
       expect(metrics.menuOpen && metrics.menuFits, `${spec.name}: menu requires scrolling`);
     }
+    if (spec.expectMenuScroll) {
+      expect(
+        metrics.menuOpen && metrics.menuFits === false,
+        `${spec.name}: mobile menu no longer exposes its intended scroll route`,
+      );
+    }
     if (spec.expectedPhase) {
       expect(
         metrics.projectPhase === spec.expectedPhase &&
@@ -298,7 +304,7 @@ const specs = [
     locale: "ru",
     theme: "system",
     menuOpen: true,
-    expectMenuFit: true,
+    expectMenuScroll: true,
     viewport: { width: 390, height: 844 },
   },
   {
@@ -314,7 +320,7 @@ const specs = [
     locale: "ru",
     theme: "system",
     menuOpen: true,
-    expectMenuFit: true,
+    expectMenuScroll: true,
     viewport: { width: 320, height: 844 },
   },
   {
