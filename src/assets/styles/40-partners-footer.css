@@ -353,7 +353,8 @@
   align-self: end;
   font-family: var(--display);
   color: var(--partner-closing-accent);
-  font-size: clamp(3.4rem, calc(0.75rem + 2.95vw), 5.25rem);
+  font-size: max(3.4rem, var(--type-number-card));
+  font-weight: 700;
   line-height: 1;
   white-space: nowrap;
 }
