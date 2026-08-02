@@ -157,7 +157,7 @@
   gap: 0.65rem;
   min-width: 0;
   color: var(--paper-dim);
-  font-size: var(--type-micro);
+  font-size: var(--type-service);
   font-weight: 800;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -190,8 +190,8 @@
 .audio-story__copy h2 {
   margin: 0;
   font-family: var(--display);
-  font-size: clamp(1.55rem, 2.45vw, 3.1rem);
-  line-height: 0.98;
+  font-size: var(--type-chapter-compact);
+  line-height: var(--leading-chapter);
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -200,8 +200,8 @@
   max-width: 38ch;
   margin-top: 0.8rem;
   color: rgba(217, 226, 217, 0.7);
-  font-size: var(--type-body);
-  line-height: 1.5;
+  font-size: var(--type-copy);
+  line-height: var(--leading-copy);
 }
 
 .audio-story__player {
@@ -332,7 +332,7 @@
 }
 
 .audio-story__scene-head > span {
-  font-size: var(--type-micro);
+  font-size: var(--type-service);
   font-weight: 800;
   letter-spacing: 0.08em;
 }
@@ -359,7 +359,7 @@
   min-width: 0;
   overflow: visible;
   color: currentColor;
-  font-size: var(--type-micro);
+  font-size: var(--type-service);
   line-height: 1.25;
   overflow-wrap: anywhere;
   text-overflow: clip;
@@ -400,7 +400,7 @@
   margin: 0;
   padding: 0 1rem;
   color: rgba(217, 226, 217, 0.68);
-  font-size: var(--type-caption);
+  font-size: var(--type-service-strong);
   line-height: 1.35;
 }
 
@@ -412,7 +412,7 @@
   grid-column: 1;
   padding-inline: 0;
   color: var(--paper);
-  font-size: var(--type-micro);
+  font-size: var(--type-service);
   letter-spacing: 0.06em;
   line-height: 1.2;
   text-transform: uppercase;
@@ -433,7 +433,7 @@
 .hero__kicker {
   max-width: 100%;
   margin: 0 0 1.75rem;
-  font-size: var(--type-label);
+  font-size: var(--type-service);
   font-weight: 700;
   letter-spacing: 0.12em;
   overflow-wrap: anywhere;
@@ -473,8 +473,9 @@
 .hero__intro {
   max-width: 34ch;
   margin: 2rem 0 0;
-  font-size: var(--type-lead);
+  font-size: var(--type-copy-lead);
   font-weight: 500;
+  line-height: var(--leading-copy-lead);
 }
 
 .hero__actions {
@@ -495,7 +496,7 @@
   min-height: var(--action-min-height);
   padding: var(--action-padding-block) var(--action-padding-inline);
   border: 1px solid transparent;
-  font-size: var(--type-action);
+  font-size: var(--type-service-strong);
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1;
@@ -571,7 +572,7 @@
 
 .event-status__meta {
   color: var(--paper-dim);
-  font-size: var(--type-micro);
+  font-size: var(--type-service);
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -631,7 +632,7 @@
 .event-status__value {
   color: var(--paper);
   font-family: var(--display);
-  font-size: var(--type-metric-event);
+  font-size: var(--type-number-event);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
@@ -644,7 +645,7 @@
   padding: 0;
   background: transparent;
   color: var(--acid);
-  font-size: var(--type-label);
+  font-size: var(--type-service);
   font-weight: 800;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -656,7 +657,7 @@
   gap: 0.25rem 0.7rem;
   margin-top: 0.75rem;
   color: var(--paper-dim);
-  font-size: var(--type-micro);
+  font-size: var(--type-service);
   line-height: 1.45;
 }
 
@@ -681,7 +682,7 @@
   gap: 2rem;
   padding: 1.35rem 0;
   border-top: 1px solid var(--line-light);
-  font-size: var(--type-label);
+  font-size: var(--type-service);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }

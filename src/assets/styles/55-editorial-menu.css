@@ -449,7 +449,7 @@
   .site-nav__preview-kicker {
     position: relative;
     color: var(--paper-dim);
-    font-size: var(--type-micro);
+    font-size: var(--type-service);
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -471,7 +471,7 @@
     margin: 0 0 -0.06em -0.08em;
     color: var(--acid);
     font-family: var(--display);
-    font-size: clamp(5.25rem, 8vw, 9rem);
+    font-size: clamp(5.25rem, calc(2.5rem + 5.2vw), 9rem);
     font-weight: 700;
     line-height: 0.72;
     text-shadow: 0 0 3rem rgba(223, 255, 56, 0.16);
@@ -482,7 +482,7 @@
     margin-top: clamp(0.75rem, 1.5vw, 1.5rem);
     color: var(--paper);
     font-family: var(--display);
-    font-size: clamp(1.55rem, 2.5vw, 2.9rem);
+    font-size: clamp(1.55rem, calc(1.1rem + 1.28vw), 2.9rem);
     font-weight: 700;
     line-height: 0.98;
     text-wrap: balance;
@@ -517,7 +517,7 @@
     border: 0;
     color: var(--paper-dim);
     font-family: var(--display);
-    font-size: clamp(1.08rem, 1.75vw, 1.85rem);
+    font-size: clamp(1.08rem, calc(0.88rem + 0.78vw), 1.85rem);
     letter-spacing: 0;
     line-height: 1.04;
     text-transform: uppercase;
@@ -533,7 +533,7 @@
     color: rgba(217, 226, 217, 0.38);
     content: attr(data-nav-index);
     font-family: var(--body);
-    font-size: var(--type-micro);
+    font-size: var(--type-service);
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.07em;
     transition: color 160ms var(--ease-move);
@@ -613,7 +613,7 @@
   }
 
   .site-nav__diary strong {
-    font-size: var(--type-label);
+    font-size: var(--type-service);
     font-weight: 700;
     letter-spacing: 0.06em;
     line-height: 1.15;
@@ -623,7 +623,7 @@
   .site-nav__diary small {
     margin-top: 0;
     color: rgba(217, 226, 217, 0.58);
-    font-size: var(--type-micro);
+    font-size: var(--type-service);
     font-weight: 500;
     letter-spacing: 0;
     line-height: 1.25;
@@ -653,7 +653,7 @@
   }
 
   .site-nav__status-reading strong {
-    font-size: clamp(1.8rem, 2.4vw, 2.65rem);
+    font-size: clamp(1.8rem, calc(1.2rem + 1.07vw), 2.65rem);
   }
 
   .site-nav__status-reading span {
@@ -916,7 +916,7 @@
     border-bottom: 1px solid rgba(217, 226, 217, 0.16);
     color: var(--paper-dim);
     font-family: var(--display);
-    font-size: clamp(0.84rem, 3.8vw, 1.05rem);
+    font-size: clamp(0.84rem, calc(0.74rem + 0.75vw), 1.05rem);
     letter-spacing: 0;
   }
 
@@ -970,7 +970,7 @@
   }
 
   .site-nav__status-reading strong {
-    font-size: clamp(1.85rem, 9vw, 2.25rem);
+    font-size: clamp(1.85rem, calc(1.25rem + 3.9vw), 2.25rem);
   }
 
   .site-nav__status-reading span {
@@ -994,7 +994,7 @@
   }
 
   .site-nav__diary strong {
-    font-size: var(--type-micro);
+    font-size: var(--type-service);
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;

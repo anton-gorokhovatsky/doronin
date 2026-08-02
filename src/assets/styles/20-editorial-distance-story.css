@@ -112,7 +112,7 @@
   align-items: center;
   gap: 0.75rem;
   color: var(--paper-dim);
-  font-size: var(--type-label);
+  font-size: var(--type-service);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -161,7 +161,7 @@
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--line-dark);
   color: var(--text-editorial-faint);
-  font-size: var(--type-label);
+  font-size: var(--type-service);
   font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -213,7 +213,7 @@
   border-radius: 0;
   background: var(--acid);
   color: var(--ink);
-  font-size: var(--type-action);
+  font-size: var(--type-service-strong);
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.1;
@@ -272,16 +272,16 @@
   max-width: 10ch;
   margin: 0;
   font-family: var(--display);
-  font-size: var(--type-display-section);
-  line-height: 1;
+  font-size: var(--type-chapter);
+  line-height: var(--leading-chapter);
   text-transform: uppercase;
 }
 
 .diary__lead {
-  max-width: 42ch;
+  max-width: var(--measure-lead);
   margin: 1.5rem 0 0;
-  font-size: var(--type-lead);
-  line-height: 1.35;
+  font-size: var(--type-copy-lead);
+  line-height: var(--leading-copy-lead);
 }
 
 .diary__facts {
@@ -303,7 +303,7 @@
 
 .diary__fact strong {
   font-family: var(--display);
-  font-size: var(--type-metric-proof);
+  font-size: var(--type-number-proof);
   line-height: 1;
 }
 
@@ -311,7 +311,7 @@
   max-width: 22ch;
   margin-top: 0.55rem;
   color: var(--text-editorial-muted);
-  font-size: var(--type-caption);
+  font-size: var(--type-service-strong);
   line-height: 1.4;
 }
 
@@ -319,7 +319,7 @@
   max-width: 58ch;
   margin: 2rem 0 0;
   color: var(--text-editorial-muted);
-  font-size: var(--type-caption);
+  font-size: var(--type-service-strong);
 }
 
 .text-link--dark {
@@ -352,7 +352,7 @@
 }
 
 .project-phases span {
-  font-size: var(--type-label);
+  font-size: var(--type-service);
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -361,7 +361,7 @@
 .project-phases p {
   max-width: 30ch;
   margin: 0.55rem 0 0;
-  font-size: var(--type-caption);
+  font-size: var(--type-service-strong);
   line-height: 1.45;
 }
 
@@ -390,10 +390,11 @@
 }
 
 .manifesto__copy > p {
-  max-width: 62ch;
+  max-width: var(--measure-copy);
   margin: 2.25rem 0 0;
   color: var(--paper-dim);
-  font-size: var(--type-body-large);
+  font-size: var(--type-copy-lead);
+  line-height: var(--leading-copy);
 }
 
 .project-mark {
@@ -422,12 +423,12 @@
 
 .section-heading h2,
 .section-heading--compact > h2 {
-  max-width: 16ch;
+  max-width: var(--measure-chapter);
   margin: 0;
   font-family: var(--display);
-  font-size: var(--type-display-section);
+  font-size: var(--type-chapter);
   letter-spacing: 0;
-  line-height: 1.04;
+  line-height: var(--leading-chapter);
   text-transform: uppercase;
 }
 
@@ -512,7 +513,7 @@
   padding-top: 1rem;
   border-top: 1px solid var(--line-light);
   color: var(--paper);
-  font-size: var(--type-label);
+  font-size: var(--type-service);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -538,7 +539,7 @@
   display: flex;
   gap: 0.65rem;
   align-items: center;
-  font-size: var(--type-label);
+  font-size: var(--type-service);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -561,11 +562,11 @@
 }
 
 .distance-story__counter-value strong {
-  font-size: var(--type-metric-stage);
+  font-size: var(--type-number-stage);
 }
 
 .distance-story__counter-value small {
-  font-size: var(--type-label);
+  font-size: var(--type-service);
   letter-spacing: 0.07em;
   text-transform: uppercase;
 }
@@ -581,7 +582,7 @@
   align-items: end;
   justify-content: space-between;
   gap: 1rem;
-  font-size: var(--type-micro);
+  font-size: var(--type-service);
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -606,7 +607,7 @@
   align-items: baseline;
   gap: 0.4em;
   margin: 0;
-  font-size: var(--type-label);
+  font-size: var(--type-service);
   letter-spacing: 0.06em;
   white-space: nowrap;
 }
@@ -708,7 +709,7 @@
   height: 2.75rem;
   border: 1px solid var(--line-dark);
   border-radius: 50%;
-  font-size: var(--type-label);
+  font-size: var(--type-service);
   font-weight: 700;
   transition:
     background-color 220ms var(--ease-move),
@@ -731,7 +732,7 @@
   gap: 0.12em;
   margin: clamp(2rem, 4vw, 3.5rem) 0 2rem;
   font-family: var(--display);
-  font-size: var(--type-metric-card);
+  font-size: var(--type-number-card);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
@@ -770,7 +771,7 @@
   padding: 0.72rem 0;
   border-bottom: 1px solid var(--line-dark);
   color: var(--text-editorial-strong-muted);
-  font-size: var(--type-caption);
+  font-size: var(--type-service-strong);
 }
 
 .detail-list li:last-child {
@@ -790,7 +791,7 @@
 .distance-total__label {
   margin: 0;
   color: var(--acid);
-  font-size: var(--type-label);
+  font-size: var(--type-service);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -880,7 +881,7 @@
   margin: 0 0 0.65rem;
   color: var(--paper-dim);
   font-family: var(--sans);
-  font-size: var(--type-label);
+  font-size: var(--type-service);
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1;
@@ -926,7 +927,7 @@
   margin-top: 0.45rem;
   color: var(--paper-dim);
   font-family: var(--sans);
-  font-size: var(--type-label);
+  font-size: var(--type-service);
   font-style: normal;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -942,7 +943,7 @@
   min-width: 0;
   padding: clamp(0.75rem, 1.5vw, 1.5rem) 0 clamp(1rem, 2vw, 2rem);
   color: var(--paper);
-  font-size: var(--type-metric-total);
+  font-size: var(--type-number-total);
   transition:
     color 520ms var(--ease-move),
     text-shadow 780ms var(--ease-move);
@@ -1027,7 +1028,7 @@
 .athlete__lead {
   max-width: 30ch;
   margin: 2rem 0 0;
-  font-size: var(--type-lead);
+  font-size: var(--type-copy-lead);
   font-weight: 600;
 }
 
@@ -1081,7 +1082,7 @@
   max-width: 22ch;
   margin-top: 0.85rem;
   color: var(--paper-dim);
-  font-size: var(--type-caption);
+  font-size: var(--type-service-strong);
 }
 
 .story {
@@ -1250,7 +1251,7 @@
   margin-top: 0.85rem;
   padding-top: 0.85rem;
   border-top: 1px solid var(--line-dark);
-  font-size: var(--type-label);
+  font-size: var(--type-service);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1301,7 +1302,7 @@
   margin: 0;
   padding-top: 0.25rem;
   color: var(--text-editorial-faint);
-  font-size: var(--type-micro);
+  font-size: var(--type-service);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }

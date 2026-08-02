@@ -236,6 +236,8 @@ html[data-text-fixture="200"] {
 
 :root.text-enlarged .site-footer__nav {
   grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: none;
+  grid-auto-flow: row;
 }
 
 :root.text-enlarged .site-footer__nav .site-nav__link {

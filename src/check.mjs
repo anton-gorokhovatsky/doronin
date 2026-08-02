@@ -393,6 +393,31 @@ const diaryRule = css.match(/\.diary\s*\{([^}]*)\}/s)?.[1] || "";
 const mobileNavLinkRules = [
   ...css.matchAll(/\.site-nav__link\s*\{([^}]*)\}/gs),
 ].map(([, rule]) => rule);
+const typographyRoleTokens = [
+  "--type-display-hero",
+  "--type-number-total",
+  "--type-chapter",
+  "--type-chapter-compact",
+  "--type-copy",
+  "--type-copy-lead",
+  "--type-service",
+  "--type-service-strong",
+];
+const retiredTypographyTokens = [
+  "--type-micro",
+  "--type-label",
+  "--type-action",
+  "--type-caption",
+  "--type-body",
+  "--type-body-large",
+  "--type-lead",
+  "--type-display-section",
+  "--type-metric-",
+];
+const viewportOnlyTypeClamps =
+  sourceStyleBundle.match(
+    /font-size:\s*clamp\([^;]*,\s*-?(?:\d+\.?\d*|\.\d+)vw\s*,/g,
+  ) || [];
 
 expect(
   sourceStyleManifest ===
@@ -412,10 +437,22 @@ expect(
   "css: отсутствует progressive enhancement для висячей пунктуации",
 );
 expect(
-  /--type-display-hero:\s*clamp\([^;]*calc\(/s.test(css) &&
-    /--type-display-section:\s*clamp\([^;]*calc\(/s.test(css) &&
-    /--type-metric-total:\s*clamp\([^;]*calc\(/s.test(css),
-  "css: display-заголовки и метрики должны зависеть от rem и viewport",
+  typographyRoleTokens.every((token) =>
+    new RegExp(`${token}:\\s*clamp\\([^;]*calc\\(`, "s").test(css),
+  ) &&
+    retiredTypographyTokens.every((token) => !sourceStyleBundle.includes(token)) &&
+    viewportOnlyTypeClamps.length === 0 &&
+    css.includes("--leading-chapter: 1.02") &&
+    css.includes("--leading-copy: 1.55") &&
+    css.includes("--measure-lead: 42ch") &&
+    css.includes("--measure-copy: 62ch"),
+  `typography: четыре роли должны иметь rem + viewport scale, общие интервалы и меры без старых токенов${viewportOnlyTypeClamps.length ? ` (${viewportOnlyTypeClamps.join("; ")})` : ""}`,
+);
+expect(
+  css.includes('[data-optical-start][data-optical-leading="1"]') &&
+    app.includes('document.querySelectorAll("[data-optical-start]")') &&
+    css.includes("--micra-leading-one-shift"),
+  "typography: крупные числа должны подключать единую оптическую компенсацию начальной единицы",
 );
 expect(
   /font-family:\s*"Commissioner"[\s\S]*?Commissioner-Cyrillic\.woff2[\s\S]*?font-weight:\s*400 800/s.test(
@@ -460,6 +497,15 @@ expect(
   css.includes(".contacts a:hover") &&
     css.includes(".site-footer__utility a:hover"),
   "css: текстовые действия должны иметь единое hover-состояние",
+);
+expect(
+  /\.site-footer__nav\s*\{[^}]*grid-template-columns:\s*repeat\(2,[^}]*grid-template-rows:\s*auto repeat\(4,[^}]*grid-auto-flow:\s*column/s.test(
+    sourceStyleBundle,
+  ) &&
+    /:root\.text-enlarged \.site-footer__nav\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)[^}]*grid-template-rows:\s*none[^}]*grid-auto-flow:\s*row/s.test(
+      sourceStyleBundle,
+    ),
+  "css: навигация футера должна читаться 01–04 и 05–07 по колонкам, а при 200% — линейно",
 );
 expect(
   css.includes(".site-footer__cta:hover") &&

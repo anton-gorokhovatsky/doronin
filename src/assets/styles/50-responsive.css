@@ -183,7 +183,7 @@
     padding: 0.5rem 0;
     border: 0;
     color: var(--paper-dim);
-    font-size: var(--type-action);
+    font-size: var(--type-service-strong);
     counter-increment: mobile-navigation;
   }
 
@@ -233,7 +233,7 @@
   .site-nav__status-meta,
   .site-nav__setting-label {
     color: rgba(217, 226, 217, 0.62);
-    font-size: var(--type-micro);
+    font-size: var(--type-service);
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -253,14 +253,14 @@
   .site-nav__status-reading strong {
     color: var(--paper);
     font-family: var(--display);
-    font-size: clamp(2.75rem, 14vw, 4rem);
-    line-height: 0.88;
+    font-size: clamp(2.75rem, calc(2rem + 5.8vw), 4rem);
+    line-height: var(--leading-number);
   }
 
   .site-nav__status-reading span {
     max-width: 12ch;
     color: var(--acid);
-    font-size: var(--type-micro);
+    font-size: var(--type-service);
     font-weight: 800;
     letter-spacing: 0.06em;
     line-height: 1.2;
@@ -297,7 +297,7 @@
     border: 0;
     background: transparent;
     color: var(--paper-dim);
-    font-size: var(--type-micro);
+    font-size: var(--type-service);
     font-weight: 700;
     line-height: 1.1;
     text-align: center;
@@ -326,7 +326,7 @@
     padding: var(--action-padding-block) var(--action-padding-inline);
     background: var(--acid);
     color: var(--ink);
-    font-size: var(--type-action);
+    font-size: var(--type-service-strong);
     font-weight: 700;
     text-decoration: none;
     text-transform: uppercase;
@@ -760,18 +760,18 @@
 @media (max-width: 640px) {
   :root {
     --type-display-hero: clamp(1.95rem, calc(0.5rem + 7.2vw), 3.7rem);
-    --type-display-section: clamp(1.6rem, calc(1.05rem + 2.85vw), 2.2rem);
+    --type-chapter: clamp(1.6rem, calc(1.05rem + 2.85vw), 2.2rem);
     --type-display-statement: clamp(1.9rem, calc(1.2rem + 3.6vw), 3.35rem);
     --type-display-feature: clamp(2rem, calc(1.05rem + 4.85vw), 3.9rem);
     --type-display-lead: clamp(1.35rem, calc(1rem + 1.8vw), 2rem);
-    --type-metric-event: clamp(2.2rem, calc(2rem + 0.82vw), 2.5rem);
-    --type-metric-card: clamp(2.15rem, calc(1.4rem + 3.85vw), 3.7rem);
-    --type-metric-stage: clamp(3.2rem, calc(2.4rem + 4vw), 4.75rem);
-    --type-metric-stage-long: clamp(3rem, calc(2.2rem + 4vw), 4.25rem);
-    --type-metric-total: clamp(2.8rem, calc(1.7rem + 6vw), 4.8rem);
+    --type-number-event: clamp(2.2rem, calc(2rem + 0.82vw), 2.5rem);
+    --type-number-card: clamp(2.15rem, calc(1.4rem + 3.85vw), 3.7rem);
+    --type-number-stage: clamp(3.2rem, calc(2.4rem + 4vw), 4.75rem);
+    --type-number-stage-long: clamp(3rem, calc(2.2rem + 4vw), 4.25rem);
+    --type-number-total: clamp(2.8rem, calc(1.7rem + 6vw), 4.8rem);
     --type-narrow-label: min(var(--type-display-small), calc(0.2rem + 4.5vw));
     --type-narrow-section: min(
-      var(--type-display-section),
+      var(--type-chapter),
       calc(0.05rem + 6.5vw)
     );
     --type-narrow-statement: min(
@@ -787,16 +787,16 @@
       calc(0.05rem + 6vw)
     );
     --type-narrow-metric-proof: min(
-      var(--type-metric-proof),
+      var(--type-number-proof),
       calc(0.15rem + 7vw)
     );
     --type-narrow-metric-stage: min(
-      var(--type-metric-stage),
+      var(--type-number-stage),
       calc(1rem + 11vw),
       17vw
     );
     --type-narrow-metric-stage-long: min(
-      var(--type-metric-stage-long),
+      var(--type-number-stage-long),
       calc(0.8rem + 11vw),
       16vw
     );
@@ -922,7 +922,7 @@
   }
 
   .audio-story__copy h2 {
-    font-size: clamp(1.55rem, calc(1rem + 4.2vw), 2.65rem);
+    font-size: var(--type-chapter-compact);
     white-space: nowrap;
   }
 
@@ -934,7 +934,7 @@
   .audio-story__copy p {
     max-width: 34ch;
     margin-top: 0.65rem;
-    font-size: var(--type-body);
+    font-size: var(--type-copy);
   }
 
   .audio-story__player {
@@ -984,7 +984,7 @@
   }
 
   .audio-story__storyline button strong {
-    font-size: var(--type-micro);
+    font-size: var(--type-service);
     letter-spacing: -0.01em;
   }
 
@@ -1111,7 +1111,7 @@
 
   .button {
     width: 100%;
-    font-size: var(--type-action);
+    font-size: var(--type-service-strong);
   }
 
   .event-status {
@@ -1136,7 +1136,7 @@
   .event-status__meta {
     grid-column: 1 / -1;
     grid-row: 1;
-    font-size: var(--type-micro);
+    font-size: var(--type-service);
   }
 
   .event-status__rail {
@@ -1150,7 +1150,7 @@
     grid-column: 1;
     grid-row: 3;
     align-self: center;
-    font-size: var(--type-metric-event);
+    font-size: var(--type-number-event);
   }
 
   .event-status__label {
@@ -1162,14 +1162,14 @@
     padding: 0;
     background: transparent;
     color: var(--acid);
-    font-size: min(var(--type-micro), calc(0.2rem + 3vw));
+    font-size: min(var(--type-service), calc(0.2rem + 3vw));
   }
 
   .event-status__update {
     grid-column: 1 / -1;
     grid-row: 4;
     margin-top: 0.3rem;
-    font-size: var(--type-micro);
+    font-size: var(--type-service);
   }
 
   .hero__foot {
@@ -1315,7 +1315,7 @@
     grid-column: 1 / 3;
     align-self: baseline;
     color: var(--paper-dim);
-    font-size: var(--type-micro);
+    font-size: var(--type-service);
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -1376,7 +1376,7 @@
     align-items: baseline;
     gap: 0.3em;
     margin-left: 0;
-    font-size: var(--type-label);
+    font-size: var(--type-service);
     letter-spacing: 0.06em;
     white-space: nowrap;
   }
@@ -1401,7 +1401,7 @@
   .distance-card .detail-list li {
     border-bottom-color: var(--line-light);
     color: var(--paper-dim);
-    font-size: var(--type-caption);
+    font-size: var(--type-service-strong);
   }
 
   .distance-card h3 {
@@ -1455,12 +1455,12 @@
   }
 
   .distance-total__term em {
-    font-size: var(--type-micro);
+    font-size: var(--type-service);
   }
 
   .distance-total__result {
     padding: 0.5rem 0 1rem;
-    font-size: var(--type-metric-total);
+    font-size: var(--type-number-total);
   }
 
   .distance {
@@ -1604,7 +1604,7 @@
   }
 
   .proof-source p {
-    font-size: var(--type-caption);
+    font-size: var(--type-service-strong);
     line-height: 1.45;
   }
 
@@ -1716,7 +1716,7 @@
   .interview-card--index h3 {
     grid-column: 2;
     font-family: var(--body);
-    font-size: var(--type-action);
+    font-size: var(--type-service-strong);
     font-weight: 700;
     line-height: 1.35;
     text-transform: none;
@@ -1859,7 +1859,7 @@
   .partner-proof__metric span {
     max-width: 24ch;
     margin-top: 0;
-    font-size: var(--type-micro);
+    font-size: var(--type-service);
   }
 
   .partners__contact {
@@ -1916,7 +1916,7 @@
     grid-template-columns: 1.55rem minmax(0, 1fr);
     gap: 0.45rem;
     min-height: 2.5rem;
-    font-size: var(--type-label);
+    font-size: var(--type-service);
   }
 
   .site-footer__utility {
@@ -1959,11 +1959,11 @@
 
 @media (max-width: 360px) {
   :root {
-    --type-display-section: 1.45rem;
+    --type-chapter: 1.45rem;
     --type-display-statement: 1.75rem;
     --type-display-feature: 1.6rem;
     --type-display-lead: 1.3rem;
-    --type-metric-proof: 1.8rem;
+    --type-number-proof: 1.8rem;
   }
 
   .audio-story {
@@ -2004,6 +2004,8 @@
 
   .site-footer__nav {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-auto-flow: row;
   }
 
   .site-footer__nav > p {
@@ -2056,7 +2058,7 @@
     grid-row: 4;
     align-self: start;
     margin: 0.25rem 0 0;
-    font-size: min(var(--type-label), calc(0.2rem + 3vw));
+    font-size: min(var(--type-service), calc(0.2rem + 3vw));
   }
 
   .event-status__update {
