@@ -319,6 +319,12 @@ async function auditPage(browser, browserName, origin, testCase) {
         logo: read(".site-logo"),
         menu: read(".menu-toggle"),
         headerCta: read(".header-cta"),
+        menuLabel: document.querySelector(".menu-toggle")?.getAttribute("aria-label"),
+        menuSize: (() => {
+          const rect = document.querySelector(".menu-toggle").getBoundingClientRect();
+          return [rect.width, rect.height];
+        })(),
+        visibleMenuText: document.querySelector(".menu-toggle__label")?.getClientRects().length,
       };
     });
     if (testCase.viewport.width <= 960) {
@@ -326,8 +332,11 @@ async function auditPage(browser, browserName, origin, testCase) {
         controlMaterials.logo.backgroundImage === "none" &&
           controlMaterials.logo.backgroundColor === "rgba(0, 0, 0, 0)" &&
           controlMaterials.menu.backgroundImage === "none" &&
-          controlMaterials.menu.backgroundColor === "rgba(0, 0, 0, 0)",
-        `${prefix}: mobile open Menu control must remain an outline on the shared material (${JSON.stringify(controlMaterials)})`,
+          controlMaterials.menu.backgroundColor === "rgba(0, 0, 0, 0)" &&
+          controlMaterials.menuSize.every((size) => size >= 44) &&
+          controlMaterials.visibleMenuText === 0 &&
+          /закрыть|close/i.test(controlMaterials.menuLabel || ""),
+        `${prefix}: mobile open Menu control must be a labelled close icon with a 44px target (${JSON.stringify(controlMaterials)})`,
       );
     } else {
       expect(
@@ -356,11 +365,23 @@ async function auditPage(browser, browserName, origin, testCase) {
     }
 
     const menuComposition = await nav.evaluate((element) => {
+      const textLeft = (node) => {
+        if (!node) return null;
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        return range.getBoundingClientRect().left;
+      };
       const settings = [...element.querySelectorAll(".site-nav__setting")];
       const diary = element.querySelector(".site-nav__diary");
       const cta = element.querySelector(".site-nav__cta").getBoundingClientRect();
       const navBox = element.getBoundingClientRect();
       const status = element.querySelector(".site-nav__status").getBoundingClientRect();
+      const firstRoute = element.querySelector(
+        ".site-nav__primary > .site-nav__link",
+      );
+      const firstSettingValue = element.querySelector(
+        ".site-nav__setting-options > :first-child",
+      );
       const settingTargets = [
         ...element.querySelectorAll(
           ".site-nav__setting-options button, .site-nav__setting-options a",
@@ -375,7 +396,11 @@ async function auditPage(browser, browserName, origin, testCase) {
         ).length,
         diaryHref: diary?.getAttribute("href") || "",
         diaryDescription: diary?.querySelector("small")?.textContent.trim() || "",
+        ctaLeftDelta: Math.abs(cta.left),
         ctaRightDelta: Math.abs(innerWidth - cta.right),
+        routeSettingValueDelta: Math.abs(
+          textLeft(firstRoute) - textLeft(firstSettingValue),
+        ),
         statusRightOverflow: Math.max(0, status.right - navBox.right),
         settingTargetMinHeight: Math.min(
           ...settingTargets.map((target) => target.height),
@@ -396,9 +421,12 @@ async function auditPage(browser, browserName, origin, testCase) {
       );
     } else {
       expect(
-        menuComposition.statusRightOverflow <= 1 &&
+        menuComposition.ctaLeftDelta <= 1 &&
+          menuComposition.ctaRightDelta <= 1 &&
+          menuComposition.routeSettingValueDelta <= 3 &&
+          menuComposition.statusRightOverflow <= 1 &&
           menuComposition.settingTargetMinHeight >= 44,
-        `${prefix}: mobile status clips or settings targets are too small (${JSON.stringify(menuComposition)})`,
+        `${prefix}: mobile CTA, content axis, status, or settings targets regressed (${JSON.stringify(menuComposition)})`,
       );
     }
 

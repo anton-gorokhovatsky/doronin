@@ -104,6 +104,7 @@ const locales = {
     skip: "Перейти к содержанию",
     homeLabel: "11 111 — на главную",
     menu: "Меню",
+    menuClose: "Закрыть меню",
     navLiveKicker: "Сейчас",
     navLiveLabel: "Дневник",
     navRouteKicker: "Маршрут · 07 глав",
@@ -586,6 +587,7 @@ const locales = {
     skip: "Skip to content",
     homeLabel: "11 111 — home",
     menu: "Menu",
+    menuClose: "Close menu",
     navLiveKicker: "Now",
     navLiveLabel: "Diary",
     navRouteKicker: "Route · 07 chapters",
@@ -1636,7 +1638,12 @@ function renderPage(l) {
     </div>
 
     <details class="nav-shell">
-      <summary class="menu-toggle" aria-label="${l.menu}">
+      <summary
+        class="menu-toggle"
+        aria-label="${l.menu}"
+        data-menu-open-label="${l.menu}"
+        data-menu-close-label="${l.menuClose}"
+      >
         <span class="menu-toggle__label">${l.menu}</span>
         <span class="menu-toggle__current" data-current-chapter>${l.nav[0][1]}</span>
         <span class="menu-toggle__icon" aria-hidden="true"></span>

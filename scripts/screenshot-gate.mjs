@@ -106,7 +106,9 @@ async function capture(browser, origin, spec) {
       }
     }
     if (spec.menuBottom) {
-      await page.locator(".site-nav__cta").press("End");
+      await page.locator(".site-nav").evaluate((menu) => {
+        menu.scrollTop = menu.scrollHeight;
+      });
       await page.waitForTimeout(100);
     }
     if (spec.target) {
@@ -304,6 +306,16 @@ const specs = [
     locale: "ru",
     theme: "system",
     menuOpen: true,
+    expectMenuScroll: true,
+    viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-390-system-menu-bottom",
+    path: "/?gate=ru-390-menu-bottom#top",
+    locale: "ru",
+    theme: "system",
+    menuOpen: true,
+    menuBottom: true,
     expectMenuScroll: true,
     viewport: { width: 390, height: 844 },
   },

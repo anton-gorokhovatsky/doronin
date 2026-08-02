@@ -1474,6 +1474,10 @@ function syncMenuIsolation(navigation) {
 function syncNavigationMode() {
   for (const navigation of document.querySelectorAll(".nav-shell")) {
     navigation.removeAttribute("open");
+    const toggle = navigation.querySelector(".menu-toggle");
+    if (toggle?.dataset.menuOpenLabel) {
+      toggle.setAttribute("aria-label", toggle.dataset.menuOpenLabel);
+    }
     syncMenuIsolation(navigation);
   }
 }
@@ -1483,6 +1487,11 @@ desktopNavigation.addEventListener?.("change", syncNavigationMode);
 
 for (const navigation of document.querySelectorAll(".nav-shell")) {
   navigation.addEventListener("toggle", () => {
+    const toggle = navigation.querySelector(".menu-toggle");
+    const toggleLabel = navigation.open
+      ? toggle?.dataset.menuCloseLabel
+      : toggle?.dataset.menuOpenLabel;
+    if (toggle && toggleLabel) toggle.setAttribute("aria-label", toggleLabel);
     syncMenuIsolation(navigation);
 
     if (navigation.open) {
