@@ -235,9 +235,23 @@ async function runKeyboardRoute(browser, browserName, origin, viewport) {
       audio: false,
       contact: false,
       diary: false,
-      heroVideo: false,
       primary: false,
     };
+    const heroVideoRequired = await page.locator("[data-video-toggle]").evaluate(
+      (element) => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return (
+          !element.hidden &&
+          !element.inert &&
+          style.display !== "none" &&
+          style.visibility !== "hidden" &&
+          rect.width > 0 &&
+          rect.height > 0
+        );
+      },
+    );
+    if (heroVideoRequired) required.heroVideo = false;
     for (let index = 0; index < 180; index += 1) {
       await page.keyboard.press(tabKey);
       const state = await page.evaluate(() => {
