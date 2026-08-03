@@ -825,13 +825,19 @@ async function auditPage(browser, browserName, origin, testCase) {
     const firstPartnerAction = page.locator(".partners__channels a").first();
     await firstPartnerAction.hover();
     await page.waitForTimeout(220);
-    const partnerHover = await firstPartnerAction.evaluate((element) => ({
-      backgroundColor: getComputedStyle(element).backgroundColor,
-      textDecorationColor: getComputedStyle(element.querySelector("span"))
-        .textDecorationColor,
-    }));
+    const partnerHover = await page.evaluate(() => {
+      const element = document.querySelector(".partners__channels a");
+      if (!element) return null;
+
+      return {
+        backgroundColor: getComputedStyle(element).backgroundColor,
+        textDecorationColor: getComputedStyle(element.querySelector("span"))
+          .textDecorationColor,
+      };
+    });
     expect(
-      partnerHover.backgroundColor === "rgba(0, 0, 0, 0)" &&
+      partnerHover &&
+        partnerHover.backgroundColor === "rgba(0, 0, 0, 0)" &&
         partnerHover.textDecorationColor !== "rgba(0, 0, 0, 0)",
       `${prefix}: partner CTA hover creates a false card or loses its cue (${JSON.stringify(partnerHover)})`,
     );
