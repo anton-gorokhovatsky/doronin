@@ -24,6 +24,10 @@ async function auditPage(browser, browserName, origin, testCase) {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.route("https://mc.yandex.ru/**", (route) => route.abort());
+  // The regression suite validates layout and interaction against the posters.
+  // Loading every autoplaying MP4 in each Chromium/WebKit context needlessly
+  // stresses the small CI runner and can make WebKit terminate mid-audit.
+  await page.route(/\.(?:mp4|webm)(?:\?.*)?$/iu, (route) => route.abort());
   await page.addInitScript(() => {
     window.__analyticsCalls = [];
     window.ym = (...args) => window.__analyticsCalls.push(args);
