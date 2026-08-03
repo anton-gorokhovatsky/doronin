@@ -225,7 +225,7 @@ const locales = {
             "Ключевые сессии теперь проходят в беге, а велосипед помогает восстановлению.",
           facts: [
             ["3", "направления работы после тестов"],
-            ["3 000 м", "дистанция экспериментальной группы"],
+            ["3000 м", "дистанция экспериментальной группы"],
           ],
           note:
             "План новой группы «Дасти» на 90% совпал с задачами Виктора — часть работ он проходит вместе с ней.",
@@ -280,7 +280,7 @@ const locales = {
           lead:
             "За 60 дней Виктор спокойно развивал первую и вторую зоны; бег был только в начале, затем база почти полностью перешла на велосипед.",
           facts: [
-            ["4 769", "км дистанции"],
+            ["4769", "км дистанции"],
             ["46 987", "м набора"],
           ],
           note:
@@ -314,7 +314,7 @@ const locales = {
       sequenceLabel: "Этап",
       sequenceOf: "из",
       sequenceTotal: "всего",
-      totalFormulaLabel: "100 плюс 10 010 плюс 1 001 равно 11 111 километров",
+      totalFormulaLabel: "100 плюс 10 010 плюс 1001 равно 11 111 километров",
       mediaKicker: "Дубай · архив проекта «1111»",
       items: [
         {
@@ -325,7 +325,7 @@ const locales = {
           image: "distance-swim-presence.jpg",
           video: "distance-swim-presence.mp4",
           details: [
-            "2 000 бассейнов по 50 метров",
+            "2000 бассейнов по 50 метров",
             "три переправы через Ла-Манш",
             "от Москвы до Ярославля без передышки в воде",
           ],
@@ -345,7 +345,7 @@ const locales = {
         },
         {
           index: "03",
-          value: "1 001",
+          value: "1001",
           unit: "км",
           label: "бег",
           image: "distance-run-presence.jpg",
@@ -368,7 +368,7 @@ const locales = {
         ["4×", "участник чемпионата мира WC Ironman Kona"],
         ["252,8 км", "Marathon des Sables в Сахаре"],
         ["17 696 м", "двойной Everesting за один заезд"],
-        ["58 часов", "ультратриатлон 1 111 км без сна"],
+        ["58 часов", "ультратриатлон 1111 км без сна"],
       ],
       quote: "История — не выдумка.<br>Это его жизнь.",
     },
@@ -773,7 +773,7 @@ const locales = {
             "Running now carries the key sessions, while cycling supports recovery.",
           facts: [
             ["3", "areas identified by testing"],
-            ["3,000 m", "the experimental group’s distance"],
+            ["3000 m", "the experimental group’s distance"],
           ],
           note:
             "Dusty’s new programme matched 90% of Viktor’s needs, so he now completes part of the work with the group.",
@@ -828,7 +828,7 @@ const locales = {
           lead:
             "Over 60 days, Viktor built his first and second training zones; running featured only at the start before the phase shifted almost entirely to cycling.",
           facts: [
-            ["4,769", "km covered"],
+            ["4769", "km covered"],
             ["46,987", "m of elevation gain"],
           ],
           note:
@@ -862,7 +862,7 @@ const locales = {
       sequenceLabel: "Stage",
       sequenceOf: "of",
       sequenceTotal: "total",
-      totalFormulaLabel: "100 plus 10,010 plus 1,001 equals 11,111 kilometres",
+      totalFormulaLabel: "100 plus 10,010 plus 1001 equals 11,111 kilometres",
       mediaKicker: "Dubai · Project “1111” archive",
       items: [
         {
@@ -873,7 +873,7 @@ const locales = {
           image: "distance-swim-presence.jpg",
           video: "distance-swim-presence.mp4",
           details: [
-            "2,000 lengths of a 50-metre pool",
+            "2000 lengths of a 50-metre pool",
             "the equivalent of three English Channel crossings",
             "Moscow to Yaroslavl without a break in the water",
           ],
@@ -893,7 +893,7 @@ const locales = {
         },
         {
           index: "03",
-          value: "1,001",
+          value: "1001",
           unit: "km",
           label: "running",
           image: "distance-run-presence.jpg",
@@ -916,7 +916,7 @@ const locales = {
         ["4×", "Ironman World Championship Kona participant"],
         ["252.8 km", "Marathon des Sables in the Sahara"],
         ["17,696 m", "Double Everesting elevation gain in one ride"],
-        ["58 hours", "1,111 km ultra-triathlon without sleep"],
+        ["58 hours", "1111 km ultra-triathlon without sleep"],
       ],
       quote: "He does not sell a story.<br>He lives it.",
     },

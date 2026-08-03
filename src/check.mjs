@@ -64,6 +64,17 @@ for (const [lang, path] of pages) {
     .replace(/<svg[\s\S]*?<\/svg>/g, " ")
     .replace(/<[^>]+>/g, " ")
     .replace(/[ \t\r\n]+/g, " ");
+  const semanticNumberText = [
+    html
+      .replace(/<(?:script|style)\b[\s\S]*?<\/(?:script|style)>/giu, " ")
+      .replace(/<svg[\s\S]*?<\/svg>/giu, " ")
+      .replace(/<[^>]+>/g, " "),
+    ...[...html.matchAll(/\b(?:alt|aria-label)="([^"]*)"/gu)].map(
+      ([, value]) => value,
+    ),
+  ]
+    .join(" ")
+    .replace(/[ \t\r\n]+/g, " ");
 
   expect(
     html.includes(`<html lang="${lang}">`),
@@ -94,6 +105,17 @@ for (const [lang, path] of pages) {
   expect(
     !textFragments.some((fragment) => /\d \d{3}(?:\D|$)/u.test(fragment)),
     `${lang}: разряды чисел должны разделяться узким неразрывным пробелом`,
+  );
+  expect(
+    !(lang === "ru"
+      ? /(?<!\d)\d[\u00A0\u202F]\d{3}(?!\d)/u
+      : /(?<!\d)\d,\d{3}(?!\d)/u
+    ).test(semanticNumberText),
+    `${lang}: четырёхзначные числа должны писаться слитно`,
+  );
+  expect(
+    !/(?<!\d)\d{5}(?!\d)/u.test(semanticNumberText),
+    `${lang}: в пятизначных числах нужен локальный неразрывный разделитель после двух знаков`,
   );
   expect(
     !/ — /u.test(visibleText),

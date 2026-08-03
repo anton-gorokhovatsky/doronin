@@ -667,6 +667,12 @@ async function auditPage(browser, browserName, origin, testCase) {
         const tabs = [...element.querySelectorAll("[data-diary-story-tab]")];
         const panels = [...element.querySelectorAll("[data-diary-story-panel]")];
         const rail = element.querySelector("[data-diary-story-tabs]");
+        const railBounds = rail.getBoundingClientRect();
+        const tabBounds = tabs.map((tab) => tab.getBoundingClientRect());
+        const selectedTab = tabs.find(
+          (tab) => tab.getAttribute("aria-selected") === "true",
+        );
+        const selectedBounds = selectedTab?.getBoundingClientRect();
         return {
           contained: tabs.every((tab) => {
             const bounds = tab.getBoundingClientRect();
@@ -689,6 +695,21 @@ async function auditPage(browser, browserName, origin, testCase) {
             .map((panel, index) => (!panel.hidden ? index : -1))
             .filter((index) => index >= 0),
           railFits: rail.scrollWidth <= rail.clientWidth + 1,
+          thirdPeeks:
+            tabBounds[0]?.left >= railBounds.left - 1 &&
+            tabBounds[1]?.right <= railBounds.right + 1 &&
+            tabBounds[2]?.left < railBounds.right - 1 &&
+            tabBounds[2]?.right > railBounds.right + 1,
+          thirdPeekWidth: Math.max(
+            0,
+            Math.min(tabBounds[2]?.right || 0, railBounds.right) -
+              Math.max(tabBounds[2]?.left || 0, railBounds.left),
+          ),
+          selectedFullyVisible: Boolean(
+            selectedBounds &&
+              selectedBounds.left >= railBounds.left - 1 &&
+              selectedBounds.right <= railBounds.right + 1,
+          ),
           scrollLeft: rail.scrollLeft,
           scrollSnapType: getComputedStyle(rail).scrollSnapType,
         };
@@ -697,7 +718,12 @@ async function auditPage(browser, browserName, origin, testCase) {
     expect(
       initialDiaryState.contained &&
         initialDiaryState.selected === 0 &&
-        JSON.stringify(initialDiaryState.visiblePanels) === "[0]",
+        JSON.stringify(initialDiaryState.visiblePanels) === "[0]" &&
+        (testCase.viewport.width > 390
+          ? initialDiaryState.railFits
+          : !initialDiaryState.railFits &&
+            initialDiaryState.thirdPeeks &&
+            initialDiaryState.thirdPeekWidth >= 44),
       `${prefix}: initial diary story state regressed (${JSON.stringify(initialDiaryState)})`,
     );
     await diaryTabs.nth(2).click();
@@ -706,7 +732,12 @@ async function auditPage(browser, browserName, origin, testCase) {
     expect(
       selectedDiaryState.selected === 2 &&
         JSON.stringify(selectedDiaryState.visiblePanels) === "[2]" &&
-        selectedDiaryState.railFits,
+        (testCase.viewport.width > 390
+          ? selectedDiaryState.railFits
+          : !selectedDiaryState.railFits &&
+            selectedDiaryState.scrollLeft > 0 &&
+            selectedDiaryState.selectedFullyVisible &&
+            /(?:x|inline)/u.test(selectedDiaryState.scrollSnapType)),
       `${prefix}: diary story switch or mobile reveal regressed (${JSON.stringify(selectedDiaryState)})`,
     );
     await diaryTabs.nth(2).press("ArrowLeft");

@@ -1050,7 +1050,17 @@
   }
 
   .diary-stories__rail {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: none;
+    grid-auto-columns: calc((100% - 3rem) / 2);
+    grid-auto-flow: column;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: inline mandatory;
+    scrollbar-width: none;
+  }
+
+  .diary-stories__rail::-webkit-scrollbar {
+    display: none;
   }
 
   .diary-stories__tab {
@@ -1059,6 +1069,7 @@
     gap: 0;
     min-height: 0;
     padding: 0.25rem 0.25rem 0.7rem;
+    scroll-snap-align: start;
   }
 
   .diary-stories__index {
