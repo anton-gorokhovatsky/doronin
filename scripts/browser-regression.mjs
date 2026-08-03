@@ -656,6 +656,68 @@ async function auditPage(browser, browserName, origin, testCase) {
       `${prefix}: audio hierarchy or selected-track context regressed (${JSON.stringify(audioProximity)})`,
     );
 
+    const diaryTabs = page.locator("[data-diary-story-tab]");
+    const diaryPanels = page.locator("[data-diary-story-panel]");
+    expect(
+      (await diaryTabs.count()) === 3 && (await diaryPanels.count()) === 3,
+      `${prefix}: training diary does not expose all three stories`,
+    );
+    const readDiaryState = () =>
+      page.locator("[data-diary-stories]").evaluate((element) => {
+        const tabs = [...element.querySelectorAll("[data-diary-story-tab]")];
+        const panels = [...element.querySelectorAll("[data-diary-story-panel]")];
+        const rail = element.querySelector("[data-diary-story-tabs]");
+        return {
+          contained: tabs.every((tab) => {
+            const bounds = tab.getBoundingClientRect();
+            return [...tab.children]
+              .filter((child) => getComputedStyle(child).display !== "none")
+              .every((child) => {
+                const box = child.getBoundingClientRect();
+                return (
+                  box.left >= bounds.left - 1 &&
+                  box.right <= bounds.right + 1 &&
+                  box.top >= bounds.top - 1 &&
+                  box.bottom <= bounds.bottom + 1
+                );
+              });
+          }),
+          selected: tabs.findIndex(
+            (tab) => tab.getAttribute("aria-selected") === "true",
+          ),
+          visiblePanels: panels
+            .map((panel, index) => (!panel.hidden ? index : -1))
+            .filter((index) => index >= 0),
+          railFits: rail.scrollWidth <= rail.clientWidth + 1,
+          scrollLeft: rail.scrollLeft,
+          scrollSnapType: getComputedStyle(rail).scrollSnapType,
+        };
+      });
+    const initialDiaryState = await readDiaryState();
+    expect(
+      initialDiaryState.contained &&
+        initialDiaryState.selected === 0 &&
+        JSON.stringify(initialDiaryState.visiblePanels) === "[0]",
+      `${prefix}: initial diary story state regressed (${JSON.stringify(initialDiaryState)})`,
+    );
+    await diaryTabs.nth(2).click();
+    await page.waitForTimeout(220);
+    const selectedDiaryState = await readDiaryState();
+    expect(
+      selectedDiaryState.selected === 2 &&
+        JSON.stringify(selectedDiaryState.visiblePanels) === "[2]" &&
+        selectedDiaryState.railFits,
+      `${prefix}: diary story switch or mobile reveal regressed (${JSON.stringify(selectedDiaryState)})`,
+    );
+    await diaryTabs.nth(2).press("ArrowLeft");
+    const keyboardDiaryState = await readDiaryState();
+    expect(
+      keyboardDiaryState.selected === 1 &&
+        JSON.stringify(keyboardDiaryState.visiblePanels) === "[1]",
+      `${prefix}: diary story keyboard navigation regressed (${JSON.stringify(keyboardDiaryState)})`,
+    );
+    await diaryTabs.first().click();
+
     const proof = page.locator(".proof-sources");
     const proofScrollBehavior = await page.evaluate(() => {
       const root = document.documentElement;

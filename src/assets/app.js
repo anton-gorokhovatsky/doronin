@@ -1370,11 +1370,90 @@ for (const analyticsTarget of document.querySelectorAll(
   });
 }
 
-const diaryVideo = document.querySelector("[data-diary-video]");
-const diaryVideoPlay = document.querySelector("[data-diary-video-play]");
-const diaryVideoFrame = diaryVideo?.closest(".diary__media");
+const diaryStories = document.querySelector("[data-diary-stories]");
 
-if (diaryVideo) {
+if (diaryStories) {
+  const diaryStoryTabs = [
+    ...diaryStories.querySelectorAll("[data-diary-story-tab]"),
+  ];
+  const diaryStoryPanels = [
+    ...diaryStories.querySelectorAll("[data-diary-story-panel]"),
+  ];
+
+  const activateDiaryStory = (
+    tab,
+    { focus = false, reveal = false } = {},
+  ) => {
+    const panelId = tab?.getAttribute("aria-controls");
+    if (!panelId) return;
+
+    for (const storyTab of diaryStoryTabs) {
+      const isActive = storyTab === tab;
+      storyTab.setAttribute("aria-selected", String(isActive));
+      storyTab.tabIndex = isActive ? 0 : -1;
+    }
+
+    for (const panel of diaryStoryPanels) {
+      const isActive = panel.id === panelId;
+      panel.hidden = !isActive;
+
+      if (!isActive) {
+        panel.querySelector("video")?.pause();
+      }
+    }
+
+    if (reveal) {
+      tab.scrollIntoView({ block: "nearest", inline: "nearest" });
+    }
+    if (focus) tab.focus();
+  };
+
+  if (diaryStoryTabs.length && diaryStoryPanels.length) {
+    for (const [index, tab] of diaryStoryTabs.entries()) {
+      tab.addEventListener("click", (event) => {
+        event.preventDefault();
+        activateDiaryStory(tab, { reveal: true });
+        history.replaceState(null, "", tab.hash);
+      });
+
+      tab.addEventListener("keydown", (event) => {
+        let nextIndex = null;
+
+        if (event.key === "ArrowRight") nextIndex = index + 1;
+        if (event.key === "ArrowLeft") nextIndex = index - 1;
+        if (event.key === "Home") nextIndex = 0;
+        if (event.key === "End") nextIndex = diaryStoryTabs.length - 1;
+        if (nextIndex === null) return;
+
+        event.preventDefault();
+        const nextTab = diaryStoryTabs.at(
+          (nextIndex + diaryStoryTabs.length) % diaryStoryTabs.length,
+        );
+        activateDiaryStory(nextTab, { focus: true, reveal: true });
+        history.replaceState(null, "", nextTab.hash);
+      });
+    }
+
+    const hashTab = diaryStoryTabs.find(
+      (tab) => tab.hash === window.location.hash,
+    );
+    const initialTab =
+      hashTab ||
+      diaryStoryTabs.find((tab) => tab.getAttribute("aria-selected") === "true") ||
+      diaryStoryTabs[0];
+
+    activateDiaryStory(initialTab, { reveal: Boolean(hashTab) });
+    diaryStories.classList.add("has-diary-stories");
+  }
+}
+
+const diaryVideos = [...document.querySelectorAll("[data-diary-video]")];
+
+for (const diaryVideo of diaryVideos) {
+  const diaryVideoFrame = diaryVideo.closest(".diary__media");
+  const diaryVideoPlay = diaryVideoFrame?.querySelector(
+    "[data-diary-video-play]",
+  );
   let diaryStarted = false;
   let diaryCompleted = false;
 
@@ -1400,6 +1479,10 @@ if (diaryVideo) {
   }
 
   diaryVideo.addEventListener("play", () => {
+    for (const otherVideo of diaryVideos) {
+      if (otherVideo !== diaryVideo) otherVideo.pause();
+    }
+
     diaryVideoFrame?.classList.add("has-started");
 
     if (!diaryStarted) {

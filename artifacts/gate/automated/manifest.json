@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-02T18:49:42.625Z",
+  "generatedAt": "2026-08-03T13:13:09.822Z",
   "captures": [
     {
       "name": "ru-1440-system-top",
@@ -11,7 +11,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-system-top.png",
-      "hash": "513ecd200f7ec59c18a4f319e895350be82a9ed623cd12267e851ba64543a066",
+      "hash": "64da33949f184e40966f52836414fa8c366801a11daff6146f4105d78f890646",
       "metrics": {
         "activeElement": "body",
         "htmlClass": "js theme-light",
@@ -34,7 +34,12 @@
         "scrollWidth": 1440,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -49,7 +54,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-system-menu.png",
-      "hash": "5601f4fb13f8072173e34040fe9fcc74b8de6d44c1f953991cc6a68e5a8472c8",
+      "hash": "a52d430db312d2fae579b0bd4ecb44c5db3351c4c0d53f8fec81b12f1d4eda61",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "htmlClass": "js theme-light",
@@ -70,7 +75,7 @@
             "className": "site-nav__status",
             "clientWidth": 193,
             "scrollWidth": 197,
-            "text": "11 111 км · 31 день 121 день до старта"
+            "text": "11 111 км · 31 день 120 дней до старта"
           }
         ],
         "themeOverlap": false,
@@ -79,7 +84,12 @@
         "scrollWidth": 1440,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -93,7 +103,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-dark-proof-open.png",
-      "hash": "54e5e456449505070913038c22f0650b2e14b7d890173aae1b1865d9643d92cb",
+      "hash": "baeff0f1bc7a3a2647e4e5d9b3a47ba9c3026069d9ed1362236161e63384e867",
       "metrics": {
         "activeElement": "summary",
         "htmlClass": "js theme-dark",
@@ -116,7 +126,12 @@
         "scrollWidth": 1440,
         "theme": "dark",
         "resolvedTheme": "dark",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -152,7 +167,12 @@
         "scrollWidth": 390,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -167,7 +187,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-system-menu.png",
-      "hash": "17a5e7c8a4ba7ac2df7b89edb6db8c64e21db22ae43bac39b7e1a15dcd2da8f1",
+      "hash": "4be52965b21e07bd850fb2cd72d55a890a47da43ed3be8dd72c71b411ece3dfd",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "htmlClass": "js theme-light",
@@ -188,7 +208,7 @@
             "className": "site-nav__status",
             "clientWidth": 148,
             "scrollWidth": 162,
-            "text": "11 111 км · 31 день 121 день до старта"
+            "text": "11 111 км · 31 день 120 дней до старта"
           }
         ],
         "themeOverlap": false,
@@ -197,7 +217,63 @@
         "scrollWidth": 390,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
+      }
+    },
+    {
+      "name": "ru-390-system-menu-bottom",
+      "path": "/?gate=ru-390-menu-bottom#top",
+      "locale": "ru",
+      "theme": "system",
+      "menuOpen": true,
+      "menuBottom": true,
+      "expectMenuScroll": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-system-menu-bottom.png",
+      "hash": "be507f4809a6375a5030753142ce67445263c1fd3b1c0426658062e0046697fb",
+      "metrics": {
+        "activeElement": "summary.menu-toggle",
+        "htmlClass": "js theme-light",
+        "menuPrimaryColumns": "358px",
+        "clientWidth": 390,
+        "ctaVisible": true,
+        "fontSize": "16px",
+        "forcedColors": false,
+        "heroPaused": true,
+        "videoToggleHidden": true,
+        "lang": "ru",
+        "menuOpen": true,
+        "menuFits": false,
+        "menuCtaVisible": true,
+        "menuItemOverlap": false,
+        "menuItemOverflow": [
+          {
+            "className": "site-nav__status",
+            "clientWidth": 148,
+            "scrollWidth": 162,
+            "text": "11 111 км · 31 день 120 дней до старта"
+          }
+        ],
+        "themeOverlap": false,
+        "projectPhase": "before",
+        "phaseFixture": null,
+        "scrollWidth": 390,
+        "theme": "system",
+        "resolvedTheme": "light",
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -233,7 +309,12 @@
         "scrollWidth": 320,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -248,7 +329,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-320-system-menu.png",
-      "hash": "4827440ec2b06426079f02f98fa7fd92c1a5a489fce45abc997725bf42c41c19",
+      "hash": "696176cc2c8556675ee9ef3f66e91dc3d52e2fbe1e2e8f494f042d4c356fc81c",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "htmlClass": "js theme-light",
@@ -269,7 +350,7 @@
             "className": "site-nav__status",
             "clientWidth": 145,
             "scrollWidth": 159,
-            "text": "11 111 км · 31 день 121 день до старта"
+            "text": "11 111 км · 31 день 120 дней до старта"
           }
         ],
         "themeOverlap": false,
@@ -278,7 +359,12 @@
         "scrollWidth": 320,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -293,7 +379,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-text-200-menu.png",
-      "hash": "3ae34f8647e11fb30c9006ec07a0351327e6e38f50566c3549a786263be30939",
+      "hash": "796fe06c4370bc5b16c5fafe94d87ef9803dbc4b86d128a8eff22d87d87e0177",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "htmlClass": "js theme-light text-enlarged",
@@ -316,7 +402,12 @@
         "scrollWidth": 390,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": false,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -332,9 +423,9 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-text-200-menu-bottom.png",
-      "hash": "d99472e5140afb594bc384943367d6b037f17265035fc6c53bfe46e654155525",
+      "hash": "2f418bef4dd1876a6440e9881c29e99ac7c2861aa87b9bddce7c7b91e8e84809",
       "metrics": {
-        "activeElement": "a.site-nav__cta.action-primary",
+        "activeElement": "summary.menu-toggle",
         "htmlClass": "js theme-light text-enlarged",
         "menuPrimaryColumns": "358px",
         "clientWidth": 390,
@@ -355,7 +446,12 @@
         "scrollWidth": 390,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": false,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -369,7 +465,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-keyboard-focus.png",
-      "hash": "967db6f5ca96fc7a616c48a367a1b2d6d165ba0551158abb14208d70e57211b2",
+      "hash": "1f10b7178e29343133ecf23a143e7c66d1ae789bc2b1c98f5a2c7239fa82479b",
       "metrics": {
         "activeElement": "button",
         "htmlClass": "js theme-light",
@@ -392,7 +488,12 @@
         "scrollWidth": 390,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -407,7 +508,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-reduced-motion.png",
-      "hash": "3cee2e4869b2e1f1157833813dc3164fde0329e647c117e711f183b13441cfbd",
+      "hash": "a793ed688628c752956c18701fb6b02e11fdb8e87573c7ccdc3779b76c408a9d",
       "metrics": {
         "activeElement": "body",
         "htmlClass": "js theme-light motion-reduced",
@@ -430,7 +531,12 @@
         "scrollWidth": 1440,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -444,7 +550,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-video-fallback.png",
-      "hash": "6dcab6bb7be961edd4bbc3817dfec8389ca2c6ebfd58cec324d215a94f31b94b",
+      "hash": "2ea9abde04560435014364422066193fe6bc9f2e5f2939becfe09a75b3e296f1",
       "metrics": {
         "activeElement": "body",
         "htmlClass": "js theme-light",
@@ -467,7 +573,12 @@
         "scrollWidth": 1440,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -482,7 +593,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-video-contrast-1.png",
-      "hash": "90c44a2b44e7d6d68de3651ef3f7cd41af39fe6727ef99be6b582e69b4c206a6",
+      "hash": "ebb32702fc507fa90f551e486f93ee5f829ee11310bd9e62c78de30396a9b90e",
       "metrics": {
         "activeElement": "body",
         "htmlClass": "js theme-light",
@@ -505,7 +616,12 @@
         "scrollWidth": 1440,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -520,7 +636,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-video-contrast-2.png",
-      "hash": "204678a5d983d3ab7e2fa1d5899973c8691847e469667581f63d1afe096a2c35",
+      "hash": "4e8bf8b740f2481f0e0e4b8dc48d1c35ea6c8b9e3fd7cdcc91e50eeb1cf1fdcb",
       "metrics": {
         "activeElement": "body",
         "htmlClass": "js theme-light",
@@ -543,7 +659,12 @@
         "scrollWidth": 1440,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -558,7 +679,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-video-contrast-3.png",
-      "hash": "c1602556afccad574d3b70130b73b909c5d3aa5275dbd88f981d3ae69a0105de",
+      "hash": "ef01962cecaf3c3edcefbd7e8ba12a363dcba9604d62186e8b6c376a80691be6",
       "metrics": {
         "activeElement": "body",
         "htmlClass": "js theme-light",
@@ -581,7 +702,12 @@
         "scrollWidth": 1440,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -596,7 +722,7 @@
         "height": 720
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1280-forced-colors-top.png",
-      "hash": "1f31f75f43a3e64128dffe4fc7b16de3238956f6cbaef24078430ec793f6dcb8",
+      "hash": "897319277a75d06928bd38a142e52658b8e01c4138a6a52ef605573cbdf212ce",
       "metrics": {
         "activeElement": "body",
         "htmlClass": "js theme-light",
@@ -619,7 +745,12 @@
         "scrollWidth": 1280,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -634,7 +765,7 @@
         "height": 720
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1280-text-200-athlete.png",
-      "hash": "044220a87cc0683f03efd32e2d3f76c01a2b44b0c7ca537a8b357dca02f4be0f",
+      "hash": "d437472ccbbd6d0d42b876e92c2c8792103d2cceb6f219964f9e17b1e454661b",
       "metrics": {
         "activeElement": "body",
         "htmlClass": "js theme-light text-enlarged",
@@ -657,7 +788,12 @@
         "scrollWidth": 1280,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": false
+        "partnerMetricsFit": false,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -672,7 +808,7 @@
         "height": 720
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1280-text-200-footer.png",
-      "hash": "0ee8042fef28ae059e0435912bd657221affc443fdf627140f681942449d4dd6",
+      "hash": "fb5f9f12df0c12efb3f65291e7741a2dabc7009d9ad79c0329d29a26f0dd86f4",
       "metrics": {
         "activeElement": "body",
         "htmlClass": "js theme-light text-enlarged",
@@ -695,7 +831,12 @@
         "scrollWidth": 1280,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": false
+        "partnerMetricsFit": false,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -708,7 +849,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/en-1440-light-top.png",
-      "hash": "443606f40b4856bd066e93bb0fc6c958581448672ef26d7a5dff44a2dfe4deb9",
+      "hash": "88d10011e967e8b8570fe3460439882acb14756a43d1f44ebd037a67ca960f24",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "htmlClass": "js theme-light",
@@ -731,7 +872,12 @@
         "scrollWidth": 1440,
         "theme": "light",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -744,7 +890,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/en-390-dark-top.png",
-      "hash": "c0cdb851b34d9fef94e556bf877b244f0d37a3d2b2fc6544ddc9eb320fc71d1d",
+      "hash": "8cb4a7a3e7ebf181c43e706f398796440d372f8e4b97a95002fdf8489fe40167",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "htmlClass": "js theme-dark",
@@ -767,7 +913,12 @@
         "scrollWidth": 390,
         "theme": "dark",
         "resolvedTheme": "dark",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -781,7 +932,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-dark-distance-stage.png",
-      "hash": "2d1ac6409ffd32cf85e82fe58e867f42d8b5b3f1fb8b90a063842440803bdddc",
+      "hash": "d9f9d7f0956ab11e4fc9665e9631c9f90f793096c2862b54e7990f98ef5c7c11",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "htmlClass": "js theme-dark",
@@ -804,7 +955,12 @@
         "scrollWidth": 390,
         "theme": "dark",
         "resolvedTheme": "dark",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -818,7 +974,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-light-partner-closing.png",
-      "hash": "8d5a74809f2a65a305e118d5edc7adf7567e813036064151e871a37c3c67230b",
+      "hash": "babc6fc496ced5e295ef4c7d53711059925c8713869a1227c4ab97a49d8e9b1b",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "htmlClass": "js theme-light",
@@ -841,7 +997,12 @@
         "scrollWidth": 1440,
         "theme": "light",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -856,7 +1017,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-dark-audio-scene-02.png",
-      "hash": "6dbdc1246deb399404902bcc496215072d88b7e55efd7d64506b118b033c4e19",
+      "hash": "e8780ef17ab3ac7e9f4b2cc6d9a937c6724c3ac101483f79924b06d5fd977f18",
       "metrics": {
         "activeElement": "button",
         "htmlClass": "js theme-dark",
@@ -879,7 +1040,12 @@
         "scrollWidth": 390,
         "theme": "dark",
         "resolvedTheme": "dark",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -894,7 +1060,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-dark-proof-open.png",
-      "hash": "ad7a57ebd3e0604fd9cd1fc46a77e29d4198a26523fa4860dd42c9caa55c8990",
+      "hash": "ca0ddd06574f9b6fcccc6377aa7c9f869c573ef37c90cb4e735fe7ef172a1c3c",
       "metrics": {
         "activeElement": "summary",
         "htmlClass": "js theme-dark",
@@ -917,7 +1083,12 @@
         "scrollWidth": 390,
         "theme": "dark",
         "resolvedTheme": "dark",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -931,7 +1102,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-dark-partner-closing.png",
-      "hash": "96d2d4857db992d720de703490ac91c85ecfdea7293250849535faa7b081742f",
+      "hash": "4c2f7e972be6e7fd2fb3f0ccc157ce59137f74a889c77ede3361b120d44d1988",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "htmlClass": "js theme-dark",
@@ -954,7 +1125,12 @@
         "scrollWidth": 390,
         "theme": "dark",
         "resolvedTheme": "dark",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -968,7 +1144,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-light-partner-formats.png",
-      "hash": "14c2415e2eeaa81c1332a9523183a6bfe152bf09e52f590214c7b879408a3e0b",
+      "hash": "5076ae6be2cc6d69639442ca9b973825955dbf010da80c4db2bc395f63d10a8a",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "htmlClass": "js theme-light",
@@ -991,7 +1167,12 @@
         "scrollWidth": 1440,
         "theme": "light",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -1004,7 +1185,7 @@
         "height": 844
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-light-top.png",
-      "hash": "e195f4089a1787c53baca0c0f5c18053e484c3d4b8585d9a9a801962298f0b99",
+      "hash": "b1813f10c5a06d2ea276d4086a6175f9b20a4ce31d266ebe49d43f6e0680bec4",
       "metrics": {
         "activeElement": "summary.menu-toggle",
         "htmlClass": "js theme-light",
@@ -1027,7 +1208,55 @@
         "scrollWidth": 390,
         "theme": "light",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
+      }
+    },
+    {
+      "name": "ru-390-light-diary-stories",
+      "path": "/?gate=ru-390-light-diary#diary",
+      "locale": "ru",
+      "theme": "light",
+      "target": ".diary-stories__rail",
+      "expectDiaryStories": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-390-light-diary-stories.png",
+      "hash": "8fea314552fb28ef23996db2ed99bd4fced5092b1d15e0b84b61a12c56a1c899",
+      "metrics": {
+        "activeElement": "summary.menu-toggle",
+        "htmlClass": "js theme-light",
+        "menuPrimaryColumns": "minmax(0px, 1fr)",
+        "clientWidth": 390,
+        "ctaVisible": true,
+        "fontSize": "16px",
+        "forcedColors": false,
+        "heroPaused": true,
+        "videoToggleHidden": true,
+        "lang": "ru",
+        "menuOpen": false,
+        "menuFits": true,
+        "menuCtaVisible": true,
+        "menuItemOverlap": false,
+        "menuItemOverflow": [],
+        "themeOverlap": false,
+        "projectPhase": "before",
+        "phaseFixture": null,
+        "scrollWidth": 390,
+        "theme": "light",
+        "resolvedTheme": "light",
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -1040,7 +1269,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/en-1440-system-top.png",
-      "hash": "51be5dfd4a130cda9c2a43af3686df8d0955b0021e48b168edea52a59aa003e9",
+      "hash": "41a3efcd51b34400d56873d5e410e61420b7a52e3cdf7bd5b175bc444893bc8e",
       "metrics": {
         "activeElement": "body",
         "htmlClass": "js theme-light",
@@ -1063,7 +1292,55 @@
         "scrollWidth": 1440,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
+      }
+    },
+    {
+      "name": "en-320-light-diary-stories",
+      "path": "/en/?gate=en-320-light-diary#diary",
+      "locale": "en",
+      "theme": "light",
+      "target": ".diary-stories__rail",
+      "expectDiaryStories": true,
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/en-320-light-diary-stories.png",
+      "hash": "262e540fb17eebf7783e1ff37a697535f48b51510272e6774a4599b591c0221d",
+      "metrics": {
+        "activeElement": "summary.menu-toggle",
+        "htmlClass": "js theme-light",
+        "menuPrimaryColumns": "minmax(0px, 1fr)",
+        "clientWidth": 320,
+        "ctaVisible": true,
+        "fontSize": "16px",
+        "forcedColors": false,
+        "heroPaused": true,
+        "videoToggleHidden": true,
+        "lang": "en",
+        "menuOpen": false,
+        "menuFits": true,
+        "menuCtaVisible": true,
+        "menuItemOverlap": false,
+        "menuItemOverflow": [],
+        "themeOverlap": false,
+        "projectPhase": "before",
+        "phaseFixture": null,
+        "scrollWidth": 320,
+        "theme": "light",
+        "resolvedTheme": "light",
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -1077,7 +1354,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-phase-before.png",
-      "hash": "185cb2af12d20071fec8882fc9b1f6dc8fbec07a369d93fee24411229397c96e",
+      "hash": "88b348d8bd97c93225ed7ca51950e326566fb7c4b2ff1ae0abf77be4f3cf7e66",
       "metrics": {
         "activeElement": "body",
         "htmlClass": "js theme-light",
@@ -1100,7 +1377,12 @@
         "scrollWidth": 1440,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -1114,7 +1396,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-phase-active.png",
-      "hash": "8789c4966d0d03f583c31c3a4e01fe36c58e48ea63ac1003e449db225c086df7",
+      "hash": "db725b14307fb3533f866414196668f2c26660216f4efc97cd49e9132b767525",
       "metrics": {
         "activeElement": "body",
         "htmlClass": "js theme-light",
@@ -1137,7 +1419,12 @@
         "scrollWidth": 1440,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     },
     {
@@ -1151,7 +1438,7 @@
         "height": 900
       },
       "file": "/Users/antonj/Documents/Виктор Доронин/artifacts/gate/automated/ru-1440-phase-finished.png",
-      "hash": "f3071c13f350f6bf7106fb7126e1d1b2038f114b51cf2eee3345426c9d6975bf",
+      "hash": "9893ad9cc44105aa950a6df66c31cba7ef813ef2aa9170bd67b8d31e98c93c6e",
       "metrics": {
         "activeElement": "body",
         "htmlClass": "js theme-light",
@@ -1174,7 +1461,12 @@
         "scrollWidth": 1440,
         "theme": "system",
         "resolvedTheme": "light",
-        "partnerMetricsFit": true
+        "partnerMetricsFit": true,
+        "diaryStories": {
+          "contained": true,
+          "selected": 1,
+          "visiblePanels": 1
+        }
       }
     }
   ]

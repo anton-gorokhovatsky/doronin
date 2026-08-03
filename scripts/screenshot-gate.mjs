@@ -61,6 +61,9 @@ async function capture(browser, origin, spec) {
     if (Number.isInteger(spec.audioScene)) {
       await page.locator("[data-sound-scene]").nth(spec.audioScene).click();
     }
+    if (Number.isInteger(spec.diaryStory)) {
+      await page.locator("[data-diary-story-tab]").nth(spec.diaryStory).click();
+    }
     if (Number.isFinite(spec.videoFrame)) {
       await page.locator("[data-hero-video]").evaluate(
         async (video, frame) => {
@@ -202,6 +205,30 @@ async function capture(browser, origin, spec) {
             return box.left >= bounds.left - 1 && box.right <= bounds.right + 1;
           });
         })(),
+        diaryStories: (() => {
+          const tabs = [...document.querySelectorAll("[data-diary-story-tab]")];
+          const panels = [...document.querySelectorAll("[data-diary-story-panel]")];
+          return {
+            contained: tabs.every((tab) => {
+              const bounds = tab.getBoundingClientRect();
+              return [...tab.children]
+                .filter((child) => getComputedStyle(child).display !== "none")
+                .every((child) => {
+                  const box = child.getBoundingClientRect();
+                  return (
+                    box.left >= bounds.left - 1 &&
+                    box.right <= bounds.right + 1 &&
+                    box.top >= bounds.top - 1 &&
+                    box.bottom <= bounds.bottom + 1
+                  );
+                });
+            }),
+            selected: tabs.filter(
+              (tab) => tab.getAttribute("aria-selected") === "true",
+            ).length,
+            visiblePanels: panels.filter((panel) => !panel.hidden).length,
+          };
+        })(),
       };
     });
     expect(
@@ -252,6 +279,14 @@ async function capture(browser, origin, spec) {
     }
     if (spec.target === ".partners__closing") {
       expect(metrics.partnerMetricsFit, `${spec.name}: partner metrics overflow`);
+    }
+    if (spec.expectDiaryStories) {
+      expect(
+        metrics.diaryStories.contained &&
+          metrics.diaryStories.selected === 1 &&
+          metrics.diaryStories.visiblePanels === 1,
+        `${spec.name}: diary story rail clips or exposes the wrong state (${JSON.stringify(metrics.diaryStories)})`,
+      );
     }
 
     const file = resolve(outputRoot, `${spec.name}.png`);
@@ -487,11 +522,29 @@ const specs = [
     viewport: { width: 390, height: 844 },
   },
   {
+    name: "ru-390-light-diary-stories",
+    path: "/?gate=ru-390-light-diary#diary",
+    locale: "ru",
+    theme: "light",
+    target: ".diary-stories__rail",
+    expectDiaryStories: true,
+    viewport: { width: 390, height: 844 },
+  },
+  {
     name: "en-1440-system-top",
     path: "/en/?gate=en-1440-system#top",
     locale: "en",
     theme: "system",
     viewport: { width: 1440, height: 900 },
+  },
+  {
+    name: "en-320-light-diary-stories",
+    path: "/en/?gate=en-320-light-diary#diary",
+    locale: "en",
+    theme: "light",
+    target: ".diary-stories__rail",
+    expectDiaryStories: true,
+    viewport: { width: 320, height: 844 },
   },
   {
     name: "ru-1440-phase-before",

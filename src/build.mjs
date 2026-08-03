@@ -69,7 +69,9 @@ const shared = {
   email: "anesterova88@gmail.com",
   telegramHref: "https://t.me/alraunean",
   viktorTelegramHref: "https://t.me/doroninvdele",
-  diaryPostHref: "https://t.me/doroninvdele/484",
+  diaryPostHref: "https://t.me/doroninvdele/577",
+  diaryArchivePostHref: "https://t.me/doroninvdele/484",
+  diaryFoundationPostHref: "https://t.me/doroninvdele/427",
   viktorInstagramHref: "https://www.instagram.com/victordoronin/",
   filmHref: "https://vkvideo.ru/video-224465212_456239107",
   serialHrefs: [
@@ -200,28 +202,94 @@ const locales = {
       phaseBefore: "Дневник подготовки",
       phaseActive: "31 день проекта",
       phaseFinished: "Архив истории",
-      title: "Что дальше?",
-      date: "2026-03-23",
-      dateLabel: "23 марта 2026",
-      image: "diary-2026-03-23.jpg",
-      video: "diary-2026-03-23.mp4",
-      imageAlt:
-        "Виктор Доронин проходит тестирование на велосипеде с газоанализатором",
-      videoLabel:
-        "Видео из дневника подготовки: Виктор Доронин проходит тестирование на велосипеде",
-      videoPlayLabel: "Воспроизвести видео из дневника, 15 секунд",
-      videoPlayCta: "Смотреть видео",
-      videoDuration: "00:15",
-      lead:
-        "После 60 дней базовой работы Виктор сверил ощущения с цифрами: газоанализ, лактат, мощность и пульс.",
-      facts: [
-        ["60 дней", "базовой подготовки"],
-        ["203 часа", "нагрузки"],
+      rangeLabel: "3 записи · 10 марта — 23 апреля 2026",
+      storiesLabel: "Записи дневника подготовки",
+      entries: [
+        {
+          index: "03",
+          tabLabel: "После тестов",
+          title: "После тестов",
+          date: "2026-04-23",
+          dateLabel: "23 апреля",
+          image: "diary-2026-04-23.jpg",
+          video: "diary-2026-04-23.mp4",
+          imageAlt:
+            "Виктор Доронин выполняет беговую работу на стадионе вместе с тренировочной группой",
+          videoLabel:
+            "Видео из дневника подготовки: Виктор Доронин бежит по стадиону вместе с тренировочной группой",
+          videoPlayLabel: "Воспроизвести видео из дневника, 5 секунд",
+          videoPlayCta: "Смотреть видео",
+          videoDuration: "00:05",
+          videoDurationIso: "PT5S",
+          lead:
+            "Ключевые сессии теперь проходят в беге, а велосипед помогает восстановлению.",
+          facts: [
+            ["3", "направления работы после тестов"],
+            ["3 000 м", "дистанция экспериментальной группы"],
+          ],
+          note:
+            "План новой группы «Дасти» на 90% совпал с задачами Виктора — часть работ он проходит вместе с ней.",
+          cta: "Читать запись в Telegram",
+          externalLabel: "Откроется запись дневника Виктора от 23 апреля в Telegram",
+          href: shared.diaryPostHref,
+        },
+        {
+          index: "02",
+          tabLabel: "Контрольная точка",
+          title: "Что дальше?",
+          date: "2026-03-23",
+          dateLabel: "23 марта",
+          image: "diary-2026-03-23.jpg",
+          video: "diary-2026-03-23.mp4",
+          imageAlt:
+            "Виктор Доронин проходит тестирование на велосипеде с газоанализатором",
+          videoLabel:
+            "Видео из дневника подготовки: Виктор Доронин проходит тестирование на велосипеде",
+          videoPlayLabel: "Воспроизвести видео из дневника, 15 секунд",
+          videoPlayCta: "Смотреть видео",
+          videoDuration: "00:15",
+          videoDurationIso: "PT15S",
+          lead:
+            "После 60 дней базовой работы Виктор сверил ощущения с цифрами: газоанализ, лактат, мощность и пульс.",
+          facts: [
+            ["60", "дней базовой подготовки"],
+            ["203", "часа нагрузки"],
+          ],
+          note:
+            "Следующий цикл — три месяца работы над силой и скоростью, затем повторный тест.",
+          cta: "Читать запись в Telegram",
+          externalLabel: "Откроется запись дневника Виктора от 23 марта в Telegram",
+          href: shared.diaryArchivePostHref,
+        },
+        {
+          index: "01",
+          tabLabel: "Базовый период",
+          title: "База закрыта",
+          date: "2026-03-10",
+          dateLabel: "10 марта",
+          image: "diary-2026-03-10.jpg",
+          video: "diary-2026-03-10.mp4",
+          imageAlt:
+            "Виктор Доронин едет на велосипеде по дороге во время базовой подготовки",
+          videoLabel:
+            "Видео из дневника подготовки: Виктор Доронин тренируется на велосипеде",
+          videoPlayLabel: "Воспроизвести видео из дневника, 12 секунд",
+          videoPlayCta: "Смотреть видео",
+          videoDuration: "00:12",
+          videoDurationIso: "PT12S",
+          lead:
+            "За 60 дней Виктор спокойно развивал первую и вторую зоны; бег был только в начале, затем база почти полностью перешла на велосипед.",
+          facts: [
+            ["4 769", "км дистанции"],
+            ["46 987", "м набора"],
+          ],
+          note:
+            "Базовый период собрал 203 часа 3 минуты нагрузки — фундамент для следующего этапа подготовки.",
+          cta: "Читать запись в Telegram",
+          externalLabel: "Откроется запись дневника Виктора от 10 марта в Telegram",
+          href: shared.diaryFoundationPostHref,
+        },
       ],
-      note:
-        "Следующий цикл — три месяца работы над силой и скоростью, затем повторный тест.",
-      cta: "Читать запись в Telegram",
-      externalLabel: "Откроется дневник Виктора в Telegram",
       phasesLabel: "Состояния проекта",
       phases: [
         ["before", "Подготовка", "Дневник, тренировки и сбор команды"],
@@ -682,28 +750,94 @@ const locales = {
       phaseBefore: "Training diary",
       phaseActive: "31 days underway",
       phaseFinished: "Story archive",
-      title: "What comes next?",
-      date: "2026-03-23",
-      dateLabel: "March 23, 2026",
-      image: "diary-2026-03-23.jpg",
-      video: "diary-2026-03-23.mp4",
-      imageAlt:
-        "Viktor Doronin undergoes a cycling test while wearing a gas-analysis mask",
-      videoLabel:
-        "Training diary video: Viktor Doronin undergoes a cycling test",
-      videoPlayLabel: "Play the 15-second training diary video",
-      videoPlayCta: "Watch video",
-      videoDuration: "00:15",
-      lead:
-        "After 60 days of base work, Viktor checked perception against data: gas analysis, lactate, power and heart rate.",
-      facts: [
-        ["60 days", "of base training"],
-        ["203 hours", "of training load"],
+      rangeLabel: "3 entries · March 10 — April 23, 2026",
+      storiesLabel: "Training diary entries",
+      entries: [
+        {
+          index: "03",
+          tabLabel: "After the tests",
+          title: "After the tests",
+          date: "2026-04-23",
+          dateLabel: "April 23",
+          image: "diary-2026-04-23.jpg",
+          video: "diary-2026-04-23.mp4",
+          imageAlt:
+            "Viktor Doronin runs on a track with a training group during a strength-and-speed session",
+          videoLabel:
+            "Training diary video: Viktor Doronin runs on a track with a training group",
+          videoPlayLabel: "Play the 5-second training diary video",
+          videoPlayCta: "Watch video",
+          videoDuration: "00:05",
+          videoDurationIso: "PT5S",
+          lead:
+            "Running now carries the key sessions, while cycling supports recovery.",
+          facts: [
+            ["3", "areas identified by testing"],
+            ["3,000 m", "the experimental group’s distance"],
+          ],
+          note:
+            "Dusty’s new programme matched 90% of Viktor’s needs, so he now completes part of the work with the group.",
+          cta: "Read the update on Telegram",
+          externalLabel: "Opens Viktor’s April 23 training diary entry on Telegram",
+          href: shared.diaryPostHref,
+        },
+        {
+          index: "02",
+          tabLabel: "Checkpoint",
+          title: "What comes next?",
+          date: "2026-03-23",
+          dateLabel: "March 23",
+          image: "diary-2026-03-23.jpg",
+          video: "diary-2026-03-23.mp4",
+          imageAlt:
+            "Viktor Doronin undergoes a cycling test while wearing a gas-analysis mask",
+          videoLabel:
+            "Training diary video: Viktor Doronin undergoes a cycling test",
+          videoPlayLabel: "Play the 15-second training diary video",
+          videoPlayCta: "Watch video",
+          videoDuration: "00:15",
+          videoDurationIso: "PT15S",
+          lead:
+            "After 60 days of base work, Viktor checked perception against data: gas analysis, lactate, power and heart rate.",
+          facts: [
+            ["60", "days of base training"],
+            ["203", "hours of training load"],
+          ],
+          note:
+            "The next cycle is three months of strength and speed work, followed by a repeat test.",
+          cta: "Read the update on Telegram",
+          externalLabel: "Opens Viktor’s March 23 training diary entry on Telegram",
+          href: shared.diaryArchivePostHref,
+        },
+        {
+          index: "01",
+          tabLabel: "Base phase",
+          title: "Base phase complete",
+          date: "2026-03-10",
+          dateLabel: "March 10",
+          image: "diary-2026-03-10.jpg",
+          video: "diary-2026-03-10.mp4",
+          imageAlt:
+            "Viktor Doronin rides a bicycle on a road during base training",
+          videoLabel:
+            "Training diary video: Viktor Doronin trains on a bicycle",
+          videoPlayLabel: "Play the 12-second training diary video",
+          videoPlayCta: "Watch video",
+          videoDuration: "00:12",
+          videoDurationIso: "PT12S",
+          lead:
+            "Over 60 days, Viktor built his first and second training zones; running featured only at the start before the phase shifted almost entirely to cycling.",
+          facts: [
+            ["4,769", "km covered"],
+            ["46,987", "m of elevation gain"],
+          ],
+          note:
+            "The base phase totalled 203 hours and 3 minutes of work — the foundation for the next stage.",
+          cta: "Read the update on Telegram",
+          externalLabel: "Opens Viktor’s March 10 training diary entry on Telegram",
+          href: shared.diaryFoundationPostHref,
+        },
       ],
-      note:
-        "The next cycle is three months of strength and speed work, followed by a repeat test.",
-      cta: "Read the update on Telegram",
-      externalLabel: "Opens Viktor’s training diary on Telegram",
       phasesLabel: "Project states",
       phases: [
         ["before", "Preparation", "Training diary and team building"],
@@ -1319,6 +1453,101 @@ function renderMetrics(items, className) {
     .join("");
 }
 
+function renderDiaryTabs(entries) {
+  return entries
+    .map(
+      (entry, index) => `
+        <a
+          class="diary-stories__tab"
+          id="diary-tab-${entry.date}"
+          href="#diary-entry-${entry.date}"
+          role="tab"
+          aria-controls="diary-entry-${entry.date}"
+          aria-selected="${index === 0 ? "true" : "false"}"
+          data-diary-story-tab
+        >
+          <span class="diary-stories__index">${entry.index}</span>
+          <span class="diary-stories__thumb" aria-hidden="true">
+            <img
+              src="${entry.image}"
+              alt=""
+              width="720"
+              height="1280"
+              loading="lazy"
+              decoding="async"
+            >
+          </span>
+          <time datetime="${entry.date}">${entry.dateLabel}</time>
+          <strong>${entry.tabLabel}</strong>
+        </a>`,
+    )
+    .join("");
+}
+
+function renderDiaryEntries(entries, l) {
+  return entries
+    .map(
+      (entry, index) => `
+        <article
+          class="diary-story"
+          id="diary-entry-${entry.date}"
+          role="tabpanel"
+          aria-labelledby="diary-tab-${entry.date}"
+          tabindex="0"
+          data-diary-story-panel
+        >
+          <figure class="diary__media">
+            <video
+              src="${l.assetBase}assets/${entry.video}"
+              poster="${l.assetBase}assets/${entry.image}"
+              width="720"
+              height="1280"
+              preload="${index === 0 ? "metadata" : "none"}"
+              controls
+              playsinline
+              aria-label="${entry.videoLabel}"
+              data-diary-video
+            ></video>
+            <button
+              class="diary__play"
+              type="button"
+              aria-label="${entry.videoPlayLabel}"
+              data-diary-video-play
+            >
+              <span class="diary__play-label">${entry.videoPlayCta}</span>
+              <span class="diary__play-meta">
+                <time datetime="${entry.videoDurationIso}">${entry.videoDuration}</time>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="m9 6 9 6-9 6Z"></path>
+                </svg>
+              </span>
+            </button>
+            <figcaption class="sr-only">${entry.imageAlt}</figcaption>
+          </figure>
+          <div class="diary__copy">
+            <h3>${entry.title}</h3>
+            <p class="diary__lead">${entry.lead}</p>
+            <div class="diary__facts">
+              ${renderMetrics(entry.facts, "diary__fact")}
+            </div>
+            <p class="diary__note">${entry.note}</p>
+            <a
+              class="text-link text-link--dark"
+              href="${entry.href}"
+              data-analytics-goal="diary_open"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="text-link__label">${entry.cta}</span>
+              ${icons.external}
+              <span class="sr-only">${entry.externalLabel}</span>
+            </a>
+          </div>
+        </article>`,
+    )
+    .join("");
+}
+
 function renderPartnerFormats(partners) {
   return partners.formats
     .map(
@@ -1880,61 +2109,33 @@ function renderPage(l) {
 
     <section class="diary section section--light" id="diary" aria-labelledby="diary-title">
       <div class="diary__heading">
-        <p
+        <h2
+          id="diary-title"
           class="diary__eyebrow"
           data-phase-copy
           data-before="${l.diary.phaseBefore}"
           data-active="${l.diary.phaseActive}"
           data-finished="${l.diary.phaseFinished}"
-        >${l.diary.phaseBefore}</p>
-        <time datetime="${l.diary.date}">${l.diary.dateLabel}</time>
+        >${l.diary.phaseBefore}</h2>
+        <span>${l.diary.rangeLabel}</span>
       </div>
-      <figure class="diary__media">
-        <video
-          src="${l.assetBase}assets/${l.diary.video}"
-          poster="${l.assetBase}assets/${l.diary.image}"
-          width="720"
-          height="1280"
-          preload="metadata"
-          controls
-          playsinline
-          aria-label="${l.diary.videoLabel}"
-          data-diary-video
-        ></video>
-        <button
-          class="diary__play"
-          type="button"
-          aria-label="${l.diary.videoPlayLabel}"
-          data-diary-video-play
+      <div class="diary-stories" data-diary-stories>
+        <div
+          class="diary-stories__rail"
+          role="tablist"
+          aria-label="${l.diary.storiesLabel}"
+          data-diary-story-tabs
         >
-          <span class="diary__play-label">${l.diary.videoPlayCta}</span>
-          <span class="diary__play-meta">
-            <time datetime="PT15S">${l.diary.videoDuration}</time>
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="m9 6 9 6-9 6Z"></path>
-            </svg>
-          </span>
-        </button>
-        <figcaption class="sr-only">${l.diary.imageAlt}</figcaption>
-      </figure>
-      <div class="diary__copy">
-        <h2 id="diary-title">${l.diary.title}</h2>
-        <p class="diary__lead">${l.diary.lead}</p>
-        <div class="diary__facts">
-          ${renderMetrics(l.diary.facts, "diary__fact")}
+          ${renderDiaryTabs(
+            l.diary.entries.map((entry) => ({
+              ...entry,
+              image: `${l.assetBase}assets/${entry.image}`,
+            })),
+          )}
         </div>
-        <p class="diary__note">${l.diary.note}</p>
-        <a
-          class="text-link text-link--dark"
-          href="${shared.diaryPostHref}"
-          data-analytics-goal="diary_open"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span class="text-link__label">${l.diary.cta}</span>
-          ${icons.external}
-          <span class="sr-only">${l.diary.externalLabel}</span>
-        </a>
+        <div class="diary-stories__panels">
+          ${renderDiaryEntries(l.diary.entries, l)}
+        </div>
       </div>
       <ol class="project-phases" aria-label="${l.diary.phasesLabel}">
         ${renderProjectPhases(l.diary)}

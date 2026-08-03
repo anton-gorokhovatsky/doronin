@@ -210,13 +210,19 @@ for (const [lang, path] of pages) {
   );
   expect(
     html.includes('id="diary"') &&
+      html.includes("https://t.me/doroninvdele/577") &&
       html.includes("https://t.me/doroninvdele/484") &&
+      html.includes("https://t.me/doroninvdele/427") &&
+      html.includes("assets/diary-2026-04-23.mp4") &&
       html.includes("assets/diary-2026-03-23.mp4") &&
+      html.includes("assets/diary-2026-03-10.mp4") &&
       html.includes("data-diary-video") &&
       html.includes("data-diary-video-play") &&
-      (html.match(/class="diary__fact"/g) || []).length === 2 &&
+      (html.match(/data-diary-story-tab(?=\s|>)/g) || []).length === 3 &&
+      (html.match(/data-diary-story-panel/g) || []).length === 3 &&
+      (html.match(/class="diary__fact"/g) || []).length === 6 &&
       (html.match(/data-project-phase-item="/g) || []).length === 3,
-    `${lang}: дневник должен содержать видео подтверждённого эпизода и три состояния проекта`,
+    `${lang}: дневник должен содержать три подтверждённых видео-записи и три состояния проекта`,
   );
   expect(
     html.includes('class="proof-sources"') &&
@@ -614,9 +620,12 @@ expect(
   "analytics: полный privacy-safe реестр должен точно совпадать с реальными HTML/JS-триггерами",
 );
 expect(
-  app.includes('diaryVideoFrame.classList.add("has-custom-control")') &&
+  app.includes('diaryStories.classList.add("has-diary-stories")') &&
+    app.includes('storyTab.setAttribute("aria-selected", String(isActive))') &&
+    app.includes('document.querySelectorAll("[data-diary-video]")') &&
+    app.includes('diaryVideoFrame.classList.add("has-custom-control")') &&
     app.includes("diaryVideo.controls = true"),
-  "js: фирменный запуск дневника должен прогрессивно возвращать нативное управление",
+  "js: дневник должен переключать доступные записи и прогрессивно возвращать нативное управление видео",
 );
 expect(
   app.includes("heroVideoSources") &&
