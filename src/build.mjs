@@ -55,6 +55,13 @@ const heroVideoVersion = createHash("sha256")
   .update(await readFile(resolve(assetSource, "hero-loop-mobile.mp4")))
   .digest("hex")
   .slice(0, 10);
+const editorialVideoVersion = createHash("sha256")
+  .update(await readFile(resolve(assetSource, "distance-swim-presence.mp4")))
+  .update(await readFile(resolve(assetSource, "distance-bike-presence.mp4")))
+  .update(await readFile(resolve(assetSource, "distance-run-presence.mp4")))
+  .update(await readFile(resolve(assetSource, "story-recovery.mp4")))
+  .digest("hex")
+  .slice(0, 10);
 
 await rm(outputRoot, { recursive: true, force: true });
 
@@ -1260,7 +1267,7 @@ function renderDistanceMedia(items, l) {
             poster="${l.assetBase}assets/${item.image}"
             aria-hidden="true"
           >
-            <source src="${l.assetBase}assets/${item.video}" type="video/mp4">
+            <source src="${l.assetBase}assets/${item.video}?v=${editorialVideoVersion}" type="video/mp4">
           </video>
           <figcaption>
             <span>${l.distance.mediaKicker}</span>
@@ -1454,7 +1461,7 @@ function renderStory(items, l) {
                     poster="${l.assetBase}assets/${item.image}"
                     aria-hidden="true"
                   >
-                    <source src="${l.assetBase}assets/${item.video}" type="video/mp4">
+                    <source src="${l.assetBase}assets/${item.video}?v=${editorialVideoVersion}" type="video/mp4">
                   </video>
                   <button
                     class="story-frame__video-toggle"
