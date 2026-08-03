@@ -745,7 +745,8 @@ async function auditPage(browser, browserName, origin, testCase) {
             /(?:x|inline)/u.test(selectedDiaryState.scrollSnapType)),
       `${prefix}: diary story switch or mobile reveal regressed (${JSON.stringify(selectedDiaryState)})`,
     );
-    await diaryTabs.nth(2).press("ArrowLeft");
+    await diaryTabs.nth(2).evaluate((tab) => tab.focus());
+    await page.keyboard.press("ArrowLeft");
     const keyboardDiaryState = await readDiaryState();
     expect(
       keyboardDiaryState.selected === 1 &&
