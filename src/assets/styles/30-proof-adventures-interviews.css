@@ -543,9 +543,9 @@
 .interview-card__action {
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  width: 100%;
+  justify-content: flex-start;
+  gap: 0.65rem;
+  width: fit-content;
   margin-top: auto;
   padding-top: 2rem;
   color: rgba(241, 245, 237, 0.76);

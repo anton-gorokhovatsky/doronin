@@ -602,6 +602,27 @@
   white-space: nowrap;
 }
 
+.site-footer h2 [data-footer-countdown] {
+  display: flex;
+  align-items: baseline;
+  gap: 0.28em;
+}
+
+.site-footer h2 [data-footer-countdown-value] {
+  display: grid;
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.site-footer h2 [data-footer-countdown-value] > span {
+  display: block;
+  grid-area: 1 / 1;
+}
+
+.site-footer h2 [data-footer-countdown-sizer] {
+  visibility: hidden;
+}
+
 .site-footer__cta {
   justify-content: space-between;
   align-self: end;

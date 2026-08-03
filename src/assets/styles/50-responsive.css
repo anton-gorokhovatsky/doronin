@@ -1355,12 +1355,12 @@
   }
 
   .distance-card.is-motion-entering h3 {
-    animation: distance-card-label-in 440ms var(--ease-enter) both;
+    animation: distance-card-label-in 620ms var(--ease-enter) both;
   }
 
   .distance-card.is-motion-entering .distance-card__value,
   .distance-card.is-motion-entering .distance-card__mobile-sequence {
-    animation: distance-card-detail-in 480ms var(--ease-enter) both;
+    animation: distance-card-detail-in 700ms var(--ease-enter) both;
   }
 
   .distance-card.is-motion-entering .distance-card__value {
@@ -1374,15 +1374,16 @@
   @keyframes distance-card-label-in {
     from {
       opacity: 0;
-      filter: blur(0.08em);
-      transform: translateY(0.45em);
+      filter: blur(0.12em);
+      transform: translateY(1.2em);
     }
   }
 
   @keyframes distance-card-detail-in {
     from {
       opacity: 0;
-      transform: translateY(0.65rem);
+      filter: blur(0.08em);
+      transform: translateY(1.6rem);
     }
   }
 

@@ -143,6 +143,15 @@
   content: "";
 }
 
+.audio-story.is-audio-entering::before {
+  animation: chapter-rule-enter 780ms var(--ease-move) both;
+  transform-origin: left;
+}
+
+.audio-story.is-audio-entering .audio-story__player {
+  animation: audio-story-player-enter 780ms var(--ease-enter) 90ms both;
+}
+
 .audio-story__intro {
   z-index: 1;
   display: grid;
@@ -292,7 +301,7 @@
   background: linear-gradient(
     108deg,
     transparent 34%,
-    rgba(241, 245, 237, 0.3) 50%,
+    rgba(241, 245, 237, 0.56) 50%,
     transparent 66%
   );
   background-position: var(--scene-sweep-from, 180% 0);
@@ -303,12 +312,17 @@
 }
 
 .audio-story__storyline button.is-scene-entering::after {
-  animation: audio-scene-signal 620ms var(--ease-move) both;
+  animation: audio-scene-signal 760ms var(--ease-move) both;
+}
+
+.audio-story__storyline button.is-scene-entering {
+  animation: audio-scene-hit 700ms var(--ease-enter) both;
+  will-change: clip-path, transform;
 }
 
 .audio-story__storyline button.is-scene-entering .audio-story__scene-head,
 .audio-story__storyline button.is-scene-entering .audio-story__scene-foot {
-  animation: audio-scene-copy-in 460ms var(--ease-enter) both;
+  animation: audio-scene-copy-in 560ms var(--ease-enter) both;
 }
 
 .audio-story__storyline button.is-scene-entering .audio-story__scene-foot {
@@ -474,12 +488,24 @@
   }
 
   28% {
-    opacity: 0.7;
+    opacity: 1;
   }
 
   100% {
     background-position: var(--scene-sweep-to, -80% 0);
     opacity: 0;
+  }
+}
+
+@keyframes audio-scene-hit {
+  from {
+    clip-path: var(--scene-clip, inset(0 0 0 100%));
+    transform: scale(1.035);
+  }
+
+  to {
+    clip-path: inset(0);
+    transform: scale(1);
   }
 }
 
@@ -493,8 +519,28 @@
 @keyframes audio-context-copy-in {
   from {
     opacity: 0;
-    filter: blur(0.06em);
+    filter: blur(0.12em);
     transform: translateX(var(--scene-shift, 0.9rem));
+  }
+}
+
+@keyframes audio-story-player-enter {
+  from {
+    clip-path: inset(0 0 0 100%);
+    opacity: 0.62;
+    transform: translateX(2rem);
+  }
+
+  to {
+    clip-path: inset(0);
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes chapter-rule-enter {
+  from {
+    transform: scaleX(0);
   }
 }
 

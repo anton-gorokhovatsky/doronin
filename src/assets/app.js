@@ -539,6 +539,7 @@ if (heroVideo && videoToggle) {
 }
 
 if (effortAudio && soundPlayer && soundSceneButtons.length) {
+  const audioStory = soundPlayer.closest("[data-audio-story]");
   const soundContexts = Array.from(
     document.querySelectorAll("[data-sound-context]"),
   );
@@ -555,6 +556,25 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
   let soundStoryStarted = false;
   let soundStoryCompleted = false;
   let soundSceneMotionTimer = 0;
+  let audioStoryEntryTimer = 0;
+
+  function animateAudioStoryEntry() {
+    window.clearTimeout(audioStoryEntryTimer);
+
+    if (!audioStory || reducedMotion.matches) {
+      audioStory?.classList.remove("is-audio-entering");
+      return;
+    }
+
+    audioStory.classList.remove("is-audio-entering");
+    void audioStory.offsetWidth;
+    audioStory.classList.add("is-audio-entering");
+
+    audioStoryEntryTimer = window.setTimeout(() => {
+      audioStory.classList.remove("is-audio-entering");
+      audioStoryEntryTimer = 0;
+    }, 1120);
+  }
 
   function animateSoundScene(button, context, direction) {
     window.clearTimeout(soundSceneMotionTimer);
@@ -574,11 +594,15 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
     const movesForward = direction >= 0;
     soundPlayer.style.setProperty(
       "--scene-shift",
-      movesForward ? "0.9rem" : "-0.9rem",
+      movesForward ? "2.4rem" : "-2.4rem",
     );
     soundPlayer.style.setProperty(
       "--scene-shift-soft",
-      movesForward ? "0.5rem" : "-0.5rem",
+      movesForward ? "1.25rem" : "-1.25rem",
+    );
+    soundPlayer.style.setProperty(
+      "--scene-clip",
+      movesForward ? "inset(0 0 0 100%)" : "inset(0 100% 0 0)",
     );
     soundPlayer.style.setProperty(
       "--scene-sweep-from",
@@ -597,7 +621,7 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
       button.classList.remove("is-scene-entering");
       context.classList.remove("is-context-entering");
       soundSceneMotionTimer = 0;
-    }, 680);
+    }, 820);
   }
 
   function soundWaveBars() {
@@ -850,9 +874,52 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
   reducedMotion.addEventListener?.("change", (event) => {
     if (event.matches) {
       animateSoundScene();
+      animateAudioStoryEntry();
     }
   });
+
+  if (audioStory && "IntersectionObserver" in window) {
+    const audioStoryObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        animateAudioStoryEntry();
+        audioStoryObserver.disconnect();
+      },
+      { threshold: 0.28 },
+    );
+
+    audioStoryObserver.observe(audioStory);
+  }
   syncSoundControls();
+}
+
+const chapterRuleLabels = [
+  ...document.querySelectorAll(".section-label"),
+];
+
+if (chapterRuleLabels.length && "IntersectionObserver" in window) {
+  const chapterRuleObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) {
+          continue;
+        }
+
+        if (!reducedMotion.matches) {
+          entry.target.classList.add("is-rule-entering");
+        }
+        chapterRuleObserver.unobserve(entry.target);
+      }
+    },
+    { threshold: 0.65 },
+  );
+
+  for (const label of chapterRuleLabels) {
+    chapterRuleObserver.observe(label);
+  }
 }
 
 for (const storyVideoFrame of document.querySelectorAll(
@@ -968,10 +1035,10 @@ if (distanceStory) {
     "[data-distance-sequence-current]",
   );
   const distanceSaveData = navigator.connection?.saveData === true;
-  const distanceNarrowQuery = window.matchMedia("(max-width: 960px)");
   const distanceMotionTimers = new WeakMap();
   const distanceCardMotionTimers = new WeakMap();
   const distanceFrameMotionTimers = new WeakMap();
+  let distanceStoryMotionTimer = 0;
   let activeDistanceIndex = 0;
   let distanceStoryVisible = false;
 
@@ -1092,7 +1159,7 @@ if (distanceStory) {
   }
 
   function animateDistanceCard(card) {
-    if (!card || reducedMotion.matches || !distanceNarrowQuery.matches) {
+    if (!card || reducedMotion.matches) {
       return;
     }
 
@@ -1109,8 +1176,38 @@ if (distanceStory) {
     const timer = window.setTimeout(() => {
       card.classList.remove("is-motion-entering");
       distanceCardMotionTimers.delete(card);
-    }, 620);
+    }, 820);
     distanceCardMotionTimers.set(card, timer);
+  }
+
+  function animateDistanceStory(direction) {
+    window.clearTimeout(distanceStoryMotionTimer);
+    distanceStory.classList.remove(
+      "is-distance-cutting",
+      "is-distance-cutting--forward",
+      "is-distance-cutting--backward",
+    );
+
+    if (reducedMotion.matches) {
+      return;
+    }
+
+    distanceStory.classList.add(
+      direction >= 0
+        ? "is-distance-cutting--forward"
+        : "is-distance-cutting--backward",
+    );
+    void distanceStory.offsetWidth;
+    distanceStory.classList.add("is-distance-cutting");
+
+    distanceStoryMotionTimer = window.setTimeout(() => {
+      distanceStory.classList.remove(
+        "is-distance-cutting",
+        "is-distance-cutting--forward",
+        "is-distance-cutting--backward",
+      );
+      distanceStoryMotionTimer = 0;
+    }, 960);
   }
 
   function animateDistanceFrame(frame, direction) {
@@ -1148,7 +1245,7 @@ if (distanceStory) {
         "is-motion-entering--backward",
       );
       distanceFrameMotionTimers.delete(frame);
-    }, 820);
+    }, 960);
     distanceFrameMotionTimers.set(frame, timer);
   }
 
@@ -1229,6 +1326,7 @@ if (distanceStory) {
         nextVideo.currentTime = 0;
       }
 
+      animateDistanceStory(index > previousDistanceIndex ? 1 : -1);
       animateDistanceFrame(
         distanceFrames[index],
         index > previousDistanceIndex ? 1 : -1,
@@ -1272,6 +1370,13 @@ if (distanceStory) {
     syncDistanceVideo();
 
     if (event.matches) {
+      window.clearTimeout(distanceStoryMotionTimer);
+      distanceStory.classList.remove(
+        "is-distance-cutting",
+        "is-distance-cutting--forward",
+        "is-distance-cutting--backward",
+      );
+
       for (const card of distanceCards) {
         card.classList.remove("is-motion-entering");
       }
@@ -1442,6 +1547,8 @@ if (eventStatus) {
   let statusTimeline = "project";
   let showLiveUpdate = false;
   let footerStatusText = "";
+  let footerCountValue = "";
+  let footerCountLabel = "";
   let footerPrefixMode = "before";
   let projectPhase = "before";
 
@@ -1473,12 +1580,14 @@ if (eventStatus) {
 
     value.textContent = String(days);
     label.textContent = form;
-    footerStatusText = `${days} ${form.replace(
+    footerCountValue = String(days);
+    footerCountLabel = form.replace(
       eventStatus.dataset.lang === "ru"
         ? /\s+до\s+старта$/u
         : /\s+to\s+start$/u,
       "",
-    )}`;
+    );
+    footerStatusText = `${footerCountValue} ${footerCountLabel}`;
   } else if (now < end) {
     const projectDay = Math.min(31, Math.floor((now - start) / day) + 1);
     progressSegments = projectDay;
@@ -1487,7 +1596,9 @@ if (eventStatus) {
     projectPhase = "active";
     value.textContent = String(projectDay).padStart(2, "0");
     label.textContent = eventStatus.dataset.active;
-    footerStatusText = `${value.textContent} ${label.textContent}`;
+    footerCountValue = value.textContent;
+    footerCountLabel = label.textContent;
+    footerStatusText = `${footerCountValue} ${footerCountLabel}`;
   } else {
     progressSegments = 31;
     showLiveUpdate = true;
@@ -1598,6 +1709,83 @@ if (eventStatus) {
   if (footerCountdown) {
     footerCountdown.textContent = footerStatusText;
     syncOpticalStart(footerCountdown);
+
+    const numericTarget = Number.parseInt(footerCountValue, 10);
+
+    if (Number.isFinite(numericTarget) && footerCountLabel) {
+      const countValue = document.createElement("span");
+      const countSizer = document.createElement("span");
+      const countLive = document.createElement("span");
+      const countLabel = document.createElement("span");
+      const countAccessible = document.createElement("span");
+      countValue.dataset.footerCountdownValue = "";
+      countSizer.dataset.footerCountdownSizer = "";
+      countLive.dataset.footerCountdownLive = "";
+      countLabel.dataset.footerCountdownLabel = "";
+      countValue.setAttribute("aria-hidden", "true");
+      countLabel.setAttribute("aria-hidden", "true");
+      countSizer.textContent = footerCountValue;
+      countLive.textContent = footerCountValue;
+      countLabel.textContent = footerCountLabel;
+      countAccessible.className = "sr-only";
+      countAccessible.textContent = footerStatusText;
+      countValue.append(countSizer, countLive);
+      footerCountdown.replaceChildren(countValue, countLabel, countAccessible);
+
+      if ("IntersectionObserver" in window) {
+        const footerCountObserver = new IntersectionObserver(
+          ([entry]) => {
+            if (!entry.isIntersecting) {
+              return;
+            }
+
+            footerCountObserver.disconnect();
+
+            if (reducedMotion.matches) {
+              countLive.textContent = footerCountValue;
+              return;
+            }
+
+            const duration = 1100;
+            let countStartedAt = 0;
+
+            function drawFooterCount(timestamp) {
+              if (reducedMotion.matches) {
+                countLive.textContent = footerCountValue;
+                return;
+              }
+
+              if (!countStartedAt) {
+                countStartedAt = timestamp;
+              }
+
+              const progress = Math.min(
+                1,
+                (timestamp - countStartedAt) / duration,
+              );
+              const easedProgress = 1 - Math.pow(1 - progress, 3);
+              const nextCount = String(
+                Math.round(numericTarget * easedProgress),
+              );
+              countLive.textContent = footerCountValue.startsWith("0")
+                ? nextCount.padStart(footerCountValue.length, "0")
+                : nextCount;
+
+              if (progress < 1) {
+                requestAnimationFrame(drawFooterCount);
+              } else {
+                countLive.textContent = footerCountValue;
+              }
+            }
+
+            requestAnimationFrame(drawFooterCount);
+          },
+          { threshold: 0.35 },
+        );
+
+        footerCountObserver.observe(footerCountdown);
+      }
+    }
   }
 
   if (footerPrefix && footerPrefixMode !== "before") {
@@ -1648,13 +1836,23 @@ if (diaryStories) {
     ...diaryStories.querySelectorAll("[data-diary-story-panel]"),
   ];
   const diaryStoryMotionTimers = new WeakMap();
+  let activeDiaryIndex = Math.max(
+    0,
+    diaryStoryTabs.findIndex(
+      (tab) => tab.getAttribute("aria-selected") === "true",
+    ),
+  );
+  let diaryStoriesVisible = false;
 
   const activateDiaryStory = (
     tab,
-    { focus = false, reveal = false } = {},
+    { focus = false, reveal = false, animate = diaryStoriesVisible } = {},
   ) => {
     const panelId = tab?.getAttribute("aria-controls");
     if (!panelId) return;
+
+    const nextDiaryIndex = diaryStoryTabs.indexOf(tab);
+    const diaryDirection = nextDiaryIndex >= activeDiaryIndex ? 1 : -1;
 
     for (const storyTab of diaryStoryTabs) {
       const isActive = storyTab === tab;
@@ -1672,21 +1870,36 @@ if (diaryStories) {
       }
 
       panel.classList.remove("is-diary-entering");
+      panel.classList.remove(
+        "is-diary-entering--forward",
+        "is-diary-entering--backward",
+      );
       panel.hidden = !isActive;
 
       if (!isActive) {
         panel.querySelector("video")?.pause();
-      } else if (!reducedMotion.matches) {
+      } else if (animate && !reducedMotion.matches) {
+        panel.classList.add(
+          diaryDirection >= 0
+            ? "is-diary-entering--forward"
+            : "is-diary-entering--backward",
+        );
         void panel.offsetWidth;
         panel.classList.add("is-diary-entering");
 
         const timer = window.setTimeout(() => {
-          panel.classList.remove("is-diary-entering");
+          panel.classList.remove(
+            "is-diary-entering",
+            "is-diary-entering--forward",
+            "is-diary-entering--backward",
+          );
           diaryStoryMotionTimers.delete(panel);
-        }, 720);
+        }, 920);
         diaryStoryMotionTimers.set(panel, timer);
       }
     }
+
+    activeDiaryIndex = nextDiaryIndex;
 
     if (reveal) {
       tab.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -1728,8 +1941,29 @@ if (diaryStories) {
       diaryStoryTabs.find((tab) => tab.getAttribute("aria-selected") === "true") ||
       diaryStoryTabs[0];
 
-    activateDiaryStory(initialTab, { reveal: Boolean(hashTab) });
+    activateDiaryStory(initialTab, {
+      reveal: Boolean(hashTab),
+      animate: false,
+    });
     diaryStories.classList.add("has-diary-stories");
+
+    if ("IntersectionObserver" in window) {
+      const diaryStoriesObserver = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry.isIntersecting) {
+            return;
+          }
+
+          diaryStoriesVisible = true;
+          diaryStoriesObserver.disconnect();
+        },
+        { threshold: 0.2 },
+      );
+
+      diaryStoriesObserver.observe(diaryStories);
+    } else {
+      diaryStoriesVisible = true;
+    }
   }
 }
 
@@ -1985,13 +2219,46 @@ const menuPreviewLinks = headerNavigationLinks.filter(
 const menuPreviewPointer = window.matchMedia(
   "(hover: hover) and (pointer: fine)",
 );
+let menuPreviewMotionTimer = 0;
+
+function animateMenuPreviewCopy(index, title) {
+  if (!menuPreviewIndex || !menuPreviewTitle) return;
+
+  window.clearTimeout(menuPreviewMotionTimer);
+
+  const currentIndex =
+    menuPreviewIndex.dataset.currentIndex ||
+    menuPreviewIndex.textContent.trim();
+  const currentTitle = menuPreviewTitle.textContent.trim();
+  const previewChanged = currentIndex !== index || currentTitle !== title;
+
+  menuPreviewIndex.dataset.currentIndex = index;
+  menuPreviewTitle.classList.remove("is-changing");
+
+  if (!previewChanged || reducedMotion.matches) {
+    menuPreviewIndex.textContent = index;
+    menuPreviewTitle.textContent = title;
+    return;
+  }
+
+  menuPreviewIndex.textContent = index;
+  menuPreviewTitle.textContent = title;
+  void menuPreviewTitle.offsetWidth;
+  menuPreviewTitle.classList.add("is-changing");
+
+  menuPreviewMotionTimer = window.setTimeout(() => {
+    menuPreviewTitle.classList.remove("is-changing");
+    menuPreviewMotionTimer = 0;
+  }, 520);
+}
 
 function syncMenuPreview(link) {
   if (!link?.dataset.navIndex || !menuPreviewIndex || !menuPreviewTitle) return;
 
-  menuPreviewIndex.textContent = link.dataset.navIndex;
-  menuPreviewTitle.textContent =
-    link.dataset.navTitle || link.textContent.trim();
+  animateMenuPreviewCopy(
+    link.dataset.navIndex,
+    link.dataset.navTitle || link.textContent.trim(),
+  );
 
   if (menuPreviewImage) {
     menuPreviewImage.style.objectPosition =

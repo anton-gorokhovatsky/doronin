@@ -126,6 +126,41 @@
   transform: translate(0.14rem, -0.14rem);
 }
 
+.nav-shell[open] .site-nav__primary > .site-nav__link {
+  --menu-chapter-delay: 90ms;
+  animation: route-chapter-link-in 520ms var(--ease-enter)
+    var(--menu-chapter-delay) both;
+}
+
+.nav-shell[open] .site-nav__primary > .site-nav__link::before {
+  animation: route-chapter-index-in 440ms var(--ease-enter)
+    var(--menu-chapter-delay) both;
+}
+
+.nav-shell[open] .site-nav__primary > .site-nav__link:nth-child(2) {
+  --menu-chapter-delay: 132ms;
+}
+
+.nav-shell[open] .site-nav__primary > .site-nav__link:nth-child(3) {
+  --menu-chapter-delay: 174ms;
+}
+
+.nav-shell[open] .site-nav__primary > .site-nav__link:nth-child(4) {
+  --menu-chapter-delay: 216ms;
+}
+
+.nav-shell[open] .site-nav__primary > .site-nav__link:nth-child(5) {
+  --menu-chapter-delay: 258ms;
+}
+
+.nav-shell[open] .site-nav__primary > .site-nav__link:nth-child(6) {
+  --menu-chapter-delay: 300ms;
+}
+
+.nav-shell[open] .site-nav__primary > .site-nav__link:nth-child(7) {
+  --menu-chapter-delay: 342ms;
+}
+
 @media (min-width: 961px) {
   body:has(.nav-shell[open]) {
     overflow: hidden;
@@ -488,6 +523,10 @@
     line-height: 0.98;
     text-wrap: balance;
     text-transform: uppercase;
+  }
+
+  .site-nav__preview-title.is-changing {
+    animation: route-preview-title-in 520ms var(--ease-enter) 110ms both;
   }
 
   .site-nav__primary {
@@ -1487,7 +1526,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .nav-shell[open] .site-nav,
-  .site-nav__preview-media img.is-changing {
+  .nav-shell[open] .site-nav__primary > .site-nav__link,
+  .nav-shell[open] .site-nav__primary > .site-nav__link::before,
+  .site-nav__preview-media img.is-changing,
+  .site-nav__preview-title.is-changing {
     animation: none;
   }
 }
@@ -1513,5 +1555,28 @@
   to {
     opacity: 1;
     transform: scale(1.01);
+  }
+}
+
+@keyframes route-chapter-link-in {
+  from {
+    opacity: 0.42;
+    filter: blur(0.05em);
+    transform: translateX(3.25rem) skewX(-2deg);
+  }
+}
+
+@keyframes route-chapter-index-in {
+  from {
+    opacity: 0.2;
+    transform: translateY(1.3em);
+  }
+}
+
+@keyframes route-preview-title-in {
+  from {
+    opacity: 0.22;
+    filter: blur(0.06em);
+    transform: translateX(2.25rem);
   }
 }

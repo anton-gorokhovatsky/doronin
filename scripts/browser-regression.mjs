@@ -237,6 +237,7 @@ async function auditPage(browser, browserName, origin, testCase) {
     await page.evaluate(
       () => new Promise((resolve) => requestAnimationFrame(resolve)),
     );
+    await page.waitForTimeout(900);
     const previewChapter = await nav.evaluate((element) => ({
       activeIndex:
         element.querySelector('.site-nav__link[aria-current="location"]')
