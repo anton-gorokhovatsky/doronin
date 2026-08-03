@@ -24,10 +24,14 @@ async function auditPage(browser, browserName, origin, testCase) {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.route("https://mc.yandex.ru/**", (route) => route.abort());
-  // The regression suite validates layout and interaction against the posters.
-  // Loading every autoplaying MP4 in each Chromium/WebKit context needlessly
-  // stresses the small CI runner and can make WebKit terminate mid-audit.
-  await page.route(/\.(?:mp4|webm)(?:\?.*)?$/iu, (route) => route.abort());
+  // The screenshot gate validates the actual imagery. This suite validates
+  // layout and interaction, whose media boxes have explicit CSS geometry.
+  // Avoid decoding the full 51 MB asset set again on the small CI runner: a
+  // decoded 2 MB JPEG alone can occupy tens of megabytes inside WebKit.
+  await page.route(
+    /\.(?:avif|gif|jpe?g|m4a|mp4|png|webm|webp)(?:\?.*)?$/iu,
+    (route) => route.abort(),
+  );
   await page.addInitScript(() => {
     window.__analyticsCalls = [];
     window.ym = (...args) => window.__analyticsCalls.push(args);
@@ -955,6 +959,7 @@ const results = [];
 try {
   for (const [name, browserType] of browsers) {
     for (const testCase of cases) {
+      console.log(`[browser-regression] ${name} ${testCase.name}`);
       const browser = await browserType.launch({ headless: true });
       try {
         results.push(await auditPage(browser, name, server.origin, testCase));
