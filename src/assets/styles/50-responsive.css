@@ -1354,6 +1354,38 @@
     gap: 16px;
   }
 
+  .distance-card.is-motion-entering h3 {
+    animation: distance-card-label-in 440ms var(--ease-enter) both;
+  }
+
+  .distance-card.is-motion-entering .distance-card__value,
+  .distance-card.is-motion-entering .distance-card__mobile-sequence {
+    animation: distance-card-detail-in 480ms var(--ease-enter) both;
+  }
+
+  .distance-card.is-motion-entering .distance-card__value {
+    animation-delay: 55ms;
+  }
+
+  .distance-card.is-motion-entering .distance-card__mobile-sequence {
+    animation-delay: 105ms;
+  }
+
+  @keyframes distance-card-label-in {
+    from {
+      opacity: 0;
+      filter: blur(0.08em);
+      transform: translateY(0.45em);
+    }
+  }
+
+  @keyframes distance-card-detail-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.65rem);
+    }
+  }
+
   .distance-card__index {
     width: 44px;
     height: 44px;

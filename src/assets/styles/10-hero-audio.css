@@ -267,6 +267,7 @@
 .audio-story__storyline button {
   --scene-progress: 0%;
   position: relative;
+  isolation: isolate;
   display: grid;
   align-content: space-between;
   gap: 1rem;
@@ -282,6 +283,36 @@
   transition:
     color 180ms var(--ease-move),
     background-color 180ms var(--ease-move);
+}
+
+.audio-story__storyline button::after {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: linear-gradient(
+    108deg,
+    transparent 34%,
+    rgba(241, 245, 237, 0.3) 50%,
+    transparent 66%
+  );
+  background-position: var(--scene-sweep-from, 180% 0);
+  background-size: 240% 100%;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+}
+
+.audio-story__storyline button.is-scene-entering::after {
+  animation: audio-scene-signal 620ms var(--ease-move) both;
+}
+
+.audio-story__storyline button.is-scene-entering .audio-story__scene-head,
+.audio-story__storyline button.is-scene-entering .audio-story__scene-foot {
+  animation: audio-scene-copy-in 460ms var(--ease-enter) both;
+}
+
+.audio-story__storyline button.is-scene-entering .audio-story__scene-foot {
+  animation-delay: 55ms;
 }
 
 .audio-story__storyline button:hover,
@@ -325,6 +356,8 @@
 }
 
 .audio-story__scene-head {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -348,6 +381,8 @@
 }
 
 .audio-story__scene-foot {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: end;
   justify-content: space-between;
@@ -388,7 +423,7 @@
   height: 2px;
   background: var(--acid);
   content: "";
-  transition: left 220ms var(--ease-move);
+  transition: left 460ms var(--ease-move);
 }
 
 .audio-story__contexts p {
@@ -421,6 +456,46 @@
 .audio-story__contexts span {
   grid-column: 2;
   padding-inline: 0;
+}
+
+.audio-story__contexts p.is-context-entering strong,
+.audio-story__contexts p.is-context-entering span {
+  animation: audio-context-copy-in 520ms var(--ease-enter) both;
+}
+
+.audio-story__contexts p.is-context-entering span {
+  animation-delay: 65ms;
+}
+
+@keyframes audio-scene-signal {
+  0% {
+    background-position: var(--scene-sweep-from, 180% 0);
+    opacity: 0;
+  }
+
+  28% {
+    opacity: 0.7;
+  }
+
+  100% {
+    background-position: var(--scene-sweep-to, -80% 0);
+    opacity: 0;
+  }
+}
+
+@keyframes audio-scene-copy-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--scene-shift-soft, 0.5rem));
+  }
+}
+
+@keyframes audio-context-copy-in {
+  from {
+    opacity: 0;
+    filter: blur(0.06em);
+    transform: translateX(var(--scene-shift, 0.9rem));
+  }
 }
 
 .hero__content {

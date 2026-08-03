@@ -38,9 +38,9 @@
     data-light-href="./assets/favicon-light.svg"
     data-dark-href="./assets/favicon-dark.svg"
   >
-  <script src="./assets/theme-init.js?v=501282aa51"></script>
-  <link rel="stylesheet" href="./assets/styles.css?v=501282aa51">
-  <script src="./assets/app.js?v=501282aa51" defer></script>
+  <script src="./assets/theme-init.js?v=f0138af387"></script>
+  <link rel="stylesheet" href="./assets/styles.css?v=f0138af387">
+  <script src="./assets/app.js?v=f0138af387" defer></script>
 </head>
 <body data-project-phase="before">
   <script type="application/json" id="analytics-goal-registry">{"version":1,"counterId":111159425,"goals":[{"id":"menu_open","category":"navigation","params":["location"]},{"id":"chapter_navigation","category":"navigation","params":["chapter"]},{"id":"project_explore","category":"conversion","params":[]},{"id":"partner_interest","category":"conversion","params":[]},{"id":"language_switch","category":"preference","params":["language","location"]},{"id":"theme_change","category":"preference","params":["theme"]},{"id":"hero_video_pause","category":"media","params":[]},{"id":"hero_video_resume","category":"media","params":[]},{"id":"proof_open","category":"evidence","params":[]},{"id":"sound_scene_select","category":"media","params":["scene"]},{"id":"sound_story_start","category":"media","params":[]},{"id":"sound_story_complete","category":"media","params":[]},{"id":"diary_video_start","category":"media","params":[]},{"id":"diary_video_complete","category":"media","params":[]},{"id":"diary_open","category":"content","params":[]},{"id":"film_open","category":"content","params":[]},{"id":"contact_email","category":"contact","params":[]},{"id":"contact_telegram","category":"contact","params":[]}]}</script>
@@ -62,7 +62,12 @@
     </div>
 
     <details class="nav-shell">
-      <summary class="menu-toggle" aria-label="Меню">
+      <summary
+        class="menu-toggle"
+        aria-label="Меню"
+        data-menu-open-label="Меню"
+        data-menu-close-label="Закрыть меню"
+      >
         <span class="menu-toggle__label">Меню</span>
         <span class="menu-toggle__current" data-current-chapter>Проект</span>
         <span class="menu-toggle__icon" aria-hidden="true"></span>
@@ -160,8 +165,8 @@
           poster="./assets/hero.jpg"
           aria-hidden="true"
         >
-          <source src="./assets/hero-loop-mobile.mp4" type="video/mp4" media="(max-width: 640px)">
-          <source src="./assets/hero-loop.mp4" type="video/mp4">
+          <source src="./assets/hero-loop-mobile.mp4?v=b24a18ea8d" type="video/mp4" media="(max-width: 640px)">
+          <source src="./assets/hero-loop.mp4?v=b24a18ea8d" type="video/mp4">
         </video>
       </figure>
       <div class="hero__veil" aria-hidden="true"></div>
@@ -427,72 +432,298 @@
 
     <section class="diary section section--light" id="diary" aria-labelledby="diary-title">
       <div class="diary__heading">
-        <p
+        <h2
+          id="diary-title"
           class="diary__eyebrow"
           data-phase-copy
           data-before="Дневник подготовки"
           data-active="31 день проекта"
           data-finished="Архив истории"
-        >Дневник подготовки</p>
-        <time datetime="2026-03-23">23 марта 2026</time>
+        >Дневник подготовки</h2>
+        <span>3 записи · 10 марта — 23 апреля 2026</span>
       </div>
-      <figure class="diary__media">
-        <video
-          src="./assets/diary-2026-03-23.mp4"
-          poster="./assets/diary-2026-03-23.jpg"
-          width="720"
-          height="1280"
-          preload="metadata"
-          controls
-          playsinline
-          aria-label="Видео из дневника подготовки: Виктор Доронин проходит тестирование на велосипеде"
-          data-diary-video
-        ></video>
-        <button
-          class="diary__play"
-          type="button"
-          aria-label="Воспроизвести видео из дневника, 15 секунд"
-          data-diary-video-play
+      <div class="diary-stories" data-diary-stories>
+        <div
+          class="diary-stories__rail"
+          role="tablist"
+          aria-label="Записи дневника подготовки"
+          data-diary-story-tabs
         >
-          <span class="diary__play-label">Смотреть видео</span>
-          <span class="diary__play-meta">
-            <time datetime="PT15S">00:15</time>
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="m9 6 9 6-9 6Z"></path>
-            </svg>
-          </span>
-        </button>
-        <figcaption class="sr-only">Виктор Доронин проходит тестирование на велосипеде с газоанализатором</figcaption>
-      </figure>
-      <div class="diary__copy">
-        <h2 id="diary-title">Что дальше?</h2>
-        <p class="diary__lead">После 60 дней базовой работы Виктор сверил ощущения с цифрами: газоанализ, лактат, мощность и пульс.</p>
-        <div class="diary__facts">
 
-        <div class="diary__fact" data-metric-density="long">
-          <strong data-optical-start>60 дней</strong>
-          <span>базовой подготовки</span>
-        </div>
-        <div class="diary__fact" data-metric-density="long">
-          <strong data-optical-start>203 часа</strong>
-          <span>нагрузки</span>
-        </div>
-        </div>
-        <p class="diary__note">Следующий цикл — три месяца работы над силой и скоростью, затем повторный тест.</p>
         <a
-          class="text-link text-link--dark"
-          href="https://t.me/doroninvdele/484"
-          data-analytics-goal="diary_open"
-          target="_blank"
-          rel="noopener noreferrer"
+          class="diary-stories__tab"
+          id="diary-tab-2026-04-23"
+          href="#diary-entry-2026-04-23"
+          role="tab"
+          aria-controls="diary-entry-2026-04-23"
+          aria-selected="true"
+          data-diary-story-tab
         >
-          <span class="text-link__label">Читать запись в Telegram</span>
+          <span class="diary-stories__index">03</span>
+          <span class="diary-stories__thumb" aria-hidden="true">
+            <img
+              src="./assets/diary-2026-04-23.jpg"
+              alt=""
+              width="720"
+              height="1280"
+              loading="lazy"
+              decoding="async"
+            >
+          </span>
+          <time datetime="2026-04-23">23 апреля</time>
+          <strong>После тестов</strong>
+        </a>
+        <a
+          class="diary-stories__tab"
+          id="diary-tab-2026-03-23"
+          href="#diary-entry-2026-03-23"
+          role="tab"
+          aria-controls="diary-entry-2026-03-23"
+          aria-selected="false"
+          data-diary-story-tab
+        >
+          <span class="diary-stories__index">02</span>
+          <span class="diary-stories__thumb" aria-hidden="true">
+            <img
+              src="./assets/diary-2026-03-23.jpg"
+              alt=""
+              width="720"
+              height="1280"
+              loading="lazy"
+              decoding="async"
+            >
+          </span>
+          <time datetime="2026-03-23">23 марта</time>
+          <strong>Контрольная точка</strong>
+        </a>
+        <a
+          class="diary-stories__tab"
+          id="diary-tab-2026-03-10"
+          href="#diary-entry-2026-03-10"
+          role="tab"
+          aria-controls="diary-entry-2026-03-10"
+          aria-selected="false"
+          data-diary-story-tab
+        >
+          <span class="diary-stories__index">01</span>
+          <span class="diary-stories__thumb" aria-hidden="true">
+            <img
+              src="./assets/diary-2026-03-10.jpg"
+              alt=""
+              width="720"
+              height="1280"
+              loading="lazy"
+              decoding="async"
+            >
+          </span>
+          <time datetime="2026-03-10">10 марта</time>
+          <strong>Базовый период</strong>
+        </a>
+        </div>
+        <div class="diary-stories__panels">
+
+        <article
+          class="diary-story"
+          id="diary-entry-2026-04-23"
+          role="tabpanel"
+          aria-labelledby="diary-tab-2026-04-23"
+          tabindex="0"
+          data-diary-story-panel
+        >
+          <figure class="diary__media">
+            <video
+              src="./assets/diary-2026-04-23.mp4"
+              poster="./assets/diary-2026-04-23.jpg"
+              width="720"
+              height="1280"
+              preload="metadata"
+              controls
+              playsinline
+              aria-label="Видео из дневника подготовки: Виктор Доронин бежит по стадиону вместе с тренировочной группой"
+              data-diary-video
+            ></video>
+            <button
+              class="diary__play"
+              type="button"
+              aria-label="Воспроизвести видео из дневника, 5 секунд"
+              data-diary-video-play
+            >
+              <span class="diary__play-label">Смотреть видео</span>
+              <span class="diary__play-meta">
+                <time datetime="PT5S">00:05</time>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="m9 6 9 6-9 6Z"></path>
+                </svg>
+              </span>
+            </button>
+            <figcaption class="sr-only">Виктор Доронин выполняет беговую работу на стадионе вместе с тренировочной группой</figcaption>
+          </figure>
+          <div class="diary__copy">
+            <h3>После тестов</h3>
+            <p class="diary__lead">Ключевые сессии теперь проходят в беге, а велосипед помогает восстановлению.</p>
+            <div class="diary__facts">
+
+        <div class="diary__fact" data-metric-density="short">
+          <strong data-optical-start>3</strong>
+          <span>направления работы после тестов</span>
+        </div>
+        <div class="diary__fact" data-metric-density="medium">
+          <strong data-optical-start>3000 м</strong>
+          <span>дистанция экспериментальной группы</span>
+        </div>
+            </div>
+            <p class="diary__note">План новой группы «Дасти» на 90% совпал с задачами Виктора — часть работ он проходит вместе с ней.</p>
+            <a
+              class="text-link text-link--dark"
+              href="https://t.me/doroninvdele/577"
+              data-analytics-goal="diary_open"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="text-link__label">Читать запись в Telegram</span>
 
     <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M4 12 12 4M6 4h6v6"></path>
     </svg>
-          <span class="sr-only">Откроется дневник Виктора в Telegram</span>
-        </a>
+              <span class="sr-only">Откроется запись дневника Виктора от 23 апреля в Telegram</span>
+            </a>
+          </div>
+        </article>
+        <article
+          class="diary-story"
+          id="diary-entry-2026-03-23"
+          role="tabpanel"
+          aria-labelledby="diary-tab-2026-03-23"
+          tabindex="0"
+          data-diary-story-panel
+        >
+          <figure class="diary__media">
+            <video
+              src="./assets/diary-2026-03-23.mp4"
+              poster="./assets/diary-2026-03-23.jpg"
+              width="720"
+              height="1280"
+              preload="none"
+              controls
+              playsinline
+              aria-label="Видео из дневника подготовки: Виктор Доронин проходит тестирование на велосипеде"
+              data-diary-video
+            ></video>
+            <button
+              class="diary__play"
+              type="button"
+              aria-label="Воспроизвести видео из дневника, 15 секунд"
+              data-diary-video-play
+            >
+              <span class="diary__play-label">Смотреть видео</span>
+              <span class="diary__play-meta">
+                <time datetime="PT15S">00:15</time>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="m9 6 9 6-9 6Z"></path>
+                </svg>
+              </span>
+            </button>
+            <figcaption class="sr-only">Виктор Доронин проходит тестирование на велосипеде с газоанализатором</figcaption>
+          </figure>
+          <div class="diary__copy">
+            <h3>Что дальше?</h3>
+            <p class="diary__lead">После 60 дней базовой работы Виктор сверил ощущения с цифрами: газоанализ, лактат, мощность и пульс.</p>
+            <div class="diary__facts">
+
+        <div class="diary__fact" data-metric-density="short">
+          <strong data-optical-start>60</strong>
+          <span>дней базовой подготовки</span>
+        </div>
+        <div class="diary__fact" data-metric-density="short">
+          <strong data-optical-start>203</strong>
+          <span>часа нагрузки</span>
+        </div>
+            </div>
+            <p class="diary__note">Следующий цикл — три месяца работы над силой и скоростью, затем повторный тест.</p>
+            <a
+              class="text-link text-link--dark"
+              href="https://t.me/doroninvdele/484"
+              data-analytics-goal="diary_open"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="text-link__label">Читать запись в Telegram</span>
+
+    <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M4 12 12 4M6 4h6v6"></path>
+    </svg>
+              <span class="sr-only">Откроется запись дневника Виктора от 23 марта в Telegram</span>
+            </a>
+          </div>
+        </article>
+        <article
+          class="diary-story"
+          id="diary-entry-2026-03-10"
+          role="tabpanel"
+          aria-labelledby="diary-tab-2026-03-10"
+          tabindex="0"
+          data-diary-story-panel
+        >
+          <figure class="diary__media">
+            <video
+              src="./assets/diary-2026-03-10.mp4"
+              poster="./assets/diary-2026-03-10.jpg"
+              width="720"
+              height="1280"
+              preload="none"
+              controls
+              playsinline
+              aria-label="Видео из дневника подготовки: Виктор Доронин тренируется на велосипеде"
+              data-diary-video
+            ></video>
+            <button
+              class="diary__play"
+              type="button"
+              aria-label="Воспроизвести видео из дневника, 12 секунд"
+              data-diary-video-play
+            >
+              <span class="diary__play-label">Смотреть видео</span>
+              <span class="diary__play-meta">
+                <time datetime="PT12S">00:12</time>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="m9 6 9 6-9 6Z"></path>
+                </svg>
+              </span>
+            </button>
+            <figcaption class="sr-only">Виктор Доронин едет на велосипеде по дороге во время базовой подготовки</figcaption>
+          </figure>
+          <div class="diary__copy">
+            <h3>База закрыта</h3>
+            <p class="diary__lead">За 60 дней Виктор спокойно развивал первую и вторую зоны; бег был только в начале, затем база почти полностью перешла на велосипед.</p>
+            <div class="diary__facts">
+
+        <div class="diary__fact" data-metric-density="medium">
+          <strong data-optical-start>4769</strong>
+          <span>км дистанции</span>
+        </div>
+        <div class="diary__fact" data-metric-density="medium">
+          <strong data-optical-start>46 987</strong>
+          <span>м набора</span>
+        </div>
+            </div>
+            <p class="diary__note">Базовый период собрал 203 часа 3 минуты нагрузки — фундамент для следующего этапа подготовки.</p>
+            <a
+              class="text-link text-link--dark"
+              href="https://t.me/doroninvdele/427"
+              data-analytics-goal="diary_open"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="text-link__label">Читать запись в Telegram</span>
+
+    <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M4 12 12 4M6 4h6v6"></path>
+    </svg>
+              <span class="sr-only">Откроется запись дневника Виктора от 10 марта в Telegram</span>
+            </a>
+          </div>
+        </article>
+        </div>
       </div>
       <ol class="project-phases" aria-label="Состояния проекта">
 
@@ -542,6 +773,14 @@
           data-distance-frame="0"
           aria-hidden="true"
         >
+          <img
+            src="./assets/distance-swim-presence.jpg"
+            alt=""
+            loading="eager"
+            width="1600"
+            height="900"
+            aria-hidden="true"
+          >
           <video
             data-distance-video="0"
             muted
@@ -551,7 +790,7 @@
             poster="./assets/distance-swim-presence.jpg"
             aria-hidden="true"
           >
-            <source src="./assets/distance-swim-presence.mp4" type="video/mp4">
+            <source src="./assets/distance-swim-presence.mp4?v=bd894682e9" type="video/mp4">
           </video>
           <figcaption>
             <span>Дубай · архив проекта «1111»</span>
@@ -563,6 +802,14 @@
           data-distance-frame="1"
           aria-hidden="true"
         >
+          <img
+            src="./assets/distance-bike-presence.jpg"
+            alt=""
+            loading="lazy"
+            width="1600"
+            height="900"
+            aria-hidden="true"
+          >
           <video
             data-distance-video="1"
             muted
@@ -572,7 +819,7 @@
             poster="./assets/distance-bike-presence.jpg"
             aria-hidden="true"
           >
-            <source src="./assets/distance-bike-presence.mp4" type="video/mp4">
+            <source src="./assets/distance-bike-presence.mp4?v=bd894682e9" type="video/mp4">
           </video>
           <figcaption>
             <span>Дубай · архив проекта «1111»</span>
@@ -584,6 +831,14 @@
           data-distance-frame="2"
           aria-hidden="true"
         >
+          <img
+            src="./assets/distance-run-presence.jpg"
+            alt=""
+            loading="lazy"
+            width="1600"
+            height="900"
+            aria-hidden="true"
+          >
           <video
             data-distance-video="2"
             muted
@@ -593,7 +848,7 @@
             poster="./assets/distance-run-presence.jpg"
             aria-hidden="true"
           >
-            <source src="./assets/distance-run-presence.mp4" type="video/mp4">
+            <source src="./assets/distance-run-presence.mp4?v=bd894682e9" type="video/mp4">
           </video>
           <figcaption>
             <span>Дубай · архив проекта «1111»</span>
@@ -602,18 +857,18 @@
         </figure>
           <div class="distance-story__counter" aria-hidden="true">
             <div class="distance-story__counter-meta">
-              <span data-distance-live-index>01</span>
-              <span data-distance-live-label>плавание</span>
+              <span data-distance-live-index data-distance-motion="label">01</span>
+              <span data-distance-live-label data-distance-motion="label">плавание</span>
             </div>
             <p class="distance-story__counter-value">
-              <strong data-distance-live-value data-optical-start>100</strong>
+              <strong data-distance-live-value data-distance-motion="value" data-optical-start>100</strong>
               <small data-distance-live-unit>км</small>
             </p>
             <div class="distance-story__sequence">
               <div class="distance-story__sequence-meta">
                 <span>
                   <small>Этап</small>
-                  <b><strong data-distance-sequence-current>01</strong><i>из 03</i></b>
+                  <b><strong data-distance-sequence-current data-distance-motion="label">01</strong><i>из 03</i></b>
                 </span>
                 <b><em>всего</em><span class="distance-story__sequence-total"><span>11</span><span>111</span></span><small>км</small></b>
               </div>
@@ -655,7 +910,7 @@
             <span class="distance-card__sequence-step is-active" aria-hidden="true"><i></i><small>01 плавание</small></span><span class="distance-card__sequence-step " aria-hidden="true"><i></i><small>02 велосипед</small></span><span class="distance-card__sequence-step " aria-hidden="true"><i></i><small>03 бег</small></span>
           </div>
           <ul class="detail-list">
-            <li>2 000 бассейнов по 50 метров</li><li>три переправы через Ла-Манш</li><li>от Москвы до Ярославля без передышки в воде</li>
+            <li>2000 бассейнов по 50 метров</li><li>три переправы через Ла-Манш</li><li>от Москвы до Ярославля без передышки в воде</li>
           </ul>
         </article>
         <article
@@ -694,7 +949,7 @@
         <article
           class="distance-card"
           data-distance-card="2"
-          data-distance-value="1 001"
+          data-distance-value="1001"
           data-distance-unit="км"
           data-distance-index="03"
           data-distance-label="бег"
@@ -708,8 +963,8 @@
           </div>
 
     <p class="distance-card__value" data-optical-start>
-      <span class="sr-only">1 001 км</span>
-      <span class="distance-card__number" aria-hidden="true"><span>1</span><span>001</span></span>
+      <span class="sr-only">1001 км</span>
+      <span class="distance-card__number" aria-hidden="true"><span>1001</span></span>
       <span class="distance-card__unit" aria-hidden="true">км</span>
     </p>
           <div
@@ -729,7 +984,7 @@
       <div class="distance-total">
         <p class="distance-total__label">Итого за 31 день</p>
 
-    <div class="distance-total__equation" role="img" aria-label="100 плюс 10 010 плюс 1 001 равно 11 111 километров" data-distance-total>
+    <div class="distance-total__equation" role="img" aria-label="100 плюс 10 010 плюс 1001 равно 11 111 километров" data-distance-total>
       <div class="distance-total__result" aria-hidden="true">
         <span data-distance-counter data-distance-final="11111" data-optical-start>11 111</span>
         <small>км</small>
@@ -749,7 +1004,7 @@
         </span><span class="distance-total__term" data-distance-step="1001">
           <span class="distance-total__index">03</span>
           <span class="distance-total__term-copy">
-            <strong data-optical-start>1 001<small>км</small></strong>
+            <strong data-optical-start>1001<small>км</small></strong>
             <em>бег</em>
           </span>
         </span></div>
@@ -786,7 +1041,7 @@
         </div>
         <div class="achievement" data-metric-density="long">
           <strong data-optical-start>58 часов</strong>
-          <span>ультратриатлон 1 111 км без сна</span>
+          <span>ультратриатлон 1111 км без сна</span>
         </div>
         </div>
       </div>
@@ -846,7 +1101,7 @@
                     poster="./assets/story-recovery.jpg"
                     aria-hidden="true"
                   >
-                    <source src="./assets/story-recovery.mp4" type="video/mp4">
+                    <source src="./assets/story-recovery.mp4?v=bd894682e9" type="video/mp4">
                   </video>
                   <button
                     class="story-frame__video-toggle"
@@ -1410,7 +1665,7 @@
         <li class="partner-format">
           <span>03</span>
           <strong>Медиа</strong>
-          <p>Совместно рассказываем историю до старта, во время проекта и после финиша.</p>
+          <p>Вместе фиксируем реальный ход проекта и превращаем его в последовательную медийную историю.</p>
         </li>
           </ol>
         </div>
@@ -1432,7 +1687,7 @@
         <li class="partner-process__step">
           <span>03</span>
           <strong>Проходим путь</strong>
-          <p>Работаем до старта, все 31 день проекта и после финиша.</p>
+          <p>Ведём работу от первого решения до итогового результата.</p>
         </li>
         </ol>
       </div>

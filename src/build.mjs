@@ -1392,6 +1392,14 @@ function renderDistanceMedia(items, l) {
           data-distance-frame="${index}"
           aria-hidden="true"
         >
+          <img
+            src="${l.assetBase}assets/${item.image}"
+            alt=""
+            loading="${index === 0 ? "eager" : "lazy"}"
+            width="1600"
+            height="900"
+            aria-hidden="true"
+          >
           <video
             data-distance-video="${index}"
             muted
@@ -2170,18 +2178,18 @@ function renderPage(l) {
           ${renderDistanceMedia(l.distance.items, l)}
           <div class="distance-story__counter" aria-hidden="true">
             <div class="distance-story__counter-meta">
-              <span data-distance-live-index>${l.distance.items[0].index}</span>
-              <span data-distance-live-label>${l.distance.items[0].label}</span>
+              <span data-distance-live-index data-distance-motion="label">${l.distance.items[0].index}</span>
+              <span data-distance-live-label data-distance-motion="label">${l.distance.items[0].label}</span>
             </div>
             <p class="distance-story__counter-value">
-              <strong data-distance-live-value data-optical-start>${l.distance.items[0].value}</strong>
+              <strong data-distance-live-value data-distance-motion="value" data-optical-start>${l.distance.items[0].value}</strong>
               <small data-distance-live-unit>${l.distance.items[0].unit}</small>
             </p>
             <div class="distance-story__sequence">
               <div class="distance-story__sequence-meta">
                 <span>
                   <small>${l.distance.sequenceLabel}</small>
-                  <b><strong data-distance-sequence-current>${l.distance.items[0].index}</strong><i>${l.distance.sequenceOf} ${String(l.distance.items.length).padStart(2, "0")}</i></b>
+                  <b><strong data-distance-sequence-current data-distance-motion="label">${l.distance.items[0].index}</strong><i>${l.distance.sequenceOf} ${String(l.distance.items.length).padStart(2, "0")}</i></b>
                 </span>
                 ${renderSequenceTotal(l.distance.totalValue, l.distance.totalUnit, l.distance.sequenceTotal)}
               </div>

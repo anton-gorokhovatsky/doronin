@@ -554,6 +554,51 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
   let soundFrequencyData;
   let soundStoryStarted = false;
   let soundStoryCompleted = false;
+  let soundSceneMotionTimer = 0;
+
+  function animateSoundScene(button, context, direction) {
+    window.clearTimeout(soundSceneMotionTimer);
+
+    for (const sceneButton of soundSceneButtons) {
+      sceneButton.classList.remove("is-scene-entering");
+    }
+
+    for (const sceneContext of soundContexts) {
+      sceneContext.classList.remove("is-context-entering");
+    }
+
+    if (!button || !context || reducedMotion.matches) {
+      return;
+    }
+
+    const movesForward = direction >= 0;
+    soundPlayer.style.setProperty(
+      "--scene-shift",
+      movesForward ? "0.9rem" : "-0.9rem",
+    );
+    soundPlayer.style.setProperty(
+      "--scene-shift-soft",
+      movesForward ? "0.5rem" : "-0.5rem",
+    );
+    soundPlayer.style.setProperty(
+      "--scene-sweep-from",
+      movesForward ? "180% 0" : "-80% 0",
+    );
+    soundPlayer.style.setProperty(
+      "--scene-sweep-to",
+      movesForward ? "-80% 0" : "180% 0",
+    );
+
+    void soundPlayer.offsetWidth;
+    button.classList.add("is-scene-entering");
+    context.classList.add("is-context-entering");
+
+    soundSceneMotionTimer = window.setTimeout(() => {
+      button.classList.remove("is-scene-entering");
+      context.classList.remove("is-context-entering");
+      soundSceneMotionTimer = 0;
+    }, 680);
+  }
 
   function soundWaveBars() {
     return Array.from(
@@ -713,6 +758,7 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
       return;
     }
 
+    const previousScene = activeSoundScene;
     activeSoundScene = index;
     const nextSource = nextButton.dataset.audioSrc;
 
@@ -725,6 +771,13 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
 
     resetSoundWave();
     syncSoundControls();
+    if (index !== previousScene) {
+      animateSoundScene(
+        nextButton,
+        soundContexts[index],
+        index > previousScene ? 1 : -1,
+      );
+    }
     revealSoundScene(nextButton);
 
     if (shouldPlay) {
@@ -792,6 +845,11 @@ if (effortAudio && soundPlayer && soundSceneButtons.length) {
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
       effortAudio.pause();
+    }
+  });
+  reducedMotion.addEventListener?.("change", (event) => {
+    if (event.matches) {
+      animateSoundScene();
     }
   });
   syncSoundControls();
@@ -891,9 +949,6 @@ if (distanceStory) {
   const distanceVideos = [
     ...distanceStory.querySelectorAll("[data-distance-video]"),
   ];
-  const distanceLiveCounter = distanceStory.querySelector(
-    ".distance-story__counter",
-  );
   const distanceLiveIndex = distanceStory.querySelector(
     "[data-distance-live-index]",
   );
@@ -913,8 +968,189 @@ if (distanceStory) {
     "[data-distance-sequence-current]",
   );
   const distanceSaveData = navigator.connection?.saveData === true;
+  const distanceNarrowQuery = window.matchMedia("(max-width: 960px)");
+  const distanceMotionTimers = new WeakMap();
+  const distanceCardMotionTimers = new WeakMap();
+  const distanceFrameMotionTimers = new WeakMap();
   let activeDistanceIndex = 0;
   let distanceStoryVisible = false;
+
+  function createDistanceMotionLayer(text, state, kind) {
+    const layer = document.createElement("span");
+    layer.className = `distance-motion__layer distance-motion__layer--${state}`;
+    layer.setAttribute("aria-hidden", "true");
+
+    if (kind === "value") {
+      const token = document.createElement("span");
+      token.className = "distance-motion__token";
+      token.textContent = text;
+      layer.append(token);
+      return layer;
+    }
+
+    const characters = [...text];
+    let glyphIndex = 0;
+
+    for (const character of characters) {
+      const glyph = document.createElement("span");
+
+      glyph.textContent = character;
+
+      if (/\s/u.test(character)) {
+        glyph.className = "distance-motion__space";
+      } else {
+        glyph.className = "distance-motion__glyph";
+        glyph.style.setProperty("--distance-motion-order", String(glyphIndex));
+        glyphIndex += 1;
+      }
+
+      layer.append(glyph);
+    }
+
+    return layer;
+  }
+
+  function finishDistanceTextMotion(element, text) {
+    const timers = distanceMotionTimers.get(element);
+
+    if (timers) {
+      window.clearTimeout(timers.width);
+      window.clearTimeout(timers.finish);
+      distanceMotionTimers.delete(element);
+    }
+
+    element.classList.remove(
+      "distance-motion",
+      "distance-motion--label",
+      "distance-motion--value",
+      "is-morphing",
+    );
+    element.style.removeProperty("width");
+    element.textContent = text;
+    element.dataset.motionText = text;
+
+    if (element.matches("[data-optical-start]")) {
+      syncOpticalStart(element);
+    }
+  }
+
+  function morphDistanceText(element, nextText, kind) {
+    if (!element) {
+      return;
+    }
+
+    const text = String(nextText ?? "");
+    const currentText = element.dataset.motionText ?? element.textContent;
+
+    if (currentText === text) {
+      element.dataset.motionText = text;
+      return;
+    }
+
+    finishDistanceTextMotion(element, currentText);
+
+    if (reducedMotion.matches || element.getClientRects().length === 0) {
+      finishDistanceTextMotion(element, text);
+      return;
+    }
+
+    const previousWidth = element.getBoundingClientRect().width;
+    const outgoing = createDistanceMotionLayer(currentText, "outgoing", kind);
+    const incoming = createDistanceMotionLayer(text, "incoming", kind);
+    const glyphCount = [...text].filter((character) => !/\s/u.test(character)).length;
+    const widthDelay = 180;
+    const duration =
+      kind === "value"
+        ? 610
+        : 610 + Math.min(glyphCount * 8, 80);
+
+    element.dataset.motionText = text;
+    element.replaceChildren(outgoing, incoming);
+    element.classList.add(
+      "distance-motion",
+      `distance-motion--${kind}`,
+      "is-morphing",
+    );
+    element.style.width = `${previousWidth}px`;
+
+    const nextWidth = incoming.getBoundingClientRect().width;
+
+    const widthTimer = window.setTimeout(() => {
+      if (element.dataset.motionText === text) {
+        element.style.width = `${nextWidth}px`;
+      }
+    }, widthDelay);
+
+    const finishTimer = window.setTimeout(
+      () => finishDistanceTextMotion(element, text),
+      duration,
+    );
+    distanceMotionTimers.set(element, {
+      width: widthTimer,
+      finish: finishTimer,
+    });
+  }
+
+  function animateDistanceCard(card) {
+    if (!card || reducedMotion.matches || !distanceNarrowQuery.matches) {
+      return;
+    }
+
+    const previousTimer = distanceCardMotionTimers.get(card);
+
+    if (previousTimer) {
+      window.clearTimeout(previousTimer);
+    }
+
+    card.classList.remove("is-motion-entering");
+    void card.offsetWidth;
+    card.classList.add("is-motion-entering");
+
+    const timer = window.setTimeout(() => {
+      card.classList.remove("is-motion-entering");
+      distanceCardMotionTimers.delete(card);
+    }, 620);
+    distanceCardMotionTimers.set(card, timer);
+  }
+
+  function animateDistanceFrame(frame, direction) {
+    for (const storyFrame of distanceFrames) {
+      const previousTimer = distanceFrameMotionTimers.get(storyFrame);
+
+      if (previousTimer) {
+        window.clearTimeout(previousTimer);
+        distanceFrameMotionTimers.delete(storyFrame);
+      }
+
+      storyFrame.classList.remove(
+        "is-motion-entering",
+        "is-motion-entering--forward",
+        "is-motion-entering--backward",
+      );
+    }
+
+    if (!frame || reducedMotion.matches) {
+      return;
+    }
+
+    frame.classList.add(
+      direction >= 0
+        ? "is-motion-entering--forward"
+        : "is-motion-entering--backward",
+    );
+    void frame.offsetWidth;
+    frame.classList.add("is-motion-entering");
+
+    const timer = window.setTimeout(() => {
+      frame.classList.remove(
+        "is-motion-entering",
+        "is-motion-entering--forward",
+        "is-motion-entering--backward",
+      );
+      distanceFrameMotionTimers.delete(frame);
+    }, 820);
+    distanceFrameMotionTimers.set(frame, timer);
+  }
 
   function syncDistanceVideo() {
     for (const [videoIndex, video] of distanceVideos.entries()) {
@@ -931,10 +1167,6 @@ if (distanceStory) {
         }
       } else {
         video.pause();
-
-        if (video.readyState > 0) {
-          video.currentTime = 0;
-        }
       }
     }
   }
@@ -946,6 +1178,8 @@ if (distanceStory) {
       return;
     }
 
+    const previousDistanceIndex = activeDistanceIndex;
+    const distanceChanged = index !== previousDistanceIndex;
     activeDistanceIndex = index;
 
     for (const [cardIndex, card] of distanceCards.entries()) {
@@ -956,37 +1190,50 @@ if (distanceStory) {
       frame.classList.toggle("is-active", frameIndex === index);
     }
 
-    if (distanceLiveIndex) {
-      distanceLiveIndex.textContent = activeCard.dataset.distanceIndex;
-    }
+    morphDistanceText(
+      distanceLiveIndex,
+      activeCard.dataset.distanceIndex,
+      "label",
+    );
 
-    if (distanceLiveLabel) {
-      distanceLiveLabel.textContent = activeCard.dataset.distanceLabel;
-    }
-
-    if (distanceLiveValue) {
-      distanceLiveValue.textContent = activeCard.dataset.distanceValue;
-      syncOpticalStart(distanceLiveValue);
-    }
+    morphDistanceText(
+      distanceLiveLabel,
+      activeCard.dataset.distanceLabel,
+      "label",
+    );
+    morphDistanceText(
+      distanceLiveValue,
+      activeCard.dataset.distanceValue,
+      "value",
+    );
 
     if (distanceLiveUnit) {
       distanceLiveUnit.textContent = activeCard.dataset.distanceUnit;
     }
 
-    if (distanceSequenceCurrent) {
-      distanceSequenceCurrent.textContent = activeCard.dataset.distanceIndex;
-    }
+    morphDistanceText(
+      distanceSequenceCurrent,
+      activeCard.dataset.distanceIndex,
+      "label",
+    );
 
     for (const [stepIndex, step] of distanceSequence.entries()) {
       step.classList.toggle("is-active", stepIndex === index);
       step.classList.toggle("is-complete", stepIndex < index);
     }
 
-    if (distanceLiveCounter) {
-      distanceLiveCounter.classList.remove("is-changing");
-      requestAnimationFrame(() => {
-        distanceLiveCounter.classList.add("is-changing");
-      });
+    if (distanceChanged) {
+      const nextVideo = distanceVideos[index];
+
+      if (nextVideo?.readyState > 0) {
+        nextVideo.currentTime = 0;
+      }
+
+      animateDistanceFrame(
+        distanceFrames[index],
+        index > previousDistanceIndex ? 1 : -1,
+      );
+      animateDistanceCard(activeCard);
     }
 
     syncDistanceVideo();
@@ -1021,7 +1268,28 @@ if (distanceStory) {
     }
   }
 
-  reducedMotion.addEventListener?.("change", syncDistanceVideo);
+  reducedMotion.addEventListener?.("change", (event) => {
+    syncDistanceVideo();
+
+    if (event.matches) {
+      for (const card of distanceCards) {
+        card.classList.remove("is-motion-entering");
+      }
+
+      animateDistanceFrame();
+
+      for (const element of [
+        distanceLiveIndex,
+        distanceLiveLabel,
+        distanceLiveValue,
+        distanceSequenceCurrent,
+      ]) {
+        if (element?.dataset.motionText) {
+          finishDistanceTextMotion(element, element.dataset.motionText);
+        }
+      }
+    }
+  });
   document.addEventListener("visibilitychange", syncDistanceVideo);
 }
 
@@ -1370,11 +1638,108 @@ for (const analyticsTarget of document.querySelectorAll(
   });
 }
 
-const diaryVideo = document.querySelector("[data-diary-video]");
-const diaryVideoPlay = document.querySelector("[data-diary-video-play]");
-const diaryVideoFrame = diaryVideo?.closest(".diary__media");
+const diaryStories = document.querySelector("[data-diary-stories]");
 
-if (diaryVideo) {
+if (diaryStories) {
+  const diaryStoryTabs = [
+    ...diaryStories.querySelectorAll("[data-diary-story-tab]"),
+  ];
+  const diaryStoryPanels = [
+    ...diaryStories.querySelectorAll("[data-diary-story-panel]"),
+  ];
+  const diaryStoryMotionTimers = new WeakMap();
+
+  const activateDiaryStory = (
+    tab,
+    { focus = false, reveal = false } = {},
+  ) => {
+    const panelId = tab?.getAttribute("aria-controls");
+    if (!panelId) return;
+
+    for (const storyTab of diaryStoryTabs) {
+      const isActive = storyTab === tab;
+      storyTab.setAttribute("aria-selected", String(isActive));
+      storyTab.tabIndex = isActive ? 0 : -1;
+    }
+
+    for (const panel of diaryStoryPanels) {
+      const isActive = panel.id === panelId;
+      const previousTimer = diaryStoryMotionTimers.get(panel);
+
+      if (previousTimer) {
+        window.clearTimeout(previousTimer);
+        diaryStoryMotionTimers.delete(panel);
+      }
+
+      panel.classList.remove("is-diary-entering");
+      panel.hidden = !isActive;
+
+      if (!isActive) {
+        panel.querySelector("video")?.pause();
+      } else if (!reducedMotion.matches) {
+        void panel.offsetWidth;
+        panel.classList.add("is-diary-entering");
+
+        const timer = window.setTimeout(() => {
+          panel.classList.remove("is-diary-entering");
+          diaryStoryMotionTimers.delete(panel);
+        }, 720);
+        diaryStoryMotionTimers.set(panel, timer);
+      }
+    }
+
+    if (reveal) {
+      tab.scrollIntoView({ block: "nearest", inline: "nearest" });
+    }
+    if (focus) tab.focus();
+  };
+
+  if (diaryStoryTabs.length && diaryStoryPanels.length) {
+    for (const [index, tab] of diaryStoryTabs.entries()) {
+      tab.addEventListener("click", (event) => {
+        event.preventDefault();
+        activateDiaryStory(tab, { reveal: true });
+        history.replaceState(null, "", tab.hash);
+      });
+
+      tab.addEventListener("keydown", (event) => {
+        let nextIndex = null;
+
+        if (event.key === "ArrowRight") nextIndex = index + 1;
+        if (event.key === "ArrowLeft") nextIndex = index - 1;
+        if (event.key === "Home") nextIndex = 0;
+        if (event.key === "End") nextIndex = diaryStoryTabs.length - 1;
+        if (nextIndex === null) return;
+
+        event.preventDefault();
+        const nextTab = diaryStoryTabs.at(
+          (nextIndex + diaryStoryTabs.length) % diaryStoryTabs.length,
+        );
+        activateDiaryStory(nextTab, { focus: true, reveal: true });
+        history.replaceState(null, "", nextTab.hash);
+      });
+    }
+
+    const hashTab = diaryStoryTabs.find(
+      (tab) => tab.hash === window.location.hash,
+    );
+    const initialTab =
+      hashTab ||
+      diaryStoryTabs.find((tab) => tab.getAttribute("aria-selected") === "true") ||
+      diaryStoryTabs[0];
+
+    activateDiaryStory(initialTab, { reveal: Boolean(hashTab) });
+    diaryStories.classList.add("has-diary-stories");
+  }
+}
+
+const diaryVideos = [...document.querySelectorAll("[data-diary-video]")];
+
+for (const diaryVideo of diaryVideos) {
+  const diaryVideoFrame = diaryVideo.closest(".diary__media");
+  const diaryVideoPlay = diaryVideoFrame?.querySelector(
+    "[data-diary-video-play]",
+  );
   let diaryStarted = false;
   let diaryCompleted = false;
 
@@ -1400,6 +1765,10 @@ if (diaryVideo) {
   }
 
   diaryVideo.addEventListener("play", () => {
+    for (const otherVideo of diaryVideos) {
+      if (otherVideo !== diaryVideo) otherVideo.pause();
+    }
+
     diaryVideoFrame?.classList.add("has-started");
 
     if (!diaryStarted) {
@@ -1419,10 +1788,66 @@ if (diaryVideo) {
 }
 
 const desktopNavigation = window.matchMedia("(min-width: 961px)");
+const menuFocusableSelector = [
+  "summary",
+  "a[href]",
+  "button:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+const menuIsolationState = new Map();
+
+function getMenuFocusables(navigation) {
+  return [...navigation.querySelectorAll(menuFocusableSelector)].filter(
+    (element) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return (
+        !element.inert &&
+        style.display !== "none" &&
+        style.visibility !== "hidden" &&
+        rect.width > 0 &&
+        rect.height > 0
+      );
+    },
+  );
+}
+
+function syncMenuIsolation(navigation) {
+  const header = navigation.closest(".site-header");
+
+  if (navigation.open) {
+    const targets = [
+      ...[...document.body.children].filter(
+        (element) => element !== header && !["SCRIPT", "STYLE"].includes(element.tagName),
+      ),
+      ...[...(header?.children || [])].filter(
+        (element) => element !== navigation,
+      ),
+    ];
+
+    for (const target of targets) {
+      if (!menuIsolationState.has(target)) {
+        menuIsolationState.set(target, target.inert);
+      }
+      target.inert = true;
+    }
+    return;
+  }
+
+  for (const [target, wasInert] of menuIsolationState) {
+    target.inert = wasInert;
+  }
+  menuIsolationState.clear();
+}
 
 function syncNavigationMode() {
   for (const navigation of document.querySelectorAll(".nav-shell")) {
     navigation.removeAttribute("open");
+    const toggle = navigation.querySelector(".menu-toggle");
+    if (toggle?.dataset.menuOpenLabel) {
+      toggle.setAttribute("aria-label", toggle.dataset.menuOpenLabel);
+    }
+    syncMenuIsolation(navigation);
   }
 }
 
@@ -1431,7 +1856,15 @@ desktopNavigation.addEventListener?.("change", syncNavigationMode);
 
 for (const navigation of document.querySelectorAll(".nav-shell")) {
   navigation.addEventListener("toggle", () => {
+    const toggle = navigation.querySelector(".menu-toggle");
+    const toggleLabel = navigation.open
+      ? toggle?.dataset.menuCloseLabel
+      : toggle?.dataset.menuOpenLabel;
+    if (toggle && toggleLabel) toggle.setAttribute("aria-label", toggleLabel);
+    syncMenuIsolation(navigation);
+
     if (navigation.open) {
+      restoreMenuPreview();
       reachGoal("menu_open", { location: "header" });
     }
   });
@@ -1445,9 +1878,35 @@ for (const navigation of document.querySelectorAll(".nav-shell")) {
 }
 
 document.addEventListener("keydown", (event) => {
+  const openNavigation = document.querySelector(".nav-shell[open]");
+
+  if (event.key === "Tab" && openNavigation) {
+    const focusables = getMenuFocusables(openNavigation);
+    const first = focusables[0];
+    const last = focusables.at(-1);
+    const active = document.activeElement;
+
+    if (!first || !last) {
+      event.preventDefault();
+      return;
+    }
+
+    if (!openNavigation.contains(active)) {
+      event.preventDefault();
+      first.focus();
+    } else if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
   if (event.key === "Escape") {
     for (const navigation of document.querySelectorAll(".nav-shell[open]")) {
       navigation.removeAttribute("open");
+      syncMenuIsolation(navigation);
       navigation.querySelector("summary")?.focus();
     }
   }
@@ -1523,6 +1982,9 @@ const menuPreviewImage = document.querySelector("[data-menu-preview-image]");
 const menuPreviewLinks = headerNavigationLinks.filter(
   (link) => link.dataset.navIndex,
 );
+const menuPreviewPointer = window.matchMedia(
+  "(hover: hover) and (pointer: fine)",
+);
 
 function syncMenuPreview(link) {
   if (!link?.dataset.navIndex || !menuPreviewIndex || !menuPreviewTitle) return;
@@ -1555,8 +2017,12 @@ function restoreMenuPreview() {
 }
 
 for (const link of menuPreviewLinks) {
-  link.addEventListener("pointerenter", () => syncMenuPreview(link));
-  link.addEventListener("focus", () => syncMenuPreview(link));
+  link.addEventListener("pointerenter", () => {
+    if (menuPreviewPointer.matches) syncMenuPreview(link);
+  });
+  link.addEventListener("focus", () => {
+    if (link.matches(":focus-visible")) syncMenuPreview(link);
+  });
 }
 
 document.querySelector(".site-nav__primary")?.addEventListener(
@@ -1637,10 +2103,14 @@ if (siteHeader && headerNavigationTargets.length) {
         activeItem.link.dataset.navTitle || activeItem.link.textContent.trim();
     }
 
-    if (
-      !document.querySelector(".site-nav__primary")?.matches(":hover") &&
-      !document.querySelector(".site-nav__primary")?.contains(document.activeElement)
-    ) {
+    const primaryNavigation = document.querySelector(".site-nav__primary");
+    const hasPointerPreview =
+      menuPreviewPointer.matches && primaryNavigation?.matches(":hover");
+    const hasKeyboardPreview =
+      primaryNavigation?.contains(document.activeElement) &&
+      document.activeElement?.matches?.(":focus-visible");
+
+    if (!hasPointerPreview && !hasKeyboardPreview) {
       restoreMenuPreview();
     }
   }

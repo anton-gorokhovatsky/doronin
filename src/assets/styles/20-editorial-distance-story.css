@@ -273,6 +273,40 @@
   display: none;
 }
 
+.diary-story.is-diary-entering .diary__media {
+  animation: diary-media-enter 560ms var(--ease-enter) both;
+}
+
+.diary-story.is-diary-entering .diary__copy > * {
+  animation: diary-copy-enter 500ms var(--ease-enter) both;
+}
+
+.diary-story.is-diary-entering .diary__copy > :nth-child(2) {
+  animation-delay: 45ms;
+}
+
+.diary-story.is-diary-entering .diary__copy > :nth-child(3) {
+  animation-delay: 80ms;
+}
+
+.diary-story.is-diary-entering .diary__copy > :nth-child(n + 4) {
+  animation-delay: 115ms;
+}
+
+@keyframes diary-media-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+
+@keyframes diary-copy-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.65rem);
+  }
+}
+
 .diary-story + .diary-story {
   margin-top: clamp(3rem, 6vw, 6rem);
   padding-top: clamp(3rem, 6vw, 6rem);
@@ -591,7 +625,7 @@
   opacity: 0;
   transform: scale(1.025);
   transition:
-    opacity 420ms var(--ease-move),
+    opacity 720ms var(--ease-exit),
     transform 720ms var(--ease-move);
 }
 
@@ -599,6 +633,54 @@
   z-index: 1;
   opacity: 1;
   transform: scale(1);
+}
+
+.distance-story__frame.is-active.is-motion-entering {
+  z-index: 2;
+  animation: distance-frame-enter 760ms var(--ease-enter) both;
+}
+
+.distance-story__frame.is-motion-entering--forward {
+  --distance-frame-clip: inset(0 0 0 100%);
+}
+
+.distance-story__frame.is-motion-entering--backward {
+  --distance-frame-clip: inset(0 100% 0 0);
+}
+
+.distance-story__frame.is-motion-entering figcaption span,
+.distance-story__frame.is-motion-entering figcaption strong {
+  animation: distance-frame-caption-enter 500ms var(--ease-enter) both;
+  animation-delay: 180ms;
+}
+
+.distance-story__frame.is-motion-entering figcaption strong {
+  animation-delay: 245ms;
+}
+
+@keyframes distance-frame-enter {
+  from {
+    clip-path: var(--distance-frame-clip, inset(0 0 0 100%));
+    transform: scale(1.045);
+  }
+
+  to {
+    clip-path: inset(0);
+    transform: scale(1);
+  }
+}
+
+@keyframes distance-frame-caption-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.55rem);
+  }
+}
+
+@keyframes distance-frame-video-enter {
+  from {
+    opacity: 0;
+  }
 }
 
 .distance-story__frame::after {
@@ -610,10 +692,16 @@
 
 .distance-story__frame img,
 .distance-story__frame video {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.distance-story__frame.is-motion-entering video {
+  animation: distance-frame-video-enter 640ms var(--ease-enter) 120ms both;
 }
 
 .distance-story__frame figcaption {
@@ -669,6 +757,7 @@
   display: flex;
   align-items: baseline;
   gap: 0.16em;
+  width: max-content;
   min-width: 0;
   margin: 0.75rem 0 1rem;
   font-family: var(--display);
@@ -685,6 +774,101 @@
   font-size: var(--type-service);
   letter-spacing: 0.07em;
   text-transform: uppercase;
+}
+
+[data-distance-motion] {
+  min-width: 0;
+}
+
+.distance-motion {
+  display: inline-grid;
+  grid-template-areas: "motion";
+  align-items: baseline;
+  width: max-content;
+  overflow: hidden;
+  overflow: clip;
+  vertical-align: baseline;
+  white-space: pre;
+  transition: width 100ms var(--ease-enter);
+}
+
+.distance-motion__layer {
+  display: inline-flex;
+  grid-area: motion;
+  align-items: baseline;
+  justify-self: start;
+  width: max-content;
+  white-space: pre;
+}
+
+.distance-motion__glyph,
+.distance-motion__space,
+.distance-motion__token {
+  display: inline-block;
+}
+
+.distance-motion__glyph,
+.distance-motion__token {
+  transform-origin: 50% 80%;
+  will-change: opacity, transform, filter;
+}
+
+.distance-motion.is-morphing .distance-motion__layer--outgoing :is(.distance-motion__glyph, .distance-motion__token) {
+  animation: distance-motion-out 160ms var(--ease-exit) both;
+  animation-delay: calc(var(--distance-motion-order, 0) * 5ms);
+}
+
+.distance-motion.is-morphing .distance-motion__layer--incoming :is(.distance-motion__glyph, .distance-motion__token) {
+  animation: distance-motion-in 360ms var(--ease-enter) both;
+  animation-delay: calc(205ms + var(--distance-motion-order, 0) * 18ms);
+}
+
+.distance-motion--label.is-morphing .distance-motion__layer--outgoing .distance-motion__glyph {
+  animation-duration: 150ms;
+  animation-delay: calc(var(--distance-motion-order, 0) * 4ms);
+}
+
+.distance-motion--label.is-morphing .distance-motion__layer--incoming .distance-motion__glyph {
+  animation-duration: 340ms;
+  animation-delay: calc(200ms + var(--distance-motion-order, 0) * 8ms);
+}
+
+.distance-motion--value.is-morphing .distance-motion__layer--outgoing .distance-motion__token {
+  animation: distance-value-out 140ms var(--ease-exit) both;
+}
+
+.distance-motion--value.is-morphing .distance-motion__layer--incoming .distance-motion__token {
+  animation: distance-value-in 300ms var(--ease-enter) 165ms both;
+}
+
+@keyframes distance-motion-out {
+  to {
+    opacity: 0;
+    filter: blur(0.08em);
+    transform: translateY(-0.5em) scaleY(0.9);
+  }
+}
+
+@keyframes distance-motion-in {
+  from {
+    opacity: 0;
+    filter: blur(0.1em);
+    transform: translateY(0.68em) scaleY(0.88);
+  }
+}
+
+@keyframes distance-value-out {
+  to {
+    opacity: 0;
+    transform: translateY(-0.16em);
+  }
+}
+
+@keyframes distance-value-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.2em);
+  }
 }
 
 .distance-story__sequence {
@@ -773,22 +957,6 @@
   display: none;
 }
 
-.distance-story__counter.is-changing .distance-story__counter-meta,
-.distance-story__counter.is-changing .distance-story__counter-value {
-  animation: distance-counter-enter 420ms var(--ease-enter) both;
-}
-
-.distance-story__counter.is-changing .distance-story__counter-value {
-  animation-delay: 45ms;
-}
-
-@keyframes distance-counter-enter {
-  from {
-    opacity: 0;
-    transform: translateY(0.55rem);
-  }
-}
-
 .distance-story__chapters {
   min-width: 0;
 }
@@ -860,6 +1028,16 @@
   display: inline-flex;
   align-items: baseline;
   gap: 0.34em;
+}
+
+.distance-card__number > span {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.distance-card__number i {
+  display: inline-block;
+  font-style: normal;
 }
 
 .distance-card__unit {
