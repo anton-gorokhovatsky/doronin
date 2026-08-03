@@ -41,6 +41,8 @@ jobs:
 
       - name: Run release gate
         run: pnpm gate
+        env:
+          CI_BROWSER_REGRESSION_JOB: separate
 
       - name: Upload gate screenshots
         uses: actions/upload-artifact@v7
@@ -59,8 +61,36 @@ jobs:
         with:
           path: site
 
+  browser-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11.9.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install browser engines
+        run: pnpm exec playwright install --with-deps chromium webkit
+
+      - name: Run isolated Chromium/WebKit regression
+        run: pnpm test:browser
+
   deploy:
-    needs: quality
+    needs:
+      - quality
+      - browser-regression
     runs-on: ubuntu-latest
     environment:
       name: github-pages
