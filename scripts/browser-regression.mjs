@@ -189,7 +189,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       );
 
       await menuToggle.hover();
-      await page.waitForTimeout(220);
+      await page.waitForTimeout(420);
       const menuHover = await menuToggle.evaluate((element) => {
         const style = getComputedStyle(element);
         const current = getComputedStyle(
