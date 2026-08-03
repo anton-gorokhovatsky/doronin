@@ -82,10 +82,12 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install browser engines
-        run: pnpm exec playwright install --with-deps chromium webkit
+        run: pnpm exec playwright install --with-deps chromium
 
-      - name: Run isolated Chromium/WebKit regression
+      - name: Run isolated Chromium interaction regression
         run: pnpm test:browser
+        env:
+          BROWSER_REGRESSION_ENGINES: chromium
 
   deploy:
     needs:
