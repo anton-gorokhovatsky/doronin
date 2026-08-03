@@ -954,13 +954,13 @@ const cases = [
 const results = [];
 try {
   for (const [name, browserType] of browsers) {
-    const browser = await browserType.launch({ headless: true });
-    try {
-      for (const testCase of cases) {
+    for (const testCase of cases) {
+      const browser = await browserType.launch({ headless: true });
+      try {
         results.push(await auditPage(browser, name, server.origin, testCase));
+      } finally {
+        await browser.close();
       }
-    } finally {
-      await browser.close();
     }
   }
 } finally {
