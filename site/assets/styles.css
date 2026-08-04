@@ -1964,6 +1964,18 @@ a {
   font: inherit;
 }
 
+.diary__range {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0 0.45em;
+  text-align: right;
+}
+
+.diary__range > span {
+  white-space: nowrap;
+}
+
 .diary-stories {
   grid-column: 1 / -1;
   min-width: 0;
@@ -6065,9 +6077,16 @@ a {
     align-items: flex-start;
   }
 
-  .diary__heading > span {
+  .diary__heading > .diary__range {
+    display: grid;
+    justify-items: end;
+    row-gap: 0.08em;
     max-width: 17ch;
     text-align: right;
+  }
+
+  .diary__range-dot {
+    display: none;
   }
 
   .diary-stories__rail {

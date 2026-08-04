@@ -531,6 +531,15 @@ const specs = [
     viewport: { width: 390, height: 844 },
   },
   {
+    name: "ru-320-light-diary-stories",
+    path: "/?gate=ru-320-light-diary#diary",
+    locale: "ru",
+    theme: "light",
+    target: ".diary-stories__rail",
+    expectDiaryStories: true,
+    viewport: { width: 320, height: 844 },
+  },
+  {
     name: "ru-390-light-effort-video",
     path: "/?gate=ru-390-light-effort#top",
     locale: "ru",

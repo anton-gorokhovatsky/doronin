@@ -697,6 +697,56 @@ async function auditPage(browser, browserName, origin, testCase) {
       (await diaryTabs.count()) === 3 && (await diaryPanels.count()) === 3,
       `${prefix}: training diary does not expose all three stories`,
     );
+    const diaryRangeState = await page.locator(".diary__heading").evaluate(
+      (element) => {
+        const range = element.querySelector(".diary__range");
+        const count = range.querySelector(".diary__range-count");
+        const start = range.querySelector(".diary__range-start");
+        const end = range.querySelector(".diary__range-end");
+        const dot = range.querySelector(".diary__range-dot");
+        const groups = [count, start, end];
+        const bounds = groups.map((group) => group.getBoundingClientRect());
+        const rangeBounds = range.getBoundingClientRect();
+        return {
+          atomic: groups.every(
+            (group) => getComputedStyle(group).whiteSpace === "nowrap",
+          ),
+          containsNbsp:
+            count.textContent.includes("\u00a0") &&
+            start.textContent.includes("\u00a0") &&
+            end.textContent.includes("\u00a0"),
+          dotDisplay: getComputedStyle(dot).display,
+          display: getComputedStyle(range).display,
+          inBounds:
+            bounds.every(
+              (box) =>
+                box.left >= rangeBounds.left - 1 &&
+                box.right <= rangeBounds.right + 1,
+            ),
+          rightSpread:
+            Math.max(...bounds.map((box) => box.right)) -
+            Math.min(...bounds.map((box) => box.right)),
+          tops: bounds.map((box) => box.top),
+        };
+      },
+    );
+    expect(
+      diaryRangeState.atomic &&
+        diaryRangeState.containsNbsp &&
+        diaryRangeState.inBounds &&
+        (testCase.viewport.width <= 390
+          ? diaryRangeState.display === "grid" &&
+            diaryRangeState.dotDisplay === "none" &&
+            diaryRangeState.rightSpread <= 1 &&
+            diaryRangeState.tops[0] < diaryRangeState.tops[1] &&
+            diaryRangeState.tops[1] < diaryRangeState.tops[2]
+          : diaryRangeState.display === "flex" &&
+            diaryRangeState.dotDisplay !== "none" &&
+            Math.max(...diaryRangeState.tops) -
+              Math.min(...diaryRangeState.tops) <=
+              1),
+      `${prefix}: diary date range loses semantic grouping (${JSON.stringify(diaryRangeState)})`,
+    );
     const readDiaryState = () =>
       page.locator("[data-diary-stories]").evaluate((element) => {
         const tabs = [...element.querySelectorAll("[data-diary-story-tab]")];

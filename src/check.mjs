@@ -552,7 +552,13 @@ expect(
     css.includes("overscroll-behavior-x: none") &&
     css.includes("scroll-snap-stop: always") &&
     css.includes("touch-action: pan-x") &&
-    generatedHtml.includes('data-diary-story-tab\n          draggable="false"'),
+    generatedHtml.includes('data-diary-story-tab\n          draggable="false"') &&
+    generatedHtml.includes('class="diary__range-count">3\u00a0записи') &&
+    generatedHtml.includes('class="diary__range-start">10\u00a0марта') &&
+    generatedHtml.includes('class="diary__range-end">23\u00a0апреля\u00a02026') &&
+    generatedHtml.includes('class="diary__range-count">3\u00a0entries') &&
+    generatedHtml.includes('class="diary__range-start">March\u00a010') &&
+    generatedHtml.includes('class="diary__range-end">April\u00a023,\u00a02026'),
   "css: дневник, источники, мобильный индекс интервью и партнёрский процесс должны быть оформлены",
 );
 expect(

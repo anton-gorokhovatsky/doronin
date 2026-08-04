@@ -202,7 +202,9 @@ const locales = {
       phaseBefore: "Дневник подготовки",
       phaseActive: "31 день проекта",
       phaseFinished: "Архив истории",
-      rangeLabel: "3 записи · 10 марта — 23 апреля 2026",
+      rangeCount: "3\u00a0записи",
+      rangeStart: "10\u00a0марта",
+      rangeEnd: "23\u00a0апреля\u00a02026",
       storiesLabel: "Записи дневника подготовки",
       entries: [
         {
@@ -750,7 +752,9 @@ const locales = {
       phaseBefore: "Training diary",
       phaseActive: "31 days underway",
       phaseFinished: "Story archive",
-      rangeLabel: "3 entries · March 10 — April 23, 2026",
+      rangeCount: "3\u00a0entries",
+      rangeStart: "March\u00a010",
+      rangeEnd: "April\u00a023,\u00a02026",
       storiesLabel: "Training diary entries",
       entries: [
         {
@@ -2126,7 +2130,11 @@ function renderPage(l) {
           data-active="${l.diary.phaseActive}"
           data-finished="${l.diary.phaseFinished}"
         >${l.diary.phaseBefore}</h2>
-        <span>${l.diary.rangeLabel}</span>
+        <span class="diary__range">
+          <span class="diary__range-count">${l.diary.rangeCount}<span class="diary__range-dot" aria-hidden="true"> ·</span></span>
+          <span class="diary__range-start">${l.diary.rangeStart}<span class="diary__range-dash">\u00a0—</span></span>
+          <span class="diary__range-end">${l.diary.rangeEnd}</span>
+        </span>
       </div>
       <div class="diary-stories" data-diary-stories>
         <div

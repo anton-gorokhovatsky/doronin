@@ -182,6 +182,18 @@
   font: inherit;
 }
 
+.diary__range {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0 0.45em;
+  text-align: right;
+}
+
+.diary__range > span {
+  white-space: nowrap;
+}
+
 .diary-stories {
   grid-column: 1 / -1;
   min-width: 0;

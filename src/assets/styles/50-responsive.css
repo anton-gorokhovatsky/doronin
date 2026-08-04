@@ -1050,9 +1050,16 @@
     align-items: flex-start;
   }
 
-  .diary__heading > span {
+  .diary__heading > .diary__range {
+    display: grid;
+    justify-items: end;
+    row-gap: 0.08em;
     max-width: 17ch;
     text-align: right;
+  }
+
+  .diary__range-dot {
+    display: none;
   }
 
   .diary-stories__rail {
