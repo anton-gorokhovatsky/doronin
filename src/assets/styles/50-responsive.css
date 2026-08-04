@@ -890,18 +890,24 @@
   }
 
   .hero__content {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     min-height: 100svh;
     padding: calc(5rem + clamp(1.5rem, 7svh, 3.5rem)) var(--page-gutter)
       clamp(2rem, 6svh, 3.25rem);
+    isolation: isolate;
   }
 
   .hero__kicker,
   .hero__intro {
+    position: relative;
+    z-index: 1;
     hanging-punctuation: none;
     text-wrap: wrap;
+    transform: translateZ(0);
   }
 
   .hero__intro {
@@ -1053,10 +1059,13 @@
     grid-template-columns: none;
     grid-auto-columns: calc((100% - 3rem) / 2);
     grid-auto-flow: column;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    scroll-snap-type: inline mandatory;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    overscroll-behavior: none;
+    overscroll-behavior-x: none;
+    scroll-snap-type: x mandatory;
     scrollbar-width: none;
+    touch-action: pan-x;
   }
 
   .diary-stories__rail::-webkit-scrollbar {
@@ -1070,6 +1079,9 @@
     min-height: 0;
     padding: 0.25rem 0.25rem 0.7rem;
     scroll-snap-align: start;
+    scroll-snap-stop: always;
+    user-select: none;
+    -webkit-user-drag: none;
   }
 
   .diary-stories__index {
@@ -1096,7 +1108,10 @@
     height: 100%;
     object-fit: cover;
     opacity: 0.62;
+    pointer-events: none;
     transition: opacity 180ms var(--ease-move);
+    user-select: none;
+    -webkit-user-drag: none;
   }
 
   .diary-stories__tab time {

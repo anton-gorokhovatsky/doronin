@@ -531,6 +531,23 @@ const specs = [
     viewport: { width: 390, height: 844 },
   },
   {
+    name: "ru-390-light-effort-video",
+    path: "/?gate=ru-390-light-effort#top",
+    locale: "ru",
+    theme: "light",
+    target: ".story-frame:nth-child(3)",
+    blockVideo: false,
+    viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-390-light-footer-countdown",
+    path: "/?gate=ru-390-light-footer#top",
+    locale: "ru",
+    theme: "light",
+    target: ".site-footer__intro",
+    viewport: { width: 390, height: 844 },
+  },
+  {
     name: "en-1440-system-top",
     path: "/en/?gate=en-1440-system#top",
     locale: "en",

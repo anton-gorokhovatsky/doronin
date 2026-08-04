@@ -59,8 +59,8 @@
     linear-gradient(90deg, rgba(2, 22, 15, 0.98) 0%, rgba(2, 22, 15, 0.78) 43%, rgba(2, 22, 15, 0.14) 76%),
     linear-gradient(0deg, rgba(2, 22, 15, 0.88) 0%, transparent 36%);
   --hero-veil-mobile:
-    linear-gradient(0deg, rgba(2, 22, 15, 0.98) 0%, rgba(2, 22, 15, 0.7) 58%, rgba(2, 22, 15, 0.3) 100%),
-    linear-gradient(90deg, rgba(2, 22, 15, 0.65), transparent);
+    radial-gradient(ellipse 100% 54% at 14% 86%, rgba(2, 22, 15, 0.38), transparent 70%),
+    linear-gradient(0deg, rgba(2, 22, 15, 0.96) 0%, rgba(2, 22, 15, 0.78) 24%, rgba(2, 22, 15, 0.46) 48%, rgba(2, 22, 15, 0.14) 70%, transparent 88%);
   --hero-media-grade: brightness(0.94) contrast(1.06) saturate(0.86);
   --editorial-art: linear-gradient(transparent, transparent);
   --proof-art: linear-gradient(transparent, transparent);
@@ -4666,6 +4666,7 @@ a {
   display: grid;
   flex: 0 0 auto;
   font-variant-numeric: tabular-nums;
+  justify-items: end;
 }
 
 .site-footer h2 [data-footer-countdown-value] > span {
@@ -5904,18 +5905,24 @@ a {
   }
 
   .hero__content {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     min-height: 100svh;
     padding: calc(5rem + clamp(1.5rem, 7svh, 3.5rem)) var(--page-gutter)
       clamp(2rem, 6svh, 3.25rem);
+    isolation: isolate;
   }
 
   .hero__kicker,
   .hero__intro {
+    position: relative;
+    z-index: 1;
     hanging-punctuation: none;
     text-wrap: wrap;
+    transform: translateZ(0);
   }
 
   .hero__intro {
@@ -6067,10 +6074,13 @@ a {
     grid-template-columns: none;
     grid-auto-columns: calc((100% - 3rem) / 2);
     grid-auto-flow: column;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    scroll-snap-type: inline mandatory;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    overscroll-behavior: none;
+    overscroll-behavior-x: none;
+    scroll-snap-type: x mandatory;
     scrollbar-width: none;
+    touch-action: pan-x;
   }
 
   .diary-stories__rail::-webkit-scrollbar {
@@ -6084,6 +6094,9 @@ a {
     min-height: 0;
     padding: 0.25rem 0.25rem 0.7rem;
     scroll-snap-align: start;
+    scroll-snap-stop: always;
+    user-select: none;
+    -webkit-user-drag: none;
   }
 
   .diary-stories__index {
@@ -6110,7 +6123,10 @@ a {
     height: 100%;
     object-fit: cover;
     opacity: 0.62;
+    pointer-events: none;
     transition: opacity 180ms var(--ease-move);
+    user-select: none;
+    -webkit-user-drag: none;
   }
 
   .diary-stories__tab time {
@@ -9053,8 +9069,8 @@ html.motion-reduced *::after {
     linear-gradient(92deg, rgba(1, 5, 8, 0.995) 0%, rgba(2, 11, 16, 0.78) 48%, rgba(2, 10, 14, 0.2) 82%),
     linear-gradient(0deg, rgba(1, 5, 8, 0.98) 0%, transparent 48%);
   --hero-veil-mobile:
-    radial-gradient(ellipse 86% 52% at 72% 22%, rgba(111, 215, 204, 0.12), transparent 72%),
-    linear-gradient(0deg, rgba(1, 5, 8, 0.995) 0%, rgba(2, 11, 16, 0.82) 62%, rgba(2, 10, 14, 0.32) 100%);
+    radial-gradient(ellipse 100% 54% at 14% 86%, rgba(1, 5, 8, 0.42), transparent 70%),
+    linear-gradient(0deg, rgba(1, 5, 8, 0.98) 0%, rgba(2, 11, 16, 0.82) 24%, rgba(2, 11, 16, 0.5) 48%, rgba(2, 10, 14, 0.16) 70%, transparent 88%);
   --hero-media-grade: brightness(0.74) contrast(1.22) saturate(0.84);
   --editorial-art: var(--night-editorial-art);
   --proof-art: var(--night-proof-art);

@@ -185,8 +185,8 @@ html.motion-reduced *::after {
     linear-gradient(92deg, rgba(1, 5, 8, 0.995) 0%, rgba(2, 11, 16, 0.78) 48%, rgba(2, 10, 14, 0.2) 82%),
     linear-gradient(0deg, rgba(1, 5, 8, 0.98) 0%, transparent 48%);
   --hero-veil-mobile:
-    radial-gradient(ellipse 86% 52% at 72% 22%, rgba(111, 215, 204, 0.12), transparent 72%),
-    linear-gradient(0deg, rgba(1, 5, 8, 0.995) 0%, rgba(2, 11, 16, 0.82) 62%, rgba(2, 10, 14, 0.32) 100%);
+    radial-gradient(ellipse 100% 54% at 14% 86%, rgba(1, 5, 8, 0.42), transparent 70%),
+    linear-gradient(0deg, rgba(1, 5, 8, 0.98) 0%, rgba(2, 11, 16, 0.82) 24%, rgba(2, 11, 16, 0.5) 48%, rgba(2, 10, 14, 0.16) 70%, transparent 88%);
   --hero-media-grade: brightness(0.74) contrast(1.22) saturate(0.84);
   --editorial-art: var(--night-editorial-art);
   --proof-art: var(--night-proof-art);

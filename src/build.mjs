@@ -1473,6 +1473,7 @@ function renderDiaryTabs(entries) {
           aria-controls="diary-entry-${entry.date}"
           aria-selected="${index === 0 ? "true" : "false"}"
           data-diary-story-tab
+          draggable="false"
         >
           <span class="diary-stories__index">${entry.index}</span>
           <span class="diary-stories__thumb" aria-hidden="true">

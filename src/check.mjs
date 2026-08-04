@@ -376,6 +376,9 @@ for (const [lang, path] of pages) {
   );
 }
 
+const generatedHtml = (
+  await Promise.all(pages.map(([, path]) => readFile(path, "utf8")))
+).join("\n");
 const css = await readFile(resolve(outputRoot, "assets/styles.css"), "utf8");
 const app = await readFile(resolve(outputRoot, "assets/app.js"), "utf8");
 for (const [, goal] of app.matchAll(/\breachGoal\("([a-z0-9_-]+)"/g)) {
@@ -545,8 +548,24 @@ expect(
   css.includes(".diary__media") &&
     css.includes(".proof-sources__grid") &&
     css.includes(".interview-card--index .interview-card__media") &&
-    css.includes(".partner-process__list"),
+    css.includes(".partner-process__list") &&
+    css.includes("overscroll-behavior-x: none") &&
+    css.includes("scroll-snap-stop: always") &&
+    css.includes("touch-action: pan-x") &&
+    generatedHtml.includes('data-diary-story-tab\n          draggable="false"'),
   "css: дневник, источники, мобильный индекс интервью и партнёрский процесс должны быть оформлены",
+);
+expect(
+  /\.hero__content\s*\{[^}]*position:\s*relative[^}]*z-index:\s*1[^}]*isolation:\s*isolate/s.test(
+    css,
+  ) &&
+    /\.hero__kicker,\s*\.hero__intro\s*\{[^}]*z-index:\s*1[^}]*transform:\s*translateZ\(0\)/s.test(
+      css,
+    ) &&
+    /\[data-footer-countdown-value\]\s*\{[^}]*justify-items:\s*end/s.test(
+      css,
+    ),
+  "mobile: текст hero должен иметь стабильный paint-layer, а число футера — примыкать к подписи справа",
 );
 expect(
   normalizedCss.split(productionGlassMaterial).length === 3 &&

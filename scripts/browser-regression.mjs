@@ -105,12 +105,27 @@ async function auditPage(browser, browserName, origin, testCase) {
     if (testCase.viewport.width <= 390) {
       const firstScreen = await page.evaluate(() => {
         const heroContent = document.querySelector(".hero__content").getBoundingClientRect();
+        const heroText = [".hero__kicker", ".hero__intro"].map((selector) => {
+          const element = document.querySelector(selector);
+          const bounds = element.getBoundingClientRect();
+          const style = getComputedStyle(element);
+          return {
+            bottom: bounds.bottom,
+            height: bounds.height,
+            opacity: Number.parseFloat(style.opacity),
+            top: bounds.top,
+            transform: style.transform,
+            visibility: style.visibility,
+            zIndex: style.zIndex,
+          };
+        });
         const status = document.querySelector(".event-status").getBoundingClientRect();
         const statusValue = document.querySelector(".event-status__value").getBoundingClientRect();
         const statusLabel = document.querySelector(".event-status__label").getBoundingClientRect();
         const secondary = getComputedStyle(document.querySelector(".button--ghost"));
         return {
           heroHeight: heroContent.height,
+          heroText,
           innerHeight,
           statusTop: status.top,
           heroBottom: heroContent.bottom,
@@ -121,7 +136,17 @@ async function auditPage(browser, browserName, origin, testCase) {
       expect(
         near(firstScreen.heroHeight, firstScreen.innerHeight, 1) &&
           firstScreen.statusTop >= firstScreen.heroBottom - 1 &&
-          firstScreen.secondaryDisplay === "none",
+          firstScreen.secondaryDisplay === "none" &&
+          firstScreen.heroText.every(
+            (item) =>
+              item.height > 0 &&
+              item.top >= -1 &&
+              item.bottom <= firstScreen.heroBottom + 1 &&
+              item.opacity === 1 &&
+              item.visibility === "visible" &&
+              item.transform !== "none" &&
+              item.zIndex === "1",
+          ),
         `${prefix}: mobile first screen/status boundary is invalid (${JSON.stringify(firstScreen)})`,
       );
       if (testCase.viewport.width > 360) {
@@ -722,6 +747,12 @@ async function auditPage(browser, browserName, origin, testCase) {
           ),
           scrollLeft: rail.scrollLeft,
           scrollSnapType: getComputedStyle(rail).scrollSnapType,
+          scrollSnapStops: tabs.map(
+            (tab) => getComputedStyle(tab).scrollSnapStop,
+          ),
+          overscrollBehaviorX: getComputedStyle(rail).overscrollBehaviorX,
+          touchAction: getComputedStyle(rail).touchAction,
+          nativeDragDisabled: tabs.every((tab) => !tab.draggable),
         };
       });
     const initialDiaryState = await readDiaryState();
@@ -733,7 +764,13 @@ async function auditPage(browser, browserName, origin, testCase) {
           ? initialDiaryState.railFits
           : !initialDiaryState.railFits &&
             initialDiaryState.thirdPeeks &&
-            initialDiaryState.thirdPeekWidth >= 44),
+            initialDiaryState.thirdPeekWidth >= 44 &&
+            initialDiaryState.overscrollBehaviorX === "none" &&
+            initialDiaryState.touchAction === "pan-x" &&
+            initialDiaryState.nativeDragDisabled &&
+            initialDiaryState.scrollSnapStops.every(
+              (value) => value === "always",
+            )),
       `${prefix}: initial diary story state regressed (${JSON.stringify(initialDiaryState)})`,
     );
     await diaryTabs.nth(2).click();
@@ -827,6 +864,39 @@ async function auditPage(browser, browserName, origin, testCase) {
       partnerProximity.contactGap >= 0 && partnerProximity.contactGap <= 16,
       `${prefix}: partner contact label and person violate proximity (${JSON.stringify(partnerProximity)})`,
     );
+
+    const footerCountdown = page.locator("[data-footer-countdown]");
+    const footerHasNumericCountdown =
+      (await footerCountdown.locator("[data-footer-countdown-value]").count()) === 1;
+    if (footerHasNumericCountdown) {
+      await footerCountdown.evaluate((element) =>
+        element.scrollIntoView({ block: "center", behavior: "instant" }),
+      );
+      await page.waitForTimeout(90);
+      const footerCountGeometry = await footerCountdown.evaluate((element) => {
+        const value = element.querySelector("[data-footer-countdown-value]");
+        const sizer = element.querySelector("[data-footer-countdown-sizer]");
+        const live = element.querySelector("[data-footer-countdown-live]");
+        const label = element.querySelector("[data-footer-countdown-label]");
+        const sizerBounds = sizer.getBoundingClientRect();
+        const liveBounds = live.getBoundingClientRect();
+        const labelBounds = label.getBoundingClientRect();
+        return {
+          gap: labelBounds.left - liveBounds.right,
+          justifyItems: getComputedStyle(value).justifyItems,
+          live: live.textContent,
+          rightDelta: Math.abs(liveBounds.right - sizerBounds.right),
+          target: sizer.textContent,
+        };
+      });
+      expect(
+        footerCountGeometry.justifyItems === "end" &&
+          footerCountGeometry.rightDelta <= 1 &&
+          footerCountGeometry.gap >= 0 &&
+          footerCountGeometry.gap <= 32,
+        `${prefix}: animated footer count separates from its day label (${JSON.stringify(footerCountGeometry)})`,
+      );
+    }
     const firstPartnerAction = page.locator(".partners__channels a").first();
     await firstPartnerAction.hover();
     await page.waitForTimeout(220);
