@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
+import { createDiaryContent } from "./content/diary/index.mjs";
 import { validateProjectStatus } from "./project-status-validation.mjs";
 
 const outputRoot = resolve(process.argv[2] || "preview");
@@ -39,6 +40,10 @@ const requiredAnalyticsGoals = [
   "contact_email",
   "contact_telegram",
 ];
+const diaryByLocale = {
+  ru: createDiaryContent("ru"),
+  en: createDiaryContent("en"),
+};
 
 function expect(condition, message) {
   if (!condition) {
@@ -48,6 +53,11 @@ function expect(condition, message) {
 
 for (const [lang, path] of pages) {
   const html = await readFile(path, "utf8");
+  const diary = diaryByLocale[lang];
+  const diaryFactCount = diary.entries.reduce(
+    (total, entry) => total + entry.facts.length,
+    0,
+  );
   const embeddedAnalyticsRegistry = html.match(
     /<script type="application\/json" id="analytics-goal-registry">([^<]+)<\/script>/,
   )?.[1];
@@ -232,19 +242,21 @@ for (const [lang, path] of pages) {
   );
   expect(
     html.includes('id="diary"') &&
-      html.includes("https://t.me/doroninvdele/577") &&
-      html.includes("https://t.me/doroninvdele/484") &&
-      html.includes("https://t.me/doroninvdele/427") &&
-      html.includes("assets/diary-2026-04-23.mp4") &&
-      html.includes("assets/diary-2026-03-23.mp4") &&
-      html.includes("assets/diary-2026-03-10.mp4") &&
+      diary.entries.every(
+        (entry) =>
+          html.includes(entry.href) &&
+          html.includes(`assets/${entry.video}`) &&
+          html.includes(`assets/${entry.image}`),
+      ) &&
       html.includes("data-diary-video") &&
       html.includes("data-diary-video-play") &&
-      (html.match(/data-diary-story-tab(?=\s|>)/g) || []).length === 3 &&
-      (html.match(/data-diary-story-panel/g) || []).length === 3 &&
-      (html.match(/class="diary__fact"/g) || []).length === 6 &&
+      (html.match(/data-diary-story-tab(?=\s|>)/g) || []).length ===
+        diary.entries.length &&
+      (html.match(/data-diary-story-panel/g) || []).length ===
+        diary.entries.length &&
+      (html.match(/class="diary__fact"/g) || []).length === diaryFactCount &&
       (html.match(/data-project-phase-item="/g) || []).length === 3,
-    `${lang}: дневник должен содержать три подтверждённых видео-записи и три состояния проекта`,
+    `${lang}: дневник должен содержать все структурированные видео-записи и три состояния проекта`,
   );
   expect(
     html.includes('class="proof-sources"') &&
@@ -553,12 +565,12 @@ expect(
     css.includes("scroll-snap-stop: always") &&
     css.includes("touch-action: pan-x") &&
     generatedHtml.includes('data-diary-story-tab\n          draggable="false"') &&
-    generatedHtml.includes('class="diary__range-count">3\u00a0записи') &&
-    generatedHtml.includes('class="diary__range-start">10\u00a0марта') &&
-    generatedHtml.includes('class="diary__range-end">23\u00a0апреля\u00a02026') &&
-    generatedHtml.includes('class="diary__range-count">3\u00a0entries') &&
-    generatedHtml.includes('class="diary__range-start">March\u00a010') &&
-    generatedHtml.includes('class="diary__range-end">April\u00a023,\u00a02026'),
+    Object.values(diaryByLocale).every(
+      (diary) =>
+        generatedHtml.includes(`class="diary__range-count">${diary.rangeCount}`) &&
+        generatedHtml.includes(`class="diary__range-start">${diary.rangeStart}`) &&
+        generatedHtml.includes(`class="diary__range-end">${diary.rangeEnd}`),
+    ),
   "css: дневник, источники, мобильный индекс интервью и партнёрский процесс должны быть оформлены",
 );
 expect(

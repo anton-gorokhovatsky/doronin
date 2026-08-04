@@ -4,9 +4,11 @@ import { promisify } from "node:util";
 
 import { chromium, webkit } from "playwright";
 
+import { createDiaryContent } from "../src/content/diary/index.mjs";
 import { startSiteServer } from "./lib/site-server.mjs";
 
 const execFileAsync = promisify(execFile);
+const diaryEntryCount = createDiaryContent("ru").entries.length;
 
 function expect(condition, message) {
   if (!condition) throw new Error(message);
@@ -694,8 +696,9 @@ async function auditPage(browser, browserName, origin, testCase) {
     const diaryTabs = page.locator("[data-diary-story-tab]");
     const diaryPanels = page.locator("[data-diary-story-panel]");
     expect(
-      (await diaryTabs.count()) === 3 && (await diaryPanels.count()) === 3,
-      `${prefix}: training diary does not expose all three stories`,
+      (await diaryTabs.count()) === diaryEntryCount &&
+        (await diaryPanels.count()) === diaryEntryCount,
+      `${prefix}: training diary does not expose all structured stories`,
     );
     const diaryRangeState = await page.locator(".diary__heading").evaluate(
       (element) => {
@@ -823,12 +826,13 @@ async function auditPage(browser, browserName, origin, testCase) {
             )),
       `${prefix}: initial diary story state regressed (${JSON.stringify(initialDiaryState)})`,
     );
-    await diaryTabs.nth(2).click();
+    await diaryTabs.nth(diaryEntryCount - 1).click();
     await page.waitForTimeout(220);
     const selectedDiaryState = await readDiaryState();
     expect(
-      selectedDiaryState.selected === 2 &&
-        JSON.stringify(selectedDiaryState.visiblePanels) === "[2]" &&
+      selectedDiaryState.selected === diaryEntryCount - 1 &&
+        JSON.stringify(selectedDiaryState.visiblePanels) ===
+          JSON.stringify([diaryEntryCount - 1]) &&
         (testCase.viewport.width > 390
           ? selectedDiaryState.railFits
           : !selectedDiaryState.railFits &&
@@ -837,12 +841,13 @@ async function auditPage(browser, browserName, origin, testCase) {
             /(?:x|inline)/u.test(selectedDiaryState.scrollSnapType)),
       `${prefix}: diary story switch or mobile reveal regressed (${JSON.stringify(selectedDiaryState)})`,
     );
-    await diaryTabs.nth(2).evaluate((tab) => tab.focus());
+    await diaryTabs.nth(diaryEntryCount - 1).evaluate((tab) => tab.focus());
     await page.keyboard.press("ArrowLeft");
     const keyboardDiaryState = await readDiaryState();
     expect(
-      keyboardDiaryState.selected === 1 &&
-        JSON.stringify(keyboardDiaryState.visiblePanels) === "[1]",
+      keyboardDiaryState.selected === diaryEntryCount - 2 &&
+        JSON.stringify(keyboardDiaryState.visiblePanels) ===
+          JSON.stringify([diaryEntryCount - 2]),
       `${prefix}: diary story keyboard navigation regressed (${JSON.stringify(keyboardDiaryState)})`,
     );
     await diaryTabs.first().click();
@@ -941,6 +946,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       });
       expect(
         footerCountGeometry.justifyItems === "end" &&
+          footerCountGeometry.live === footerCountGeometry.target &&
           footerCountGeometry.rightDelta <= 1 &&
           footerCountGeometry.gap >= 0 &&
           footerCountGeometry.gap <= 32,

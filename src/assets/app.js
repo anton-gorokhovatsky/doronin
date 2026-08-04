@@ -1731,60 +1731,6 @@ if (eventStatus) {
       countAccessible.textContent = footerStatusText;
       countValue.append(countSizer, countLive);
       footerCountdown.replaceChildren(countValue, countLabel, countAccessible);
-
-      if ("IntersectionObserver" in window) {
-        const footerCountObserver = new IntersectionObserver(
-          ([entry]) => {
-            if (!entry.isIntersecting) {
-              return;
-            }
-
-            footerCountObserver.disconnect();
-
-            if (reducedMotion.matches) {
-              countLive.textContent = footerCountValue;
-              return;
-            }
-
-            const duration = 1100;
-            let countStartedAt = 0;
-
-            function drawFooterCount(timestamp) {
-              if (reducedMotion.matches) {
-                countLive.textContent = footerCountValue;
-                return;
-              }
-
-              if (!countStartedAt) {
-                countStartedAt = timestamp;
-              }
-
-              const progress = Math.min(
-                1,
-                (timestamp - countStartedAt) / duration,
-              );
-              const easedProgress = 1 - Math.pow(1 - progress, 3);
-              const nextCount = String(
-                Math.round(numericTarget * easedProgress),
-              );
-              countLive.textContent = footerCountValue.startsWith("0")
-                ? nextCount.padStart(footerCountValue.length, "0")
-                : nextCount;
-
-              if (progress < 1) {
-                requestAnimationFrame(drawFooterCount);
-              } else {
-                countLive.textContent = footerCountValue;
-              }
-            }
-
-            requestAnimationFrame(drawFooterCount);
-          },
-          { threshold: 0.35 },
-        );
-
-        footerCountObserver.observe(footerCountdown);
-      }
     }
   }
 

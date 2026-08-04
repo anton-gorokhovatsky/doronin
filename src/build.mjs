@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
+import { createDiaryContent } from "./content/diary/index.mjs";
 import { validateProjectStatus } from "./project-status-validation.mjs";
 
 const outputName = process.argv[2] || "preview";
@@ -69,9 +70,6 @@ const shared = {
   email: "anesterova88@gmail.com",
   telegramHref: "https://t.me/alraunean",
   viktorTelegramHref: "https://t.me/doroninvdele",
-  diaryPostHref: "https://t.me/doroninvdele/577",
-  diaryArchivePostHref: "https://t.me/doroninvdele/484",
-  diaryFoundationPostHref: "https://t.me/doroninvdele/427",
   viktorInstagramHref: "https://www.instagram.com/victordoronin/",
   filmHref: "https://vkvideo.ru/video-224465212_456239107",
   serialHrefs: [
@@ -198,107 +196,7 @@ const locales = {
       footLabel: "Не спортивное событие",
       footText: "История, в которую можно войти",
     },
-    diary: {
-      phaseBefore: "Дневник подготовки",
-      phaseActive: "31 день проекта",
-      phaseFinished: "Архив истории",
-      rangeCount: "3\u00a0записи",
-      rangeStart: "10\u00a0марта",
-      rangeEnd: "23\u00a0апреля\u00a02026",
-      storiesLabel: "Записи дневника подготовки",
-      entries: [
-        {
-          index: "03",
-          tabLabel: "После тестов",
-          title: "После тестов",
-          date: "2026-04-23",
-          dateLabel: "23 апреля",
-          image: "diary-2026-04-23.jpg",
-          video: "diary-2026-04-23.mp4",
-          imageAlt:
-            "Виктор Доронин выполняет беговую работу на стадионе вместе с тренировочной группой",
-          videoLabel:
-            "Видео из дневника подготовки: Виктор Доронин бежит по стадиону вместе с тренировочной группой",
-          videoPlayLabel: "Воспроизвести видео из дневника, 5 секунд",
-          videoPlayCta: "Смотреть видео",
-          videoDuration: "00:05",
-          videoDurationIso: "PT5S",
-          lead:
-            "Ключевые сессии теперь проходят в беге, а велосипед помогает восстановлению.",
-          facts: [
-            ["3", "направления работы после тестов"],
-            ["3000 м", "дистанция экспериментальной группы"],
-          ],
-          note:
-            "План новой группы «Дасти» на 90% совпал с задачами Виктора — часть работ он проходит вместе с ней.",
-          cta: "Читать запись в Telegram",
-          externalLabel: "Откроется запись дневника Виктора от 23 апреля в Telegram",
-          href: shared.diaryPostHref,
-        },
-        {
-          index: "02",
-          tabLabel: "Контрольная точка",
-          title: "Что дальше?",
-          date: "2026-03-23",
-          dateLabel: "23 марта",
-          image: "diary-2026-03-23.jpg",
-          video: "diary-2026-03-23.mp4",
-          imageAlt:
-            "Виктор Доронин проходит тестирование на велосипеде с газоанализатором",
-          videoLabel:
-            "Видео из дневника подготовки: Виктор Доронин проходит тестирование на велосипеде",
-          videoPlayLabel: "Воспроизвести видео из дневника, 15 секунд",
-          videoPlayCta: "Смотреть видео",
-          videoDuration: "00:15",
-          videoDurationIso: "PT15S",
-          lead:
-            "После 60 дней базовой работы Виктор сверил ощущения с цифрами: газоанализ, лактат, мощность и пульс.",
-          facts: [
-            ["60", "дней базовой подготовки"],
-            ["203", "часа нагрузки"],
-          ],
-          note:
-            "Следующий цикл — три месяца работы над силой и скоростью, затем повторный тест.",
-          cta: "Читать запись в Telegram",
-          externalLabel: "Откроется запись дневника Виктора от 23 марта в Telegram",
-          href: shared.diaryArchivePostHref,
-        },
-        {
-          index: "01",
-          tabLabel: "Базовый период",
-          title: "База закрыта",
-          date: "2026-03-10",
-          dateLabel: "10 марта",
-          image: "diary-2026-03-10.jpg",
-          video: "diary-2026-03-10.mp4",
-          imageAlt:
-            "Виктор Доронин едет на велосипеде по дороге во время базовой подготовки",
-          videoLabel:
-            "Видео из дневника подготовки: Виктор Доронин тренируется на велосипеде",
-          videoPlayLabel: "Воспроизвести видео из дневника, 12 секунд",
-          videoPlayCta: "Смотреть видео",
-          videoDuration: "00:12",
-          videoDurationIso: "PT12S",
-          lead:
-            "За 60 дней Виктор спокойно развивал первую и вторую зоны; бег был только в начале, затем база почти полностью перешла на велосипед.",
-          facts: [
-            ["4769", "км дистанции"],
-            ["46 987", "м набора"],
-          ],
-          note:
-            "Базовый период собрал 203 часа 3 минуты нагрузки — фундамент для следующего этапа подготовки.",
-          cta: "Читать запись в Telegram",
-          externalLabel: "Откроется запись дневника Виктора от 10 марта в Telegram",
-          href: shared.diaryFoundationPostHref,
-        },
-      ],
-      phasesLabel: "Состояния проекта",
-      phases: [
-        ["before", "Подготовка", "Дневник, тренировки и сбор команды"],
-        ["active", "31 день", "Ежедневный ход дистанции"],
-        ["finished", "После финиша", "Фильм, результаты и архив"],
-      ],
-    },
+    diary: createDiaryContent("ru"),
     manifesto: {
       eyebrow: "Цель проекта",
       title: "Показать, что человек может больше, чем думает.",
@@ -748,107 +646,7 @@ const locales = {
       footLabel: "Not a sporting event",
       footText: "A story you can become part of",
     },
-    diary: {
-      phaseBefore: "Training diary",
-      phaseActive: "31 days underway",
-      phaseFinished: "Story archive",
-      rangeCount: "3\u00a0entries",
-      rangeStart: "March\u00a010",
-      rangeEnd: "April\u00a023,\u00a02026",
-      storiesLabel: "Training diary entries",
-      entries: [
-        {
-          index: "03",
-          tabLabel: "After the tests",
-          title: "After the tests",
-          date: "2026-04-23",
-          dateLabel: "April 23",
-          image: "diary-2026-04-23.jpg",
-          video: "diary-2026-04-23.mp4",
-          imageAlt:
-            "Viktor Doronin runs on a track with a training group during a strength-and-speed session",
-          videoLabel:
-            "Training diary video: Viktor Doronin runs on a track with a training group",
-          videoPlayLabel: "Play the 5-second training diary video",
-          videoPlayCta: "Watch video",
-          videoDuration: "00:05",
-          videoDurationIso: "PT5S",
-          lead:
-            "Running now carries the key sessions, while cycling supports recovery.",
-          facts: [
-            ["3", "areas identified by testing"],
-            ["3000 m", "the experimental group’s distance"],
-          ],
-          note:
-            "Dusty’s new programme matched 90% of Viktor’s needs, so he now completes part of the work with the group.",
-          cta: "Read the update on Telegram",
-          externalLabel: "Opens Viktor’s April 23 training diary entry on Telegram",
-          href: shared.diaryPostHref,
-        },
-        {
-          index: "02",
-          tabLabel: "Checkpoint",
-          title: "What comes next?",
-          date: "2026-03-23",
-          dateLabel: "March 23",
-          image: "diary-2026-03-23.jpg",
-          video: "diary-2026-03-23.mp4",
-          imageAlt:
-            "Viktor Doronin undergoes a cycling test while wearing a gas-analysis mask",
-          videoLabel:
-            "Training diary video: Viktor Doronin undergoes a cycling test",
-          videoPlayLabel: "Play the 15-second training diary video",
-          videoPlayCta: "Watch video",
-          videoDuration: "00:15",
-          videoDurationIso: "PT15S",
-          lead:
-            "After 60 days of base work, Viktor checked perception against data: gas analysis, lactate, power and heart rate.",
-          facts: [
-            ["60", "days of base training"],
-            ["203", "hours of training load"],
-          ],
-          note:
-            "The next cycle is three months of strength and speed work, followed by a repeat test.",
-          cta: "Read the update on Telegram",
-          externalLabel: "Opens Viktor’s March 23 training diary entry on Telegram",
-          href: shared.diaryArchivePostHref,
-        },
-        {
-          index: "01",
-          tabLabel: "Base phase",
-          title: "Base phase complete",
-          date: "2026-03-10",
-          dateLabel: "March 10",
-          image: "diary-2026-03-10.jpg",
-          video: "diary-2026-03-10.mp4",
-          imageAlt:
-            "Viktor Doronin rides a bicycle on a road during base training",
-          videoLabel:
-            "Training diary video: Viktor Doronin trains on a bicycle",
-          videoPlayLabel: "Play the 12-second training diary video",
-          videoPlayCta: "Watch video",
-          videoDuration: "00:12",
-          videoDurationIso: "PT12S",
-          lead:
-            "Over 60 days, Viktor built his first and second training zones; running featured only at the start before the phase shifted almost entirely to cycling.",
-          facts: [
-            ["4769", "km covered"],
-            ["46,987", "m of elevation gain"],
-          ],
-          note:
-            "The base phase totalled 203 hours and 3 minutes of work — the foundation for the next stage.",
-          cta: "Read the update on Telegram",
-          externalLabel: "Opens Viktor’s March 10 training diary entry on Telegram",
-          href: shared.diaryFoundationPostHref,
-        },
-      ],
-      phasesLabel: "Project states",
-      phases: [
-        ["before", "Preparation", "Training diary and team building"],
-        ["active", "31 days", "Daily progress across the distance"],
-        ["finished", "After the finish", "Film, results and archive"],
-      ],
-    },
+    diary: createDiaryContent("en"),
     manifesto: {
       eyebrow: "Project goal",
       title: "To show that a person can go further than they think.",
