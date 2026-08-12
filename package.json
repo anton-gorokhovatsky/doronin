@@ -7,6 +7,8 @@
     "build": "node src/build.mjs",
     "build:site": "node src/build.mjs site",
     "check": "node src/check.mjs",
+    "plan:check": "node scripts/validate-project-plan.mjs",
+    "social:build": "node scripts/build-social-previews.mjs",
     "status:check": "node scripts/validate-project-status.mjs",
     "status:update": "node scripts/update-project-status.mjs",
     "test:a11y": "node scripts/accessibility-gate.mjs",

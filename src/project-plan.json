@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "status": "approved-concept",
+  "period": {
+    "startDate": "2026-12-01",
+    "finishDate": "2026-12-31"
+  },
+  "targetDistanceKm": 11111,
+  "baselineDistanceKm": 333,
+  "preFinalCheckpointKm": 10000,
+  "specialSequenceKm": [333, 555, 777, 999, 1111],
+  "segments": [
+    {
+      "id": "special-333",
+      "kind": "special",
+      "startDate": "2026-12-01",
+      "endDate": "2026-12-01",
+      "calendarDays": 1,
+      "totalDistanceKm": 333,
+      "dailyDistanceKm": null,
+      "continuous": true
+    },
+    {
+      "id": "base-02-06",
+      "kind": "base",
+      "startDate": "2026-12-02",
+      "endDate": "2026-12-06",
+      "calendarDays": 5,
+      "totalDistanceKm": 1665,
+      "dailyDistanceKm": 333,
+      "continuous": false
+    },
+    {
+      "id": "special-555",
+      "kind": "special",
+      "startDate": "2026-12-07",
+      "endDate": "2026-12-07",
+      "calendarDays": 1,
+      "totalDistanceKm": 555,
+      "dailyDistanceKm": null,
+      "continuous": true
+    },
+    {
+      "id": "base-08-12",
+      "kind": "base",
+      "startDate": "2026-12-08",
+      "endDate": "2026-12-12",
+      "calendarDays": 5,
+      "totalDistanceKm": 1665,
+      "dailyDistanceKm": 333,
+      "continuous": false
+    },
+    {
+      "id": "special-777",
+      "kind": "special",
+      "startDate": "2026-12-13",
+      "endDate": "2026-12-14",
+      "calendarDays": 2,
+      "totalDistanceKm": 777,
+      "dailyDistanceKm": null,
+      "continuous": true
+    },
+    {
+      "id": "base-15-19",
+      "kind": "base",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-19",
+      "calendarDays": 5,
+      "totalDistanceKm": 1665,
+      "dailyDistanceKm": 333,
+      "continuous": false
+    },
+    {
+      "id": "special-999",
+      "kind": "special",
+      "startDate": "2026-12-20",
+      "endDate": "2026-12-21",
+      "calendarDays": 2,
+      "totalDistanceKm": 999,
+      "dailyDistanceKm": null,
+      "continuous": true
+    },
+    {
+      "id": "base-22-26",
+      "kind": "base",
+      "startDate": "2026-12-22",
+      "endDate": "2026-12-26",
+      "calendarDays": 5,
+      "totalDistanceKm": 1665,
+      "dailyDistanceKm": 333,
+      "continuous": false
+    },
+    {
+      "id": "base-27-28",
+      "kind": "base",
+      "startDate": "2026-12-27",
+      "endDate": "2026-12-28",
+      "calendarDays": 2,
+      "totalDistanceKm": 676,
+      "dailyDistanceKm": 338,
+      "continuous": false
+    },
+    {
+      "id": "special-1111",
+      "kind": "special",
+      "startDate": "2026-12-29",
+      "endDate": "2026-12-30",
+      "calendarDays": 2,
+      "totalDistanceKm": 1111,
+      "dailyDistanceKm": null,
+      "continuous": true
+    },
+    {
+      "id": "finish",
+      "kind": "finish",
+      "startDate": "2026-12-31",
+      "endDate": "2026-12-31",
+      "calendarDays": 1,
+      "totalDistanceKm": 0,
+      "dailyDistanceKm": null,
+      "continuous": false
+    }
+  ],
+  "unconfirmedFacts": [
+    "location",
+    "route-format",
+    "technical-and-medical-stop-rules",
+    "support-team",
+    "result-verification"
+  ]
+}

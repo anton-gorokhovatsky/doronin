@@ -32,7 +32,7 @@
 .velocity-cut {
   --velocity-from: var(--surface-editorial);
   --velocity-to: var(--surface-proof);
-  --velocity-image: url("./velocity-water.jpg");
+  --velocity-image: url("./story-cycling.jpg");
   --velocity-accent: var(--orange);
   position: relative;
   height: clamp(2.75rem, 4vw, 4.5rem);
@@ -97,7 +97,6 @@
 .velocity-cut--out-of-proof {
   --velocity-from: var(--surface-proof);
   --velocity-to: var(--surface-editorial);
-  --velocity-image: url("./velocity-run.jpg");
 }
 
 .velocity-cut--into-partners {

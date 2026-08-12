@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://11111.life/schemas/project-plan.schema.json",
+  "title": "11 111 approved cycling project plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "status",
+    "period",
+    "targetDistanceKm",
+    "baselineDistanceKm",
+    "preFinalCheckpointKm",
+    "specialSequenceKm",
+    "segments",
+    "unconfirmedFacts"
+  ],
+  "properties": {
+    "version": { "const": 1 },
+    "status": { "const": "approved-concept" },
+    "period": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["startDate", "finishDate"],
+      "properties": {
+        "startDate": { "type": "string", "format": "date" },
+        "finishDate": { "type": "string", "format": "date" }
+      }
+    },
+    "targetDistanceKm": { "const": 11111 },
+    "baselineDistanceKm": { "const": 333 },
+    "preFinalCheckpointKm": { "const": 10000 },
+    "specialSequenceKm": {
+      "type": "array",
+      "prefixItems": [
+        { "const": 333 },
+        { "const": 555 },
+        { "const": 777 },
+        { "const": 999 },
+        { "const": 1111 }
+      ],
+      "items": false
+    },
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/segment" }
+    },
+    "unconfirmedFacts": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "$defs": {
+    "segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "startDate",
+        "endDate",
+        "calendarDays",
+        "totalDistanceKm",
+        "dailyDistanceKm",
+        "continuous"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "kind": { "enum": ["base", "special", "finish"] },
+        "startDate": { "type": "string", "format": "date" },
+        "endDate": { "type": "string", "format": "date" },
+        "calendarDays": { "type": "integer", "minimum": 1 },
+        "totalDistanceKm": { "type": "integer", "minimum": 0 },
+        "dailyDistanceKm": { "type": ["integer", "null"], "minimum": 1 },
+        "continuous": { "type": "boolean" }
+      }
+    }
+  }
+}

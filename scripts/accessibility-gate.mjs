@@ -232,7 +232,6 @@ async function runKeyboardRoute(browser, browserName, origin, viewport) {
     );
 
     const required = {
-      audio: false,
       contact: false,
       diary: false,
       primary: false,
@@ -266,7 +265,6 @@ async function runKeyboardRoute(browser, browserName, origin, viewport) {
             rect.width <= 0 ||
             rect.height <= 0,
           matches: [
-            active.matches("[data-sound-scene]") ? "audio" : null,
             active.matches(".partners__channels a, .site-footer__contacts a")
               ? "contact"
               : null,

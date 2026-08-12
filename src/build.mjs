@@ -3,6 +3,7 @@ import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 import { createDiaryContent } from "./content/diary/index.mjs";
+import { validateProjectPlan } from "./project-plan-validation.mjs";
 import { validateProjectStatus } from "./project-status-validation.mjs";
 
 const outputName = process.argv[2] || "preview";
@@ -18,12 +19,35 @@ const styleModuleNames = [
   "00-foundations-navigation.css",
   "10-hero-audio.css",
   "20-editorial-distance-story.css",
+  "25-bike-calendar.css",
   "30-proof-adventures-interviews.css",
   "40-partners-footer.css",
   "50-responsive.css",
   "55-editorial-menu.css",
   "60-themes-accessibility.css",
 ];
+const retiredAssetNames = new Set([
+  "audio-scene-01.m4a",
+  "audio-scene-02.m4a",
+  "audio-scene-03.m4a",
+  "audio-scene-04.m4a",
+  "audio-scene-05.m4a",
+  "distance-bike-motion.mp4",
+  "distance-bike-presence.jpg",
+  "distance-bike-presence.mp4",
+  "distance-bike.jpg",
+  "distance-run-motion.mp4",
+  "distance-run-presence.jpg",
+  "distance-run-presence.mp4",
+  "distance-run.jpg",
+  "distance-swim-motion.mp4",
+  "distance-swim-presence.jpg",
+  "distance-swim-presence.mp4",
+  "distance-swim.jpg",
+  "effort-breath.mp3",
+  "velocity-run.jpg",
+  "velocity-water.jpg",
+]);
 const styleBundle = (
   await Promise.all(
     styleModuleNames.map((file) => readFile(resolve(styleModulesRoot, file), "utf8")),
@@ -32,6 +56,15 @@ const styleBundle = (
 const projectStatus = JSON.parse(
   await readFile(resolve("src/project-status.json"), "utf8"),
 );
+const projectPlan = JSON.parse(
+  await readFile(resolve("src/project-plan.json"), "utf8"),
+);
+const projectPlanErrors = validateProjectPlan(projectPlan);
+if (projectPlanErrors.length) {
+  throw new Error(
+    `Invalid project plan:\n${projectPlanErrors.map((error) => `- ${error}`).join("\n")}`,
+  );
+}
 const projectStatusErrors = validateProjectStatus(projectStatus);
 if (projectStatusErrors.length) {
   throw new Error(
@@ -57,9 +90,6 @@ const heroVideoVersion = createHash("sha256")
   .digest("hex")
   .slice(0, 10);
 const editorialVideoVersion = createHash("sha256")
-  .update(await readFile(resolve(assetSource, "distance-swim-presence.mp4")))
-  .update(await readFile(resolve(assetSource, "distance-bike-presence.mp4")))
-  .update(await readFile(resolve(assetSource, "distance-run-presence.mp4")))
   .update(await readFile(resolve(assetSource, "story-recovery.mp4")))
   .digest("hex")
   .slice(0, 10);
@@ -110,9 +140,9 @@ const locales = {
     alternateCanonical: "https://11111.life/en/",
     title: "11 111 км за 31 день — Виктор Доронин",
     description:
-      "Виктор Доронин преодолеет в Дубае 11 111 км за 31 день: плавание, велосипед и бег. Старт — 1 декабря 2026 года.",
+      "Виктор Доронин планирует преодолеть 11 111 км на велосипеде за декабрь: 22 базовых дня и пять специальных этапов от 333 до 1111 км.",
     socialImage: "https://11111.life/assets/share-ru.jpg",
-    socialAlt: "11 111 км за 31 день. Виктор Доронин. Старт 1 декабря 2026 года в Дубае.",
+    socialAlt: "11 111 км на велосипеде за 31 день. Виктор Доронин. Старт 1 декабря 2026 года.",
     skip: "Перейти к содержанию",
     homeLabel: "11 111 — на главную",
     menu: "Меню",
@@ -124,7 +154,7 @@ const locales = {
     navDiaryNote: "Тренировки, команда и путь к старту",
     nav: [
       ["#about", "Проект"],
-      ["#distance", "Дистанция"],
+      ["#distance", "Календарь"],
       ["#viktor", "О герое"],
       ["#proof", "Фильм «1111»"],
       ["#adventures", "Приключения"],
@@ -136,54 +166,14 @@ const locales = {
       kicker: "1–31 декабря 2026 · Виктор Доронин",
       lineOne: ["11 111", "км"],
       lineTwo: ["31", "день"],
-      accent: "ОДИН ШАНС",
-      intro: "Первый в мире 31-дневный ультратриатлон.",
+      accent: "ТОЛЬКО ВЕЛОСИПЕД",
+      intro:
+        "Велосипедный ультрамарафон: 22 базовых дня и пять специальных этапов по нарастающей.",
       imageAlt: "Виктор Доронин на велосипеде во время скоростного заезда",
       videoPlay: "Включить видео",
       videoPause: "Пауза",
-      audioPlay: "Запустить звуковую историю",
-      audioPause: "Поставить звуковую историю на паузу",
-      audioStoryLabel: "Пять звуковых сцен",
-      audioStoryTitle: "Присутствие",
-      audioStoryNote:
-        "Фрагменты из фильма: дыхание, голос, вода, ритм и скорость.",
-      audioPrompt: "Войти в звук",
-      audioActive: "Пауза",
-      audioScenesLabel: "Выбрать звуковую сцену",
-      audioScenes: [
-        {
-          title: "Дыхание",
-          file: "audio-scene-01.m4a",
-          duration: "13.973333",
-          context: "Дыхание и шаги в момент предельной нагрузки.",
-        },
-        {
-          title: "Голос",
-          file: "audio-scene-02.m4a",
-          duration: "50.410667",
-          context: "Фрагмент речи из документального фильма «1111».",
-        },
-        {
-          title: "Вода",
-          file: "audio-scene-03.m4a",
-          duration: "23.658667",
-          context: "Вода бассейна и ритм гребка.",
-        },
-        {
-          title: "Ритм",
-          file: "audio-scene-04.m4a",
-          duration: "20.138667",
-          context: "Механический ритм длинной тренировки.",
-        },
-        {
-          title: "Скорость",
-          file: "audio-scene-05.m4a",
-          duration: "16.298667",
-          context: "Ветер и шум движения на скорости.",
-        },
-      ],
       primaryCta: "Обсудить участие",
-      secondaryCta: "Как это устроено",
+      secondaryCta: "Открыть календарь",
       statusFallback: "Старт 1 декабря 2026",
       statusMeta: "11 111 км · 31 день",
       beforeForms: ["день до старта", "дня до старта", "дней до старта"],
@@ -193,76 +183,48 @@ const locales = {
       sourceLabel: "Источник",
       statusPending:
         "Подтверждённые данные появятся после обновления команды",
-      footLabel: "Не спортивное событие",
-      footText: "История, в которую можно войти",
+      footLabel: "Одна дистанция · пять вершин",
+      footText: "333 → 555 → 777 → 999 → 1111",
     },
     diary: createDiaryContent("ru"),
     manifesto: {
-      eyebrow: "Цель проекта",
-      title: "Показать, что человек может больше, чем думает.",
+      eyebrow: "Одна большая цель",
+      title: "Проехать 11 111 километров за декабрь.",
       text:
-        "11 111 км — не авантюра, а новый масштаб уже работающей формулы: предельная дистанция, честный герой и история, за которой хочется следить до конца.",
+        "Один человек, один вид спорта и 31 календарный день. Нагрузка растёт от базовых 333 км к пяти специальным этапам; финальная вершина — непрерывный заезд на 1111 км.",
     },
     distance: {
-      eyebrow: "Один проект · три дисциплины",
-      title: "Дистанция, которую трудно представить",
+      eyebrow: "Декабрь 2026 · 31 день",
+      title: "Календарь с нарастающей нагрузкой",
       intro:
-        "31 день подряд. Числа здесь не декор — каждое можно перевести в знакомый человеку масштаб.",
-      totalLabel: "Итого за 31 день",
+        "Между специальными этапами остаются базовые блоки для рабочего ритма и подготовки к следующему испытанию.",
+      totalLabel: "Общая дистанция",
       totalValue: "11 111",
       totalUnit: "км",
-      sequenceLabel: "Этап",
-      sequenceOf: "из",
-      sequenceTotal: "всего",
-      totalFormulaLabel: "100 плюс 10 010 плюс 1001 равно 11 111 километров",
-      mediaKicker: "Дубай · архив проекта «1111»",
-      items: [
-        {
-          index: "01",
-          value: "100",
-          unit: "км",
-          label: "плавание",
-          image: "distance-swim-presence.jpg",
-          video: "distance-swim-presence.mp4",
-          details: [
-            "2000 бассейнов по 50 метров",
-            "три переправы через Ла-Манш",
-            "от Москвы до Ярославля без передышки в воде",
-          ],
-        },
-        {
-          index: "02",
-          value: "10 010",
-          unit: "км",
-          label: "велосипед",
-          image: "distance-bike-presence.jpg",
-          video: "distance-bike-presence.mp4",
-          details: [
-            "почти поперёк России: Москва — Владивосток",
-            "четверть экватора Земли",
-            "Москва — Париж — Москва — Париж",
-          ],
-        },
-        {
-          index: "03",
-          value: "1001",
-          unit: "км",
-          label: "бег",
-          image: "distance-run-presence.jpg",
-          video: "distance-run-presence.mp4",
-          details: [
-            "24 полных марафона подряд",
-            "Москва — Санкт-Петербург и ещё 300 км",
-            "10 кругов по МКАД нон-стоп",
-          ],
-        },
-      ],
+      specialLabel: "Специальный этап",
+      baseLabel: "Базовый блок",
+      finishLabel: "Финиш",
+      continuousLabel: "Один непрерывный заезд",
+      oneDayLabel: "Один день",
+      dailyLabel: "в день",
+      totalBlockLabel: "за блок",
+      baseSummary: "22 базовых дня",
+      specialSummary: "5 специальных этапов",
+      rideSummary: "30 дней движения",
+      finishSummary: "31 декабря — финиш",
+      rhythmTitle: "Базовая единица проекта — 333 км",
+      rhythmText:
+        "20 обычных дней проходят по 333 км; ещё два — по 338 км, чтобы перед финалом набрать ровно 10 000 км.",
+      formulaLabel: "7336 плюс 3775 равно 11 111 километров",
+      formulaBase: "7336",
+      formulaSpecial: "3775",
+      formulaResult: "11 111",
     },
     viktor: {
       eyebrow: "О герое",
       title: "Виктор Доронин",
       lead: "47 лет. Не создаёт образ — живёт в нём.",
-      body: `Идеолог сообществ <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">«Пыльные гантели»</a> и&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">«Гастродинамика»</a>, друг, мотиватор и&nbsp;один из сильнейших любителей в триатлоне.`,
+      body: `Идеолог сообществ <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">«Пыльные гантели»</a> и&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">«Гастродинамика»</a>, друг, мотиватор и&nbsp;спортсмен-любитель с опытом больших дистанций.`,
       imageAlt: "Виктор Доронин на дистанции в пустыне",
       achievements: [
         ["4×", "участник чемпионата мира WC Ironman Kona"],
@@ -377,9 +339,9 @@ const locales = {
           links: [],
         },
         {
-          title: "Формат «11 111»",
+          title: "Новый проект «11 111»",
           body:
-            "Статус первой попытки 31-дневного ультратриатлона — утверждение команды проекта; независимая фиксация будет добавлена после старта.",
+            "Дистанция 11 111 км — отдельный велосипедный проект. Его календарный план опубликован выше; фактический результат будет зафиксирован после старта.",
           links: [],
         },
       ],
@@ -413,7 +375,7 @@ const locales = {
       eyebrow: "Интервью",
       title: "Своими словами",
       intro:
-        "Разговоры о триатлоне, беге, сообществах и больших дистанциях.",
+        "Разговоры, в которых видны опыт больших дистанций, работа над собой и способность собирать вокруг движения людей.",
       watch: "Смотреть интервью",
       items: [
         {
@@ -561,9 +523,9 @@ const locales = {
     alternateCanonical: "https://11111.life/",
     title: "11,111 km in 31 days — Viktor Doronin",
     description:
-      "In Dubai, Viktor Doronin will cover 11,111 km in 31 days through swimming, cycling and running. Starts December 1, 2026.",
+      "Viktor Doronin plans to ride 11,111 km in December: 22 base days and five special stages rising from 333 to 1111 km.",
     socialImage: "https://11111.life/assets/share-en.jpg",
-    socialAlt: "11,111 km in 31 days. Viktor Doronin. Starts December 1, 2026 in Dubai.",
+    socialAlt: "11,111 km by bike in 31 days. Viktor Doronin. Starts December 1, 2026.",
     skip: "Skip to content",
     homeLabel: "11 111 — home",
     menu: "Menu",
@@ -575,7 +537,7 @@ const locales = {
     navDiaryNote: "Training, the team and the road to the start",
     nav: [
       ["#about", "Project"],
-      ["#distance", "Distance"],
+      ["#distance", "Calendar"],
       ["#viktor", "Protagonist"],
       ["#proof", "Film “1111”"],
       ["#adventures", "Adventures"],
@@ -587,54 +549,14 @@ const locales = {
       kicker: "December 1–31, 2026 · Viktor Doronin",
       lineOne: ["11,111", "km"],
       lineTwo: ["31", "days"],
-      accent: "ONE CHANCE",
-      intro: "The world’s first 31-day ultra-triathlon.",
+      accent: "CYCLING ONLY",
+      intro:
+        "A cycling ultramarathon: 22 base days and five special stages, each higher than the last.",
       imageAlt: "Viktor Doronin riding at speed during a cycling event",
       videoPlay: "Play video",
       videoPause: "Pause",
-      audioPlay: "Start the sound story",
-      audioPause: "Pause the sound story",
-      audioStoryLabel: "Five sound scenes",
-      audioStoryTitle: "Presence",
-      audioStoryNote:
-        "Fragments from the film: breath, voice, water, rhythm, and speed.",
-      audioPrompt: "Enter the sound",
-      audioActive: "Pause",
-      audioScenesLabel: "Choose a sound scene",
-      audioScenes: [
-        {
-          title: "Breath",
-          file: "audio-scene-01.m4a",
-          duration: "13.973333",
-          context: "Breath and footsteps at the limit of an effort.",
-        },
-        {
-          title: "Voice",
-          file: "audio-scene-02.m4a",
-          duration: "50.410667",
-          context: "A spoken fragment from the documentary film “1111”.",
-        },
-        {
-          title: "Water",
-          file: "audio-scene-03.m4a",
-          duration: "23.658667",
-          context: "Pool water and the rhythm of each stroke.",
-        },
-        {
-          title: "Rhythm",
-          file: "audio-scene-04.m4a",
-          duration: "20.138667",
-          context: "The mechanical rhythm of a long training session.",
-        },
-        {
-          title: "Speed",
-          file: "audio-scene-05.m4a",
-          duration: "16.298667",
-          context: "Wind and the sound of movement at speed.",
-        },
-      ],
       primaryCta: "Discuss a partnership",
-      secondaryCta: "See the challenge",
+      secondaryCta: "Open the calendar",
       statusFallback: "Starts December 1, 2026",
       statusMeta: "11,111 km · 31 days",
       beforeForms: ["day to start", "days to start", "days to start"],
@@ -643,76 +565,48 @@ const locales = {
       latestUpdate: "Latest verified update",
       sourceLabel: "Source",
       statusPending: "Verified figures will appear after the team’s update",
-      footLabel: "Not a sporting event",
-      footText: "A story you can become part of",
+      footLabel: "One distance · five peaks",
+      footText: "333 → 555 → 777 → 999 → 1111",
     },
     diary: createDiaryContent("en"),
     manifesto: {
-      eyebrow: "Project goal",
-      title: "To show that a person can go further than they think.",
+      eyebrow: "One defining goal",
+      title: "To ride 11,111 kilometres in December.",
       text:
-        "11,111 km is not a stunt. It is the next scale of a model that already works: an extreme distance, an honest protagonist, and a story worth following to the end.",
+        "One person, one discipline and 31 calendar days. The load rises from a 333 km base rhythm through five special stages to a final continuous 1111 km ride.",
     },
     distance: {
-      eyebrow: "One project · three disciplines",
-      title: "A distance that is hard to imagine",
+      eyebrow: "December 2026 · 31 days",
+      title: "A calendar built to escalate",
       intro:
-        "Thirty-one days in succession. These figures are not decoration — each one translates into a scale people can understand.",
-      totalLabel: "Total over 31 days",
+        "Base blocks between the special stages preserve a working rhythm and create a clear approach to the next test.",
+      totalLabel: "Total distance",
       totalValue: "11,111",
       totalUnit: "km",
-      sequenceLabel: "Stage",
-      sequenceOf: "of",
-      sequenceTotal: "total",
-      totalFormulaLabel: "100 plus 10,010 plus 1001 equals 11,111 kilometres",
-      mediaKicker: "Dubai · Project “1111” archive",
-      items: [
-        {
-          index: "01",
-          value: "100",
-          unit: "km",
-          label: "swimming",
-          image: "distance-swim-presence.jpg",
-          video: "distance-swim-presence.mp4",
-          details: [
-            "2000 lengths of a 50-metre pool",
-            "the equivalent of three English Channel crossings",
-            "Moscow to Yaroslavl without a break in the water",
-          ],
-        },
-        {
-          index: "02",
-          value: "10,010",
-          unit: "km",
-          label: "cycling",
-          image: "distance-bike-presence.jpg",
-          video: "distance-bike-presence.mp4",
-          details: [
-            "almost across Russia: Moscow to Vladivostok",
-            "one quarter of Earth’s equator",
-            "Moscow — Paris — Moscow — Paris",
-          ],
-        },
-        {
-          index: "03",
-          value: "1001",
-          unit: "km",
-          label: "running",
-          image: "distance-run-presence.jpg",
-          video: "distance-run-presence.mp4",
-          details: [
-            "24 full marathons in succession",
-            "Moscow to Saint Petersburg, plus another 300 km",
-            "10 non-stop laps of the Moscow Ring Road",
-          ],
-        },
-      ],
+      specialLabel: "Special stage",
+      baseLabel: "Base block",
+      finishLabel: "Finish",
+      continuousLabel: "One continuous ride",
+      oneDayLabel: "One day",
+      dailyLabel: "per day",
+      totalBlockLabel: "for the block",
+      baseSummary: "22 base days",
+      specialSummary: "5 special stages",
+      rideSummary: "30 days in motion",
+      finishSummary: "December 31 — finish",
+      rhythmTitle: "The project’s base unit is 333 km",
+      rhythmText:
+        "Twenty ordinary days cover 333 km; two more cover 338 km, bringing the pre-final total to exactly 10,000 km.",
+      formulaLabel: "7336 plus 3775 equals 11,111 kilometres",
+      formulaBase: "7336",
+      formulaSpecial: "3775",
+      formulaResult: "11,111",
     },
     viktor: {
       eyebrow: "About Viktor",
       title: "Viktor Doronin",
       lead: "47. He does not build an image&nbsp;—<br>he lives it.",
-      body: `A driving force behind the <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">Dusty Dumbbells</a> and&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">Gastrodinamika</a> communities, a friend, a motivator, and one of Russia’s strongest amateur triathletes.`,
+      body: `A driving force behind the <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">Dusty Dumbbells</a> and&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">Gastrodinamika</a> communities, a friend, a motivator, and an amateur athlete experienced in extreme endurance.`,
       imageAlt: "Viktor Doronin racing through the desert",
       achievements: [
         ["4×", "Ironman World Championship Kona participant"],
@@ -827,9 +721,9 @@ const locales = {
           links: [],
         },
         {
-          title: "The “11 111” format",
+          title: "The new “11 111” project",
           body:
-            "The first-attempt status of the 31-day ultra-triathlon is a project-team claim; independent documentation will be added after the start.",
+            "The 11,111 km distance is a separate cycling project. Its calendar plan is published above; the actual result will be documented after the start.",
           links: [],
         },
       ],
@@ -863,7 +757,7 @@ const locales = {
       eyebrow: "Interviews",
       title: "In his own words",
       intro:
-        "Conversations about triathlon, running, community and long-distance challenges.",
+        "Conversations that reveal his experience of long-distance challenges, work on himself, and ability to bring people together through movement.",
       watch: "Watch the interview",
       items: [
         {
@@ -1091,159 +985,96 @@ const icons = {
     </svg>`,
 };
 
-const soundSceneIcons = [
-  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="M4 8h7c3 0 3-4 0-4-1.6 0-2.6.8-3 2M4 12h12c3 0 3-4 0-4-1.6 0-2.6.8-3 2M4 16h8c3 0 3 4 0 4-1.6 0-2.6-.8-3-2"></path>
-  </svg>`,
-  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="M5 14v-4M9 18V6M13 20V4M17 16V8M21 13v-2"></path>
-  </svg>`,
-  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="M3 9c3 0 3 2 6 2s3-2 6-2 3 2 6 2M3 15c3 0 3 2 6 2s3-2 6-2 3 2 6 2"></path>
-  </svg>`,
-  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="M4 16V8M8 19V5M12 14v-4M16 18V6M20 15V9"></path>
-  </svg>`,
-  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="M4 16 10 8M9 17l6-8M14 18l6-8"></path>
-  </svg>`,
-];
-
-function renderDistanceValue(value, unit, className) {
-  const valueGroups = value
-    .split(" ")
-    .map((group) => `<span>${group}</span>`)
-    .join("");
-
-  return `
-    <p class="${className}" data-optical-start>
-      <span class="sr-only">${value} ${unit}</span>
-      <span class="distance-card__number" aria-hidden="true">${valueGroups}</span>
-      <span class="distance-card__unit" aria-hidden="true">${unit}</span>
-    </p>`;
+function formatProjectNumber(value, lang) {
+  if (value < 10000) return String(value);
+  return new Intl.NumberFormat(lang === "ru" ? "ru-RU" : "en-US").format(value);
 }
 
-function renderSequenceTotal(value, unit, label) {
-  const groups = value.split(" ");
-  const labelMarkup = label ? `<em>${label}</em>` : "";
+function formatCalendarDate(dateValue, lang) {
+  return new Intl.DateTimeFormat(lang === "ru" ? "ru-RU" : "en-US", {
+    day: "numeric",
+    month: "long",
+    timeZone: "UTC",
+  }).format(new Date(`${dateValue}T00:00:00Z`));
+}
 
-  if (groups.length === 1) {
-    return `<b>${labelMarkup}<span>${value}</span><small>${unit}</small></b>`;
+function formatCalendarRange(segment, lang) {
+  if (segment.startDate === segment.endDate) {
+    return formatCalendarDate(segment.startDate, lang);
+  }
+  const startDate = new Date(`${segment.startDate}T00:00:00Z`);
+  const endDate = new Date(`${segment.endDate}T00:00:00Z`);
+  const startDay = Number(segment.startDate.slice(-2));
+  const endDay = Number(segment.endDate.slice(-2));
+
+  if (startDate.getUTCMonth() === endDate.getUTCMonth()) {
+    const month = new Intl.DateTimeFormat(lang === "ru" ? "ru-RU" : "en-US", {
+      month: "long",
+      timeZone: "UTC",
+    }).format(endDate);
+    return lang === "ru"
+      ? `${startDay}–${endDay} ${month}`
+      : `${month} ${startDay}–${endDay}`;
   }
 
-  return `<b>${labelMarkup}<span class="distance-story__sequence-total">${groups
-    .map((group) => `<span>${group}</span>`)
-    .join("")}</span><small>${unit}</small></b>`;
+  return `${formatCalendarDate(segment.startDate, lang)}–${formatCalendarDate(segment.endDate, lang)}`;
 }
 
-function renderDistance(items, l) {
-  return items
-    .map((item, index) => {
-      const mobileSequence = items
-        .map((sequenceItem, stepIndex) => {
-          const state =
-            stepIndex < index
-              ? "is-complete"
-              : stepIndex === index
-                ? "is-active"
-                : "";
+function renderCalendarSegments(plan, l) {
+  let cumulativeDistance = 0;
 
-          return `<span class="distance-card__sequence-step ${state}" aria-hidden="true"><i></i><small>${sequenceItem.index} ${sequenceItem.label}</small></span>`;
-        })
-        .join("");
+  return plan.segments
+    .map((segment, index) => {
+      cumulativeDistance += segment.totalDistanceKm;
+      const value = formatProjectNumber(segment.totalDistanceKm, l.lang);
+      const cumulative = formatProjectNumber(cumulativeDistance, l.lang);
+      const label =
+        segment.kind === "special"
+          ? l.distance.specialLabel
+          : segment.kind === "base"
+            ? l.distance.baseLabel
+            : l.distance.finishLabel;
+      const detail =
+        segment.kind === "special"
+          ? segment.calendarDays > 1
+            ? l.distance.continuousLabel
+            : l.distance.oneDayLabel
+          : segment.kind === "base"
+            ? `${formatProjectNumber(segment.dailyDistanceKm, l.lang)}\u00a0${l.distance.totalUnit} ${l.distance.dailyLabel} · ${formatProjectNumber(segment.totalDistanceKm, l.lang)}\u00a0${l.distance.totalUnit} ${l.distance.totalBlockLabel}`
+            : l.distance.finishSummary;
 
       return `
-        <article
-          class="distance-card${index === 0 ? " is-active" : ""}"
-          data-distance-card="${index}"
-          data-distance-value="${item.value}"
-          data-distance-unit="${item.unit}"
-          data-distance-index="${item.index}"
-          data-distance-label="${item.label}"
-        >
-          <figure class="distance-card__media" aria-hidden="true">
-            <img src="${l.assetBase}assets/${item.image}" alt="" loading="lazy" width="1600" height="900">
-          </figure>
-          <div class="distance-card__identity">
-            <span class="distance-card__index" aria-hidden="true">${item.index}</span>
-            <h3>${item.label}</h3>
+        <article class="bike-calendar__segment bike-calendar__segment--${segment.kind}" style="--calendar-order:${index}">
+          <div class="bike-calendar__segment-meta">
+            <span>${String(index + 1).padStart(2, "0")}</span>
+            <time datetime="${segment.startDate}">${formatCalendarRange(segment, l.lang)}</time>
           </div>
-          ${renderDistanceValue(item.value, item.unit, "distance-card__value")}
-          <div
-            class="distance-card__mobile-sequence"
-            aria-label="${l.distance.sequenceLabel} ${index + 1} / ${items.length}. ${l.distance.totalLabel}: ${l.distance.totalValue} ${l.distance.totalUnit}"
-          >
-            <span class="distance-card__sequence-label">${l.distance.sequenceLabel} ${index + 1} ${l.distance.sequenceOf} ${items.length}</span>
-            ${renderSequenceTotal(l.distance.totalValue, l.distance.totalUnit, l.distance.sequenceTotal)}
-            ${mobileSequence}
-          </div>
-          <ul class="detail-list">
-            ${item.details.map((detail) => `<li>${detail}</li>`).join("")}
-          </ul>
+          <p class="bike-calendar__segment-label">${label}</p>
+          ${
+            segment.kind === "finish"
+              ? `<strong class="bike-calendar__finish-mark">31</strong>`
+              : `<p class="bike-calendar__segment-value" data-optical-start><strong>${value}</strong><span>${l.distance.totalUnit}</span></p>`
+          }
+          <p class="bike-calendar__segment-detail">${detail}</p>
+          <p class="bike-calendar__cumulative"><span>${l.distance.totalLabel}</span><strong>${cumulative}\u00a0${l.distance.totalUnit}</strong></p>
         </article>`;
     })
     .join("");
 }
 
-function renderDistanceMedia(items, l) {
-  return items
+function renderSpecialSequence(plan, l) {
+  const stages = plan.segments.filter((segment) => segment.kind === "special");
+
+  return stages
     .map(
-      (item, index) => `
-        <figure
-          class="distance-story__frame${index === 0 ? " is-active" : ""}"
-          data-distance-frame="${index}"
-          aria-hidden="true"
-        >
-          <img
-            src="${l.assetBase}assets/${item.image}"
-            alt=""
-            loading="${index === 0 ? "eager" : "lazy"}"
-            width="1600"
-            height="900"
-            aria-hidden="true"
-          >
-          <video
-            data-distance-video="${index}"
-            muted
-            loop
-            playsinline
-            preload="metadata"
-            poster="${l.assetBase}assets/${item.image}"
-            aria-hidden="true"
-          >
-            <source src="${l.assetBase}assets/${item.video}?v=${editorialVideoVersion}" type="video/mp4">
-          </video>
-          <figcaption>
-            <span>${l.distance.mediaKicker}</span>
-            <strong>${item.index} · ${item.label}</strong>
-          </figcaption>
-        </figure>`,
+      (stage, index) => `
+        <li style="--calendar-order:${index}">
+          <span>${String(index + 1).padStart(2, "0")}</span>
+          <strong data-optical-start>${formatProjectNumber(stage.totalDistanceKm, l.lang)}</strong>
+          <time datetime="${stage.startDate}">${formatCalendarRange(stage, l.lang)}</time>
+        </li>`,
     )
     .join("");
-}
-
-function renderDistanceEquation(distance) {
-  const terms = distance.items
-    .map(
-      (item) =>
-        `<span class="distance-total__term" data-distance-step="${item.value.replaceAll(/\D/g, "")}">
-          <span class="distance-total__index">${item.index}</span>
-          <span class="distance-total__term-copy">
-            <strong data-optical-start>${item.value}<small>${item.unit}</small></strong>
-            <em>${item.label}</em>
-          </span>
-        </span>`,
-    )
-    .join("");
-
-  return `
-    <div class="distance-total__equation" role="img" aria-label="${distance.totalFormulaLabel}" data-distance-total>
-      <div class="distance-total__result" aria-hidden="true">
-        <span data-distance-counter data-distance-final="${distance.totalValue.replaceAll(/\D/g, "")}" data-optical-start>${distance.totalValue}</span>
-        <small>${distance.totalUnit}</small>
-      </div>
-      <div class="distance-total__terms" aria-hidden="true">${terms}</div>
-    </div>`;
 }
 
 function renderMetrics(items, className) {
@@ -1852,72 +1683,6 @@ function renderPage(l) {
       </div>
     </section>
 
-    <section class="audio-story" data-audio-story aria-labelledby="audio-story-title">
-      <div class="audio-story__intro">
-        <div class="audio-story__meta">
-          <span aria-hidden="true">01–05</span>
-          <p>${l.hero.audioStoryLabel}</p>
-        </div>
-        <div class="audio-story__copy">
-          <h2 id="audio-story-title">${l.hero.audioStoryTitle}</h2>
-          <p>${l.hero.audioStoryNote}</p>
-        </div>
-      </div>
-      <div
-        class="audio-story__player"
-        data-sound-player
-      >
-        <ol class="audio-story__storyline" aria-label="${l.hero.audioScenesLabel}">
-          ${l.hero.audioScenes
-            .map(
-              (scene, index) => `
-            <li>
-              <button
-                type="button"
-                data-sound-scene
-                data-scene-index="${index}"
-                data-scene-title="${scene.title}"
-                data-audio-src="${l.assetBase}assets/${scene.file}"
-                data-duration="${scene.duration}"
-                data-play-label="${l.hero.audioPlay}"
-                data-pause-label="${l.hero.audioPause}"
-                data-playing="false"
-                aria-label="${l.hero.audioPlay}: ${scene.title}"
-                aria-pressed="${index === 0 ? "true" : "false"}"
-              >
-                <span class="audio-story__scene-line" aria-hidden="true"><i data-scene-progress></i></span>
-                <span class="audio-story__scene-head">
-                  <span>${String(index + 1).padStart(2, "0")}</span>
-                  ${soundSceneIcons[index]}
-                </span>
-                <span class="audio-story__scene-foot">
-                  <strong>${scene.title}</strong>
-                  <span class="audio-story__wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
-                </span>
-              </button>
-            </li>`,
-            )
-            .join("")}
-        </ol>
-        <div class="audio-story__contexts" data-sound-contexts aria-live="polite">
-          ${l.hero.audioScenes
-            .map(
-              (scene, index) => `
-                <p data-sound-context="${index}"${index === 0 ? "" : " hidden"}>
-                  <strong>${String(index + 1).padStart(2, "0")} · ${scene.title}</strong>
-                  <span>${scene.context}</span>
-                </p>`,
-            )
-            .join("")}
-        </div>
-      </div>
-      <audio
-        data-effort-audio
-        preload="metadata"
-        src="${l.assetBase}assets/${l.hero.audioScenes[0].file}"
-      ></audio>
-    </section>
-
     <section class="diary section section--light" id="diary" aria-labelledby="diary-title">
       <div class="diary__heading">
         <h2
@@ -1980,44 +1745,32 @@ function renderPage(l) {
           <p>${l.distance.intro}</p>
         </div>
       </div>
-      <div class="distance-story" data-distance-story>
-        <div class="distance-story__visual">
-          ${renderDistanceMedia(l.distance.items, l)}
-          <div class="distance-story__counter" aria-hidden="true">
-            <div class="distance-story__counter-meta">
-              <span data-distance-live-index data-distance-motion="label">${l.distance.items[0].index}</span>
-              <span data-distance-live-label data-distance-motion="label">${l.distance.items[0].label}</span>
-            </div>
-            <p class="distance-story__counter-value">
-              <strong data-distance-live-value data-distance-motion="value" data-optical-start>${l.distance.items[0].value}</strong>
-              <small data-distance-live-unit>${l.distance.items[0].unit}</small>
-            </p>
-            <div class="distance-story__sequence">
-              <div class="distance-story__sequence-meta">
-                <span>
-                  <small>${l.distance.sequenceLabel}</small>
-                  <b><strong data-distance-sequence-current data-distance-motion="label">${l.distance.items[0].index}</strong><i>${l.distance.sequenceOf} ${String(l.distance.items.length).padStart(2, "0")}</i></b>
-                </span>
-                ${renderSequenceTotal(l.distance.totalValue, l.distance.totalUnit, l.distance.sequenceTotal)}
-              </div>
-              <div class="distance-story__sequence-track">
-                ${l.distance.items
-                  .map(
-                    (item, index) =>
-                      `<span class="${index === 0 ? "is-active" : ""}" data-distance-sequence="${index}"></span>`,
-                  )
-                  .join("")}
-              </div>
-            </div>
+      <div class="bike-calendar">
+        <ol class="bike-calendar__sequence" aria-label="${l.distance.specialSummary}">
+          ${renderSpecialSequence(projectPlan, l)}
+        </ol>
+        <div class="bike-calendar__rhythm">
+          <div>
+            <p>${l.distance.rhythmTitle}</p>
+            <span>${l.distance.rhythmText}</span>
           </div>
+          <dl>
+            <div><dt>22</dt><dd>${l.distance.baseSummary}</dd></div>
+            <div><dt>05</dt><dd>${l.distance.specialSummary}</dd></div>
+            <div><dt>30</dt><dd>${l.distance.rideSummary}</dd></div>
+            <div><dt>31</dt><dd>${l.distance.finishSummary}</dd></div>
+          </dl>
         </div>
-        <div class="distance-story__chapters">
-          ${renderDistance(l.distance.items, l)}
+        <div class="bike-calendar__segments">
+          ${renderCalendarSegments(projectPlan, l)}
         </div>
-      </div>
-      <div class="distance-total">
-        <p class="distance-total__label">${l.distance.totalLabel}</p>
-        ${renderDistanceEquation(l.distance)}
+        <div class="bike-calendar__total" role="img" aria-label="${l.distance.formulaLabel}">
+          <p><span>${l.distance.baseSummary}</span><strong>${l.distance.formulaBase}</strong></p>
+          <b aria-hidden="true">+</b>
+          <p><span>${l.distance.specialSummary}</span><strong>${l.distance.formulaSpecial}</strong></p>
+          <b aria-hidden="true">=</b>
+          <p class="bike-calendar__total-result"><span>${l.distance.totalLabel}</span><strong data-optical-start>${l.distance.formulaResult}<small>${l.distance.totalUnit}</small></strong></p>
+        </div>
       </div>
     </section>
 
@@ -2242,8 +1995,14 @@ function renderPage(l) {
 await mkdir(assetOutput, { recursive: true });
 await cp(assetSource, assetOutput, {
   recursive: true,
-  filter: (source) =>
-    source !== styleModulesRoot && !source.startsWith(`${styleModulesRoot}/`),
+  filter: (source) => {
+    const assetName = source.slice(assetSource.length + 1);
+    return (
+      source !== styleModulesRoot &&
+      !source.startsWith(`${styleModulesRoot}/`) &&
+      !retiredAssetNames.has(assetName)
+    );
+  },
 });
 await writeFile(resolve(assetOutput, "styles.css"), styleBundle, "utf8");
 
