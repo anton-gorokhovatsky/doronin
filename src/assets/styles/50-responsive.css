@@ -1724,6 +1724,12 @@
     padding-top: 1rem;
   }
 
+  .story-frame {
+    width: calc(100% + (2 * var(--page-gutter)));
+    max-width: none;
+    margin-inline: calc(-1 * var(--page-gutter));
+  }
+
   .story-frame:first-child,
   .story-frame:nth-child(2),
   .story-frame:nth-child(3),
@@ -1732,6 +1738,10 @@
   .story-frame:nth-child(6) {
     grid-column: 1;
     margin-top: 0;
+  }
+
+  .story-frame:nth-child(4):has(+ .story-frame--movement) {
+    grid-column: 1;
   }
 
   .story-frame:first-child .story-frame__media {
@@ -1753,6 +1763,16 @@
 
   .story-frame:nth-child(6) .story-frame__media {
     aspect-ratio: 4 / 3;
+  }
+
+  .story-frame figcaption {
+    margin-inline: var(--page-gutter);
+  }
+
+  .story-frame--motion figcaption {
+    right: var(--page-gutter);
+    left: var(--page-gutter);
+    margin-inline: 0;
   }
 
   .achievement-grid {
@@ -2168,6 +2188,43 @@
     border-top: 1px solid var(--line-light);
   }
 
+  .site-footer .theme-switcher__options {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    width: 100%;
+  }
+
+  .site-footer .theme-switcher button {
+    min-height: 52px;
+    padding: 0.75rem 0.35rem;
+    font-size: max(var(--type-service-strong), 1rem);
+  }
+
+  .site-footer__utility-links {
+    gap: 0;
+    padding-top: 0.5rem;
+  }
+
+  .site-footer__utility-links a {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    min-height: 52px;
+    padding: 0.75rem 0;
+    font-size: max(var(--type-service-strong), 1rem);
+  }
+
+  .site-footer__utility-links a + a {
+    border-top: 1px solid var(--line-light);
+  }
+
+  .site-footer__utility-links .icon {
+    justify-self: end;
+  }
+
   .site-footer__wordmark {
     justify-content: flex-start;
     margin: 2.5rem 0 1.5rem;
@@ -2375,17 +2432,11 @@
     padding-inline: 16px;
   }
 
-  .theme-switcher__options {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .site-nav__utility .theme-switcher__options {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .site-footer .theme-switcher button {
-    min-height: 48px;
-    padding: 8px;
     border-right: 0;
     border-bottom: 2px solid transparent;
   }
