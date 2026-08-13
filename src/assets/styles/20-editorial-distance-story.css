@@ -320,14 +320,30 @@
 }
 
 .diary-live__timeline > div {
-  display: flex;
-  justify-content: space-between;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
   gap: 1rem;
   margin-top: 0.9rem;
 }
 
 .diary-live__timeline b:last-child {
   text-align: right;
+}
+
+.diary-live__timeline-now {
+  position: absolute;
+  left: clamp(
+    0.375rem,
+    calc(var(--diary-progress) * 100%),
+    calc(100% - 0.375rem)
+  );
+  color: var(--text-editorial);
+  transform: translateX(-50%);
+}
+
+.diary-live__timeline-now[hidden] {
+  display: none;
 }
 
 .diary__heading {
@@ -343,6 +359,11 @@
   font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.diary__range-dash {
+  display: inline-block;
+  padding-inline: 0.14em 0.2em;
 }
 
 .diary__heading h2,
@@ -1699,6 +1720,15 @@
   grid-column: 8 / span 5;
 }
 
+.story-frame--movement:nth-child(5) {
+  grid-column: 5 / -1;
+  margin-top: clamp(-1rem, -1.25vw, -0.25rem);
+}
+
+.story-frame:nth-child(4):has(+ .story-frame--movement) {
+  grid-column: 1 / span 4;
+}
+
 .story-frame:nth-child(6) {
   grid-column: 2 / span 10;
   margin-top: clamp(1rem, 3vw, 3rem);
@@ -1728,6 +1758,14 @@
 
 .story-frame:nth-child(5) .story-frame__media {
   aspect-ratio: 3 / 2;
+}
+
+.story-frame--movement:nth-child(5) .story-frame__media {
+  aspect-ratio: 3 / 2;
+}
+
+.story-frame--movement:nth-child(5) img {
+  object-fit: cover;
 }
 
 .story-frame:nth-child(6) .story-frame__media {

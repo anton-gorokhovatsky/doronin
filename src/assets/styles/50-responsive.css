@@ -578,6 +578,14 @@
     grid-column: 8 / span 5;
   }
 
+  .story-frame--movement:nth-child(5) {
+    grid-column: 5 / -1;
+  }
+
+  .story-frame:nth-child(4):has(+ .story-frame--movement) {
+    grid-column: 1 / span 4;
+  }
+
   .story-frame:nth-child(6) {
     grid-column: 2 / span 10;
   }
