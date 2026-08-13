@@ -312,6 +312,20 @@ for (const [lang, path] of pages) {
     `${lang}: календарная формула должна сохранять оба видимых арифметических знака`,
   );
   expect(
+    html.includes('class="hero-peaks"') &&
+      (html.match(/data-date="2026-12-/g) || []).length === 5,
+    `${lang}: первый экран должен показывать пять календарных вершин`,
+  );
+  expect(
+    html.includes('class="bike-calendar__finish-date"') &&
+      html.includes('class="bike-calendar__segment-detail bike-calendar__finish-detail"'),
+    `${lang}: финиш должен объяснять последний календарный день, а не выглядеть новой дистанцией`,
+  );
+  expect(
+    html.includes("54\u00a0×\u00a036"),
+    `${lang}: передача 54 × 36 должна оставаться одним типографическим атомом`,
+  );
+  expect(
     staticAnalyticsGoals.every((goal) => analyticsGoalIdSet.has(goal)),
     `${lang}: HTML не должен отправлять цели вне единого реестра Метрики`,
   );

@@ -371,7 +371,7 @@
 .diary-stories__rail {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   border-bottom: 1px solid var(--line-dark);
 }
 
@@ -518,7 +518,7 @@
 .diary__media {
   grid-column: 1 / span 4;
   position: relative;
-  aspect-ratio: 9 / 16;
+  aspect-ratio: var(--diary-media-aspect, 9 / 16);
   margin: 0;
   overflow: hidden;
   background: var(--ink-deep);

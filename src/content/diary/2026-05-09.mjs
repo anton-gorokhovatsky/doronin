@@ -1,0 +1,38 @@
+export default {
+  index: "04",
+  date: "2026-05-09",
+  href: "https://t.me/doroninvdele/629",
+  image: "diary-2026-05-09.jpg",
+  video: "diary-2026-05-09.mp4",
+  videoDuration: "00:09",
+  videoDurationIso: "PT9S",
+  mediaWidth: 720,
+  mediaHeight: 960,
+  mediaAspect: "3 / 4",
+  facts: [
+    { value: { ru: "1", en: "1" }, ru: "день до старта «Три горы»", en: "day before the Three Mountains start" },
+    { value: { ru: "9", en: "9" }, ru: "фрагментов о восстановлении", en: "notes on recovery" },
+  ],
+  content: {
+    ru: {
+      tabLabel: "Перед стартом",
+      title: "Вернуть силы",
+      imageAlt: "Виктор Доронин восстанавливается в бане после тренировочного сбора в Красной Поляне",
+      videoLabel: "Видео из дневника подготовки: Виктор Доронин рассказывает о восстановлении перед стартом",
+      videoPlayLabel: "Воспроизвести 9-секундное видео о восстановлении перед стартом",
+      lead: "Перед стартом «Три горы» Виктор завершает сбор в Красной Поляне и отдельно фиксирует восстановление как часть подготовки.",
+      note: "Нагрузка не заканчивается последним подъёмом: следующий старт начинается с того, как спортсмен возвращает себе силы.",
+      externalLabel: "Откроется запись дневника Виктора от 9 мая в Telegram",
+    },
+    en: {
+      tabLabel: "Before the start",
+      title: "Recover to keep moving",
+      imageAlt: "Viktor Doronin recovers in a banya after a training camp in Krasnaya Polyana",
+      videoLabel: "Training diary video: Viktor Doronin talks about recovery before the next start",
+      videoPlayLabel: "Play the 9-second video about pre-race recovery",
+      lead: "Before the Three Mountains start, Viktor closes his Krasnaya Polyana camp by treating recovery as part of the work itself.",
+      note: "The load does not end with the last climb: the next start begins with how the athlete restores his capacity.",
+      externalLabel: "Opens Viktor’s May 9 training diary entry on Telegram",
+    },
+  },
+};

@@ -63,6 +63,49 @@ async function auditPage(browser, browserName, origin, testCase) {
     expect(await page.locator("h1").count() === 1, `${prefix}: expected one h1`);
     expect(await page.locator(".button--primary").isVisible(), `${prefix}: primary CTA hidden`);
 
+    const heroPeaks = await page.locator(".hero-peaks").evaluate((element) => {
+      const labels = [...element.querySelectorAll("li")].map((label) => {
+        const bounds = label.getBoundingClientRect();
+        return {
+          date: label.dataset.date,
+          text: label.textContent.trim(),
+          left: bounds.left,
+          top: bounds.top,
+          right: bounds.right,
+        };
+      });
+      const bounds = element.getBoundingClientRect();
+      return {
+        ariaLabel: element.getAttribute("aria-label"),
+        bounds: { left: bounds.left, right: bounds.right, height: bounds.height },
+        labels,
+      };
+    });
+    const expectedPeakDates = [
+      "2026-12-01",
+      "2026-12-07",
+      "2026-12-13",
+      "2026-12-20",
+      "2026-12-29",
+    ];
+    expect(
+      heroPeaks.ariaLabel.length > 0 &&
+        JSON.stringify(heroPeaks.labels.map((label) => label.date)) ===
+          JSON.stringify(expectedPeakDates) &&
+        JSON.stringify(heroPeaks.labels.map((label) => label.text)) ===
+          JSON.stringify(["333", "555", "777", "999", "1111"]) &&
+        heroPeaks.labels.every(
+          (label, index, labels) =>
+            label.left >= heroPeaks.bounds.left - 1 &&
+            label.right <= heroPeaks.bounds.right + 1 &&
+            (index === 0 ||
+              (label.left > labels[index - 1].left &&
+                label.top < labels[index - 1].top)),
+        ) &&
+        (testCase.viewport.width > 390 || heroPeaks.bounds.height >= 112),
+      `${prefix}: five-peak calendar profile regressed (${JSON.stringify(heroPeaks)})`,
+    );
+
     const menuToggle = page.locator(".menu-toggle");
     if (testCase.viewport.width > 960) {
       expect(
@@ -806,6 +849,12 @@ async function auditPage(browser, browserName, origin, testCase) {
             detailCount: finish?.querySelectorAll(
               ".bike-calendar__segment-detail",
             ).length,
+            detailText:
+              finish?.querySelector(".bike-calendar__finish-detail")?.textContent.trim() || "",
+            metaText:
+              finish?.querySelector(".bike-calendar__segment-meta")?.textContent.trim() || "",
+            monthText:
+              finish?.querySelector(".bike-calendar__finish-date span")?.textContent.trim() || "",
             labelValueGap:
               finishLabel && finishValue ? finishValue.top - finishLabel.bottom : null,
             mainContained:
@@ -844,7 +893,10 @@ async function auditPage(browser, browserName, origin, testCase) {
       `${prefix}: calendar summary repeats values or breaks proximity (${JSON.stringify(calendarComposition.rhythmMetrics)})`,
     );
     expect(
-      calendarComposition.finish.detailCount === 0 &&
+      calendarComposition.finish.detailCount === 1 &&
+        calendarComposition.finish.detailText.length > 0 &&
+        calendarComposition.finish.metaText.length > 0 &&
+        calendarComposition.finish.monthText.length > 0 &&
         calendarComposition.finish.mainContained &&
         calendarComposition.finish.labelValueGap >= 0,
       `${prefix}: calendar finish card overlaps or repeats its date (${JSON.stringify(calendarComposition.finish)})`,

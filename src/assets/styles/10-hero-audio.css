@@ -798,16 +798,45 @@
 .hero__foot {
   position: absolute;
   inset: auto var(--page-gutter) 0;
-  display: flex;
-  justify-content: space-between;
-  gap: 2rem;
-  padding: 1.35rem 0;
-  border-top: 1px solid var(--line-light);
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(14rem, 1fr) minmax(30rem, 0.86fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 6rem);
+  padding: 0.7rem 0 0.55rem;
   font-size: var(--type-service);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
+.hero__foot::before {
+  position: absolute;
+  z-index: -1;
+  top: 55%;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--line-light);
+  content: "";
+}
+
 .hero__foot > span {
+  align-self: end;
+  padding-bottom: 0.15rem;
   color: var(--paper-dim);
 }
+
+.hero-peaks {
+  position: relative;
+  min-width: 0;
+  height: clamp(3.6rem, 5.7vw, 5.2rem);
+  color: var(--paper);
+}
+
+.hero-peaks svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.hero-peaks__route { fill: none; stroke: var(--acid); stroke-linecap: butt; stroke-linejoin: miter; stroke-width: 1.25; vector-effect: non-scaling-stroke; }
+.hero-peaks__area { fill: var(--acid); opacity: 0.07; }
+.hero-peaks__labels { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
+.hero-peaks__labels li { position: absolute; top: var(--peak-y); left: var(--peak-x); display: grid; justify-items: center; transform: translate(-50%, calc(-100% - 0.55rem)); }
+.hero-peaks__labels li::after { width: 1px; height: 0.42rem; margin-top: 0.16rem; background: var(--acid); content: ""; opacity: 0.72; }
+.hero-peaks__labels strong { font-family: var(--display); font-size: clamp(0.65rem, calc(0.6rem + 0.16vw), 0.78rem); font-variant-numeric: lining-nums tabular-nums; font-weight: 700; letter-spacing: 0.02em; line-height: 1; }

@@ -1,0 +1,38 @@
+export default {
+  index: "05",
+  date: "2026-05-12",
+  href: "https://t.me/doroninvdele/631",
+  image: "diary-2026-05-12.jpg",
+  video: "diary-2026-05-12.mp4",
+  videoDuration: "00:23",
+  videoDurationIso: "PT23S",
+  mediaWidth: 720,
+  mediaHeight: 1280,
+  mediaAspect: "9 / 16",
+  facts: [
+    { value: { ru: "3", en: "3" }, ru: "дня в велосипедном ритме", en: "days in a cycling rhythm" },
+    { value: { ru: "54\u00a0×\u00a036", en: "54\u00a0×\u00a036" }, ru: "силовая передача на Лауре", en: "strength gearing on Laura" },
+  ],
+  content: {
+    ru: {
+      tabLabel: "Три дня в горах",
+      title: "Вернуться в нагрузку",
+      imageAlt: "Виктор Доронин едет на велосипеде в горах во время майского тренировочного блока",
+      videoLabel: "Видео из дневника подготовки: Виктор Доронин рассказывает о трёх велосипедных днях в горах",
+      videoPlayLabel: "Воспроизвести 23-секундное видео о майском велосипедном блоке",
+      lead: "За три дня в Сочи и Красной Поляне Виктор проходит путь от поддержки участников до собственной силовой работы на Лауре и групповой гонки.",
+      note: "Главная сессия — подъём сидя на передаче 54\u00a0×\u00a036 с низким каденсом. Рядом остаются люди, организаторы и партнёры, без которых старт не становится событием.",
+      externalLabel: "Откроется запись дневника Виктора от 12 мая в Telegram",
+    },
+    en: {
+      tabLabel: "Three mountain days",
+      title: "Return to the load",
+      imageAlt: "Viktor Doronin rides in the mountains during a May cycling block",
+      videoLabel: "Training diary video: Viktor Doronin talks about three days of cycling in the mountains",
+      videoPlayLabel: "Play the 23-second video about the May cycling block",
+      lead: "Across three days in Sochi and Krasnaya Polyana, Viktor moves from supporting other riders to his own strength work on Laura and a group race.",
+      note: "The key session is a seated climb in 54\u00a0×\u00a036 gearing at low cadence. Around it are the riders, organisers and partners who turn a start into an event.",
+      externalLabel: "Opens Viktor’s May 12 training diary entry on Telegram",
+    },
+  },
+};

@@ -365,6 +365,7 @@ html[data-text-fixture="200"] {
 }
 
 :root.text-enlarged .bike-calendar__total-answer {
+  display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 1.5rem;
   margin-top: 0.5rem;
