@@ -464,6 +464,7 @@
   font-size: clamp(0.9rem, calc(0.78rem + 0.45vw), 1.25rem);
   line-height: 1.1;
   text-transform: uppercase;
+  white-space: pre-line;
 }
 
 .diary-stories__tab:hover,
@@ -1722,7 +1723,7 @@
 
 .story-frame--movement:nth-child(5) {
   grid-column: 5 / -1;
-  margin-top: clamp(-1rem, -1.25vw, -0.25rem);
+  margin-top: clamp(0.75rem, 1.2vw, 1.125rem);
 }
 
 .story-frame:nth-child(4):has(+ .story-frame--movement) {
