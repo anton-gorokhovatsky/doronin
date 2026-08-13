@@ -774,6 +774,23 @@ async function auditPage(browser, browserName, origin, testCase) {
         const operators = [
           ...element.querySelectorAll(".bike-calendar__operator"),
         ].map(rect);
+        const totalBox = rect(element.querySelector(".bike-calendar__total"));
+        const sourceRows = [
+          ...element.querySelectorAll(".bike-calendar__total > p"),
+        ].map((row) => ({
+          box: rect(row),
+          label: rect(row.querySelector("span")),
+          value: rect(row.querySelector("strong")),
+        }));
+        const answerBox = rect(
+          element.querySelector(".bike-calendar__total-answer"),
+        );
+        const answerLabel = rect(
+          element.querySelector(".bike-calendar__total-result > span"),
+        );
+        const answerValue = rect(
+          element.querySelector(".bike-calendar__total-result > strong"),
+        );
         const center = (box) => box.top + box.height / 2;
         const segmentGroups = [
           ...element.querySelectorAll(
@@ -877,6 +894,13 @@ async function auditPage(browser, browserName, origin, testCase) {
           formulaOperatorVisibility: operators.map(
             (operator) => Boolean(operator && operator.width > 0 && operator.height > 0),
           ),
+          mobileFormula: {
+            totalBox,
+            sourceRows,
+            answerBox,
+            answerLabel,
+            answerValue,
+          },
           rhythmMetrics,
           segmentGroups,
           sequenceRows,
@@ -918,12 +942,47 @@ async function auditPage(browser, browserName, origin, testCase) {
               1.9),
       `${prefix}: calendar cards lose the shared text axis or the desktop finish row (${JSON.stringify(calendarComposition.calendarSegments)})`,
     );
-    expect(
-      calendarComposition.formulaOperatorVisibility.length === 2 &&
-        calendarComposition.formulaOperatorVisibility.every(Boolean) &&
-        calendarComposition.formulaOperatorDeltas.every((delta) => delta <= 3),
-      `${prefix}: calendar formula hides a sign or loses its shared optical centre (${JSON.stringify({ deltas: calendarComposition.formulaOperatorDeltas, visibility: calendarComposition.formulaOperatorVisibility })})`,
-    );
+    if (testCase.viewport.width > 820) {
+      expect(
+        calendarComposition.formulaOperatorVisibility.length === 2 &&
+          calendarComposition.formulaOperatorVisibility.every(Boolean) &&
+          calendarComposition.formulaOperatorDeltas.every((delta) => delta <= 3),
+        `${prefix}: desktop calendar formula hides a sign or loses its shared optical centre (${JSON.stringify({ deltas: calendarComposition.formulaOperatorDeltas, visibility: calendarComposition.formulaOperatorVisibility })})`,
+      );
+    } else {
+      const { totalBox, sourceRows, answerBox, answerLabel, answerValue } =
+        calendarComposition.mobileFormula;
+      const contained = (box, parent) =>
+        box &&
+        parent &&
+        box.left >= parent.left - 1 &&
+        box.right <= parent.right + 1 &&
+        box.top >= parent.top - 1 &&
+        box.bottom <= parent.bottom + 1;
+      expect(
+        calendarComposition.formulaOperatorVisibility.length === 2 &&
+          calendarComposition.formulaOperatorVisibility.every((visible) => !visible) &&
+          sourceRows.length === 2 &&
+          sourceRows.every(
+            ({ box, label, value }) =>
+              contained(box, totalBox) &&
+              contained(label, box) &&
+              contained(value, box),
+          ) &&
+          Math.max(...sourceRows.map(({ box }) => box.left)) -
+            Math.min(...sourceRows.map(({ box }) => box.left)) <=
+            1 &&
+          Math.max(...sourceRows.map(({ box }) => box.right)) -
+            Math.min(...sourceRows.map(({ box }) => box.right)) <=
+            1 &&
+          contained(answerBox, totalBox) &&
+          contained(answerLabel, answerBox) &&
+          contained(answerValue, answerBox) &&
+          Math.abs(answerBox.left - totalBox.left) <= 1 &&
+          Math.abs(answerBox.right - totalBox.right) <= 1,
+        `${prefix}: mobile calendar calculation must be two aligned source rows and one contained result card (${JSON.stringify(calendarComposition.mobileFormula)})`,
+      );
+    }
     if (testCase.viewport.width <= 820) {
       expect(
         calendarComposition.segmentGroups.every(
