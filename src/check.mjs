@@ -1,7 +1,8 @@
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 import { createDiaryContent } from "./content/diary/index.mjs";
+import { validateProjectPlan } from "./project-plan-validation.mjs";
 import { validateProjectStatus } from "./project-status-validation.mjs";
 
 const outputRoot = resolve(process.argv[2] || "preview");
@@ -13,7 +14,11 @@ const failures = [];
 const projectStatus = JSON.parse(
   await readFile(resolve("src/project-status.json"), "utf8"),
 );
+const projectPlan = JSON.parse(
+  await readFile(resolve("src/project-plan.json"), "utf8"),
+);
 const projectStatusErrors = validateProjectStatus(projectStatus);
+const projectPlanErrors = validateProjectPlan(projectPlan);
 const analyticsRegistry = JSON.parse(
   await readFile(resolve("src/analytics-goals.json"), "utf8"),
 );
@@ -25,20 +30,33 @@ const requiredAnalyticsGoals = [
   "chapter_navigation",
   "project_explore",
   "partner_interest",
+  "diary_explore",
   "language_switch",
   "theme_change",
   "hero_video_pause",
   "hero_video_resume",
   "proof_open",
-  "sound_scene_select",
-  "sound_story_start",
-  "sound_story_complete",
   "diary_video_start",
   "diary_video_complete",
   "diary_open",
+  "diary_follow",
   "film_open",
   "contact_email",
   "contact_telegram",
+];
+const retiredProductionAssets = [
+  "audio-scene-01.m4a",
+  "audio-scene-02.m4a",
+  "audio-scene-03.m4a",
+  "audio-scene-04.m4a",
+  "audio-scene-05.m4a",
+  "distance-bike-motion.mp4",
+  "distance-bike-presence.mp4",
+  "distance-run-motion.mp4",
+  "distance-run-presence.mp4",
+  "distance-swim-motion.mp4",
+  "distance-swim-presence.mp4",
+  "effort-breath.mp3",
 ];
 const diaryByLocale = {
   ru: createDiaryContent("ru"),
@@ -48,6 +66,15 @@ const diaryByLocale = {
 function expect(condition, message) {
   if (!condition) {
     failures.push(message);
+  }
+}
+
+for (const asset of retiredProductionAssets) {
+  try {
+    await access(resolve(outputRoot, "assets", asset));
+    failures.push(`production: устаревший файл ${asset} не должен попадать в новую сборку`);
+  } catch {
+    // Expected: the accepted triathlon assets only live in doronin-og and Git history.
   }
 }
 
@@ -178,13 +205,10 @@ for (const [lang, path] of pages) {
   expect(
     heroMediaControls.includes("data-video-toggle") &&
       !heroMediaControls.includes("data-sound-toggle") &&
-      html.includes('class="audio-story"') &&
-      html.includes("data-sound-player") &&
-      !html.includes('class="audio-story__toggle"') &&
-      (html.match(/\bdata-scene-index="/g) || []).length === 5 &&
-      (html.match(/class="audio-story__wave"/g) || []).length === 5 &&
-      (html.match(/assets\/audio-scene-\d{2}\.m4a/g) || []).length === 6,
-    `${lang}: видео и пятичастная звуковая история должны оставаться двумя независимыми сценариями`,
+      !html.includes('class="audio-story"') &&
+      !html.includes("data-sound-player") &&
+      !html.includes("audio-scene-"),
+    `${lang}: новый hero должен оставаться единственным первым медиа-сценарием без звуков старого триатлона`,
   );
   const heroVideoTag =
     html.match(/<video\b[^>]*\bdata-hero-video\b[^>]*>/su)?.[0] || "";
@@ -242,6 +266,10 @@ for (const [lang, path] of pages) {
   );
   expect(
     html.includes('id="diary"') &&
+      html.includes('class="diary-live"') &&
+      html.includes("data-diary-countdown") &&
+      html.includes('data-analytics-goal="diary_follow"') &&
+      html.includes('id="diary-archive"') &&
       diary.entries.every(
         (entry) =>
           html.includes(entry.href) &&
@@ -256,7 +284,7 @@ for (const [lang, path] of pages) {
         diary.entries.length &&
       (html.match(/class="diary__fact"/g) || []).length === diaryFactCount &&
       (html.match(/data-project-phase-item="/g) || []).length === 3,
-    `${lang}: дневник должен содержать все структурированные видео-записи и три состояния проекта`,
+    `${lang}: дневник должен соединять живой путь к старту, все структурированные записи и три состояния проекта`,
   );
   expect(
     html.includes('class="proof-sources"') &&
@@ -267,8 +295,15 @@ for (const [lang, path] of pages) {
     `${lang}: доказательный слой должен ссылаться на пять серий и фильм`,
   );
   expect(
-    (html.match(/\bdata-sound-context="/g) || []).length === 5,
-    `${lang}: каждая звуковая сцена должна иметь редакционный контекст`,
+    html.includes('class="bike-calendar"') &&
+      (html.match(/class="bike-calendar__segment bike-calendar__segment--/g) || [])
+        .length === projectPlan.segments.length &&
+      (html.match(/<li style="--calendar-order:/g) || []).length ===
+      projectPlan.specialSequenceKm.length &&
+      projectPlan.specialSequenceKm.every((distance) =>
+        html.includes(`>${distance}</strong>`),
+      ),
+    `${lang}: календарь должен рендерить все сегменты и пять специальных этапов из project-plan.json`,
   );
   expect(
     staticAnalyticsGoals.every((goal) => analyticsGoalIdSet.has(goal)),
@@ -297,7 +332,9 @@ for (const [lang, path] of pages) {
       "ru: короткие предлоги и союзы не должны оставаться в конце строки",
     );
     expect(
-      visibleText.includes("в мире"),
+      !/\b(?:а|в|во|до|за|и|из|к|ко|на|не|о|об|от|по|с|со|у) (?=[\p{L}\p{N}«])/u.test(
+        visibleText,
+      ),
       "ru: типограф должен связывать короткие предлоги со следующим словом",
     );
     expect(
@@ -317,9 +354,10 @@ for (const [lang, path] of pages) {
       "ru: названия партнёрских направлений должны оставаться короткими",
     );
     expect(
-      visibleText.includes("Дневник подготовки") &&
+      visibleText.includes("Дневник пути к старту") &&
+        visibleText.includes("Не ждать старта. Проходить путь вместе.") &&
         !visibleText.includes(">Дневник подготовки Виктора<"),
-      "ru: послетитровая ссылка не должна повторять имя героя",
+      "ru: живой дневник и послетитровая ссылка должны вести к пути без повтора имени героя",
     );
     expect(
       visibleText.includes("О герое") &&
@@ -350,9 +388,11 @@ for (const [lang, path] of pages) {
       "en: названия партнёрских направлений должны оставаться короткими",
     );
     expect(
-      visibleText.includes("Training diary") &&
+      visibleText.includes("Road-to-start diary") &&
+        visibleText.includes("Don’t just wait") &&
+        visibleText.includes("Follow the road there.") &&
         !html.includes(">Viktor’s training diary<"),
-      "en: послетитровая ссылка не должна повторять имя героя",
+      "en: the live diary and after-credits route must express the journey without repeating Viktor’s name",
     );
     expect(
       visibleText.includes("≈1.3M") &&
@@ -400,6 +440,7 @@ const styleModuleNames = [
   "00-foundations-navigation.css",
   "10-hero-audio.css",
   "20-editorial-distance-story.css",
+  "25-bike-calendar.css",
   "30-proof-adventures-interviews.css",
   "40-partners-footer.css",
   "50-responsive.css",
@@ -431,7 +472,6 @@ const productionGlassMaterial = normalizeCss(`
   --glass-filter: blur(22px) saturate(1.16);
   --glass-shadow: 0 1.25rem 3.5rem rgba(0, 0, 0, 0.18);
 `);
-const audioStoryRule = css.match(/\.audio-story\s*\{([^}]*)\}/s)?.[1] || "";
 const diaryRule = css.match(/\.diary\s*\{([^}]*)\}/s)?.[1] || "";
 const mobileNavLinkRules = [
   ...css.matchAll(/\.site-nav__link\s*\{([^}]*)\}/gs),
@@ -467,6 +507,12 @@ expect(
     `${styleModuleNames.map((file) => `@import "./styles/${file}";`).join("\n")}\n` &&
     sourceStyleBundle === css,
   "css: восемь исходных модулей должны без дрейфа собираться в один production styles.css",
+);
+expect(
+  projectPlanErrors.length === 0 &&
+    projectPlan.targetDistanceKm === 11111 &&
+    projectPlan.specialSequenceKm.join("→") === "333→555→777→999→1111",
+  `plan: календарь, сумма и последовательность специальных этапов должны проходить каноническую проверку${projectPlanErrors.length ? ` (${projectPlanErrors.join("; ")})` : ""}`,
 );
 expect(
   projectStatusErrors.length === 0 &&
@@ -522,13 +568,16 @@ expect(
   "css: декабрь должен завершать календарную шкалу красной зоной",
 );
 expect(
-  /\.distance-story__counter\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)[^}]*width:\s*min\(24rem,/s.test(
+  /\.bike-calendar\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s.test(
     css,
   ) &&
-    /\.distance-story__sequence-track\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(1\.5rem,\s*1fr\)\)[^}]*width:\s*100%[^}]*min-width:\s*0/s.test(
+    /\.bike-calendar__sequence\s*\{[^}]*grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\)/s.test(
+      css,
+    ) &&
+    /@media \(max-width:\s*820px\)[\s\S]*?\.bike-calendar__sequence\s*\{[^}]*grid-template-columns:\s*1fr[^}]*width:\s*100%[^}]*min-width:\s*0/s.test(
       css,
     ),
-  "css: шкала трёх видов спорта должна сохранять одну физическую ширину независимо от значения",
+  "css: календарь должен иметь одну ограниченную колонку на мобильном и пять равных этапов на desktop",
 );
 expect(
   css.includes(".button:hover .icon--down") &&
@@ -606,11 +655,10 @@ expect(
   "favicon: полный знак из logo.svg должен сохранять точный кроп и контраст в system/light/dark",
 );
 expect(
-  /border-top:\s*0/.test(audioStoryRule) &&
-    /\.audio-story::before\s*\{[^}]*height:\s*1px[^}]*linear-gradient\(90deg,\s*var\(--acid\)/s.test(
-      css,
-    ) &&
-    !/border-bottom:/.test(audioStoryRule) &&
+  !app.includes("data-sound-player") &&
+    !app.includes("data-distance-story") &&
+    !app.includes("data-distance-total") &&
+    !generatedHtml.includes("audio-scene-") &&
     /padding-top:\s*clamp\(2\.75rem,\s*4\.5vw,\s*4\.5rem\)/.test(
       diaryRule,
     ) &&
@@ -624,7 +672,7 @@ expect(
     /\.partners__stage\s*\{[^}]*isolation:\s*isolate/s.test(css) &&
     /\.partners__stage-media\s*\{[^}]*position:\s*absolute/s.test(css) &&
     !/\.partners::(?:before|after)\s*\{[^}]*grid-row:/s.test(css),
-  "css: разделители должны оставаться только на смысловых границах без двойной линии audio → diary",
+  "css: удалённые триатлонные сценарии не должны оставаться в JS/HTML, а разделители — дублировать смысловые границы",
 );
 expect(
   (css.match(/:root\.theme-dark\s*\{/g) || []).length === 1 &&
@@ -665,7 +713,7 @@ expect(
         Array.isArray(params) &&
         params.every(
           (param) =>
-            ["chapter", "language", "location", "scene", "theme"].includes(
+            ["chapter", "language", "location", "theme"].includes(
               param,
             ),
         ),

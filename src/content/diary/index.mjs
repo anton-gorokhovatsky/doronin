@@ -8,9 +8,29 @@ const entries = [march10, march23, april23].sort((first, second) =>
 
 const localeCopy = {
   ru: {
-    phaseBefore: "Дневник подготовки",
-    phaseActive: "31 день проекта",
+    phaseBefore: "Дневник пути к старту",
+    phaseActive: "Дневник дистанции",
     phaseFinished: "Архив истории",
+    liveKickerBefore: "Путь к 1 декабря",
+    liveKickerActive: "Проект начался",
+    liveKickerFinished: "После финиша",
+    liveTitleBefore: "Не ждать старта. Проходить путь вместе.",
+    liveTitleActive: "Дистанция идёт. Дневник продолжается.",
+    liveTitleFinished: "Дистанция завершена. История остаётся.",
+    liveBodyBefore:
+      "Здесь появляются подтверждённые записи Виктора: тренировки, решения, трудные дни и маленькие победы. Без искусственного ежедневного графика — в честном ритме реальной подготовки.",
+    liveBodyActive:
+      "Дневник фиксирует ход дистанции, решения команды и состояние Виктора по мере появления подтверждённых обновлений.",
+    liveBodyFinished:
+      "Записи подготовки и прохождения дистанции остаются хронологией проекта — от первых решений до зафиксированного результата.",
+    liveFollowCta: "Следить за дневником",
+    liveFollowLabel: "Открыть дневник Виктора в Telegram",
+    archiveCta: "Смотреть контрольные точки",
+    archiveLabel: "Предыдущие контрольные точки",
+    timelineNow: "Сейчас",
+    timelineStart: "1 декабря",
+    timelineFinish: "31 декабря",
+    liveFinishedCountLabel: "дней проекта",
     storiesLabel: "Записи дневника подготовки",
     videoPlayCta: "Смотреть видео",
     cta: "Читать запись в Telegram",
@@ -22,9 +42,29 @@ const localeCopy = {
     ],
   },
   en: {
-    phaseBefore: "Training diary",
-    phaseActive: "31 days underway",
+    phaseBefore: "Road-to-start diary",
+    phaseActive: "Distance diary",
     phaseFinished: "Story archive",
+    liveKickerBefore: "The road to December 1",
+    liveKickerActive: "The project is underway",
+    liveKickerFinished: "After the finish",
+    liveTitleBefore: "Don’t just wait for the start. Follow the road there.",
+    liveTitleActive: "The distance is underway. The diary continues.",
+    liveTitleFinished: "The distance is complete. The story remains.",
+    liveBodyBefore:
+      "Verified notes from Viktor appear here: training, decisions, difficult days and small wins. No artificial daily schedule — the honest rhythm of real preparation.",
+    liveBodyActive:
+      "The diary records the distance, the team’s decisions and Viktor’s condition as verified updates become available.",
+    liveBodyFinished:
+      "The preparation and distance updates remain as the project’s chronology — from the first decisions to the recorded result.",
+    liveFollowCta: "Follow the diary",
+    liveFollowLabel: "Open Viktor’s diary on Telegram",
+    archiveCta: "See previous checkpoints",
+    archiveLabel: "Previous checkpoints",
+    timelineNow: "Now",
+    timelineStart: "December 1",
+    timelineFinish: "December 31",
+    liveFinishedCountLabel: "project days",
     storiesLabel: "Training diary entries",
     videoPlayCta: "Watch video",
     cta: "Read the update on Telegram",

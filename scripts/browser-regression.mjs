@@ -652,45 +652,23 @@ async function auditPage(browser, browserName, origin, testCase) {
       `${prefix}: hero media has neither a usable control nor a verified poster fallback (${JSON.stringify(heroMediaState)})`,
     );
 
-    const scenes = page.locator("[data-sound-scene]");
-    await scenes.nth(1).click();
-    expect(
-      (await scenes.nth(1).getAttribute("aria-pressed")) === "true",
-      `${prefix}: audio scene did not change`,
-    );
-    if (testCase.viewport.width <= 390) {
-      const audioRail = await page.locator(".audio-story__storyline").evaluate(
-        (element) => ({
-          scrollLeft: element.scrollLeft,
-          scrollSnapType: getComputedStyle(element).scrollSnapType,
-        }),
-      );
-      expect(
-        audioRail.scrollLeft > 0 && audioRail.scrollSnapType.includes("x"),
-        `${prefix}: mobile audio rail does not reveal/snap the selected track (${JSON.stringify(audioRail)})`,
-      );
-    }
-    const audioProximity = await page.locator(".audio-story").evaluate((element) => {
-      const meta = element.querySelector(".audio-story__meta").getBoundingClientRect();
-      const title = element.querySelector(".audio-story__copy h2").getBoundingClientRect();
-      const contexts = element.querySelector(".audio-story__contexts");
-      const activeContext = contexts.querySelector("p:not([hidden])");
-      const contextStyle = getComputedStyle(contexts);
-      const segmentStyle = getComputedStyle(contexts, "::before");
+    const calendarState = await page.locator(".bike-calendar").evaluate((element) => {
+      const sequence = element.querySelector(".bike-calendar__sequence");
+      const stages = [...sequence.children];
       return {
-        metaTitleRatio: meta.height / title.height,
-        contextBorderWidth: parseFloat(contextStyle.borderTopWidth),
-        contextSegmentWidth: parseFloat(segmentStyle.width),
-        activeContextTop: activeContext.getBoundingClientRect().top,
-        contextsTop: contexts.getBoundingClientRect().top,
+        stageCount: stages.length,
+        segmentCount: element.querySelectorAll(".bike-calendar__segment").length,
+        stageValues: stages.map((stage) => stage.querySelector("strong")?.textContent.trim()),
+        sequenceWidth: sequence.getBoundingClientRect().width,
+        parentWidth: element.getBoundingClientRect().width,
       };
     });
     expect(
-      audioProximity.metaTitleRatio < 0.75 &&
-        audioProximity.contextBorderWidth >= 1 &&
-        audioProximity.contextSegmentWidth > 0 &&
-        Math.abs(audioProximity.activeContextTop - audioProximity.contextsTop) <= 24,
-      `${prefix}: audio hierarchy or selected-track context regressed (${JSON.stringify(audioProximity)})`,
+      calendarState.stageCount === 5 &&
+        calendarState.segmentCount === 11 &&
+        calendarState.stageValues.join(",") === "333,555,777,999,1111" &&
+        calendarState.sequenceWidth <= calendarState.parentWidth + 1,
+      `${prefix}: canonical cycling calendar regressed (${JSON.stringify(calendarState)})`,
     );
 
     const diaryTabs = page.locator("[data-diary-story-tab]");
@@ -749,6 +727,76 @@ async function auditPage(browser, browserName, origin, testCase) {
               Math.min(...diaryRangeState.tops) <=
               1),
       `${prefix}: diary date range loses semantic grouping (${JSON.stringify(diaryRangeState)})`,
+    );
+    const diaryLiveState = await page.locator("[data-diary-live]").evaluate(
+      (element) => {
+        const count = element.querySelector("[data-diary-countdown]");
+        const label = element.querySelector("[data-diary-countdown-label]");
+        const primary = element.querySelector(
+          '[data-analytics-goal="diary_follow"]',
+        );
+        const archive = element.querySelector('a[href="#diary-archive"]');
+        const bounds = element.getBoundingClientRect();
+        const nodeBounds = [count, label, primary, archive].map((node) => {
+          const box = node?.getBoundingClientRect();
+          return box
+            ? {
+                left: box.left,
+                right: box.right,
+                top: box.top,
+                bottom: box.bottom,
+              }
+            : null;
+        });
+        return {
+          count: count?.textContent.trim(),
+          label: label?.textContent.trim(),
+          progress: Number.parseFloat(
+            getComputedStyle(element).getPropertyValue("--diary-progress"),
+          ),
+          actionsPresent: Boolean(primary && archive),
+          bounds: {
+            left: bounds.left,
+            right: bounds.right,
+            top: bounds.top,
+            bottom: bounds.bottom,
+          },
+          nodeBounds,
+          contentInBounds: [label, primary, archive].every((node) => {
+            const box = node?.getBoundingClientRect();
+            return (
+              box &&
+              box.left >= bounds.left - 1 &&
+              box.right <= bounds.right + 1 &&
+              box.top >= bounds.top - 1 &&
+              box.bottom <= bounds.bottom + 1
+            );
+          }),
+          countWithinOpticalAllowance: (() => {
+            const box = count?.getBoundingClientRect();
+            const shift = Math.abs(
+              Number.parseFloat(getComputedStyle(count).translate) || 0,
+            );
+            return Boolean(
+              box &&
+                box.left >= bounds.left - shift - 1 &&
+                box.right <= bounds.right + 1 &&
+                box.top >= bounds.top - 1 &&
+                box.bottom <= bounds.bottom + 1,
+            );
+          })(),
+        };
+      },
+    );
+    expect(
+      /^\d{1,3}(?:\/31)?$/u.test(diaryLiveState.count) &&
+        diaryLiveState.label.length > 0 &&
+        diaryLiveState.progress >= 0 &&
+        diaryLiveState.progress <= 1 &&
+        diaryLiveState.actionsPresent &&
+        diaryLiveState.contentInBounds &&
+        diaryLiveState.countWithinOpticalAllowance,
+      `${prefix}: live diary contract regressed (${JSON.stringify(diaryLiveState)})`,
     );
     const readDiaryState = () =>
       page.locator("[data-diary-stories]").evaluate((element) => {
@@ -975,12 +1023,8 @@ async function auditPage(browser, browserName, origin, testCase) {
 
     if (testCase.viewport.width <= 390) {
       expect(
-        (await page.locator(".distance-card__mobile-sequence").count()) === 3,
-        `${prefix}: mobile distance sequence missing`,
-      );
-      expect(
-        await page.locator(".distance-card__sequence-step.is-active").first().isVisible(),
-        `${prefix}: active mobile distance step is not visible`,
+        (await page.locator(".bike-calendar__sequence > li").count()) === 5,
+        `${prefix}: mobile cycling sequence missing`,
       );
     }
 
@@ -1014,7 +1058,6 @@ async function auditPage(browser, browserName, origin, testCase) {
     for (const goal of [
       "menu_open",
       "theme_change",
-      "sound_scene_select",
       "proof_open",
       "chapter_navigation",
       "project_explore",
@@ -1031,7 +1074,7 @@ async function auditPage(browser, browserName, origin, testCase) {
           counterId === 111159425 &&
           command === "reachGoal" &&
           Object.keys(params || {}).every((key) =>
-            ["chapter", "language", "location", "scene", "theme"].includes(
+            ["chapter", "language", "location", "theme"].includes(
               key,
             ),
           ),

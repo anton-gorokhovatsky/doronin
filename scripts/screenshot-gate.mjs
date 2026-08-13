@@ -58,9 +58,6 @@ async function capture(browser, origin, spec) {
       await proof.scrollIntoViewIfNeeded();
       await proof.locator("summary").click();
     }
-    if (Number.isInteger(spec.audioScene)) {
-      await page.locator("[data-sound-scene]").nth(spec.audioScene).click();
-    }
     if (Number.isInteger(spec.diaryStory)) {
       await page.locator("[data-diary-story-tab]").nth(spec.diaryStory).click();
     }
@@ -465,11 +462,11 @@ const specs = [
     viewport: { width: 390, height: 844 },
   },
   {
-    name: "ru-390-dark-distance-stage",
+    name: "ru-390-dark-bike-calendar",
     path: "/?gate=ru-390-dark-distance#distance",
     locale: "ru",
     theme: "dark",
-    target: ".distance-card",
+    target: ".bike-calendar__sequence",
     viewport: { width: 390, height: 844 },
   },
   {
@@ -481,12 +478,11 @@ const specs = [
     viewport: { width: 1440, height: 900 },
   },
   {
-    name: "ru-390-dark-audio-scene-02",
-    path: "/?gate=ru-390-dark-audio#top",
-    locale: "ru",
-    theme: "dark",
-    audioScene: 1,
-    target: ".audio-story",
+    name: "en-390-light-bike-calendar",
+    path: "/en/?gate=en-390-light-calendar#distance",
+    locale: "en",
+    theme: "light",
+    target: ".bike-calendar__sequence",
     viewport: { width: 390, height: 844 },
   },
   {
@@ -528,6 +524,40 @@ const specs = [
     theme: "light",
     target: ".diary-stories__rail",
     expectDiaryStories: true,
+    viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-1440-light-diary-live",
+    path: "/?gate=ru-1440-light-diary-live#diary",
+    locale: "ru",
+    theme: "light",
+    target: ".diary-live",
+    viewport: { width: 1440, height: 900 },
+  },
+  {
+    name: "ru-390-light-diary-live",
+    path: "/?gate=ru-390-light-diary-live#diary",
+    locale: "ru",
+    theme: "light",
+    target: ".diary-live",
+    viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-390-light-diary-state-active",
+    path: "/?phase=active#diary",
+    locale: "ru",
+    theme: "light",
+    target: ".diary-live",
+    expectedPhase: "active",
+    viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-390-light-diary-state-finished",
+    path: "/?phase=finished#diary",
+    locale: "ru",
+    theme: "light",
+    target: ".diary-live",
+    expectedPhase: "finished",
     viewport: { width: 390, height: 844 },
   },
   {
