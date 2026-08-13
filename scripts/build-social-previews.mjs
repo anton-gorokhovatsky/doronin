@@ -5,7 +5,7 @@ import { startSiteServer } from "./lib/site-server.mjs";
 
 const previews = [
   {
-    file: "share-ru.jpg",
+    file: "share-ru-bike-20260813.jpg",
     lang: "ru",
     date: "1–31 декабря 2026",
     name: "Виктор Доронин",
@@ -14,7 +14,7 @@ const previews = [
     line: "31 день на велосипеде",
   },
   {
-    file: "share-en.jpg",
+    file: "share-en-bike-20260813.jpg",
     lang: "en",
     date: "December 1–31, 2026",
     name: "Viktor Doronin",
@@ -71,15 +71,15 @@ try {
               height: 100%;
               padding: 42px 50px 44px;
               overflow: hidden;
-              background: url("hero.jpg") 50% 50% / cover no-repeat;
+              background: url("share-bike-source.jpg") 50% 50% / cover no-repeat;
             }
             main::before {
               position: absolute;
               z-index: -1;
               inset: 0;
               background:
-                linear-gradient(90deg, rgb(2 22 15 / 0.95) 0%, rgb(2 22 15 / 0.73) 43%, rgb(2 22 15 / 0.16) 76%),
-                linear-gradient(0deg, rgb(2 22 15 / 0.96) 0%, transparent 58%);
+                linear-gradient(90deg, rgb(2 22 15 / 0.92) 0%, rgb(2 22 15 / 0.7) 34%, rgb(2 22 15 / 0.08) 64%),
+                linear-gradient(0deg, rgb(2 22 15 / 0.82) 0%, transparent 52%);
               content: "";
             }
             header {

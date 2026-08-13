@@ -139,9 +139,8 @@ const locales = {
     canonical: "https://11111.life/",
     alternateCanonical: "https://11111.life/en/",
     title: "11 111 км за 31 день — Виктор Доронин",
-    description:
-      "Виктор Доронин планирует преодолеть 11 111 км на велосипеде за декабрь: 22 базовых дня и пять специальных этапов от 333 до 1111 км.",
-    socialImage: "https://11111.life/assets/share-ru.jpg",
+    description: "Виктор Доронин проедет 11 111 км на велосипеде за 31 день — от базовых 333 км до финального заезда на 1111 км.",
+    socialImage: "https://11111.life/assets/share-ru-bike-20260813.jpg",
     socialAlt: "11 111 км на велосипеде за 31 день. Виктор Доронин. Старт 1 декабря 2026 года.",
     skip: "Перейти к содержанию",
     homeLabel: "11 111 — на главную",
@@ -530,9 +529,8 @@ const locales = {
     canonical: "https://11111.life/en/",
     alternateCanonical: "https://11111.life/",
     title: "11,111 km in 31 days — Viktor Doronin",
-    description:
-      "Viktor Doronin plans to ride 11,111 km in December: 22 base days and five special stages rising from 333 to 1111 km.",
-    socialImage: "https://11111.life/assets/share-en.jpg",
+    description: "Viktor Doronin will ride 11,111 km in 31 days — from a 333 km base rhythm to a final 1111 km stage.",
+    socialImage: "https://11111.life/assets/share-en-bike-20260813.jpg",
     socialAlt: "11,111 km by bike in 31 days. Viktor Doronin. Starts December 1, 2026.",
     skip: "Skip to content",
     homeLabel: "11 111 — home",
