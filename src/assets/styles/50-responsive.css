@@ -735,7 +735,7 @@
     margin-top: clamp(2.5rem, 6vw, 4rem);
   }
 
-  .partners__closing .partner-proof,
+  .partner-proof--reference,
   .partners__contact {
     grid-column: 1;
   }
@@ -1789,8 +1789,7 @@
   .adventure-card h3,
   .interview-card h3,
   .partners__lead,
-  .partners__cta,
-  .partner-proof__metric strong {
+  .partners__cta {
     max-width: 100%;
     overflow-wrap: normal;
     word-break: normal;
@@ -1798,8 +1797,7 @@
   }
 
   .achievement strong,
-  .proof-metric strong,
-  .partner-proof__metric strong {
+  .proof-metric strong {
     font-size: var(--type-narrow-metric-proof);
   }
 
@@ -2091,37 +2089,19 @@
   }
 
   .partners__pitch,
-  .partner-proof,
+  .partner-proof--reference,
   .partners__contact {
     min-width: 0;
   }
 
-  .partner-proof__metrics {
+  .partner-proof--reference {
     grid-template-columns: minmax(0, 1fr);
-    gap: 0;
-  }
-
-  .partner-proof__metric,
-  .partner-proof__metric:nth-child(2),
-  .partner-proof__metric:last-child {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto;
     align-items: start;
-    gap: 0.35rem;
-    padding: 1rem 0;
-    border-top: 0;
-    border-bottom: 1px solid var(--partner-closing-line);
   }
 
-  .partner-proof__metric strong {
-    font-size: min(11.5vw, 3.1rem);
-  }
-
-  .partner-proof__metric span {
-    max-width: 24ch;
-    margin-top: 0;
-    font-size: var(--type-service);
+  .partner-proof__link {
+    justify-content: space-between;
+    width: 100%;
   }
 
   .partners__contact {
@@ -2289,10 +2269,6 @@
     font-size: var(--type-narrow-lead);
   }
 
-  .partner-proof__metric strong {
-    font-size: var(--type-narrow-metric-proof);
-  }
-
   .partners__cta {
     font-size: var(--type-narrow-section);
   }
@@ -2362,10 +2338,6 @@
 
   .event-status__update {
     grid-row: 5;
-  }
-
-  .partner-proof__metrics {
-    grid-template-columns: minmax(0, 1fr);
   }
 
   .contacts__label,

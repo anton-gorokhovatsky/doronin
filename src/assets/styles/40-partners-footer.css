@@ -319,52 +319,40 @@
   line-height: 1.5;
 }
 
-.partners__closing .partner-proof {
-  grid-column: 1 / -1;
-}
-
 #partner-contact,
 #footer-title {
   scroll-margin-top: 6rem;
 }
 
-.partner-proof__metrics {
+.partner-proof--reference {
+  grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 4fr) minmax(0, 3fr);
-  align-items: start;
-  gap: clamp(1.5rem, 3vw, 4rem);
-  padding-top: clamp(1.5rem, 3vw, 2.5rem);
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 3rem);
+  padding-block: clamp(1.25rem, 2vw, 2rem);
   border-top: 1px solid var(--partner-closing-line);
+  border-bottom: 1px solid var(--partner-closing-line);
 }
 
-.partner-proof__metric {
-  display: grid;
-  grid-template-rows: clamp(6.5rem, 8.5vw, 9rem) auto;
-  min-width: 0;
-  padding: 0;
+.partner-proof--reference .partner-proof__label {
+  margin: 0;
 }
 
-.partner-proof__metric strong,
-.partner-proof__metric span {
-  display: block;
+.partner-proof__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  min-height: 3rem;
+  color: inherit;
+  font-size: var(--type-service-strong);
+  font-weight: 750;
+  text-decoration: none;
 }
 
-.partner-proof__metric strong {
-  align-self: end;
-  font-family: var(--display);
-  color: var(--partner-closing-accent);
-  font-size: max(3.4rem, var(--type-number-card));
-  font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.partner-proof__metric span {
-  max-width: 18ch;
-  margin-top: 0.75rem;
-  color: color-mix(in srgb, var(--partner-closing-text) 74%, transparent);
-  font-size: var(--type-service);
-  line-height: 1.4;
+.partner-proof__link .icon {
+  flex: 0 0 auto;
 }
 
 .partners__contact {
@@ -571,15 +559,6 @@
   align-items: end;
   padding-top: 1.25rem;
   border-top: 1px solid var(--line-light);
-}
-
-.site-footer__kicker {
-  grid-column: 1 / -1;
-  color: var(--paper-dim);
-  font-size: var(--type-service);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .site-footer h2 {

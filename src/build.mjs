@@ -189,9 +189,9 @@ const locales = {
     diary: createDiaryContent("ru"),
     manifesto: {
       eyebrow: "Одна большая цель",
-      title: "Проехать 11 111 километров за декабрь.",
+      title: "Между вершинами — базовый ритм",
       text:
-        "Между вершинами Виктор возвращается к базовой дистанции. Три длиннейших этапа — 777, 999 и 1111 км — проходят как непрерывные заезды без деления на суточные части.",
+        "После каждого специального этапа Виктор возвращается к дневной дистанции проекта. Самые длинные этапы проходят как отдельные непрерывные заезды без деления на суточные части.",
     },
     distance: {
       eyebrow: "Декабрь 2026 · 31 день",
@@ -215,10 +215,6 @@ const locales = {
       baseSummary: "22 базовых дня",
       specialSummary: "5 специальных этапов",
       rideSummary: "30 дней движения",
-      baseMetricLabel: "базовых дня",
-      specialMetricLabel: "специальных этапов",
-      rideMetricLabel: "дней движения",
-      finishMetricLabel: "декабря · финиш проекта",
       rhythmTitle: "Базовая единица проекта — 333 км",
       rhythmText:
         "20 базовых дней — по 333 км; ещё два — по 338 км. Так до финала Виктор набирает ровно 10 000 км.",
@@ -472,12 +468,8 @@ const locales = {
           "Ведём работу от первого решения до итогового результата.",
         ],
       ],
-      proofLabel: "Опыт, который уже работает",
-      proof: [
-        ["≈1,3 млн", "просмотров пяти серий и фильма"],
-        ["+310%", "рост аудитории"],
-        ["25+", "федеральных СМИ"],
-      ],
+      proofLabel: "Опыт уже подтверждён",
+      proofCta: "Смотреть результаты прошлого проекта",
       cta: "Обсудить участие",
       mailSubject: "Партнёрство с проектом 11 111",
       contacts: "Контакт",
@@ -488,7 +480,6 @@ const locales = {
       person: "Анна Нестерова",
     },
     footer: {
-      kicker: "11 111 км · 31 день · Виктор Доронин",
       titleLineOne: "История начинается через",
       titleActive: "История идёт",
       titleFinished: "История продолжается",
@@ -578,9 +569,9 @@ const locales = {
     diary: createDiaryContent("en"),
     manifesto: {
       eyebrow: "One defining goal",
-      title: "To ride 11,111 kilometres in December.",
+      title: "A base rhythm between the peaks",
       text:
-        "Between peaks, Viktor returns to the base distance. The three longest stages — 777, 999 and 1111 km — are continuous rides, not divided into daily legs.",
+        "After every special stage, Viktor returns to the project’s daily distance. The longest stages are separate continuous rides, not divided into daily legs.",
     },
     distance: {
       eyebrow: "December 2026 · 31 days",
@@ -604,10 +595,6 @@ const locales = {
       baseSummary: "22 base days",
       specialSummary: "5 special stages",
       rideSummary: "30 days in motion",
-      baseMetricLabel: "base days",
-      specialMetricLabel: "special stages",
-      rideMetricLabel: "days in motion",
-      finishMetricLabel: "December · project finish",
       rhythmTitle: "The project’s base unit is 333 km",
       rhythmText:
         "Twenty base days cover 333 km each; two more cover 338 km. This brings Viktor to exactly 10,000 km before the final stage.",
@@ -861,12 +848,8 @@ const locales = {
           "Work from the first decision to the final result.",
         ],
       ],
-      proofLabel: "Experience that already works",
-      proof: [
-        ["≈1.3M", "views across five episodes and the film"],
-        ["+310%", "audience growth"],
-        ["25+", "federal media outlets"],
-      ],
+      proofLabel: "Proven experience",
+      proofCta: "See the previous project’s results",
       cta: "Discuss a partnership",
       mailSubject: "Partnership with Project 11 111",
       contacts: "Contact",
@@ -877,7 +860,6 @@ const locales = {
       person: "Anna Nesterova",
     },
     footer: {
-      kicker: "11,111 km · 31 days · Viktor Doronin",
       titleLineOne: "The story begins in",
       titleActive: "The story is unfolding",
       titleFinished: "The story continues",
@@ -1927,12 +1909,6 @@ function renderPage(l) {
             <p>${l.distance.rhythmTitle}</p>
             <span>${l.distance.rhythmText}</span>
           </div>
-          <dl>
-            <div><dt>22</dt><dd>${l.distance.baseMetricLabel}</dd></div>
-            <div><dt>5</dt><dd>${l.distance.specialMetricLabel}</dd></div>
-            <div><dt>30</dt><dd>${l.distance.rideMetricLabel}</dd></div>
-            <div><dt>31</dt><dd>${l.distance.finishMetricLabel}</dd></div>
-          </dl>
         </div>
         <div class="bike-calendar__segments">
           ${renderCalendarSegments(projectPlan, l)}
@@ -2080,11 +2056,11 @@ function renderPage(l) {
         </ol>
       </div>
       <div class="partners__closing" id="partner-contact">
-        <div class="partner-proof">
+        <div class="partner-proof partner-proof--reference">
           <p class="partner-proof__label">${l.partners.proofLabel}</p>
-          <div class="partner-proof__metrics">
-            ${renderMetrics(l.partners.proof, "partner-proof__metric")}
-          </div>
+          <a class="partner-proof__link" href="#proof">
+            <span>${l.partners.proofCta}</span>${icons.up}
+          </a>
         </div>
         <div class="partners__contact">
           <h3 class="partners__cta">${l.partners.cta}</h3>
@@ -2109,7 +2085,6 @@ function renderPage(l) {
 
   <footer class="site-footer" aria-labelledby="footer-title">
     <div class="site-footer__intro">
-      <p class="site-footer__kicker">${l.footer.kicker}</p>
       <h2 id="footer-title">
         <span
           data-footer-prefix

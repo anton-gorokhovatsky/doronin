@@ -1345,16 +1345,21 @@ async function auditPage(browser, browserName, origin, testCase) {
       );
     }
 
-    const partnerMetricsFit = await page.locator(".partner-proof__metrics").evaluate(
+    const partnerReferenceFit = await page.locator(".partner-proof--reference").evaluate(
       (element) => {
         const container = element.getBoundingClientRect();
-        return [...element.querySelectorAll("strong")].every((value) => {
-          const box = value.getBoundingClientRect();
-          return box.left >= container.left - 1 && box.right <= container.right + 1;
-        });
+        const link = element.querySelector(".partner-proof__link");
+        if (!link || link.getAttribute("href") !== "#proof") return false;
+        const box = link.getBoundingClientRect();
+        return (
+          box.left >= container.left - 1 &&
+          box.right <= container.right + 1 &&
+          box.top >= container.top - 1 &&
+          box.bottom <= container.bottom + 1
+        );
       },
     );
-    expect(partnerMetricsFit, `${prefix}: partner metric overflows its grid`);
+    expect(partnerReferenceFit, `${prefix}: partner proof reference overflows its group`);
     const partnerProximity = await page.locator(".partners__contact-module").evaluate(
       (element) => {
         const label = element.querySelector(".partners__person span").getBoundingClientRect();

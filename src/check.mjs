@@ -231,8 +231,8 @@ for (const [lang, path] of pages) {
   expect(
     (html.match(/class="partner-format"/g) || []).length === 3 &&
       (html.match(/class="partner-process__step"/g) || []).length === 3 &&
-      (html.match(/class="partner-proof__metric"/g) || []).length === 3,
-    `${lang}: партнёрский сценарий должен содержать три формата, три шага и три доказательства`,
+      (html.match(/class="partner-proof__link"/g) || []).length === 1,
+    `${lang}: партнёрский сценарий должен содержать три формата, три шага и одну ссылку на доказательства`,
   );
   expect(
     html.includes('id="interviews"') &&

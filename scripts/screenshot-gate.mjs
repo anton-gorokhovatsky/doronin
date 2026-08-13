@@ -193,14 +193,19 @@ async function capture(browser, origin, spec) {
         resolvedTheme: document.documentElement.classList.contains("theme-dark")
           ? "dark"
           : "light",
-        partnerMetricsFit: (() => {
-          const container = document.querySelector(".partner-proof__metrics");
+        partnerReferenceFit: (() => {
+          const container = document.querySelector(".partner-proof--reference");
           if (!container) return null;
           const bounds = container.getBoundingClientRect();
-          return [...container.querySelectorAll("strong")].every((value) => {
-            const box = value.getBoundingClientRect();
-            return box.left >= bounds.left - 1 && box.right <= bounds.right + 1;
-          });
+          const link = container.querySelector(".partner-proof__link");
+          if (!link || link.getAttribute("href") !== "#proof") return false;
+          const box = link.getBoundingClientRect();
+          return (
+            box.left >= bounds.left - 1 &&
+            box.right <= bounds.right + 1 &&
+            box.top >= bounds.top - 1 &&
+            box.bottom <= bounds.bottom + 1
+          );
         })(),
         diaryStories: (() => {
           const tabs = [...document.querySelectorAll("[data-diary-story-tab]")];
@@ -275,7 +280,7 @@ async function capture(browser, origin, spec) {
       expect(metrics.resolvedTheme === "dark", `${spec.name}: dark theme did not resolve`);
     }
     if (spec.target === ".partners__closing") {
-      expect(metrics.partnerMetricsFit, `${spec.name}: partner metrics overflow`);
+      expect(metrics.partnerReferenceFit, `${spec.name}: partner proof reference overflow`);
     }
     if (spec.expectDiaryStories) {
       expect(

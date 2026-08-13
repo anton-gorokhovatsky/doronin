@@ -379,7 +379,7 @@ html[data-text-fixture="200"] {
 }
 
 :root.text-enlarged .bike-calendar__rhythm {
-  gap: 2.5rem;
+  max-width: 100%;
 }
 
 :root.text-enlarged .bike-calendar__segment {
