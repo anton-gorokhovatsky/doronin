@@ -711,7 +711,6 @@ a {
     -webkit-backdrop-filter: var(--glass-filter);
     backdrop-filter: var(--glass-filter);
     box-shadow: var(--glass-shadow);
-    animation: menu-material-in 180ms var(--ease-enter) both;
   }
 
   .site-nav__chapters {

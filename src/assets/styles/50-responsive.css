@@ -139,7 +139,6 @@
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     box-shadow: none;
-    animation: menu-material-in 180ms var(--ease-enter) both;
   }
 
   .nav-shell:not([open]) .site-nav {

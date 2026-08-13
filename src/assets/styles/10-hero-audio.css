@@ -724,8 +724,6 @@
   background: rgba(241, 245, 237, 0.2);
   transform: skewX(-18deg) scaleX(1);
   transform-origin: left;
-  animation: status-rail-enter 560ms var(--ease-enter) both;
-  animation-delay: calc(var(--status-step) * 12ms);
 }
 
 .event-status__rail span.is-elapsed {
@@ -799,12 +797,6 @@
   text-underline-offset: 0.16em;
 }
 
-@keyframes status-rail-enter {
-  from {
-    transform: skewX(-18deg) scaleX(0);
-  }
-}
-
 .hero__foot {
   position: absolute;
   inset: auto 0 0;
@@ -841,9 +833,38 @@
 }
 
 .hero-peaks svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.hero-peaks__route { fill: none; stroke: var(--acid); stroke-linecap: butt; stroke-linejoin: miter; stroke-width: 1.25; vector-effect: non-scaling-stroke; }
+.hero-peaks__route { fill: none; stroke: var(--acid); stroke-dasharray: 1; stroke-dashoffset: 0; stroke-linecap: butt; stroke-linejoin: miter; stroke-width: 1.25; vector-effect: non-scaling-stroke; }
 .hero-peaks__area { fill: var(--acid); opacity: 0.07; }
 .hero-peaks__labels { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
 .hero-peaks__labels li { position: absolute; top: var(--peak-y); left: var(--peak-x); display: grid; justify-items: center; transform: translate(-50%, calc(-100% - 0.55rem)); }
 .hero-peaks__labels li::after { width: 1px; height: 0.42rem; margin-top: 0.16rem; background: var(--acid); content: ""; opacity: 0.72; }
 .hero-peaks__labels strong { font-family: var(--display); font-size: clamp(0.65rem, calc(0.6rem + 0.16vw), 0.78rem); font-variant-numeric: lining-nums tabular-nums; font-weight: 700; letter-spacing: 0.02em; line-height: 1; }
+
+.hero-peaks.is-peaks-entering .hero-peaks__route {
+  animation: hero-peaks-route-enter 1.15s var(--ease-enter) 120ms both;
+}
+
+.hero-peaks.is-peaks-entering .hero-peaks__area {
+  animation: hero-peaks-area-enter 720ms var(--ease-enter) 720ms both;
+}
+
+.hero-peaks.is-peaks-entering .hero-peaks__labels strong,
+.hero-peaks.is-peaks-entering .hero-peaks__labels li::after {
+  animation: hero-peaks-label-enter 420ms var(--ease-enter) both;
+  animation-delay: calc(650ms + (var(--peak-order) * 95ms));
+}
+
+@keyframes hero-peaks-route-enter {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes hero-peaks-area-enter {
+  from { opacity: 0; }
+  to { opacity: 0.07; }
+}
+
+@keyframes hero-peaks-label-enter {
+  from { opacity: 0.35; }
+  to { opacity: 1; }
+}

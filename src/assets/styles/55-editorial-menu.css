@@ -128,13 +128,9 @@
 
 .nav-shell[open] .site-nav__primary > .site-nav__link {
   --menu-chapter-delay: 90ms;
-  animation: route-chapter-link-in 520ms var(--ease-enter)
-    var(--menu-chapter-delay) both;
 }
 
 .nav-shell[open] .site-nav__primary > .site-nav__link::before {
-  animation: route-chapter-index-in 440ms var(--ease-enter)
-    var(--menu-chapter-delay) both;
 }
 
 .nav-shell[open] .site-nav__primary > .site-nav__link:nth-child(2) {
@@ -416,7 +412,6 @@
     box-shadow: none;
     -webkit-backdrop-filter: var(--glass-filter);
     backdrop-filter: var(--glass-filter);
-    animation: route-menu-in 260ms var(--ease-enter) both;
   }
 
   .site-nav__chapters {
@@ -478,10 +473,6 @@
     transform: scale(1.01);
   }
 
-  .site-nav__preview-media img.is-changing {
-    animation: route-preview-in 360ms var(--ease-enter) both;
-  }
-
   .site-nav__preview-kicker {
     position: relative;
     color: var(--paper-dim);
@@ -523,10 +514,6 @@
     line-height: 0.98;
     text-wrap: balance;
     text-transform: uppercase;
-  }
-
-  .site-nav__preview-title.is-changing {
-    animation: route-preview-title-in 520ms var(--ease-enter) 110ms both;
   }
 
   .site-nav__primary {

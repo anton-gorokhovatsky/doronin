@@ -27,6 +27,38 @@ html.motion-reduced *::after {
 }
 
 /*
+ * Authored motion is deliberately limited to two recurring scenarios:
+ * the five-peaks route building in the hero and the selected diary entry
+ * changing in place. Legacy entrance hooks remain inert so that functional
+ * state changes never reintroduce a third visual language.
+ */
+:is(
+    .section-label.is-rule-entering::after,
+    .audio-story.is-audio-entering::before,
+    .audio-story.is-audio-entering .audio-story__player,
+    .audio-story__storyline button.is-scene-entering,
+    .audio-story__storyline button.is-scene-entering::after,
+    .audio-story__storyline button.is-scene-entering .audio-story__scene-head,
+    .audio-story__storyline button.is-scene-entering .audio-story__scene-foot,
+    .audio-story__contexts p.is-context-entering strong,
+    .audio-story__contexts p.is-context-entering span,
+    .distance-story.is-distance-cutting .distance-story__counter,
+    .distance-story__frame.is-active.is-motion-entering,
+    .distance-story__frame.is-motion-entering figcaption span,
+    .distance-story__frame.is-motion-entering figcaption strong,
+    .distance-story__frame.is-motion-entering video,
+    .distance-motion.is-morphing .distance-motion__glyph,
+    .distance-motion.is-morphing .distance-motion__token,
+    .distance-card.is-motion-entering .distance-card__identity,
+    .distance-card.is-motion-entering .distance-card__value,
+    .distance-card.is-motion-entering .distance-card__mobile-sequence,
+    .distance-card.is-motion-entering .detail-list,
+    .distance-card.is-motion-entering h3
+  ) {
+  animation: none !important;
+}
+
+/*
  * Daylight has its own dramatic arc rather than serving as an ungraded default.
  * Warm light follows Victor into the proof chapter; coral becomes evidence,
  * while the acid partner close remains the brightest point of the route.

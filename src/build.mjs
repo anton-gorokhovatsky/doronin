@@ -167,7 +167,7 @@ const locales = {
       lineTwo: ["31", "день"],
       accent: "НА ВЕЛОСИПЕДЕ",
       intro:
-        "Базовый ритм — 333 км в день. Пять специальных этапов поднимают дистанцию до финального этапа на 1111 км.",
+        "Базовый ритм держит дистанцию между пятью вершинами. Финал — самый длинный непрерывный заезд.",
       imageAlt: "Виктор Доронин на велосипеде во время скоростного заезда",
       videoPlay: "Включить видео",
       videoPause: "Пауза",
@@ -301,7 +301,7 @@ const locales = {
     },
     proof: {
       eyebrow: "Мы уже делали это",
-      title: "Проект «1111» — доказанная формула",
+      title: "Проект «1111»: результат, который можно проверить",
       body:
         "Аудитория готова к длинным форматам. Честность работает лучше глянца. История продолжает жить после финиша.",
       metrics: [
@@ -351,7 +351,7 @@ const locales = {
     },
     adventures: {
       eyebrow: "Не первый предел",
-      title: "Другие приключения героя",
+      title: "Что уже пройдено",
       watch: "Смотреть на YouTube",
       items: [
         {
@@ -548,7 +548,7 @@ const locales = {
       lineTwo: ["31", "days"],
       accent: "BY BIKE",
       intro:
-        "The base rhythm is 333 km a day. Five special stages raise the distance to a final 1111 km stage.",
+        "A steady base rhythm carries the project between five peaks. The finale is the longest continuous ride.",
       imageAlt: "Viktor Doronin riding at speed during a cycling event",
       videoPlay: "Play video",
       videoPause: "Pause",
@@ -681,7 +681,7 @@ const locales = {
     },
     proof: {
       eyebrow: "We have done it before",
-      title: "Project “1111” — a proven formula",
+      title: "Project “1111”: a result you can verify",
       body:
         "The audience embraces long-form stories. Honesty outperforms gloss. The project lives on after the finish.",
       metrics: [
@@ -731,7 +731,7 @@ const locales = {
     },
     adventures: {
       eyebrow: "Not his first limit",
-      title: "More of Viktor’s adventures",
+      title: "What Viktor has already completed",
       watch: "Watch on YouTube",
       items: [
         {
@@ -1447,8 +1447,8 @@ function renderHeroPeaks(plan, l) {
 
   const labelMarkup = peakPoints
     .map(
-      (peak) => `
-        <li data-date="${peak.date}" style="--peak-x:${((peak.x / 600) * 100).toFixed(3)}%;--peak-y:${((peak.y / 88) * 100).toFixed(3)}%">
+      (peak, index) => `
+        <li data-date="${peak.date}" style="--peak-x:${((peak.x / 600) * 100).toFixed(3)}%;--peak-y:${((peak.y / 88) * 100).toFixed(3)}%;--peak-order:${index}">
           <strong>${formatProjectNumber(peak.value, l.lang)}</strong>
         </li>`,
     )
@@ -1458,7 +1458,7 @@ function renderHeroPeaks(plan, l) {
     <div class="hero-peaks" role="img" aria-label="${escapeAttribute(l.hero.peaksLabel)}">
       <svg viewBox="0 0 600 88" aria-hidden="true" focusable="false" preserveAspectRatio="none">
         <path class="hero-peaks__area" d="${areaPath}"></path>
-        <path class="hero-peaks__route" d="${routePath}"></path>
+        <path class="hero-peaks__route" d="${routePath}" pathLength="1"></path>
       </svg>
       <ol class="hero-peaks__labels" aria-hidden="true">${labelMarkup}</ol>
     </div>`;
@@ -2057,9 +2057,10 @@ function renderPage(l) {
       </div>
       <div class="partners__closing" id="partner-contact">
         <div class="partner-proof partner-proof--reference">
-          <p class="partner-proof__label">${l.partners.proofLabel}</p>
           <a class="partner-proof__link" href="#proof">
-            <span>${l.partners.proofCta}</span>${icons.up}
+            <span class="partner-proof__label">${l.partners.proofLabel}</span>
+            <strong>${l.partners.proofCta}</strong>
+            ${icons.up}
           </a>
         </div>
         <div class="partners__contact">
