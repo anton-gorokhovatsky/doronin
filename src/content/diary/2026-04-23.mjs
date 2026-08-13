@@ -12,7 +12,7 @@ export default {
   ],
   content: {
     ru: {
-      tabLabel: "После тестов",
+      tabLabel: "После\nтестов",
       title: "После тестов",
       imageAlt:
         "Виктор Доронин выполняет беговую работу на стадионе вместе с тренировочной группой",
@@ -27,7 +27,7 @@ export default {
         "Откроется запись дневника Виктора от 23 апреля в Telegram",
     },
     en: {
-      tabLabel: "After the tests",
+      tabLabel: "After the\ntests",
       title: "After the tests",
       imageAlt:
         "Viktor Doronin runs on a track with a training group during a strength-and-speed session",
