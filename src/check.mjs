@@ -306,6 +306,12 @@ for (const [lang, path] of pages) {
     `${lang}: календарь должен рендерить все сегменты и пять специальных этапов из project-plan.json`,
   );
   expect(
+    (html.match(/class="bike-calendar__operator /g) || []).length === 2 &&
+      html.includes('bike-calendar__operator--plus') &&
+      html.includes('bike-calendar__operator--equals'),
+    `${lang}: календарная формула должна сохранять оба видимых арифметических знака`,
+  );
+  expect(
     staticAnalyticsGoals.every((goal) => analyticsGoalIdSet.has(goal)),
     `${lang}: HTML не должен отправлять цели вне единого реестра Метрики`,
   );
@@ -323,6 +329,12 @@ for (const [lang, path] of pages) {
   );
 
   if (lang === "ru") {
+    expect(
+      ["13–14 декабря", "20–21 декабря", "29–30 декабря"].every(
+        (range) => html.includes(range),
+      ) && !/>\d{1,2}–\d{1,2} декабрь</u.test(html),
+      "ru: диапазоны календаря должны использовать родительный падеж месяца",
+    );
     expect(
       !textFragments.some((fragment) =>
         /(?<![\p{L}\p{N}])(?:а|в|во|до|за|и|из|к|ко|на|не|о|об|от|по|с|со|у) (?=[\p{L}\p{N}«])/u.test(
@@ -571,16 +583,25 @@ expect(
   /\.bike-calendar\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s.test(
     css,
   ) &&
-    /\.bike-calendar__sequence\s*\{[^}]*display:\s*flex/s.test(
+    /\.bike-calendar__sequence\s*\{[^}]*display:\s*grid[^}]*grid-template-columns:\s*repeat\(15,/s.test(
       css,
     ) &&
-    /\.bike-calendar__sequence li\s*\{[^}]*flex:\s*0\s+0\s+var\(--stage-share\)/s.test(
+    /\.bike-calendar__sequence li:nth-child\(1\)\s*\{[^}]*grid-column:\s*span 3/s.test(
+      css,
+    ) &&
+    /\.bike-calendar__sequence li:nth-child\(3\)\s*\{[^}]*grid-column:\s*span 7/s.test(
+      css,
+    ) &&
+    /\.bike-calendar__sequence li:nth-child\(5\)\s*\{[^}]*grid-column:\s*span 8/s.test(
+      css,
+    ) &&
+    /\.bike-calendar__segment--finish\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/s.test(
       css,
     ) &&
     /@media \(max-width:\s*820px\)[\s\S]*?\.bike-calendar__sequence\s*\{[^}]*grid-template-columns:\s*1fr[^}]*width:\s*100%[^}]*min-width:\s*0/s.test(
       css,
     ),
-  "css: календарь должен иметь одну ограниченную колонку на мобильном и пропорциональные этапы на desktop",
+  "css: календарь должен иметь одну колонку на mobile, две пропорциональные строки этапов и полноширинный финиш на desktop",
 );
 expect(
   css.includes(".button:hover .icon--down") &&

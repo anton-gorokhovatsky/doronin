@@ -660,6 +660,9 @@ async function auditPage(browser, browserName, origin, testCase) {
         segmentCount: element.querySelectorAll(".bike-calendar__segment").length,
         stageValues: stages.map((stage) => stage.querySelector("strong")?.textContent.trim()),
         stageWidths: stages.map((stage) => stage.getBoundingClientRect().width),
+        stageFontSizes: stages.map((stage) =>
+          Number.parseFloat(getComputedStyle(stage.querySelector("strong")).fontSize),
+        ),
         sequenceDisplay: getComputedStyle(sequence).display,
         sequenceWidth: sequence.getBoundingClientRect().width,
         parentWidth: element.getBoundingClientRect().width,
@@ -672,20 +675,32 @@ async function auditPage(browser, browserName, origin, testCase) {
         calendarState.sequenceWidth <= calendarState.parentWidth + 1,
       `${prefix}: canonical cycling calendar regressed (${JSON.stringify(calendarState)})`,
     );
-    if (calendarState.sequenceDisplay === "flex") {
-      const stageDistances = calendarState.stageValues.map((value) => Number(value));
-      const widthTotal = calendarState.stageWidths.reduce((sum, value) => sum + value, 0);
-      const distanceTotal = stageDistances.reduce((sum, value) => sum + value, 0);
-      const proportionalError = Math.max(
-        ...calendarState.stageWidths.map((width, index) =>
-          Math.abs(width / widthTotal - stageDistances[index] / distanceTotal),
-        ),
-      );
+    if (testCase.viewport.width > 820) {
+      const firstRowWidth = calendarState.stageWidths
+        .slice(0, 3)
+        .reduce((sum, width) => sum + width, 0);
+      const secondRowWidth = calendarState.stageWidths
+        .slice(3)
+        .reduce((sum, width) => sum + width, 0);
+      const widthErrors = [
+        ...calendarState.stageWidths
+          .slice(0, 3)
+          .map((width, index) =>
+            Math.abs(width / firstRowWidth - [333, 555, 777][index] / 1665),
+          ),
+        ...calendarState.stageWidths
+          .slice(3)
+          .map((width, index) =>
+            Math.abs(width / secondRowWidth - [999, 1111][index] / 2110),
+          ),
+      ];
       expect(
-        calendarState.stageWidths.every(
-          (width, index, widths) => index === 0 || width > widths[index - 1],
-        ) && proportionalError <= 0.01,
-        `${prefix}: special-stage widths no longer encode their distances (${JSON.stringify({ ...calendarState, proportionalError })})`,
+        calendarState.sequenceDisplay === "grid" &&
+          Math.max(...widthErrors) <= 0.01 &&
+          Math.max(...calendarState.stageFontSizes) -
+            Math.min(...calendarState.stageFontSizes) <=
+            0.5,
+        `${prefix}: special-stage rows lose proportional widths or equal number sizes (${JSON.stringify({ ...calendarState, widthErrors })})`,
       );
     }
 
@@ -705,18 +720,88 @@ async function auditPage(browser, browserName, origin, testCase) {
         });
         const finish = element.querySelector(".bike-calendar__segment--finish");
         const finishMeta = rect(finish?.querySelector(".bike-calendar__segment-meta"));
-        const finishMain = rect(finish?.querySelector(".bike-calendar__finish-main"));
+        const finishMain = rect(finish?.querySelector(".bike-calendar__segment-main"));
         const finishLabel = rect(finish?.querySelector(".bike-calendar__segment-label"));
         const finishValue = rect(finish?.querySelector(".bike-calendar__finish-mark"));
         const finishTotal = rect(finish?.querySelector(".bike-calendar__cumulative"));
         const terms = [
           ...element.querySelectorAll(".bike-calendar__total > p strong"),
+          element.querySelector(".bike-calendar__total-result strong"),
         ].map(rect);
         const operators = [
-          ...element.querySelectorAll(".bike-calendar__total > b"),
+          ...element.querySelectorAll(".bike-calendar__operator"),
         ].map(rect);
         const center = (box) => box.top + box.height / 2;
+        const segmentGroups = [
+          ...element.querySelectorAll(
+            ".bike-calendar__segment:not(.bike-calendar__segment--finish)",
+          ),
+        ].map((segment) => {
+          const label = rect(segment.querySelector(".bike-calendar__segment-label"));
+          const value = rect(segment.querySelector(".bike-calendar__segment-value"));
+          const detail = rect(segment.querySelector(".bike-calendar__segment-detail"));
+          const total = rect(segment.querySelector(".bike-calendar__cumulative"));
+          return {
+            labelValueGap: label && value ? value.top - label.bottom : null,
+            valueDetailGap: value && detail ? detail.top - value.bottom : null,
+            detailTotalGap: detail && total ? total.top - detail.bottom : null,
+          };
+        });
+        const sequenceRows = [
+          ...element.querySelectorAll(".bike-calendar__sequence li"),
+        ].map((row) => {
+          const rowBox = rect(row);
+          const index = rect(row.querySelector("span"));
+          const value = rect(row.querySelector("strong"));
+          const date = rect(row.querySelector("time"));
+          return {
+            contained: [index, value, date].every(
+              (box) =>
+                box.left >= rowBox.left - 1 &&
+                box.right <= rowBox.right + 1 &&
+                box.top >= rowBox.top - 1 &&
+                box.bottom <= rowBox.bottom + 1,
+            ),
+            date: row.querySelector("time")?.textContent.trim() || "",
+            indexLeft: rowBox.left + row.querySelector("span").offsetLeft,
+            rowBottom: rowBox.bottom,
+            rowTop: rowBox.top,
+            valueLeft: rowBox.left + row.querySelector("strong").offsetLeft,
+          };
+        });
+        const calendarSegments = [
+          ...element.querySelectorAll(".bike-calendar__segment"),
+        ].map((segment) => {
+          const segmentBox = rect(segment);
+          const meta = rect(segment.querySelector(".bike-calendar__segment-meta"));
+          const main = rect(segment.querySelector(".bike-calendar__segment-main"));
+          const label = rect(segment.querySelector(".bike-calendar__segment-label"));
+          const value = rect(
+            segment.querySelector(
+              ".bike-calendar__segment-value, .bike-calendar__finish-mark",
+            ),
+          );
+          const detail = rect(segment.querySelector(".bike-calendar__segment-detail"));
+          const total = rect(segment.querySelector(".bike-calendar__cumulative"));
+          return {
+            axes: [meta, main, label, detail, total]
+              .filter(Boolean)
+              .map((box) => box.left),
+            contained: [meta, main, label, value, detail, total]
+              .filter(Boolean)
+              .every(
+                (box) =>
+                  box.left >= segmentBox.left - 1 &&
+                  box.right <= segmentBox.right + 1 &&
+                  box.top >= segmentBox.top - 1 &&
+                  box.bottom <= segmentBox.bottom + 1,
+              ),
+            isFinish: segment.classList.contains("bike-calendar__segment--finish"),
+            width: segmentBox.width,
+          };
+        });
         return {
+          calendarSegments,
           finish: {
             detailCount: finish?.querySelectorAll(
               ".bike-calendar__segment-detail",
@@ -732,12 +817,20 @@ async function auditPage(browser, browserName, origin, testCase) {
           formulaOperatorDeltas: operators.map((operator, index) => {
             const leftTerm = terms[index];
             const rightTerm = terms[index + 1];
+            if (innerWidth <= 820 && index === 1) {
+              return Math.abs(center(operator) - center(rightTerm));
+            }
             return Math.max(
               Math.abs(center(operator) - center(leftTerm)),
               Math.abs(center(operator) - center(rightTerm)),
             );
           }),
+          formulaOperatorVisibility: operators.map(
+            (operator) => Boolean(operator && operator.width > 0 && operator.height > 0),
+          ),
           rhythmMetrics,
+          segmentGroups,
+          sequenceRows,
         };
       },
     );
@@ -756,14 +849,59 @@ async function auditPage(browser, browserName, origin, testCase) {
         calendarComposition.finish.labelValueGap >= 0,
       `${prefix}: calendar finish card overlaps or repeats its date (${JSON.stringify(calendarComposition.finish)})`,
     );
-    const visibleFormulaOperatorDeltas =
-      testCase.viewport.width <= 820
-        ? calendarComposition.formulaOperatorDeltas.slice(0, 1)
-        : calendarComposition.formulaOperatorDeltas;
     expect(
-      visibleFormulaOperatorDeltas.every((delta) => delta <= 3),
-      `${prefix}: calendar formula operators lost their shared optical centre (${JSON.stringify(visibleFormulaOperatorDeltas)})`,
+      calendarComposition.calendarSegments.every(
+        (segment) =>
+          segment.contained &&
+          Math.max(...segment.axes) - Math.min(...segment.axes) <= 1,
+      ) &&
+        (testCase.viewport.width <= 820 ||
+          calendarComposition.calendarSegments.find((segment) => segment.isFinish)
+            ?.width >=
+            Math.max(
+              ...calendarComposition.calendarSegments
+                .filter((segment) => !segment.isFinish)
+                .map((segment) => segment.width),
+            ) *
+              1.9),
+      `${prefix}: calendar cards lose the shared text axis or the desktop finish row (${JSON.stringify(calendarComposition.calendarSegments)})`,
     );
+    expect(
+      calendarComposition.formulaOperatorVisibility.length === 2 &&
+        calendarComposition.formulaOperatorVisibility.every(Boolean) &&
+        calendarComposition.formulaOperatorDeltas.every((delta) => delta <= 3),
+      `${prefix}: calendar formula hides a sign or loses its shared optical centre (${JSON.stringify({ deltas: calendarComposition.formulaOperatorDeltas, visibility: calendarComposition.formulaOperatorVisibility })})`,
+    );
+    if (testCase.viewport.width <= 820) {
+      expect(
+        calendarComposition.segmentGroups.every(
+          (group) =>
+            group.labelValueGap >= 0 &&
+            group.labelValueGap <= 48 &&
+            group.valueDetailGap >= 0 &&
+            group.valueDetailGap <= 40 &&
+            group.detailTotalGap >= 0 &&
+            group.detailTotalGap <= 48,
+        ),
+        `${prefix}: mobile calendar breaks vertical proximity (${JSON.stringify(calendarComposition.segmentGroups)})`,
+      );
+      expect(
+        calendarComposition.sequenceRows.every(
+          (row) => row.contained && !/декабрь$/iu.test(row.date),
+        ) &&
+          calendarComposition.sequenceRows.every(
+            (row, index, rows) =>
+              index === 0 || row.rowTop >= rows[index - 1].rowBottom - 1,
+          ) &&
+          Math.max(...calendarComposition.sequenceRows.map((row) => row.indexLeft)) -
+            Math.min(...calendarComposition.sequenceRows.map((row) => row.indexLeft)) <=
+            1 &&
+          Math.max(...calendarComposition.sequenceRows.map((row) => row.valueLeft)) -
+            Math.min(...calendarComposition.sequenceRows.map((row) => row.valueLeft)) <=
+            1,
+        `${prefix}: mobile stage list loses its shared axes or date grammar (${JSON.stringify(calendarComposition.sequenceRows)})`,
+      );
+    }
 
     if (testCase.viewport.width > 960) {
       const stickyState = await page.locator(".athlete").evaluate(async (section) => {
@@ -829,6 +967,8 @@ async function auditPage(browser, browserName, origin, testCase) {
         const start = range.querySelector(".diary__range-start");
         const end = range.querySelector(".diary__range-end");
         const dot = range.querySelector(".diary__range-dot");
+        const period = range.querySelector(".diary__range-period");
+        const headingLabel = element.querySelector(".diary__eyebrow");
         const groups = [count, start, end];
         const bounds = groups.map((group) => group.getBoundingClientRect());
         const rangeBounds = range.getBoundingClientRect();
@@ -842,15 +982,17 @@ async function auditPage(browser, browserName, origin, testCase) {
             end.textContent.includes("\u00a0"),
           dotDisplay: getComputedStyle(dot).display,
           display: getComputedStyle(range).display,
+          headingDisplay: getComputedStyle(element).display,
+          headingLeft: element.getBoundingClientRect().left,
+          labelLeft: headingLabel.getBoundingClientRect().left,
+          periodLeft: period.getBoundingClientRect().left,
+          rangeLeft: range.getBoundingClientRect().left,
           inBounds:
             bounds.every(
               (box) =>
                 box.left >= rangeBounds.left - 1 &&
                 box.right <= rangeBounds.right + 1,
             ),
-          rightSpread:
-            Math.max(...bounds.map((box) => box.right)) -
-            Math.min(...bounds.map((box) => box.right)),
           tops: bounds.map((box) => box.top),
         };
       },
@@ -860,11 +1002,15 @@ async function auditPage(browser, browserName, origin, testCase) {
         diaryRangeState.containsNbsp &&
         diaryRangeState.inBounds &&
         (testCase.viewport.width <= 390
-          ? diaryRangeState.display === "grid" &&
-            diaryRangeState.dotDisplay === "none" &&
-            diaryRangeState.rightSpread <= 1 &&
-            diaryRangeState.tops[0] < diaryRangeState.tops[1] &&
-            diaryRangeState.tops[1] < diaryRangeState.tops[2]
+          ? diaryRangeState.headingDisplay === "grid" &&
+            diaryRangeState.display === "flex" &&
+            diaryRangeState.dotDisplay !== "none" &&
+            near(diaryRangeState.headingLeft, diaryRangeState.labelLeft, 1) &&
+            near(diaryRangeState.headingLeft, diaryRangeState.rangeLeft, 1) &&
+            diaryRangeState.tops[0] <= diaryRangeState.tops[1] &&
+            near(diaryRangeState.tops[1], diaryRangeState.tops[2], 1) &&
+            (near(diaryRangeState.tops[0], diaryRangeState.tops[1], 1) ||
+              near(diaryRangeState.headingLeft, diaryRangeState.periodLeft, 1))
           : diaryRangeState.display === "flex" &&
             diaryRangeState.dotDisplay !== "none" &&
             Math.max(...diaryRangeState.tops) -
@@ -1147,7 +1293,7 @@ async function auditPage(browser, browserName, origin, testCase) {
     }
     const firstPartnerAction = page.locator(".partners__channels a").first();
     await firstPartnerAction.hover();
-    await page.waitForTimeout(220);
+    await page.waitForTimeout(320);
     const partnerHover = await page.evaluate(() => {
       const element = document.querySelector(".partners__channels a");
       if (!element) return null;

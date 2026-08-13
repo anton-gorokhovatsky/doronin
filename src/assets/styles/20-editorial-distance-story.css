@@ -353,8 +353,14 @@
   text-align: right;
 }
 
-.diary__range > span {
+.diary__range-count,
+.diary__range-period,
+.diary__range-period > span {
   white-space: nowrap;
+}
+
+.diary__range-period {
+  display: inline-flex;
 }
 
 .diary-stories {

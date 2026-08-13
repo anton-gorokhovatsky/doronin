@@ -107,6 +107,7 @@
   --display: "Micra", "Arial Black", sans-serif;
   --body: "Commissioner", "Helvetica Neue", Arial, sans-serif;
   --sans: var(--body);
+  --micra-leading-glyph-shift: -0.065em;
 
   /* Four semantic roles; variants change scale, not meaning. */
 

@@ -334,7 +334,8 @@ html[data-text-fixture="200"] {
   display: grid;
 }
 
-:root.text-enlarged .bike-calendar__sequence li {
+:root.text-enlarged .bike-calendar__sequence li:nth-child(n) {
+  grid-column: auto;
   min-height: auto;
   padding-block: 1.25rem;
   border-right: 0;
@@ -357,12 +358,18 @@ html[data-text-fixture="200"] {
   gap: 1.5rem;
 }
 
-:root.text-enlarged .bike-calendar__total > b {
-  display: none;
+:root.text-enlarged .bike-calendar__operator--plus {
+  justify-self: start;
+  height: auto;
+  min-height: 1em;
 }
 
-:root.text-enlarged .bike-calendar__total-result {
-  margin-top: 1rem;
+:root.text-enlarged .bike-calendar__total-answer {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line-dark);
 }
 
 :root.text-enlarged .proof-source,
