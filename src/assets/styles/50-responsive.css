@@ -1344,10 +1344,16 @@
     position: relative;
     inset: auto;
     display: grid;
-    gap: 0.25rem;
-    margin: 0 var(--page-gutter);
-    padding: 1.35rem 0 1.75rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.15rem;
+    margin: 0;
+    padding: 1.25rem var(--page-gutter) 1.5rem;
   }
+
+  .hero__foot::before { top: calc(100% - clamp(5.9rem, 33vw, 8.2rem)); }
+  .hero__foot > span { align-self: auto; padding-bottom: 0; }
+  .hero-peaks { width: 100%; height: clamp(7.2rem, 37vw, 9.4rem); }
+  .hero-peaks__labels strong { font-size: clamp(0.82rem, calc(0.76rem + 0.5vw), 0.96rem); }
 
   .manifesto {
     min-height: 38rem;

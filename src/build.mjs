@@ -184,7 +184,8 @@ const locales = {
       statusPending:
         "Подтверждённые данные появятся после обновления команды",
       footLabel: "Одна дистанция · пять вершин",
-      footText: "333 → 555 → 777 → 999 → 1111",
+      peaksLabel:
+        "Пять специальных этапов по нарастающей: 333, 555, 777, 999 и 1111 километров",
     },
     diary: createDiaryContent("ru"),
     manifesto: {
@@ -204,6 +205,10 @@ const locales = {
       specialLabel: "Специальный этап",
       baseLabel: "Базовый блок",
       finishLabel: "Финиш проекта",
+      finishMeta: "День без заявленной дистанции",
+      finishMonth: "декабря",
+      finishDetail:
+        "Команда фиксирует итоговый результат и завершает проект.",
       continuousLabel: "Один непрерывный заезд",
       oneDayLabel: "Один день",
       dailyLabel: "в день",
@@ -569,7 +574,8 @@ const locales = {
       sourceLabel: "Source",
       statusPending: "Verified figures will appear after the team’s update",
       footLabel: "One distance · five peaks",
-      footText: "333 → 555 → 777 → 999 → 1111",
+      peaksLabel:
+        "Five escalating special stages: 333, 555, 777, 999 and 1111 kilometres",
     },
     diary: createDiaryContent("en"),
     manifesto: {
@@ -589,6 +595,10 @@ const locales = {
       specialLabel: "Special stage",
       baseLabel: "Base block",
       finishLabel: "Project finish",
+      finishMeta: "No scheduled distance",
+      finishMonth: "December",
+      finishDetail:
+        "The team records the final result and brings the project to a close.",
       continuousLabel: "One continuous ride",
       oneDayLabel: "One day",
       dailyLabel: "per day",
@@ -1056,16 +1066,26 @@ function renderCalendarSegments(plan, l) {
         <article class="bike-calendar__segment bike-calendar__segment--${segment.kind}" style="--calendar-order:${index}">
           <div class="bike-calendar__segment-meta">
             <span>${String(index + 1).padStart(2, "0")}</span>
-            <time datetime="${segment.startDate}">${formatCalendarRange(segment, l.lang)}</time>
+            ${
+              segment.kind === "finish"
+                ? `<span>${l.distance.finishMeta}</span>`
+                : `<time datetime="${segment.startDate}">${formatCalendarRange(segment, l.lang)}</time>`
+            }
           </div>
           <div class="bike-calendar__segment-main">
             <p class="bike-calendar__segment-label">${label}</p>
             ${
               segment.kind === "finish"
-                ? `<strong class="bike-calendar__finish-mark" data-optical-start>31</strong>`
+                ? `<time class="bike-calendar__finish-date" datetime="${segment.startDate}"><strong class="bike-calendar__finish-mark" data-optical-start>31</strong><span>${l.distance.finishMonth}</span></time>`
                 : `<p class="bike-calendar__segment-value" data-optical-start><strong>${value}</strong><span>${l.distance.totalUnit}</span></p>`
             }
-            ${detail ? `<p class="bike-calendar__segment-detail">${detail}</p>` : ""}
+            ${
+              segment.kind === "finish"
+                ? `<p class="bike-calendar__segment-detail bike-calendar__finish-detail">${l.distance.finishDetail}</p>`
+                : detail
+                  ? `<p class="bike-calendar__segment-detail">${detail}</p>`
+                  : ""
+            }
           </div>
           <p class="bike-calendar__cumulative"><span>${l.distance.totalLabel}</span><strong>${cumulative}\u00a0${l.distance.totalUnit}</strong></p>
         </article>`;
@@ -1128,8 +1148,8 @@ function renderDiaryTabs(entries) {
             <img
               src="${entry.image}"
               alt=""
-              width="720"
-              height="1280"
+              width="${entry.mediaWidth ?? 720}"
+              height="${entry.mediaHeight ?? 1280}"
               loading="lazy"
               decoding="async"
             >
@@ -1153,12 +1173,12 @@ function renderDiaryEntries(entries, l) {
           tabindex="0"
           data-diary-story-panel
         >
-          <figure class="diary__media">
+          <figure class="diary__media" style="--diary-media-aspect:${entry.mediaAspect ?? "9 / 16"}">
             <video
               src="${l.assetBase}assets/${entry.video}"
               poster="${l.assetBase}assets/${entry.image}"
-              width="720"
-              height="1280"
+              width="${entry.mediaWidth ?? 720}"
+              height="${entry.mediaHeight ?? 1280}"
               preload="${index === 0 ? "metadata" : "none"}"
               controls
               playsinline
@@ -1386,6 +1406,79 @@ function renderStory(items, l) {
 
 function renderHeroLine([value, unit]) {
   return `<span data-optical-start>${value}<wbr> ${unit}</span>`;
+}
+
+function renderHeroPeaks(plan, l) {
+  const stages = plan.segments.filter((segment) => segment.kind === "special");
+  const values = stages.map((stage) => stage.totalDistanceKm);
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+  const baseline = 80;
+  const firstX = 54;
+  const lastX = 538;
+  const peakPoints = stages.map((stage) => {
+    const startDay = Number(stage.startDate.slice(-2));
+    const endDay = Number(stage.endDate.slice(-2));
+    const calendarPoint = (startDay + endDay) / 2;
+    const progress = (stage.totalDistanceKm - minValue) / (maxValue - minValue);
+
+    return {
+      date: stage.startDate,
+      value: stage.totalDistanceKm,
+      x: firstX + ((calendarPoint - 1) / 28.5) * (lastX - firstX),
+      y: 59 - progress * 43,
+    };
+  });
+  const terrainPatterns = [
+    [[0.13, -7], [0.28, -2], [0.43, -10], [0.58, -5], [0.72, -13], [0.86, 13]],
+    [[0.12, -4], [0.25, -11], [0.39, -6], [0.53, -2], [0.67, -9], [0.83, 17]],
+    [[0.1, -8], [0.23, -3], [0.37, -12], [0.5, -7], [0.64, -2], [0.79, 19]],
+    [[0.11, -5], [0.24, -13], [0.38, -7], [0.52, -3], [0.66, -10], [0.82, 16]],
+  ];
+  const routePoints = [[8, baseline - 3], [22, baseline - 8], peakPoints[0]];
+
+  for (let index = 0; index < peakPoints.length - 1; index += 1) {
+    const current = peakPoints[index];
+    const next = peakPoints[index + 1];
+    const gap = next.x - current.x;
+
+    for (const [position, offset] of terrainPatterns[index]) {
+      const isApproach = position > 0.75;
+      routePoints.push({
+        x: current.x + gap * position,
+        y: isApproach ? next.y + offset : baseline + offset,
+      });
+    }
+    routePoints.push(next);
+  }
+
+  routePoints.push({ x: 580, y: 20 }, { x: 592, y: 23 });
+  const routePath = routePoints
+    .map((point, index) => {
+      const x = Array.isArray(point) ? point[0] : point.x;
+      const y = Array.isArray(point) ? point[1] : point.y;
+      return `${index === 0 ? "M" : "L"}${x.toFixed(2)} ${y.toFixed(2)}`;
+    })
+    .join(" ");
+  const areaPath = `${routePath} L592 ${baseline + 4} L8 ${baseline + 4} Z`;
+
+  const labelMarkup = peakPoints
+    .map(
+      (peak) => `
+        <li data-date="${peak.date}" style="--peak-x:${((peak.x / 600) * 100).toFixed(3)}%;--peak-y:${((peak.y / 88) * 100).toFixed(3)}%">
+          <strong>${formatProjectNumber(peak.value, l.lang)}</strong>
+        </li>`,
+    )
+    .join("");
+
+  return `
+    <div class="hero-peaks" role="img" aria-label="${escapeAttribute(l.hero.peaksLabel)}">
+      <svg viewBox="0 0 600 88" aria-hidden="true" focusable="false" preserveAspectRatio="none">
+        <path class="hero-peaks__area" d="${areaPath}"></path>
+        <path class="hero-peaks__route" d="${routePath}"></path>
+      </svg>
+      <ol class="hero-peaks__labels" aria-hidden="true">${labelMarkup}</ol>
+    </div>`;
 }
 
 const shortWords = {
@@ -1694,7 +1787,7 @@ function renderPage(l) {
 
       <div class="hero__foot">
         <span>${l.hero.footLabel}</span>
-        <strong>${l.hero.footText}</strong>
+        ${renderHeroPeaks(projectPlan, l)}
       </div>
     </section>
 

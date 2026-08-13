@@ -1,8 +1,10 @@
 import march10 from "./2026-03-10.mjs";
 import march23 from "./2026-03-23.mjs";
 import april23 from "./2026-04-23.mjs";
+import may09 from "./2026-05-09.mjs";
+import may12 from "./2026-05-12.mjs";
 
-const entries = [march10, march23, april23].sort((first, second) =>
+const entries = [march10, march23, april23, may09, may12].sort((first, second) =>
   second.date.localeCompare(first.date),
 );
 
@@ -185,6 +187,9 @@ export function createDiaryContent(lang) {
       video: entry.video,
       videoDuration: entry.videoDuration,
       videoDurationIso: entry.videoDurationIso,
+      mediaWidth: entry.mediaWidth,
+      mediaHeight: entry.mediaHeight,
+      mediaAspect: entry.mediaAspect,
       dateLabel: formatDate(entry.date, lang),
       videoPlayCta: copy.videoPlayCta,
       cta: copy.cta,
