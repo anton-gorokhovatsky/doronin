@@ -230,6 +230,38 @@ html.motion-reduced *::after {
   --glass-shadow: 0 1.25rem 3.5rem rgba(0, 0, 0, 0.18);
 }
 
+/*
+ * In the night calendar, stage type is information, not a second surface.
+ * Keep one continuous instrument panel and mark special stages locally.
+ */
+:root.theme-dark .bike-calendar__segments {
+  background: #031218;
+}
+
+:root.theme-dark .bike-calendar__segment--special {
+  position: relative;
+  background: transparent;
+}
+
+:root.theme-dark .bike-calendar__segment--special::before {
+  position: absolute;
+  top: -1px;
+  left: var(--segment-padding-inline);
+  width: clamp(3.5rem, 8vw, 6.5rem);
+  height: 0.2rem;
+  background: var(--acid);
+  content: "";
+}
+
+:root.theme-dark .bike-calendar__segment--special .bike-calendar__segment-meta > span,
+:root.theme-dark .bike-calendar__segment--special .bike-calendar__segment-label {
+  color: var(--acid);
+}
+
+:root.theme-dark .bike-calendar__segment--finish {
+  background: #02090d;
+}
+
 :root.theme-dark .interviews {
   background:
     radial-gradient(ellipse at 14% 18%, rgba(111, 215, 204, 0.15), transparent 32rem),

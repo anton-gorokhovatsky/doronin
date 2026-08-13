@@ -255,18 +255,27 @@
   color: var(--ink);
 }
 
-.diary-live__actions .text-link {
-  margin-top: 0;
+.button--diary-secondary {
+  min-width: min(18rem, 100%);
+  border-color: var(--line-dark);
+  color: var(--text-editorial);
+  background: transparent;
 }
 
 .diary-live__actions .icon--down {
   transition: transform 180ms var(--ease-exit);
 }
 
-.diary-live__actions .text-link:hover .icon--down,
-.diary-live__actions .text-link:focus-visible .icon--down {
+.diary-live__actions .button--diary-secondary:hover .icon--down,
+.diary-live__actions .button--diary-secondary:focus-visible .icon--down {
   transform: translateY(0.18rem);
   transition-timing-function: var(--ease-enter);
+}
+
+.button--diary-secondary:hover,
+.button--diary-secondary:focus-visible {
+  border-color: var(--text-editorial);
+  background: color-mix(in srgb, var(--text-editorial) 5%, transparent);
 }
 
 .diary-live__timeline {
@@ -379,10 +388,11 @@
   position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  grid-template-rows: auto 1fr;
-  gap: 0.8rem 1.25rem;
-  min-height: 7.5rem;
-  padding: 1.2rem 1.35rem;
+  grid-template-rows: auto minmax(2.2em, 1fr);
+  column-gap: 1.25rem;
+  row-gap: clamp(1.65rem, 2.35vw, 2.4rem);
+  min-height: clamp(9.5rem, 11vw, 11.75rem);
+  padding: clamp(1.5rem, 2vw, 2rem) 1.35rem;
   border-left: 1px solid var(--line-dark);
   color: var(--text-editorial-muted);
   text-decoration: none;
@@ -407,6 +417,7 @@
 
 .diary-stories__index,
 .diary-stories__tab time {
+  align-self: start;
   font-size: var(--type-service);
   font-weight: 750;
   letter-spacing: 0.08em;
@@ -424,7 +435,10 @@
 
 .diary-stories__tab strong {
   grid-column: 1 / -1;
+  display: flex;
   align-self: end;
+  min-height: 2.2em;
+  align-items: flex-end;
   font-family: var(--display);
   font-size: clamp(0.9rem, calc(0.78rem + 0.45vw), 1.25rem);
   line-height: 1.1;
@@ -713,15 +727,20 @@
 
 .manifesto {
   display: grid;
-  grid-template-columns: minmax(8rem, 1fr) minmax(0, 3fr);
-  gap: clamp(2rem, 6vw, 7rem);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--layout-column-gap);
   min-height: 48rem;
   overflow: hidden;
+}
+
+.manifesto > .section-label {
+  grid-column: 1 / span 4;
 }
 
 .manifesto__copy {
   position: relative;
   z-index: 1;
+  grid-column: 5 / -1;
   align-self: center;
 }
 
@@ -762,9 +781,18 @@
 
 .section-heading {
   display: grid;
-  grid-template-columns: minmax(12rem, 1fr) minmax(0, 2.2fr);
-  gap: clamp(2rem, 6vw, 7rem);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--layout-column-gap);
   margin-bottom: clamp(3rem, 7vw, 6rem);
+}
+
+.section-heading > .section-label {
+  grid-column: 1 / span 4;
+}
+
+.section-heading > h2,
+.section-heading > div:last-child {
+  grid-column: 5 / -1;
 }
 
 .section-heading h2,

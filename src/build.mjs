@@ -1068,7 +1068,7 @@ function renderCalendarSegments(plan, l) {
             <span>${String(index + 1).padStart(2, "0")}</span>
             ${
               segment.kind === "finish"
-                ? `<span>${l.distance.finishMeta}</span>`
+                ? ""
                 : `<time datetime="${segment.startDate}">${formatCalendarRange(segment, l.lang)}</time>`
             }
           </div>
@@ -1076,8 +1076,8 @@ function renderCalendarSegments(plan, l) {
             <p class="bike-calendar__segment-label">${label}</p>
             ${
               segment.kind === "finish"
-                ? `<time class="bike-calendar__finish-date" datetime="${segment.startDate}"><strong class="bike-calendar__finish-mark" data-optical-start>31</strong><span>${l.distance.finishMonth}</span></time>`
-                : `<p class="bike-calendar__segment-value" data-optical-start><strong>${value}</strong><span>${l.distance.totalUnit}</span></p>`
+                ? `<time class="bike-calendar__finish-date" datetime="${segment.startDate}"><strong class="bike-calendar__finish-mark" data-optical-start data-optical-leading="3">31</strong><span>${l.distance.finishMonth}</span></time>`
+                : `<p class="bike-calendar__segment-value" data-optical-start data-optical-leading="${String(value).trim().charAt(0)}"><strong>${value}</strong><span>${l.distance.totalUnit}</span></p>`
             }
             ${
               segment.kind === "finish"
@@ -1413,7 +1413,8 @@ function renderHeroPeaks(plan, l) {
   const values = stages.map((stage) => stage.totalDistanceKm);
   const minValue = Math.min(...values);
   const maxValue = Math.max(...values);
-  const baseline = 80;
+  const baseline = 88;
+  const routeFloor = 82;
   const firstX = 54;
   const lastX = 538;
   const peakPoints = stages.map((stage) => {
@@ -1435,7 +1436,7 @@ function renderHeroPeaks(plan, l) {
     [[0.1, -8], [0.23, -3], [0.37, -12], [0.5, -7], [0.64, -2], [0.79, 19]],
     [[0.11, -5], [0.24, -13], [0.38, -7], [0.52, -3], [0.66, -10], [0.82, 16]],
   ];
-  const routePoints = [[8, baseline - 3], [22, baseline - 8], peakPoints[0]];
+  const routePoints = [[0, routeFloor], [18, routeFloor - 6], peakPoints[0]];
 
   for (let index = 0; index < peakPoints.length - 1; index += 1) {
     const current = peakPoints[index];
@@ -1446,13 +1447,15 @@ function renderHeroPeaks(plan, l) {
       const isApproach = position > 0.75;
       routePoints.push({
         x: current.x + gap * position,
-        y: isApproach ? next.y + offset : baseline + offset,
+        y: isApproach
+          ? Math.min(routeFloor, next.y + offset)
+          : Math.min(routeFloor, routeFloor + offset),
       });
     }
     routePoints.push(next);
   }
 
-  routePoints.push({ x: 580, y: 20 }, { x: 592, y: 23 });
+  routePoints.push({ x: 582, y: 20 }, { x: 600, y: 23 });
   const routePath = routePoints
     .map((point, index) => {
       const x = Array.isArray(point) ? point[0] : point.x;
@@ -1460,7 +1463,7 @@ function renderHeroPeaks(plan, l) {
       return `${index === 0 ? "M" : "L"}${x.toFixed(2)} ${y.toFixed(2)}`;
     })
     .join(" ");
-  const areaPath = `${routePath} L592 ${baseline + 4} L8 ${baseline + 4} Z`;
+  const areaPath = `${routePath} L600 ${baseline} L0 ${baseline} Z`;
 
   const labelMarkup = peakPoints
     .map(
@@ -1833,7 +1836,7 @@ function renderPage(l) {
               rel="noopener noreferrer"
               aria-label="${l.diary.liveFollowLabel}"
             >${l.diary.liveFollowCta}${icons.external}</a>
-            <a class="text-link text-link--dark" href="#diary-archive">${l.diary.archiveCta}${icons.down}</a>
+            <a class="button button--diary-secondary" href="#diary-archive">${l.diary.archiveCta}${icons.down}</a>
           </div>
         </div>
         <div class="diary-live__timeline" aria-hidden="true">
@@ -1935,7 +1938,7 @@ function renderPage(l) {
           <p><span>${l.distance.baseSummary}</span><strong>${l.distance.formulaBase}</strong></p>
           <b class="bike-calendar__operator bike-calendar__operator--plus" aria-hidden="true">+</b>
           <p><span>${l.distance.specialSummary}</span><strong>${l.distance.formulaSpecial}</strong></p>
-          <div class="bike-calendar__total-answer">
+          <div class="bike-calendar__total-answer" data-unit="${escapeAttribute(l.distance.totalUnit)}">
             <b class="bike-calendar__operator bike-calendar__operator--equals" aria-hidden="true">=</b>
             <p class="bike-calendar__total-result"><span>${l.distance.totalLabel}</span><strong data-optical-start>${l.distance.formulaResult}<small>${l.distance.totalUnit}</small></strong></p>
           </div>
