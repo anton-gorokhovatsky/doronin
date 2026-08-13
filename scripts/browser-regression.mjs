@@ -728,6 +728,76 @@ async function auditPage(browser, browserName, origin, testCase) {
               1),
       `${prefix}: diary date range loses semantic grouping (${JSON.stringify(diaryRangeState)})`,
     );
+    const diaryLiveState = await page.locator("[data-diary-live]").evaluate(
+      (element) => {
+        const count = element.querySelector("[data-diary-countdown]");
+        const label = element.querySelector("[data-diary-countdown-label]");
+        const primary = element.querySelector(
+          '[data-analytics-goal="diary_follow"]',
+        );
+        const archive = element.querySelector('a[href="#diary-archive"]');
+        const bounds = element.getBoundingClientRect();
+        const nodeBounds = [count, label, primary, archive].map((node) => {
+          const box = node?.getBoundingClientRect();
+          return box
+            ? {
+                left: box.left,
+                right: box.right,
+                top: box.top,
+                bottom: box.bottom,
+              }
+            : null;
+        });
+        return {
+          count: count?.textContent.trim(),
+          label: label?.textContent.trim(),
+          progress: Number.parseFloat(
+            getComputedStyle(element).getPropertyValue("--diary-progress"),
+          ),
+          actionsPresent: Boolean(primary && archive),
+          bounds: {
+            left: bounds.left,
+            right: bounds.right,
+            top: bounds.top,
+            bottom: bounds.bottom,
+          },
+          nodeBounds,
+          contentInBounds: [label, primary, archive].every((node) => {
+            const box = node?.getBoundingClientRect();
+            return (
+              box &&
+              box.left >= bounds.left - 1 &&
+              box.right <= bounds.right + 1 &&
+              box.top >= bounds.top - 1 &&
+              box.bottom <= bounds.bottom + 1
+            );
+          }),
+          countWithinOpticalAllowance: (() => {
+            const box = count?.getBoundingClientRect();
+            const shift = Math.abs(
+              Number.parseFloat(getComputedStyle(count).translate) || 0,
+            );
+            return Boolean(
+              box &&
+                box.left >= bounds.left - shift - 1 &&
+                box.right <= bounds.right + 1 &&
+                box.top >= bounds.top - 1 &&
+                box.bottom <= bounds.bottom + 1,
+            );
+          })(),
+        };
+      },
+    );
+    expect(
+      /^\d{1,3}(?:\/31)?$/u.test(diaryLiveState.count) &&
+        diaryLiveState.label.length > 0 &&
+        diaryLiveState.progress >= 0 &&
+        diaryLiveState.progress <= 1 &&
+        diaryLiveState.actionsPresent &&
+        diaryLiveState.contentInBounds &&
+        diaryLiveState.countWithinOpticalAllowance,
+      `${prefix}: live diary contract regressed (${JSON.stringify(diaryLiveState)})`,
+    );
     const readDiaryState = () =>
       page.locator("[data-diary-stories]").evaluate((element) => {
         const tabs = [...element.querySelectorAll("[data-diary-story-tab]")];

@@ -30,6 +30,7 @@ const requiredAnalyticsGoals = [
   "chapter_navigation",
   "project_explore",
   "partner_interest",
+  "diary_explore",
   "language_switch",
   "theme_change",
   "hero_video_pause",
@@ -38,6 +39,7 @@ const requiredAnalyticsGoals = [
   "diary_video_start",
   "diary_video_complete",
   "diary_open",
+  "diary_follow",
   "film_open",
   "contact_email",
   "contact_telegram",
@@ -264,6 +266,10 @@ for (const [lang, path] of pages) {
   );
   expect(
     html.includes('id="diary"') &&
+      html.includes('class="diary-live"') &&
+      html.includes("data-diary-countdown") &&
+      html.includes('data-analytics-goal="diary_follow"') &&
+      html.includes('id="diary-archive"') &&
       diary.entries.every(
         (entry) =>
           html.includes(entry.href) &&
@@ -278,7 +284,7 @@ for (const [lang, path] of pages) {
         diary.entries.length &&
       (html.match(/class="diary__fact"/g) || []).length === diaryFactCount &&
       (html.match(/data-project-phase-item="/g) || []).length === 3,
-    `${lang}: дневник должен содержать все структурированные видео-записи и три состояния проекта`,
+    `${lang}: дневник должен соединять живой путь к старту, все структурированные записи и три состояния проекта`,
   );
   expect(
     html.includes('class="proof-sources"') &&
@@ -348,9 +354,10 @@ for (const [lang, path] of pages) {
       "ru: названия партнёрских направлений должны оставаться короткими",
     );
     expect(
-      visibleText.includes("Дневник подготовки") &&
+      visibleText.includes("Дневник пути к старту") &&
+        visibleText.includes("Не ждать старта. Проходить путь вместе.") &&
         !visibleText.includes(">Дневник подготовки Виктора<"),
-      "ru: послетитровая ссылка не должна повторять имя героя",
+      "ru: живой дневник и послетитровая ссылка должны вести к пути без повтора имени героя",
     );
     expect(
       visibleText.includes("О герое") &&
@@ -381,9 +388,11 @@ for (const [lang, path] of pages) {
       "en: названия партнёрских направлений должны оставаться короткими",
     );
     expect(
-      visibleText.includes("Training diary") &&
+      visibleText.includes("Road-to-start diary") &&
+        visibleText.includes("Don’t just wait") &&
+        visibleText.includes("Follow the road there.") &&
         !html.includes(">Viktor’s training diary<"),
-      "en: послетитровая ссылка не должна повторять имя героя",
+      "en: the live diary and after-credits route must express the journey without repeating Viktor’s name",
     );
     expect(
       visibleText.includes("≈1.3M") &&

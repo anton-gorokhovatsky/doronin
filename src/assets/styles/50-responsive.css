@@ -486,6 +486,14 @@
     grid-column: 1 / span 5;
   }
 
+  .diary-live__count {
+    grid-column: 1 / span 5;
+  }
+
+  .diary-live__copy {
+    grid-column: 6 / -1;
+  }
+
   .diary__copy {
     grid-column: 6 / -1;
   }
@@ -1039,11 +1047,61 @@
   }
 
   .diary__heading,
+  .diary-live,
+  .diary-live__count,
+  .diary-live__copy,
+  .diary-live__timeline,
   .diary-stories,
   .diary__media,
   .diary__copy,
   .project-phases {
     grid-column: 1;
+  }
+
+  .diary-live {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.25rem;
+    padding-top: 1.5rem;
+  }
+
+  .diary-live__count {
+    gap: 0.65rem;
+  }
+
+  .diary-live__count strong {
+    font-size: min(30vw, 7.5rem);
+  }
+
+  .diary-live__count span {
+    max-width: 22ch;
+  }
+
+  .diary-live__copy h2 {
+    max-width: 100%;
+    font-size: var(--type-narrow-section);
+  }
+
+  .diary-live__body {
+    font-size: var(--type-copy);
+  }
+
+  .diary-live__actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: stretch;
+    gap: 1.25rem;
+  }
+
+  .diary-live__actions .button {
+    width: 100%;
+  }
+
+  .diary-live__actions .text-link {
+    justify-self: start;
+  }
+
+  .diary-live__timeline {
+    margin-top: 0;
   }
 
   .diary-stories {

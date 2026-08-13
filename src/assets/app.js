@@ -780,6 +780,41 @@ if (eventStatus) {
     update.hidden = false;
   }
 
+  const diaryLive = document.querySelector("[data-diary-live]");
+  const diaryCountdown = diaryLive?.querySelector("[data-diary-countdown]");
+  const diaryCountdownLabel = diaryLive?.querySelector(
+    "[data-diary-countdown-label]",
+  );
+
+  if (diaryLive) {
+    const campaignStart = new Date(diaryLive.dataset.campaignStart);
+    const campaignDuration = Math.max(day, start - campaignStart);
+    const projectDuration = Math.max(day, end - start);
+    const diaryProgress =
+      projectPhase === "before"
+        ? Math.max(0, Math.min(campaignDuration, now - campaignStart)) /
+          campaignDuration
+        : projectPhase === "active"
+          ? Math.max(0, Math.min(projectDuration, now - start)) / projectDuration
+          : 1;
+    diaryLive.style.setProperty(
+      "--diary-progress",
+      String(diaryProgress),
+    );
+  }
+
+  if (diaryCountdown) {
+    diaryCountdown.textContent = value.textContent;
+    syncOpticalStart(diaryCountdown);
+  }
+
+  if (diaryCountdownLabel) {
+    diaryCountdownLabel.textContent =
+      projectPhase === "finished"
+        ? diaryLive.dataset.finishedCountLabel
+        : label.textContent;
+  }
+
   const partnerCountdown = document.querySelector("[data-partner-countdown]");
 
   if (partnerCountdown) {

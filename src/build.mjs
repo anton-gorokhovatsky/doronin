@@ -150,8 +150,8 @@ const locales = {
     navLiveKicker: "Сейчас",
     navLiveLabel: "Дневник",
     navRouteKicker: "Маршрут · 07 глав",
-    navDiaryLabel: "Дневник подготовки",
-    navDiaryNote: "Тренировки, команда и путь к старту",
+    navDiaryLabel: "Дневник пути к старту",
+    navDiaryNote: "Оставшиеся дни, тренировки и решения Виктора",
     nav: [
       ["#about", "Проект"],
       ["#distance", "Календарь"],
@@ -173,7 +173,7 @@ const locales = {
       videoPlay: "Включить видео",
       videoPause: "Пауза",
       primaryCta: "Обсудить участие",
-      secondaryCta: "Открыть календарь",
+      secondaryCta: "Следить за дневником",
       statusFallback: "Старт 1 декабря 2026",
       statusMeta: "11 111 км · 31 день",
       beforeForms: ["день до старта", "дня до старта", "дней до старта"],
@@ -486,7 +486,7 @@ const locales = {
       titleActive: "История идёт",
       titleFinished: "История продолжается",
       titleLineTwo: "скоро",
-      afterCredits: "Дневник подготовки",
+      afterCredits: "Следить за дневником",
       navLabel: "Навигация",
       contactLabel: "Связаться",
       utilityLabel: "Сайт",
@@ -533,8 +533,8 @@ const locales = {
     navLiveKicker: "Now",
     navLiveLabel: "Diary",
     navRouteKicker: "Route · 07 chapters",
-    navDiaryLabel: "Training diary",
-    navDiaryNote: "Training, the team and the road to the start",
+    navDiaryLabel: "Road-to-start diary",
+    navDiaryNote: "The remaining days, Viktor’s training and decisions",
     nav: [
       ["#about", "Project"],
       ["#distance", "Calendar"],
@@ -556,7 +556,7 @@ const locales = {
       videoPlay: "Play video",
       videoPause: "Pause",
       primaryCta: "Discuss a partnership",
-      secondaryCta: "Open the calendar",
+      secondaryCta: "Follow the diary",
       statusFallback: "Starts December 1, 2026",
       statusMeta: "11,111 km · 31 days",
       beforeForms: ["day to start", "days to start", "days to start"],
@@ -868,7 +868,7 @@ const locales = {
       titleActive: "The story is unfolding",
       titleFinished: "The story continues",
       titleLineTwo: "soon",
-      afterCredits: "Training diary",
+      afterCredits: "Follow the diary",
       navLabel: "Navigation",
       contactLabel: "Get in touch",
       utilityLabel: "Website",
@@ -1429,7 +1429,7 @@ function typographHtml(html, lang) {
 
   return textNodes
     .replace(
-      /\b(alt|aria-label|content|data-before-one|data-before-few|data-before-many|data-active|data-finished|data-latest-update|data-status-pending|data-live-discipline|data-live-note)="([^"]*)"/g,
+      /\b(alt|aria-label|content|data-before(?:-one|-few|-many)?|data-active|data-finished|data-latest-update|data-status-pending|data-live-discipline|data-live-note)="([^"]*)"/g,
       (attribute, name, value) => `${name}="${typographText(value, lang)}"`,
     )
     .replace(/[ \t]+$/gm, "");
@@ -1631,7 +1631,7 @@ function renderPage(l) {
         <p class="hero__intro">${l.hero.intro}</p>
         <div class="hero__actions">
           <a class="button button--primary action-primary" href="#partners" data-analytics-goal="partner_interest">${l.hero.primaryCta}${icons.down}</a>
-          <a class="button button--ghost" href="#distance" data-analytics-goal="project_explore">${l.hero.secondaryCta}</a>
+          <a class="button button--ghost" href="#diary" data-analytics-goal="diary_explore">${l.hero.secondaryCta}</a>
         </div>
       </div>
 
@@ -1684,22 +1684,77 @@ function renderPage(l) {
     </section>
 
     <section class="diary section section--light" id="diary" aria-labelledby="diary-title">
+      <div
+        class="diary-live"
+        data-diary-live
+        data-campaign-start="2026-08-13T00:00:00+03:00"
+        data-finished-count-label="${escapeAttribute(l.diary.liveFinishedCountLabel)}"
+      >
+        <div class="diary-live__count" aria-live="polite" aria-atomic="true">
+          <strong data-diary-countdown data-optical-start>110</strong>
+          <span data-diary-countdown-label>${l.hero.beforeForms[2]}</span>
+        </div>
+        <div class="diary-live__copy">
+          <p
+            class="diary-live__kicker"
+            data-phase-copy
+            data-before="${escapeAttribute(l.diary.liveKickerBefore)}"
+            data-active="${escapeAttribute(l.diary.liveKickerActive)}"
+            data-finished="${escapeAttribute(l.diary.liveKickerFinished)}"
+          >${l.diary.liveKickerBefore}</p>
+          <h2
+            id="diary-title"
+            data-phase-copy
+            data-before="${escapeAttribute(l.diary.liveTitleBefore)}"
+            data-active="${escapeAttribute(l.diary.liveTitleActive)}"
+            data-finished="${escapeAttribute(l.diary.liveTitleFinished)}"
+          >${l.diary.liveTitleBefore}</h2>
+          <p
+            class="diary-live__body"
+            data-phase-copy
+            data-before="${escapeAttribute(l.diary.liveBodyBefore)}"
+            data-active="${escapeAttribute(l.diary.liveBodyActive)}"
+            data-finished="${escapeAttribute(l.diary.liveBodyFinished)}"
+          >${l.diary.liveBodyBefore}</p>
+          <div class="diary-live__actions">
+            <a
+              class="button button--diary"
+              href="${shared.viktorTelegramHref}"
+              data-analytics-goal="diary_follow"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="${l.diary.liveFollowLabel}"
+            >${l.diary.liveFollowCta}${icons.external}</a>
+            <a class="text-link text-link--dark" href="#diary-archive">${l.diary.archiveCta}${icons.down}</a>
+          </div>
+        </div>
+        <div class="diary-live__timeline" aria-hidden="true">
+          <span><i></i></span>
+          <div>
+            <b
+              data-phase-copy
+              data-before="${escapeAttribute(l.diary.timelineNow)}"
+              data-active="${escapeAttribute(l.diary.timelineStart)}"
+              data-finished="${escapeAttribute(l.diary.timelineStart)}"
+            >${l.diary.timelineNow}</b>
+            <b
+              data-phase-copy
+              data-before="${escapeAttribute(l.diary.timelineStart)}"
+              data-active="${escapeAttribute(l.diary.timelineFinish)}"
+              data-finished="${escapeAttribute(l.diary.timelineFinish)}"
+            >${l.diary.timelineStart}</b>
+          </div>
+        </div>
+      </div>
       <div class="diary__heading">
-        <h2
-          id="diary-title"
-          class="diary__eyebrow"
-          data-phase-copy
-          data-before="${l.diary.phaseBefore}"
-          data-active="${l.diary.phaseActive}"
-          data-finished="${l.diary.phaseFinished}"
-        >${l.diary.phaseBefore}</h2>
+        <p class="diary__eyebrow">${l.diary.archiveLabel}</p>
         <span class="diary__range">
           <span class="diary__range-count">${l.diary.rangeCount}<span class="diary__range-dot" aria-hidden="true"> ·</span></span>
           <span class="diary__range-start">${l.diary.rangeStart}<span class="diary__range-dash">\u00a0—</span></span>
           <span class="diary__range-end">${l.diary.rangeEnd}</span>
         </span>
       </div>
-      <div class="diary-stories" data-diary-stories>
+      <div class="diary-stories" id="diary-archive" data-diary-stories>
         <div
           class="diary-stories__rail"
           role="tablist"
@@ -1971,7 +2026,7 @@ function renderPage(l) {
     <a
       class="site-footer__after-credits"
       href="${shared.viktorTelegramHref}"
-      data-analytics-goal="diary_open"
+      data-analytics-goal="diary_follow"
       target="_blank"
       rel="noopener noreferrer"
     >
