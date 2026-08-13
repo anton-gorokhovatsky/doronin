@@ -11,7 +11,7 @@ const previews = [
     name: "Виктор Доронин",
     distance: "11 111",
     unit: "км",
-    line: "Только велосипед · 31 день",
+    line: "31 день на велосипеде",
   },
   {
     file: "share-en.jpg",
@@ -20,7 +20,7 @@ const previews = [
     name: "Viktor Doronin",
     distance: "11,111",
     unit: "km",
-    line: "Cycling only · 31 days",
+    line: "31 days by bike",
   },
 ];
 

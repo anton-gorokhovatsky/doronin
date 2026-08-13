@@ -166,7 +166,7 @@ const locales = {
       kicker: "1–31 декабря 2026 · Виктор Доронин",
       lineOne: ["11 111", "км"],
       lineTwo: ["31", "день"],
-      accent: "ТОЛЬКО ВЕЛОСИПЕД",
+      accent: "НА ВЕЛОСИПЕДЕ",
       intro:
         "Велосипедный ультрамарафон: 22 базовых дня и пять специальных этапов по нарастающей.",
       imageAlt: "Виктор Доронин на велосипеде во время скоростного заезда",
@@ -549,7 +549,7 @@ const locales = {
       kicker: "December 1–31, 2026 · Viktor Doronin",
       lineOne: ["11,111", "km"],
       lineTwo: ["31", "days"],
-      accent: "CYCLING ONLY",
+      accent: "BY BIKE",
       intro:
         "A cycling ultramarathon: 22 base days and five special stages, each higher than the last.",
       imageAlt: "Viktor Doronin riding at speed during a cycling event",
