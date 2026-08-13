@@ -659,6 +659,8 @@ async function auditPage(browser, browserName, origin, testCase) {
         stageCount: stages.length,
         segmentCount: element.querySelectorAll(".bike-calendar__segment").length,
         stageValues: stages.map((stage) => stage.querySelector("strong")?.textContent.trim()),
+        stageWidths: stages.map((stage) => stage.getBoundingClientRect().width),
+        sequenceDisplay: getComputedStyle(sequence).display,
         sequenceWidth: sequence.getBoundingClientRect().width,
         parentWidth: element.getBoundingClientRect().width,
       };
@@ -670,6 +672,148 @@ async function auditPage(browser, browserName, origin, testCase) {
         calendarState.sequenceWidth <= calendarState.parentWidth + 1,
       `${prefix}: canonical cycling calendar regressed (${JSON.stringify(calendarState)})`,
     );
+    if (calendarState.sequenceDisplay === "flex") {
+      const stageDistances = calendarState.stageValues.map((value) => Number(value));
+      const widthTotal = calendarState.stageWidths.reduce((sum, value) => sum + value, 0);
+      const distanceTotal = stageDistances.reduce((sum, value) => sum + value, 0);
+      const proportionalError = Math.max(
+        ...calendarState.stageWidths.map((width, index) =>
+          Math.abs(width / widthTotal - stageDistances[index] / distanceTotal),
+        ),
+      );
+      expect(
+        calendarState.stageWidths.every(
+          (width, index, widths) => index === 0 || width > widths[index - 1],
+        ) && proportionalError <= 0.01,
+        `${prefix}: special-stage widths no longer encode their distances (${JSON.stringify({ ...calendarState, proportionalError })})`,
+      );
+    }
+
+    const calendarComposition = await page.locator(".bike-calendar").evaluate(
+      (element) => {
+        const rect = (node) => node?.getBoundingClientRect() || null;
+        const rhythmMetrics = [
+          ...element.querySelectorAll(".bike-calendar__rhythm dl > div"),
+        ].map((metric) => {
+          const value = rect(metric.querySelector("dt"));
+          const label = rect(metric.querySelector("dd"));
+          return {
+            gap: value && label ? label.top - value.bottom : null,
+            label: metric.querySelector("dd")?.textContent.trim() || "",
+            value: metric.querySelector("dt")?.textContent.trim() || "",
+          };
+        });
+        const finish = element.querySelector(".bike-calendar__segment--finish");
+        const finishMeta = rect(finish?.querySelector(".bike-calendar__segment-meta"));
+        const finishMain = rect(finish?.querySelector(".bike-calendar__finish-main"));
+        const finishLabel = rect(finish?.querySelector(".bike-calendar__segment-label"));
+        const finishValue = rect(finish?.querySelector(".bike-calendar__finish-mark"));
+        const finishTotal = rect(finish?.querySelector(".bike-calendar__cumulative"));
+        const terms = [
+          ...element.querySelectorAll(".bike-calendar__total > p strong"),
+        ].map(rect);
+        const operators = [
+          ...element.querySelectorAll(".bike-calendar__total > b"),
+        ].map(rect);
+        const center = (box) => box.top + box.height / 2;
+        return {
+          finish: {
+            detailCount: finish?.querySelectorAll(
+              ".bike-calendar__segment-detail",
+            ).length,
+            labelValueGap:
+              finishLabel && finishValue ? finishValue.top - finishLabel.bottom : null,
+            mainContained:
+              finishMeta && finishMain && finishTotal
+                ? finishMain.top >= finishMeta.bottom &&
+                  finishMain.bottom <= finishTotal.top
+                : false,
+          },
+          formulaOperatorDeltas: operators.map((operator, index) => {
+            const leftTerm = terms[index];
+            const rightTerm = terms[index + 1];
+            return Math.max(
+              Math.abs(center(operator) - center(leftTerm)),
+              Math.abs(center(operator) - center(rightTerm)),
+            );
+          }),
+          rhythmMetrics,
+        };
+      },
+    );
+    expect(
+      calendarComposition.rhythmMetrics.every(
+        (metric) =>
+          metric.gap >= 0 &&
+          metric.gap <= 24 &&
+          !metric.label.startsWith(metric.value),
+      ),
+      `${prefix}: calendar summary repeats values or breaks proximity (${JSON.stringify(calendarComposition.rhythmMetrics)})`,
+    );
+    expect(
+      calendarComposition.finish.detailCount === 0 &&
+        calendarComposition.finish.mainContained &&
+        calendarComposition.finish.labelValueGap >= 0,
+      `${prefix}: calendar finish card overlaps or repeats its date (${JSON.stringify(calendarComposition.finish)})`,
+    );
+    const visibleFormulaOperatorDeltas =
+      testCase.viewport.width <= 820
+        ? calendarComposition.formulaOperatorDeltas.slice(0, 1)
+        : calendarComposition.formulaOperatorDeltas;
+    expect(
+      visibleFormulaOperatorDeltas.every((delta) => delta <= 3),
+      `${prefix}: calendar formula operators lost their shared optical centre (${JSON.stringify(visibleFormulaOperatorDeltas)})`,
+    );
+
+    if (testCase.viewport.width > 960) {
+      const stickyState = await page.locator(".athlete").evaluate(async (section) => {
+        const media = section.querySelector(".athlete__media");
+        const read = () => {
+          const box = media.getBoundingClientRect();
+          return { bottom: box.bottom, top: box.top };
+        };
+        const settle = () =>
+          new Promise((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(resolve)),
+          );
+        const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+        const previousBodyScrollBehavior = document.body.style.scrollBehavior;
+        document.documentElement.style.setProperty("scroll-behavior", "auto", "important");
+        document.body.style.setProperty("scroll-behavior", "auto", "important");
+        scrollTo(0, 0);
+        await settle();
+        const style = getComputedStyle(media);
+        const topOffset = Number.parseFloat(style.top);
+        const sectionTop = section.getBoundingClientRect().top + scrollY;
+        const maxScroll =
+          sectionTop + section.offsetHeight - media.offsetHeight - topOffset;
+        const holdStart = sectionTop - topOffset;
+        const holdEnd = maxScroll;
+        scrollTo(0, holdStart + Math.max(40, (holdEnd - holdStart) * 0.45));
+        await settle();
+        const held = read();
+        scrollTo(0, maxScroll + 120);
+        await settle();
+        const released = read();
+        document.documentElement.style.scrollBehavior = previousScrollBehavior;
+        document.body.style.scrollBehavior = previousBodyScrollBehavior;
+        return {
+          corridor: maxScroll - sectionTop,
+          held,
+          position: style.position,
+          released,
+          scrollY,
+          sectionTop,
+          topOffset,
+        };
+      });
+      expect(
+        stickyState.position === "sticky" &&
+          near(stickyState.held.top, stickyState.topOffset, 2) &&
+          stickyState.released.top < stickyState.topOffset - 20,
+        `${prefix}: Viktor portrait does not hold and release as a sticky chapter image (${JSON.stringify(stickyState)})`,
+      );
+    }
 
     const diaryTabs = page.locator("[data-diary-story-tab]");
     const diaryPanels = page.locator("[data-diary-story-panel]");

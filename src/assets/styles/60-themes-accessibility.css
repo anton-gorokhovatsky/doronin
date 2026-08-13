@@ -323,6 +323,48 @@ html[data-text-fixture="200"] {
   width: min(100%, 34rem);
 }
 
+:root.text-enlarged .bike-calendar__sequence,
+:root.text-enlarged .bike-calendar__rhythm,
+:root.text-enlarged .bike-calendar__segments,
+:root.text-enlarged .bike-calendar__total {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+:root.text-enlarged .bike-calendar__sequence {
+  display: grid;
+}
+
+:root.text-enlarged .bike-calendar__sequence li {
+  min-height: auto;
+  padding-block: 1.25rem;
+  border-right: 0;
+  border-bottom: 1px solid var(--line-dark);
+}
+
+:root.text-enlarged .bike-calendar__sequence li:last-child {
+  border-bottom: 0;
+}
+
+:root.text-enlarged .bike-calendar__rhythm {
+  gap: 2.5rem;
+}
+
+:root.text-enlarged .bike-calendar__segment {
+  min-height: 0;
+}
+
+:root.text-enlarged .bike-calendar__total {
+  gap: 1.5rem;
+}
+
+:root.text-enlarged .bike-calendar__total > b {
+  display: none;
+}
+
+:root.text-enlarged .bike-calendar__total-result {
+  margin-top: 1rem;
+}
+
 :root.text-enlarged .proof-source,
 :root.text-enlarged .proof-source:nth-child(even) {
   grid-template-columns: 2rem minmax(0, 1fr);

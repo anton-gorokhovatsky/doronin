@@ -571,13 +571,16 @@ expect(
   /\.bike-calendar\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s.test(
     css,
   ) &&
-    /\.bike-calendar__sequence\s*\{[^}]*grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\)/s.test(
+    /\.bike-calendar__sequence\s*\{[^}]*display:\s*flex/s.test(
+      css,
+    ) &&
+    /\.bike-calendar__sequence li\s*\{[^}]*flex:\s*0\s+0\s+var\(--stage-share\)/s.test(
       css,
     ) &&
     /@media \(max-width:\s*820px\)[\s\S]*?\.bike-calendar__sequence\s*\{[^}]*grid-template-columns:\s*1fr[^}]*width:\s*100%[^}]*min-width:\s*0/s.test(
       css,
     ),
-  "css: календарь должен иметь одну ограниченную колонку на мобильном и пять равных этапов на desktop",
+  "css: календарь должен иметь одну ограниченную колонку на мобильном и пропорциональные этапы на desktop",
 );
 expect(
   css.includes(".button:hover .icon--down") &&

@@ -203,7 +203,7 @@ const locales = {
       totalUnit: "км",
       specialLabel: "Специальный этап",
       baseLabel: "Базовый блок",
-      finishLabel: "Финиш",
+      finishLabel: "Финиш проекта",
       continuousLabel: "Один непрерывный заезд",
       oneDayLabel: "Один день",
       dailyLabel: "в день",
@@ -211,10 +211,13 @@ const locales = {
       baseSummary: "22 базовых дня",
       specialSummary: "5 специальных этапов",
       rideSummary: "30 дней движения",
-      finishSummary: "31 декабря — финиш",
+      baseMetricLabel: "базовых дня",
+      specialMetricLabel: "специальных этапов",
+      rideMetricLabel: "дней движения",
+      finishMetricLabel: "декабря · финиш проекта",
       rhythmTitle: "Базовая единица проекта — 333 км",
       rhythmText:
-        "20 обычных дней проходят по 333 км; ещё два — по 338 км, чтобы перед финалом набрать ровно 10 000 км.",
+        "20 базовых дней — по 333 км; ещё два — по 338 км. Так до финала Виктор набирает ровно 10 000 км.",
       formulaLabel: "7336 плюс 3775 равно 11 111 километров",
       formulaBase: "7336",
       formulaSpecial: "3775",
@@ -585,7 +588,7 @@ const locales = {
       totalUnit: "km",
       specialLabel: "Special stage",
       baseLabel: "Base block",
-      finishLabel: "Finish",
+      finishLabel: "Project finish",
       continuousLabel: "One continuous ride",
       oneDayLabel: "One day",
       dailyLabel: "per day",
@@ -593,10 +596,13 @@ const locales = {
       baseSummary: "22 base days",
       specialSummary: "5 special stages",
       rideSummary: "30 days in motion",
-      finishSummary: "December 31 — finish",
+      baseMetricLabel: "base days",
+      specialMetricLabel: "special stages",
+      rideMetricLabel: "days in motion",
+      finishMetricLabel: "December · project finish",
       rhythmTitle: "The project’s base unit is 333 km",
       rhythmText:
-        "Twenty ordinary days cover 333 km; two more cover 338 km, bringing the pre-final total to exactly 10,000 km.",
+        "Twenty base days cover 333 km each; two more cover 338 km. This brings Viktor to exactly 10,000 km before the final stage.",
       formulaLabel: "7336 plus 3775 equals 11,111 kilometres",
       formulaBase: "7336",
       formulaSpecial: "3775",
@@ -1041,7 +1047,7 @@ function renderCalendarSegments(plan, l) {
             : l.distance.oneDayLabel
           : segment.kind === "base"
             ? `${formatProjectNumber(segment.dailyDistanceKm, l.lang)}\u00a0${l.distance.totalUnit} ${l.distance.dailyLabel} · ${formatProjectNumber(segment.totalDistanceKm, l.lang)}\u00a0${l.distance.totalUnit} ${l.distance.totalBlockLabel}`
-            : l.distance.finishSummary;
+            : "";
 
       return `
         <article class="bike-calendar__segment bike-calendar__segment--${segment.kind}" style="--calendar-order:${index}">
@@ -1049,13 +1055,16 @@ function renderCalendarSegments(plan, l) {
             <span>${String(index + 1).padStart(2, "0")}</span>
             <time datetime="${segment.startDate}">${formatCalendarRange(segment, l.lang)}</time>
           </div>
-          <p class="bike-calendar__segment-label">${label}</p>
           ${
             segment.kind === "finish"
-              ? `<strong class="bike-calendar__finish-mark">31</strong>`
-              : `<p class="bike-calendar__segment-value" data-optical-start><strong>${value}</strong><span>${l.distance.totalUnit}</span></p>`
+              ? `<div class="bike-calendar__finish-main">
+                  <p class="bike-calendar__segment-label">${label}</p>
+                  <strong class="bike-calendar__finish-mark" data-optical-start>31</strong>
+                </div>`
+              : `<p class="bike-calendar__segment-label">${label}</p>
+                <p class="bike-calendar__segment-value" data-optical-start><strong>${value}</strong><span>${l.distance.totalUnit}</span></p>`
           }
-          <p class="bike-calendar__segment-detail">${detail}</p>
+          ${detail ? `<p class="bike-calendar__segment-detail">${detail}</p>` : ""}
           <p class="bike-calendar__cumulative"><span>${l.distance.totalLabel}</span><strong>${cumulative}\u00a0${l.distance.totalUnit}</strong></p>
         </article>`;
     })
@@ -1064,11 +1073,15 @@ function renderCalendarSegments(plan, l) {
 
 function renderSpecialSequence(plan, l) {
   const stages = plan.segments.filter((segment) => segment.kind === "special");
+  const totalDistance = stages.reduce(
+    (total, stage) => total + stage.totalDistanceKm,
+    0,
+  );
 
   return stages
     .map(
       (stage, index) => `
-        <li style="--calendar-order:${index}">
+        <li style="--calendar-order:${index};--stage-distance:${stage.totalDistanceKm};--stage-share:${((stage.totalDistanceKm / totalDistance) * 100).toFixed(6)}%">
           <span>${String(index + 1).padStart(2, "0")}</span>
           <strong data-optical-start>${formatProjectNumber(stage.totalDistanceKm, l.lang)}</strong>
           <time datetime="${stage.startDate}">${formatCalendarRange(stage, l.lang)}</time>
@@ -1810,10 +1823,10 @@ function renderPage(l) {
             <span>${l.distance.rhythmText}</span>
           </div>
           <dl>
-            <div><dt>22</dt><dd>${l.distance.baseSummary}</dd></div>
-            <div><dt>05</dt><dd>${l.distance.specialSummary}</dd></div>
-            <div><dt>30</dt><dd>${l.distance.rideSummary}</dd></div>
-            <div><dt>31</dt><dd>${l.distance.finishSummary}</dd></div>
+            <div><dt>22</dt><dd>${l.distance.baseMetricLabel}</dd></div>
+            <div><dt>5</dt><dd>${l.distance.specialMetricLabel}</dd></div>
+            <div><dt>30</dt><dd>${l.distance.rideMetricLabel}</dd></div>
+            <div><dt>31</dt><dd>${l.distance.finishMetricLabel}</dd></div>
           </dl>
         </div>
         <div class="bike-calendar__segments">
