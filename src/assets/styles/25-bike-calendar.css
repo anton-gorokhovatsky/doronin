@@ -13,8 +13,7 @@
 }
 
 .bike-calendar__sequence {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  display: flex;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -25,8 +24,11 @@
 .bike-calendar__sequence li {
   position: relative;
   display: grid;
+  flex: 0 0 var(--stage-share);
+  container-type: inline-size;
+  min-width: 0;
   min-height: clamp(13rem, 19vw, 22rem);
-  padding: clamp(1rem, 1.8vw, 1.75rem);
+  padding: clamp(1rem, 1.8vw, 1.75rem) clamp(0.75rem, 1.1vw, 1.5rem);
   align-content: space-between;
   border-right: 1px solid var(--line-dark);
 }
@@ -41,8 +43,7 @@
   position: absolute;
   top: -1px;
   left: 0;
-  width: calc((var(--calendar-order, 0) + 1) * 12%);
-  min-width: 2.5rem;
+  width: min(3.5rem, 42%);
   height: 0.25rem;
   content: "";
   background: var(--acid);
@@ -65,7 +66,7 @@
 
 .bike-calendar__sequence strong {
   font-family: var(--display);
-  font-size: clamp(2.15rem, calc(1rem + 3.5vw), 6.3rem);
+  font-size: clamp(2.15rem, 32cqi, 6.3rem);
   font-weight: 700;
   line-height: 0.82;
   letter-spacing: -0.055em;
@@ -77,16 +78,16 @@
 
 .bike-calendar__rhythm {
   display: grid;
-  grid-template-columns: minmax(18rem, 0.9fr) minmax(0, 1.5fr);
-  gap: clamp(2.5rem, 7vw, 8rem);
-  align-items: end;
+  grid-template-columns: minmax(22rem, 1.05fr) minmax(0, 1.25fr);
+  gap: clamp(3rem, 6vw, 7rem);
+  align-items: start;
 }
 
 .bike-calendar__rhythm > div > p {
-  max-width: 16ch;
+  max-width: 15ch;
   margin: 0 0 1.25rem;
   font-family: var(--display);
-  font-size: clamp(2rem, calc(1rem + 3vw), 5rem);
+  font-size: clamp(2rem, calc(1rem + 2.6vw), 4.35rem);
   line-height: 0.93;
   text-wrap: balance;
 }
@@ -102,25 +103,18 @@
 .bike-calendar__rhythm dl {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(2.25rem, 4vw, 4.5rem) clamp(2rem, 4vw, 5rem);
   margin: 0;
+  padding-top: clamp(1.25rem, 2vw, 1.75rem);
   border-top: 1px solid var(--line-dark);
 }
 
 .bike-calendar__rhythm dl > div {
   display: grid;
-  min-height: 8.5rem;
-  padding: 1rem 0;
-  align-content: space-between;
-  border-bottom: 1px solid var(--line-dark);
-}
-
-.bike-calendar__rhythm dl > div:nth-child(odd) {
-  padding-right: 1.25rem;
-  border-right: 1px solid var(--line-dark);
-}
-
-.bike-calendar__rhythm dl > div:nth-child(even) {
-  padding-left: 1.25rem;
+  min-height: 0;
+  padding: 0;
+  gap: clamp(0.65rem, 1vw, 0.9rem);
+  align-content: start;
 }
 
 .bike-calendar__rhythm dt {
@@ -130,7 +124,7 @@
 }
 
 .bike-calendar__rhythm dd {
-  max-width: 20ch;
+  max-width: 17ch;
   margin: 0;
   color: var(--muted-dark);
 }
@@ -162,6 +156,7 @@
 }
 
 .bike-calendar__segment--finish {
+  grid-template-rows: auto minmax(0, 1fr) auto;
   min-height: 18rem;
   color: var(--paper);
   background: var(--ink);
@@ -204,8 +199,24 @@
 }
 
 .bike-calendar__finish-mark {
-  margin: auto 0;
+  margin: 0;
   color: var(--acid);
+}
+
+.bike-calendar__finish-main {
+  display: grid;
+  padding: clamp(2.25rem, 5vw, 5rem) 0;
+  gap: clamp(1rem, 2vw, 1.6rem);
+  align-content: center;
+}
+
+.bike-calendar__finish-main .bike-calendar__segment-label {
+  margin: 0;
+  color: var(--paper-dim);
+}
+
+.bike-calendar__segment--finish .bike-calendar__cumulative {
+  margin-top: 0;
 }
 
 .bike-calendar__segment-detail {
@@ -222,6 +233,7 @@
 }
 
 .bike-calendar__total {
+  --bike-formula-size: clamp(2.2rem, calc(1rem + 4.4vw), 7rem);
   display: grid;
   grid-template-columns: 1fr auto 1fr auto 1.35fr;
   gap: clamp(1rem, 2.5vw, 3rem);
@@ -240,20 +252,28 @@
 .bike-calendar__total strong,
 .bike-calendar__total > b {
   font-family: var(--display);
-  font-size: clamp(2.2rem, calc(1rem + 4.4vw), 7rem);
+  font-size: var(--bike-formula-size);
   font-weight: 700;
   line-height: 0.8;
   letter-spacing: -0.055em;
 }
 
+.bike-calendar__total strong {
+  padding-block: 0.14em 0.12em;
+}
+
 .bike-calendar__total > b {
+  display: grid;
+  height: 1.06em;
+  align-self: end;
+  place-items: center;
   color: var(--muted-dark);
 }
 
 .bike-calendar__total-result strong {
   color: var(--ink);
   background: var(--acid);
-  padding: 0.18em 0.14em 0.12em;
+  padding-inline: 0.14em;
 }
 
 .bike-calendar__total small {
@@ -270,6 +290,7 @@
   }
 
   .bike-calendar__sequence {
+    display: grid;
     grid-template-columns: 1fr;
     width: 100%;
     min-width: 0;
@@ -345,9 +366,8 @@
   }
 
   .bike-calendar__rhythm dl > div:nth-child(n) {
-    min-height: 6.8rem;
+    min-height: 0;
     padding-inline: 0;
-    border-right: 0;
   }
 
   .bike-calendar__segment {
