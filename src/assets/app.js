@@ -801,6 +801,13 @@ if (eventStatus) {
       "--diary-progress",
       String(diaryProgress),
     );
+
+    const timelineNow = diaryLive.querySelector("[data-timeline-now]");
+    if (timelineNow) {
+      timelineNow.hidden = projectPhase !== "before";
+      timelineNow.textContent =
+        timelineNow.dataset.before || timelineNow.textContent;
+    }
   }
 
   if (diaryCountdown) {

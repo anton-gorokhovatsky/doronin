@@ -1352,7 +1352,7 @@ function renderStory(items, l) {
     .map(
       (item, index) => `
         <figure
-          class="story-frame${item.video ? " story-frame--motion" : ""}"
+          class="story-frame${item.video ? " story-frame--motion" : ""}${item.caption === "Движение" || item.caption === "Motion" ? " story-frame--movement" : ""}"
           ${item.video ? "data-story-video-frame" : ""}
         >
           <div class="story-frame__media">
@@ -1798,7 +1798,7 @@ function renderPage(l) {
       <div
         class="diary-live"
         data-diary-live
-        data-campaign-start="2026-08-13T00:00:00+03:00"
+        data-campaign-start="2026-03-10T00:00:00+03:00"
         data-finished-count-label="${escapeAttribute(l.diary.liveFinishedCountLabel)}"
       >
         <div class="diary-live__count" aria-live="polite" aria-atomic="true">
@@ -1844,9 +1844,14 @@ function renderPage(l) {
           <div>
             <b
               data-phase-copy
-              data-before="${escapeAttribute(l.diary.timelineNow)}"
+              data-before="${escapeAttribute(l.diary.timelineArchiveStart)}"
               data-active="${escapeAttribute(l.diary.timelineStart)}"
               data-finished="${escapeAttribute(l.diary.timelineStart)}"
+            >${l.diary.timelineArchiveStart}</b>
+            <b
+              class="diary-live__timeline-now"
+              data-timeline-now
+              data-before="${escapeAttribute(l.diary.timelineNow)}"
             >${l.diary.timelineNow}</b>
             <b
               data-phase-copy
