@@ -168,7 +168,7 @@ const locales = {
       lineTwo: ["31", "день"],
       accent: "НА ВЕЛОСИПЕДЕ",
       intro:
-        "Велосипедный ультрамарафон: 22 базовых дня и пять специальных этапов по нарастающей.",
+        "Базовый ритм — 333 км в день. Пять специальных этапов поднимают дистанцию до финального этапа на 1111 км.",
       imageAlt: "Виктор Доронин на велосипеде во время скоростного заезда",
       videoPlay: "Включить видео",
       videoPause: "Пауза",
@@ -191,7 +191,7 @@ const locales = {
       eyebrow: "Одна большая цель",
       title: "Проехать 11 111 километров за декабрь.",
       text:
-        "Один человек, один вид спорта и 31 календарный день. Нагрузка растёт от базовых 333 км к пяти специальным этапам; финальная вершина — непрерывный заезд на 1111 км.",
+        "Между вершинами Виктор возвращается к базовой дистанции. Три длиннейших этапа — 777, 999 и 1111 км — проходят как непрерывные заезды без деления на суточные части.",
     },
     distance: {
       eyebrow: "Декабрь 2026 · 31 день",
@@ -554,7 +554,7 @@ const locales = {
       lineTwo: ["31", "days"],
       accent: "BY BIKE",
       intro:
-        "A cycling ultramarathon: 22 base days and five special stages, each higher than the last.",
+        "The base rhythm is 333 km a day. Five special stages raise the distance to a final 1111 km stage.",
       imageAlt: "Viktor Doronin riding at speed during a cycling event",
       videoPlay: "Play video",
       videoPause: "Pause",
@@ -576,7 +576,7 @@ const locales = {
       eyebrow: "One defining goal",
       title: "To ride 11,111 kilometres in December.",
       text:
-        "One person, one discipline and 31 calendar days. The load rises from a 333 km base rhythm through five special stages to a final continuous 1111 km ride.",
+        "Between peaks, Viktor returns to the base distance. The three longest stages — 777, 999 and 1111 km — are continuous rides, not divided into daily legs.",
     },
     distance: {
       eyebrow: "December 2026 · 31 days",
@@ -1015,9 +1015,12 @@ function formatCalendarRange(segment, lang) {
 
   if (startDate.getUTCMonth() === endDate.getUTCMonth()) {
     const month = new Intl.DateTimeFormat(lang === "ru" ? "ru-RU" : "en-US", {
+      day: "numeric",
       month: "long",
       timeZone: "UTC",
-    }).format(endDate);
+    })
+      .formatToParts(endDate)
+      .find((part) => part.type === "month")?.value;
     return lang === "ru"
       ? `${startDay}–${endDay} ${month}`
       : `${month} ${startDay}–${endDay}`;
@@ -1055,16 +1058,15 @@ function renderCalendarSegments(plan, l) {
             <span>${String(index + 1).padStart(2, "0")}</span>
             <time datetime="${segment.startDate}">${formatCalendarRange(segment, l.lang)}</time>
           </div>
-          ${
-            segment.kind === "finish"
-              ? `<div class="bike-calendar__finish-main">
-                  <p class="bike-calendar__segment-label">${label}</p>
-                  <strong class="bike-calendar__finish-mark" data-optical-start>31</strong>
-                </div>`
-              : `<p class="bike-calendar__segment-label">${label}</p>
-                <p class="bike-calendar__segment-value" data-optical-start><strong>${value}</strong><span>${l.distance.totalUnit}</span></p>`
-          }
-          ${detail ? `<p class="bike-calendar__segment-detail">${detail}</p>` : ""}
+          <div class="bike-calendar__segment-main">
+            <p class="bike-calendar__segment-label">${label}</p>
+            ${
+              segment.kind === "finish"
+                ? `<strong class="bike-calendar__finish-mark" data-optical-start>31</strong>`
+                : `<p class="bike-calendar__segment-value" data-optical-start><strong>${value}</strong><span>${l.distance.totalUnit}</span></p>`
+            }
+            ${detail ? `<p class="bike-calendar__segment-detail">${detail}</p>` : ""}
+          </div>
           <p class="bike-calendar__cumulative"><span>${l.distance.totalLabel}</span><strong>${cumulative}\u00a0${l.distance.totalUnit}</strong></p>
         </article>`;
     })
@@ -1762,9 +1764,13 @@ function renderPage(l) {
       <div class="diary__heading">
         <p class="diary__eyebrow">${l.diary.archiveLabel}</p>
         <span class="diary__range">
-          <span class="diary__range-count">${l.diary.rangeCount}<span class="diary__range-dot" aria-hidden="true"> ·</span></span>
-          <span class="diary__range-start">${l.diary.rangeStart}<span class="diary__range-dash">\u00a0—</span></span>
-          <span class="diary__range-end">${l.diary.rangeEnd}</span>
+          <span class="diary__range-count">${l.diary.rangeCount}</span>
+          <span class="diary__range-period">
+            <span class="diary__range-dot" aria-hidden="true">·\u00a0</span>
+            <span class="diary__range-start">${l.diary.rangeStart}</span>
+            <span class="diary__range-dash">\u00a0—\u00a0</span>
+            <span class="diary__range-end">${l.diary.rangeEnd}</span>
+          </span>
         </span>
       </div>
       <div class="diary-stories" id="diary-archive" data-diary-stories>
@@ -1834,10 +1840,12 @@ function renderPage(l) {
         </div>
         <div class="bike-calendar__total" role="img" aria-label="${l.distance.formulaLabel}">
           <p><span>${l.distance.baseSummary}</span><strong>${l.distance.formulaBase}</strong></p>
-          <b aria-hidden="true">+</b>
+          <b class="bike-calendar__operator bike-calendar__operator--plus" aria-hidden="true">+</b>
           <p><span>${l.distance.specialSummary}</span><strong>${l.distance.formulaSpecial}</strong></p>
-          <b aria-hidden="true">=</b>
-          <p class="bike-calendar__total-result"><span>${l.distance.totalLabel}</span><strong data-optical-start>${l.distance.formulaResult}<small>${l.distance.totalUnit}</small></strong></p>
+          <div class="bike-calendar__total-answer">
+            <b class="bike-calendar__operator bike-calendar__operator--equals" aria-hidden="true">=</b>
+            <p class="bike-calendar__total-result"><span>${l.distance.totalLabel}</span><strong data-optical-start>${l.distance.formulaResult}<small>${l.distance.totalUnit}</small></strong></p>
+          </div>
         </div>
       </div>
     </section>

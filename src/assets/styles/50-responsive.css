@@ -1109,19 +1109,18 @@
   }
 
   .diary__heading {
-    align-items: flex-start;
+    display: grid;
+    justify-content: stretch;
+    justify-items: start;
+    gap: 0.7rem;
+    align-items: start;
   }
 
   .diary__heading > .diary__range {
-    display: grid;
-    justify-items: end;
-    row-gap: 0.08em;
-    max-width: 17ch;
-    text-align: right;
-  }
-
-  .diary__range-dot {
-    display: none;
+    display: flex;
+    justify-content: flex-start;
+    max-width: 100%;
+    text-align: left;
   }
 
   .diary-stories__rail {
