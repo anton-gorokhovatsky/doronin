@@ -33,7 +33,12 @@
   --velocity-from: var(--surface-editorial);
   --velocity-to: var(--surface-proof);
   --velocity-image: url("./story-cycling.jpg");
+  --velocity-image-position: 50% 50%;
+  --velocity-image-rest: translateX(0) scaleX(1.46) scaleY(0.76);
+  --velocity-image-enter: translateX(-2.5%) scaleX(1.62) scaleY(0.7);
   --velocity-accent: var(--orange);
+  --velocity-line-angle: 90deg;
+  --velocity-line-position: 0% 50%;
   position: relative;
   height: clamp(2.75rem, 4vw, 4.5rem);
   overflow: hidden;
@@ -50,12 +55,13 @@
 .velocity-cut::before {
   position: absolute;
   inset: -46% -20%;
-  background: var(--velocity-image) 50% 50% / cover no-repeat;
+  background: var(--velocity-image) var(--velocity-image-position) / cover
+    no-repeat;
   content: "";
   filter: blur(clamp(0.3rem, 0.48vw, 0.52rem)) saturate(0.72)
     contrast(1.08);
   opacity: 0.38;
-  transform: scaleX(1.46) scaleY(0.76);
+  transform: var(--velocity-image-rest);
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent,
@@ -84,26 +90,76 @@
       var(--velocity-to) 100%
     ),
     linear-gradient(
-        90deg,
-        transparent 4%,
-        color-mix(in srgb, var(--velocity-accent) 66%, transparent) 28%,
-        transparent 72%
+        var(--velocity-line-angle),
+        transparent 0%,
+        color-mix(in srgb, var(--velocity-accent) 38%, transparent) 5%,
+        var(--velocity-accent) 46%,
+        color-mix(in srgb, var(--velocity-accent) 46%, transparent) 94%,
+        transparent 100%
       )
-      50% 50% / 100% 1px no-repeat;
+      var(--velocity-line-position) / 100% 1px no-repeat;
   content: "";
   opacity: 1;
+}
+
+.velocity-cut.is-velocity-prepared::before {
+  transform: var(--velocity-image-enter);
+}
+
+.velocity-cut.is-velocity-prepared::after {
+  background-size:
+    100% 100%,
+    0% 1px;
+}
+
+.velocity-cut.is-velocity-prepared.is-velocity-entering::before {
+  animation: velocity-image-enter 880ms var(--ease-enter) both;
+}
+
+.velocity-cut.is-velocity-prepared.is-velocity-entering::after {
+  animation: velocity-trace-enter 760ms var(--ease-enter) 70ms both;
 }
 
 .velocity-cut--out-of-proof {
   --velocity-from: var(--surface-proof);
   --velocity-to: var(--surface-editorial);
+  --velocity-image: url("./story-motion-city.jpg");
+  --velocity-image-position: 68% 48%;
+  --velocity-image-enter: translateX(2.5%) scaleX(1.62) scaleY(0.7);
+  --velocity-line-angle: 270deg;
+  --velocity-line-position: 100% 50%;
 }
 
 .velocity-cut--into-partners {
   --velocity-from: var(--ink-deep);
   --velocity-to: var(--ink-deep);
-  --velocity-image: url("./story-cycling.jpg");
+  --velocity-image: url("./partner-community-motion.jpg");
+  --velocity-image-position: 50% 44%;
   --velocity-accent: var(--acid);
+}
+
+@keyframes velocity-image-enter {
+  from {
+    transform: var(--velocity-image-enter);
+  }
+
+  to {
+    transform: var(--velocity-image-rest);
+  }
+}
+
+@keyframes velocity-trace-enter {
+  from {
+    background-size:
+      100% 100%,
+      0% 1px;
+  }
+
+  to {
+    background-size:
+      100% 100%,
+      100% 1px;
+  }
 }
 
 .section-label {
@@ -1915,7 +1971,8 @@
   grid-column: 1 / -1;
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
+  column-gap: clamp(1.75rem, 2.2vw, 3rem);
+  row-gap: 0.75rem;
   margin: 0;
   padding-top: 0.25rem;
   color: var(--text-editorial-faint);

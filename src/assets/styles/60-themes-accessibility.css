@@ -27,10 +27,11 @@ html.motion-reduced *::after {
 }
 
 /*
- * Authored motion is deliberately limited to three recurring scenarios:
- * chapter rules drawing in, the five-peaks route building in the hero and the
- * selected diary entry changing in place. Legacy entrance hooks remain inert
- * so that functional state changes never reintroduce another visual language.
+ * Authored motion is deliberately limited to four recurring scenarios:
+ * chapter rules drawing in, the five-peaks route building in the hero, the
+ * selected diary entry changing in place and three semantic chapter cuts.
+ * Legacy entrance hooks remain inert so that functional state changes never
+ * reintroduce another visual language.
  */
 :is(
     .audio-story.is-audio-entering::before,
@@ -89,6 +90,12 @@ html.motion-reduced *::after {
   filter: blur(clamp(0.2rem, 0.34vw, 0.38rem)) brightness(1.06)
     saturate(0.96) contrast(1.1);
   opacity: 0.58;
+}
+
+:root.theme-light .velocity-cut--out-of-proof::before {
+  filter: blur(clamp(0.2rem, 0.34vw, 0.38rem)) brightness(0.78)
+    saturate(1.08) contrast(1.24);
+  opacity: 0.72;
 }
 
 :root.theme-light .athlete__media {
@@ -326,6 +333,12 @@ html.motion-reduced *::after {
   filter: blur(clamp(0.22rem, 0.36vw, 0.42rem)) brightness(0.9)
     saturate(0.96) contrast(1.14);
   opacity: 0.6;
+}
+
+:root.theme-dark .velocity-cut--out-of-proof::before {
+  filter: blur(clamp(0.22rem, 0.36vw, 0.42rem)) brightness(0.82)
+    saturate(1.04) contrast(1.2);
+  opacity: 0.68;
 }
 
 :root.theme-dark .section-label > span {

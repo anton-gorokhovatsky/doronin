@@ -581,6 +581,31 @@ if (sectionLabels.length && !reducedMotion.matches) {
   }
 }
 
+const velocityCuts = [...document.querySelectorAll(".velocity-cut")];
+
+if (velocityCuts.length && !reducedMotion.matches) {
+  if ("IntersectionObserver" in window) {
+    const velocityCutObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) {
+            continue;
+          }
+
+          entry.target.classList.add("is-velocity-entering");
+          velocityCutObserver.unobserve(entry.target);
+        }
+      },
+      { rootMargin: "0px 0px -8%", threshold: 0.45 },
+    );
+
+    for (const velocityCut of velocityCuts) {
+      velocityCut.classList.add("is-velocity-prepared");
+      velocityCutObserver.observe(velocityCut);
+    }
+  }
+}
+
 for (const storyVideoFrame of document.querySelectorAll(
   "[data-story-video-frame]",
 )) {
