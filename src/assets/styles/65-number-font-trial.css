@@ -1,0 +1,46 @@
+@font-face {
+  font-family: "Barlow Condensed Trial";
+  src: url("./fonts/BarlowCondensed-ExtraBold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  unicode-range:
+    U+0020, U+002B, U+002D-002E, U+0030-0039, U+003D, U+00A0, U+202F,
+    U+2212;
+}
+
+/*
+ * Opt-in comparison only: ?font=barlow.
+ * Text and units stay in Micra; the trial face owns numeric glyphs and
+ * arithmetic signs so the accepted display voice remains intact.
+ */
+:root[data-number-font-trial="barlow"] :is(
+    .hero__title > span,
+    .event-status__value,
+    .diary-live__count strong,
+    .diary__fact strong,
+    .bike-calendar__sequence strong,
+    .bike-calendar__segment-value,
+    .bike-calendar__finish-mark,
+    .bike-calendar__total strong,
+    .proof-metric strong
+  ) {
+  font-family: "Barlow Condensed Trial", var(--display);
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+:root[data-number-font-trial="barlow"] :is(
+    .hero__title > span,
+    .event-status__value,
+    .diary-live__count strong,
+    .diary__fact strong,
+    .bike-calendar__sequence strong,
+    .bike-calendar__segment-value,
+    .bike-calendar__finish-mark,
+    .bike-calendar__total strong,
+    .proof-metric strong
+  )[data-optical-leading="1"] {
+  --optical-start-shift: 0;
+}

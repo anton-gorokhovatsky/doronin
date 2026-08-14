@@ -50,7 +50,7 @@
 .text-link {
   display: inline-flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: var(--inline-action-gap);
   margin-top: 2rem;
   padding-bottom: 0;
   border-bottom: 0;
@@ -551,7 +551,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 0.65rem;
+  gap: var(--inline-action-gap);
   width: fit-content;
   margin-top: auto;
   padding-top: 2rem;

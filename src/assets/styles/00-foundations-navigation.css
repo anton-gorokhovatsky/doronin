@@ -101,6 +101,7 @@
   --action-padding-block: 0.95rem;
   --action-padding-inline: 1.1rem;
   --action-gap: 1.25rem;
+  --inline-action-gap: 0.75rem;
   --contact-row-min-height: 2.5rem;
   --contact-icon-gap: 0.55rem;
   --contact-underline-color: color-mix(in srgb, currentColor 42%, transparent);

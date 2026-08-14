@@ -1928,7 +1928,7 @@
   display: inline-grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
-  gap: 0.35rem;
+  gap: var(--inline-action-gap);
   max-width: 100%;
   min-width: 0;
   color: var(--text-editorial-strong-muted);

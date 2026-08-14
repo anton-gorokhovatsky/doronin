@@ -1911,14 +1911,17 @@
     justify-content: flex-start;
     gap: 0;
     min-height: 0;
+    padding-block: 1.25rem 1.75rem;
   }
 
   .adventure-card h3 {
-    min-height: 2.3em;
+    min-height: 0;
   }
 
   .adventure-card__action {
-    margin-top: 2rem;
+    min-height: 2.75rem;
+    align-items: center;
+    margin-top: 1.5rem;
   }
 
   .interviews__heading h2 {
@@ -2405,11 +2408,10 @@
   }
 
   .text-link {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 16px;
+    display: inline-flex;
+    gap: var(--inline-action-gap);
     align-items: center;
-    width: 100%;
+    width: fit-content;
   }
 
   .text-link__label {

@@ -25,6 +25,7 @@ const styleModuleNames = [
   "50-responsive.css",
   "55-editorial-menu.css",
   "60-themes-accessibility.css",
+  "65-number-font-trial.css",
 ];
 const retiredAssetNames = new Set([
   "audio-scene-01.m4a",

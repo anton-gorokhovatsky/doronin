@@ -472,6 +472,7 @@ const styleModuleNames = [
   "50-responsive.css",
   "55-editorial-menu.css",
   "60-themes-accessibility.css",
+  "65-number-font-trial.css",
 ];
 const sourceStyleManifest = await readFile(resolve("src/assets/styles.css"), "utf8");
 const sourceStyleBundle = (
@@ -532,7 +533,7 @@ expect(
   sourceStyleManifest ===
     `${styleModuleNames.map((file) => `@import "./styles/${file}";`).join("\n")}\n` &&
     sourceStyleBundle === css,
-  "css: восемь исходных модулей должны без дрейфа собираться в один production styles.css",
+  "css: десять исходных модулей должны без дрейфа собираться в один production styles.css",
 );
 expect(
   projectPlanErrors.length === 0 &&

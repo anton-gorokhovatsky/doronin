@@ -1,6 +1,14 @@
 try {
   const root = document.documentElement;
   root.classList.add("js");
+  const requestedNumberFont = new URLSearchParams(window.location.search).get(
+    "font",
+  );
+
+  if (requestedNumberFont === "barlow") {
+    root.dataset.numberFontTrial = "barlow";
+  }
+
   const theme = localStorage.getItem("theme");
 
   if (theme === "light" || theme === "dark") {
