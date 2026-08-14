@@ -781,6 +781,10 @@
     white-space: nowrap;
   }
 
+  .diary__fact span {
+    max-width: 100%;
+  }
+
   .diary__fact + .diary__fact {
     padding-top: 1.25rem;
     border-top: 1px solid var(--line-dark);
@@ -1904,7 +1908,17 @@
   }
 
   .adventure-card__copy {
-    min-height: 11rem;
+    justify-content: flex-start;
+    gap: 0;
+    min-height: 0;
+  }
+
+  .adventure-card h3 {
+    min-height: 2.3em;
+  }
+
+  .adventure-card__action {
+    margin-top: 2rem;
   }
 
   .interviews__heading h2 {
@@ -2000,6 +2014,12 @@
   .interviews__heading h2,
   .partners__cta {
     font-size: var(--type-narrow-section);
+  }
+
+  .manifesto h2,
+  .section-heading h2,
+  .section-heading--compact > h2 {
+    line-height: 1.1;
   }
 
   .athlete__copy h2,
