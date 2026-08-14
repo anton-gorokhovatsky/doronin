@@ -2112,6 +2112,16 @@
     margin-top: 0.5rem;
   }
 
+  .partners__channels a:first-child {
+    padding-right: 0;
+  }
+
+  .partners__channels a + a {
+    padding-left: 0;
+    border-top: 1px solid var(--partner-closing-line);
+    border-left: 0;
+  }
+
   .partners__person {
     flex-wrap: wrap;
   }

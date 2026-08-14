@@ -27,13 +27,12 @@ html.motion-reduced *::after {
 }
 
 /*
- * Authored motion is deliberately limited to two recurring scenarios:
- * the five-peaks route building in the hero and the selected diary entry
- * changing in place. Legacy entrance hooks remain inert so that functional
- * state changes never reintroduce a third visual language.
+ * Authored motion is deliberately limited to three recurring scenarios:
+ * chapter rules drawing in, the five-peaks route building in the hero and the
+ * selected diary entry changing in place. Legacy entrance hooks remain inert
+ * so that functional state changes never reintroduce another visual language.
  */
 :is(
-    .section-label.is-rule-entering::after,
     .audio-story.is-audio-entering::before,
     .audio-story.is-audio-entering .audio-story__player,
     .audio-story__storyline button.is-scene-entering,

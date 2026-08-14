@@ -557,6 +557,30 @@ if (heroPeaks && !reducedMotion.matches) {
   }
 }
 
+const sectionLabels = [...document.querySelectorAll(".section-label")];
+
+if (sectionLabels.length && !reducedMotion.matches) {
+  if ("IntersectionObserver" in window) {
+    const sectionLabelObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) {
+            continue;
+          }
+
+          entry.target.classList.add("is-rule-entering");
+          sectionLabelObserver.unobserve(entry.target);
+        }
+      },
+      { rootMargin: "0px 0px -10%", threshold: 0.55 },
+    );
+
+    for (const sectionLabel of sectionLabels) {
+      sectionLabelObserver.observe(sectionLabel);
+    }
+  }
+}
+
 for (const storyVideoFrame of document.querySelectorAll(
   "[data-story-video-frame]",
 )) {
