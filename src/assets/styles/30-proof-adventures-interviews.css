@@ -406,9 +406,10 @@
 }
 
 .adventure-card__action {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: var(--inline-action-gap);
   font-size: var(--type-service);
   font-weight: 800;
   letter-spacing: 0.05em;

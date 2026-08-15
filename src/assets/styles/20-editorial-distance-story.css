@@ -1942,12 +1942,12 @@
 }
 
 .story__credit a {
-  display: inline-grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
   gap: var(--inline-action-gap);
+  width: fit-content;
   max-width: 100%;
-  min-width: 0;
   color: var(--text-editorial-strong-muted);
   text-decoration: none;
 }

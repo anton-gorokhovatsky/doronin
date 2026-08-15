@@ -1047,7 +1047,8 @@ const presenceSceneIcons = [
     <path d="M4 16V8M8 19V5M12 14v-4M16 18V6M20 15V9"></path>
   </svg>`,
   `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="M4 18a8 8 0 0 1 16 0M12 18l4.8-7.2M5.3 10.8l1.4 1.4M12 6v2M18.7 10.8l-1.4 1.4"></path>
+    <path d="M2.5 19a9.5 9.5 0 0 1 19 0M12 19l5.8-7.2M4.2 13.8l2.2 1M7.2 10.2l1.5 1.8M12 8.5v2.4M16.8 10.2 15.3 12M19.8 13.8l-2.2 1"></path>
+    <circle cx="12" cy="19" r="1.35" fill="currentColor" stroke="none"></circle>
   </svg>`,
 ];
 
