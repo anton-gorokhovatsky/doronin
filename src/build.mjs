@@ -1040,14 +1040,14 @@ const mediaIcons = {
 };
 
 const presenceSceneIcons = [
-  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="M4 9h10c2 0 3-1 3-3M4 15h12c2 0 3 1 3 3"></path>
+  `<svg class="audio-story__scene-icon audio-story__scene-icon--breath" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+    <path d="M18.084 24.785c-2.604-1.529-1.994-5.207-.155-7.022c3.188-3.212 8.526-2.15 11.285 1.015c4 4.598 2.436 11.584-2.233 15.107c-6.174 4.681-15.107 2.627-19.526-3.344c-5.54-7.488-2.937-18.056 4.574-23.287c9.1-6.21 21.723-3.105 27.813 5.696c7.046 10.247 3.5 24.279-6.77 31.05"></path>
   </svg>`,
-  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="M6 15V9M12 19V5M18 15V9"></path>
+  `<svg class="audio-story__scene-icon audio-story__scene-icon--rhythm" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+    <path d="M2 25h9l5-12 6 24 8-34 7 22h9"></path>
   </svg>`,
-  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="m5 6.5 5.5 5.5L5 17.5M12 6.5l5.5 5.5-5.5 5.5"></path>
+  `<svg class="audio-story__scene-icon audio-story__scene-icon--speed" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+    <path d="M29 3 9 29h14l-4 16 20-27H25Z"></path>
   </svg>`,
 ];
 
