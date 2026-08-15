@@ -222,10 +222,10 @@ const locales = {
       formulaResult: "11 111",
     },
     presence: {
-      eyebrow: "Архив фильма «1111»",
+      eyebrow: "Звуковой архив фильма «1111»",
       title: "Присутствие",
-      note:
-        "Три короткие сцены из прошлого проекта: дыхание, ритм и скорость. Звук запускается только по вашему выбору.",
+      description: "Три короткие сцены: дыхание, ритм и скорость.",
+      hint: "Выберите сцену, чтобы включить звук.",
       scenesLabel: "Выбрать звуковую сцену из фильма «1111»",
       play: "Включить сцену",
       pause: "Поставить сцену на паузу",
@@ -628,10 +628,10 @@ const locales = {
       formulaResult: "11,111",
     },
     presence: {
-      eyebrow: "From the film “1111”",
+      eyebrow: "Sound archive from the film “1111”",
       title: "Presence",
-      note:
-        "Three short scenes from the previous project: breath, rhythm and speed. Sound starts only when you choose it.",
+      description: "Three short scenes: breath, rhythm and speed.",
+      hint: "Choose a scene to play the audio.",
       scenesLabel: "Choose a sound scene from the film “1111”",
       play: "Play scene",
       pause: "Pause scene",
@@ -1362,10 +1362,11 @@ function renderPresence(presence, l) {
         </div>
         <div class="audio-story__copy">
           <h2 id="presence-title">${presence.title}</h2>
-          <p>${presence.note}</p>
+          <p>${presence.description}</p>
         </div>
       </div>
       <div class="audio-story__player" data-presence-player>
+        <p class="audio-story__hint">${presence.hint}</p>
         <ol class="audio-story__storyline" aria-label="${presence.scenesLabel}">
           ${presence.scenes
             .map(

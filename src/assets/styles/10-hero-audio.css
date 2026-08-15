@@ -125,9 +125,10 @@
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   align-items: center;
-  gap: clamp(2.5rem, 5vw, 6rem);
-  min-height: clamp(24rem, 46svh, 34rem);
-  padding: clamp(4.5rem, 7vw, 7.5rem) var(--page-gutter);
+  column-gap: var(--layout-column-gap);
+  row-gap: clamp(2.5rem, 5vw, 6rem);
+  min-height: 0;
+  padding: clamp(4rem, 5.25vw, 5.75rem) var(--page-gutter);
   overflow: hidden;
   border-top: 0;
   background: var(--ink-deep);
@@ -217,9 +218,19 @@
 .audio-story__player {
   --active-scene-index: 0;
   z-index: 1;
+  display: grid;
   grid-column: 6 / -1;
+  gap: 0.85rem;
   min-width: 0;
   overflow: hidden;
+}
+
+.audio-story__hint {
+  max-width: 34ch;
+  margin: 0;
+  color: rgba(217, 226, 217, 0.68);
+  font-size: var(--type-service-strong);
+  line-height: 1.4;
 }
 
 .audio-story__wave {
