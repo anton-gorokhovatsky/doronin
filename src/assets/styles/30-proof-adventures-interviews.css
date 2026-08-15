@@ -2,7 +2,7 @@
   container-name: proof-layout;
   container-type: inline-size;
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
+  grid-template-columns: minmax(0, 3fr) minmax(18rem, 1fr);
   align-content: start;
   gap: clamp(3rem, 6vw, 7rem);
   min-height: 0;
