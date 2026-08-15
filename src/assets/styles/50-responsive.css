@@ -2046,6 +2046,13 @@
     font-size: var(--type-narrow-statement);
   }
 
+  .proof h2 {
+    max-width: 100%;
+    font-size: min(var(--type-narrow-statement), calc(0.1rem + 6vw));
+    line-height: 1.06;
+    text-wrap: balance;
+  }
+
   .section-heading h2,
   .section-heading--compact > h2,
   .interviews__heading h2,
