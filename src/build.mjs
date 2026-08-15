@@ -1039,7 +1039,7 @@ const presenceSceneIcons = [
     <path d="M4 16V8M8 19V5M12 14v-4M16 18V6M20 15V9"></path>
   </svg>`,
   `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="M4 16 10 8M9 17l6-8M14 18l6-8"></path>
+    <path d="M4 17a8 8 0 0 1 16 0M12 17l4-6M6.5 17h11"></path>
   </svg>`,
 ];
 
