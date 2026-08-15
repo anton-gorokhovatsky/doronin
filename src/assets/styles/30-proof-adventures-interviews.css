@@ -139,10 +139,7 @@
 
 .proof-metrics {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(min(14rem, 100%), 1fr)
-  );
+  grid-template-columns: minmax(0, 1fr);
   align-self: start;
   gap: 0;
   border-top: 1px solid var(--line-dark);
@@ -191,6 +188,10 @@
 
   .proof h2 {
     max-width: 18ch;
+  }
+
+  .proof-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -457,6 +458,54 @@
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: clamp(3rem, 6vw, 6rem) clamp(1rem, 2.4vw, 2.5rem);
+}
+
+.interviews__archive {
+  margin-top: clamp(3rem, 6vw, 6rem);
+  border-top: 1px solid var(--line-light);
+  border-bottom: 1px solid var(--line-light);
+}
+
+.interviews__archive summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 1rem;
+  min-height: 5.5rem;
+  cursor: pointer;
+  font-size: var(--type-service-strong);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  list-style: none;
+  text-transform: uppercase;
+}
+
+.interviews__archive summary::-webkit-details-marker {
+  display: none;
+}
+
+.interviews__archive summary small {
+  color: rgba(241, 245, 237, 0.58);
+  font-size: var(--type-service);
+  font-weight: 700;
+}
+
+.interviews__archive summary .icon {
+  transition: transform 180ms var(--ease-move);
+}
+
+.interviews__archive[open] summary .icon {
+  transform: rotate(180deg);
+}
+
+.interview-grid--archive {
+  gap: clamp(2.5rem, 4vw, 4rem) clamp(1rem, 2.4vw, 2.5rem);
+  padding: clamp(2.5rem, 5vw, 5rem) 0;
+  border-top: 1px solid var(--line-light);
+}
+
+.interview-grid--archive .interview-card {
+  grid-column: span 3;
 }
 
 .interview-card {

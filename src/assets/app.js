@@ -538,6 +538,9 @@ const presencePlayer = document.querySelector("[data-presence-player]");
 const presenceSceneButtons = Array.from(
   document.querySelectorAll("[data-presence-scene]"),
 );
+const presenceContexts = Array.from(
+  document.querySelectorAll("[data-presence-context]"),
+);
 
 if (presenceAudio && presencePlayer && presenceSceneButtons.length) {
   let activePresenceScene = Math.max(
@@ -547,6 +550,7 @@ if (presenceAudio && presencePlayer && presenceSceneButtons.length) {
     ),
   );
   let presenceProgressFrame = 0;
+  let presenceContextFrame = 0;
   let presenceAudioContext;
   let presenceAnalyser;
   let presenceFrequencyData;
@@ -649,6 +653,26 @@ if (presenceAudio && presencePlayer && presenceSceneButtons.length) {
     }
   }
 
+  function syncPresenceContext(animate = false) {
+    presencePlayer.style.setProperty(
+      "--active-scene-index",
+      String(activePresenceScene),
+    );
+    window.cancelAnimationFrame(presenceContextFrame);
+
+    for (const [index, context] of presenceContexts.entries()) {
+      const isActive = index === activePresenceScene;
+      context.hidden = !isActive;
+      context.classList.remove("is-context-entering");
+
+      if (isActive && animate && !reducedMotion.matches) {
+        presenceContextFrame = window.requestAnimationFrame(() => {
+          context.classList.add("is-context-entering");
+        });
+      }
+    }
+  }
+
   function updatePresenceProgress() {
     const duration = presenceDuration();
     const isPlaying = !presenceAudio.paused && !presenceAudio.ended;
@@ -716,6 +740,7 @@ if (presenceAudio && presencePlayer && presenceSceneButtons.length) {
     }
 
     activePresenceScene = index;
+    syncPresenceContext(true);
     const nextSource = nextButton.dataset.audioSrc;
 
     if (nextSource && presenceAudio.getAttribute("src") !== nextSource) {
@@ -771,6 +796,7 @@ if (presenceAudio && presencePlayer && presenceSceneButtons.length) {
       presenceAudio.pause();
     }
   });
+  syncPresenceContext();
   syncPresenceControls();
 }
 

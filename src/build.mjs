@@ -224,7 +224,8 @@ const locales = {
     presence: {
       eyebrow: "Звуковой архив фильма «1111»",
       title: "Присутствие",
-      description: "Три короткие сцены: дыхание, ритм и скорость.",
+      description:
+        "Три короткие сцены возвращают физическое ощущение дистанции: дыхание, ритм и скорость.",
       hint: "Выберите сцену, чтобы включить звук.",
       scenesLabel: "Выбрать звуковую сцену из фильма «1111»",
       play: "Включить сцену",
@@ -234,16 +235,24 @@ const locales = {
           title: "Дыхание",
           file: "audio-scene-01.m4a",
           duration: "13.973333",
+          contextTitle: "Усилие",
+          context:
+            "Вдох, выдох и короткая пауза делают усилие слышимым.",
         },
         {
           title: "Ритм",
           file: "audio-scene-04.m4a",
           duration: "20.138667",
+          contextTitle: "Повторение",
+          context:
+            "Отдельные движения складываются в устойчивый темп.",
         },
         {
           title: "Скорость",
           file: "audio-scene-05.m4a",
           duration: "16.298667",
+          contextTitle: "Поток",
+          context: "Шум воздуха делает скорость физически ощутимой.",
         },
       ],
     },
@@ -324,13 +333,12 @@ const locales = {
       ],
     },
     proof: {
-      eyebrow: "Мы уже делали это",
-      title: "Проект «1111»: результат, который можно проверить",
+      eyebrow: "Архив предыдущего проекта",
+      title: "«1111»: фильм и проверяемый результат",
       body:
-        "Аудитория готова к длинным форматам. Честность работает лучше глянца. История продолжает жить после финиша.",
+        "Предыдущий проект показал: аудитория готова к длинным форматам, честность работает лучше глянца, а история продолжает жить после финиша.",
       metrics: [
         ["≈1,3 млн", "просмотров пяти серий и фильма"],
-        ["92 000+", "просмотров фильма"],
         ["+310%", "рост аудитории героя"],
         ["25+", "федеральных СМИ"],
       ],
@@ -343,7 +351,7 @@ const locales = {
         {
           title: "≈1,3 млн просмотров",
           body:
-            "Пять серий — 233, 239, 231, 231 и 273 тыс.; фильм — 92,1 тыс. Суммарно — около 1,299 млн просмотров.",
+            "Пять серий — 233, 239, 231, 231 и 273 тыс.; фильм — 92,1 тыс. Суммарно — около 1,299 млн просмотров.",
           links: [
             ["Серия 1", shared.serialHrefs[0]],
             ["Серия 2", shared.serialHrefs[1]],
@@ -404,6 +412,8 @@ const locales = {
       intro:
         "Разговоры, в которых видны опыт больших дистанций, работа над собой и способность собирать вокруг движения людей.",
       watch: "Смотреть интервью",
+      archiveTitle: "Ещё четыре разговора",
+      archiveHint: "Открыть архив интервью",
       items: [
         {
           title: "Проект «1111»: 58 часов без сна",
@@ -630,7 +640,8 @@ const locales = {
     presence: {
       eyebrow: "Sound archive from the film “1111”",
       title: "Presence",
-      description: "Three short scenes: breath, rhythm and speed.",
+      description:
+        "Three short scenes bring back the physical feeling of the distance: breath, rhythm and speed.",
       hint: "Choose a scene to play the audio.",
       scenesLabel: "Choose a sound scene from the film “1111”",
       play: "Play scene",
@@ -640,16 +651,23 @@ const locales = {
           title: "Breath",
           file: "audio-scene-01.m4a",
           duration: "13.973333",
+          contextTitle: "Effort",
+          context:
+            "An inhale, an exhale and a short pause make the effort audible.",
         },
         {
           title: "Rhythm",
           file: "audio-scene-04.m4a",
           duration: "20.138667",
+          contextTitle: "Repetition",
+          context: "Separate movements settle into a sustained rhythm.",
         },
         {
           title: "Speed",
           file: "audio-scene-05.m4a",
           duration: "16.298667",
+          contextTitle: "Airflow",
+          context: "The rush of air makes speed feel physical.",
         },
       ],
     },
@@ -730,13 +748,12 @@ const locales = {
       ],
     },
     proof: {
-      eyebrow: "We have done it before",
-      title: "Project “1111”: a result you can verify",
+      eyebrow: "Archive of the previous project",
+      title: "“1111”: the film and a verifiable result",
       body:
-        "The audience embraces long-form stories. Honesty outperforms gloss. The project lives on after the finish.",
+        "The previous project showed that audiences embrace long-form stories, honesty outperforms gloss, and the story lives on after the finish.",
       metrics: [
         ["≈1.3M", "views across five episodes and the film"],
-        ["92,000+", "film views"],
         ["+310%", "growth in Viktor’s audience"],
         ["25+", "federal media outlets"],
       ],
@@ -810,6 +827,8 @@ const locales = {
       intro:
         "Conversations that reveal his experience of long-distance challenges, work on himself, and ability to bring people together through movement.",
       watch: "Watch the interview",
+      archiveTitle: "Four more conversations",
+      archiveHint: "Open the interview archive",
       items: [
         {
           title: "Project “1111”: 58 hours without sleep",
@@ -1403,6 +1422,17 @@ function renderPresence(presence, l) {
             )
             .join("")}
         </ol>
+        <div class="audio-story__contexts" aria-live="polite" aria-atomic="true">
+          ${presence.scenes
+            .map(
+              (scene, index) => `
+                <p data-presence-context${index === 0 ? "" : " hidden"}>
+                  <strong>${scene.contextTitle}</strong>
+                  <span>${scene.context}</span>
+                </p>`,
+            )
+            .join("")}
+        </div>
       </div>
       <audio
         data-presence-audio
@@ -1412,12 +1442,15 @@ function renderPresence(presence, l) {
     </section>`;
 }
 
-function renderInterviews(items, l) {
+function renderInterviews(items, l, startIndex = 0) {
   return items
     .map(
-      (item, index) => `
+      (item, index) => {
+        const itemIndex = startIndex + index;
+
+        return `
         <a
-          class="interview-card${index === 0 ? " interview-card--featured" : " interview-card--index"}"
+          class="interview-card${itemIndex === 0 ? " interview-card--featured" : " interview-card--index"}"
           href="${item.href}"
           target="_blank"
           rel="noopener noreferrer"
@@ -1434,7 +1467,7 @@ function renderInterviews(items, l) {
           </div>
           <div class="interview-card__copy">
             <p class="interview-card__meta">
-              <span>${String(index + 1).padStart(2, "0")}</span>
+              <span>${String(itemIndex + 1).padStart(2, "0")}</span>
               ${item.source}
             </p>
             <h3>${item.title}</h3>
@@ -1443,7 +1476,8 @@ function renderInterviews(items, l) {
               ${icons.external}
             </span>
           </div>
-        </a>`,
+        </a>`;
+      },
     )
     .join("");
 }
@@ -2134,8 +2168,18 @@ function renderPage(l) {
         <p class="interviews__intro">${l.interviews.intro}</p>
       </div>
       <div class="interview-grid">
-        ${renderInterviews(l.interviews.items, l)}
+        ${renderInterviews(l.interviews.items.slice(0, 4), l)}
       </div>
+      <details class="interviews__archive">
+        <summary>
+          <span>${l.interviews.archiveTitle}</span>
+          <small>${l.interviews.archiveHint}</small>
+          ${icons.disclosure}
+        </summary>
+        <div class="interview-grid interview-grid--archive">
+          ${renderInterviews(l.interviews.items.slice(4), l, 4)}
+        </div>
+      </details>
     </section>
 
     <div class="velocity-cut velocity-cut--into-partners" aria-hidden="true"></div>

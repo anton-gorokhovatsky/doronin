@@ -214,6 +214,7 @@ for (const [lang, path] of pages) {
       html.includes('class="audio-story"') &&
       html.includes("data-presence-player") &&
       (html.match(/\bdata-presence-scene\b/g) || []).length === 3 &&
+      (html.match(/\bdata-presence-context\b/g) || []).length === 3 &&
       html.includes("audio-scene-01.m4a") &&
       html.includes("audio-scene-04.m4a") &&
       html.includes("audio-scene-05.m4a") &&
@@ -247,6 +248,8 @@ for (const [lang, path] of pages) {
   );
   expect(
     html.includes('id="interviews"') &&
+      html.includes('class="interviews__archive"') &&
+      html.includes('class="interview-grid interview-grid--archive"') &&
       (html.match(/class="interview-card(?:\s|")/g) || []).length === 8 &&
       (html.match(/interview-card--featured/g) || []).length === 1 &&
       (html.match(/interview-card--index/g) || []).length === 7,
@@ -380,7 +383,7 @@ for (const [lang, path] of pages) {
     );
     expect(
       visibleText.includes("≈1,3 млн") &&
-        visibleText.includes("92 000+") &&
+        visibleText.includes("92,1 тыс.") &&
         visibleText.includes("Проверено 31 июля 2026"),
       "ru: просмотры сериала и фильма должны быть актуальными и датированными",
     );
@@ -433,7 +436,7 @@ for (const [lang, path] of pages) {
     );
     expect(
       visibleText.includes("≈1.3M") &&
-        visibleText.includes("92,000+") &&
+        visibleText.includes("92.1k") &&
         visibleText.includes("Checked July 31, 2026"),
       "en: series and film views must be current and dated",
     );

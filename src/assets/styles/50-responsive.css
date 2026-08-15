@@ -594,7 +594,7 @@
   }
 
   .proof-metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     align-self: start;
   }
 
@@ -642,6 +642,10 @@
 
   .interview-card,
   .interview-card:nth-child(n + 5) {
+    grid-column: span 6;
+  }
+
+  .interview-grid--archive .interview-card {
     grid-column: span 6;
   }
 
@@ -1935,9 +1939,36 @@
     gap: 0;
   }
 
+  .interviews__archive {
+    margin-top: 2.5rem;
+  }
+
+  .interviews__archive summary {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.55rem 0.75rem;
+    min-height: 5rem;
+  }
+
+  .interviews__archive summary small {
+    grid-column: 1;
+    grid-row: 2;
+    padding-bottom: 0.75rem;
+  }
+
+  .interviews__archive summary .icon {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .interview-grid--archive {
+    padding: 0;
+    border-top: 0;
+  }
+
   .interview-card,
   .interview-card:nth-child(n + 5),
-  .interview-card--featured {
+  .interview-card--featured,
+  .interview-grid--archive .interview-card {
     grid-column: 1;
   }
 
@@ -1964,6 +1995,10 @@
 
   .interview-card--index:last-child {
     border-bottom: 1px solid var(--line-light);
+  }
+
+  .interview-grid--archive .interview-card--index:last-child {
+    border-bottom: 0;
   }
 
   .interview-card--index .interview-card__media {
