@@ -1044,8 +1044,7 @@
   }
 
   .audio-story__scene-icon {
-    width: 1.1rem;
-    height: 1.1rem;
+    --icon-scene-size: 1.1rem;
   }
 
   .audio-story__storyline button strong {

@@ -110,7 +110,7 @@
       .site-footer__credits a
     ):hover
     .icon {
-    transform: translate(0.12rem, -0.12rem);
+    transform: var(--icon-motion-external);
   }
 }
 
@@ -123,7 +123,7 @@
     .site-footer__credits a
   ):focus-visible
   .icon {
-  transform: translate(0.12rem, -0.12rem);
+  transform: var(--icon-motion-external);
 }
 
 .text-link {
@@ -301,7 +301,8 @@
 }
 
 .proof-source__links .icon {
-  width: 0.72rem;
+  width: var(--icon-source-size);
+  height: var(--icon-source-size);
 }
 
 .adventure-grid {
@@ -575,6 +576,6 @@
   }
 
   .interview-card:hover .interview-card__action .icon {
-    transform: translate(0.2rem, -0.2rem);
+    transform: var(--icon-motion-external);
   }
 }

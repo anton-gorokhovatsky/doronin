@@ -123,7 +123,7 @@
 
 .site-nav__cta:hover .icon,
 .site-nav__cta:focus-visible .icon {
-  transform: translate(0.14rem, -0.14rem);
+  transform: var(--icon-motion-external);
 }
 
 .nav-shell[open] .site-nav__primary > .site-nav__link {

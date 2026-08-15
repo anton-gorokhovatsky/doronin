@@ -63,6 +63,52 @@ async function auditPage(browser, browserName, origin, testCase) {
     expect(await page.locator("h1").count() === 1, `${prefix}: expected one h1`);
     expect(await page.locator(".button--primary").isVisible(), `${prefix}: primary CTA hidden`);
 
+    const iconAudit = await page.evaluate(() => {
+      const selector = [
+        "svg.icon",
+        "svg.media-toggle-icon",
+        "svg.media-play-icon",
+        "svg.audio-story__scene-icon",
+      ].join(",");
+      const visibleIcons = [...document.querySelectorAll(selector)]
+        .map((icon) => {
+          const bounds = icon.getBoundingClientRect();
+          return {
+            className: icon.getAttribute("class"),
+            height: bounds.height,
+            width: bounds.width,
+          };
+        })
+        .filter((icon) => icon.width > 0 && icon.height > 0);
+
+      return {
+        disclosureCount: document.querySelectorAll(".icon--disclosure").length,
+        mediaToggleCount: document.querySelectorAll(".media-toggle-icon").length,
+        malformed: visibleIcons.filter(
+          (icon) => Math.abs(icon.width - icon.height) > 0.5,
+        ),
+        semanticLeaks: [...document.querySelectorAll(selector)]
+          .filter(
+            (icon) =>
+              icon.getAttribute("aria-hidden") !== "true" ||
+              icon.getAttribute("focusable") !== "false",
+          )
+          .map((icon) => icon.getAttribute("class")),
+      };
+    });
+    expect(
+      iconAudit.malformed.length === 0,
+      `${prefix}: icon aspect ratios diverged (${JSON.stringify(iconAudit.malformed)})`,
+    );
+    expect(
+      iconAudit.disclosureCount === 1 && iconAudit.mediaToggleCount === 2,
+      `${prefix}: shared icon roles regressed (${JSON.stringify(iconAudit)})`,
+    );
+    expect(
+      iconAudit.semanticLeaks.length === 0,
+      `${prefix}: decorative icons leaked into the accessibility tree (${JSON.stringify(iconAudit.semanticLeaks)})`,
+    );
+
     const heroPeaks = await page.locator(".hero-peaks").evaluate((element) => {
       const labels = [...element.querySelectorAll("li")].map((label) => {
         const bounds = label.getBoundingClientRect();

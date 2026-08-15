@@ -105,6 +105,13 @@
   --contact-row-min-height: 2.5rem;
   --contact-icon-gap: 0.55rem;
   --contact-underline-color: color-mix(in srgb, currentColor 42%, transparent);
+  --icon-action-size: 1rem;
+  --icon-inline-size: 0.82rem;
+  --icon-source-size: 0.72rem;
+  --icon-scene-size: 1.2rem;
+  --icon-motion-external: translate(0.12rem, -0.12rem);
+  --icon-motion-down: translateY(0.18rem);
+  --media-toggle-icon-size: 1rem;
   --display: "Micra", "Arial Black", sans-serif;
   --body: "Commissioner", "Helvetica Neue", Arial, sans-serif;
   --sans: var(--body);
@@ -230,8 +237,8 @@ a {
 .icon {
   display: block;
   flex: 0 0 auto;
-  width: 1rem;
-  height: 1rem;
+  width: var(--icon-action-size);
+  height: var(--icon-action-size);
   overflow: visible;
 }
 
@@ -244,10 +251,32 @@ a {
   vector-effect: non-scaling-stroke;
 }
 
-.icon--mail,
-.icon--telegram {
-  width: 0.95rem;
-  height: 0.95rem;
+.media-toggle-icon,
+.media-play-icon {
+  display: block;
+  width: var(--media-toggle-icon-size);
+  height: var(--media-toggle-icon-size);
+  overflow: visible;
+}
+
+.media-toggle-icon path,
+.media-play-icon path {
+  fill: currentColor;
+  stroke: none;
+}
+
+:is(.hero__media-toggle, .story-frame__video-toggle)[aria-pressed="false"]
+  .media-toggle-icon__pause {
+  display: none;
+}
+
+:is(.hero__media-toggle, .story-frame__video-toggle)[aria-pressed="false"]
+  .media-toggle-icon__play {
+  display: block;
+}
+
+.media-toggle-icon__play {
+  display: none;
 }
 
 .contact-action {
@@ -281,15 +310,6 @@ a {
   line-height: 1;
   text-decoration: none;
   text-transform: uppercase;
-}
-
-:where(.site-nav__contacts, .partners__channels, .site-footer__contacts)
-  a:hover
-  :where(.icon--mail, .icon--telegram),
-:where(.site-nav__contacts, .partners__channels, .site-footer__contacts)
-  a:focus-visible
-  :where(.icon--mail, .icon--telegram) {
-  transform: none;
 }
 
 button,

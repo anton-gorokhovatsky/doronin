@@ -766,7 +766,7 @@
   }
 
   .partners__channels a:hover .icon {
-    transform: translate(0.12rem, -0.12rem);
+    transform: var(--icon-motion-external);
     transition-timing-function: var(--ease-enter);
   }
 
@@ -910,7 +910,7 @@
   }
 
   .site-footer__after-credits:hover .icon {
-    transform: translate(0.12rem, -0.12rem);
+    transform: var(--icon-motion-external);
   }
 }
 

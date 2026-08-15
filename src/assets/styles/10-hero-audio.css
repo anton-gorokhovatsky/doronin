@@ -83,42 +83,6 @@
   color: var(--ink);
 }
 
-.hero__media-toggle-icon {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.2rem;
-  width: 0.9rem;
-  height: 0.9rem;
-}
-
-.hero__media-toggle-icon i {
-  display: block;
-  width: 0.18rem;
-  height: 0.8rem;
-  background: currentColor;
-}
-
-.hero__media-toggle[aria-pressed="false"] .hero__media-toggle-icon {
-  display: block;
-}
-
-.hero__media-toggle[aria-pressed="false"] .hero__media-toggle-icon i {
-  position: absolute;
-  inset: 0.05rem auto auto 0.24rem;
-  width: 0;
-  height: 0;
-  border-top: 0.4rem solid transparent;
-  border-bottom: 0.4rem solid transparent;
-  border-left: 0.65rem solid currentColor;
-  background: transparent;
-}
-
-.hero__media-toggle[aria-pressed="false"] .hero__media-toggle-icon i:last-child {
-  display: none;
-}
-
 .audio-story {
   position: relative;
   isolation: isolate;
@@ -397,13 +361,14 @@
 }
 
 .audio-story__scene-icon {
-  width: 1.2rem;
-  height: 1.2rem;
+  width: var(--icon-scene-size);
+  height: var(--icon-scene-size);
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
 }
 
 .audio-story__scene-foot {
@@ -660,13 +625,13 @@
 
 .button:hover .icon--down,
 .button:focus-visible .icon--down {
-  transform: translateY(0.18rem);
+  transform: var(--icon-motion-down);
   transition-timing-function: var(--ease-enter);
 }
 
 .button:hover .icon--external,
 .button:focus-visible .icon--external {
-  transform: translate(0.12rem, -0.12rem);
+  transform: var(--icon-motion-external);
   transition-timing-function: var(--ease-enter);
 }
 

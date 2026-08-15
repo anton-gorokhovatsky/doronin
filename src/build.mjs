@@ -1009,14 +1009,6 @@ function renderMenuSettings(l) {
 }
 
 const icons = {
-  mail: `
-    <svg class="icon icon--mail" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-      <path d="M2.5 4.25h11v7.5h-11zM3 4.75 8 8.5l5-3.75"></path>
-    </svg>`,
-  telegram: `
-    <svg class="icon icon--telegram" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-      <path d="m2.5 7.5 11-4.25-3.2 9.5-3.2-3-2.25 1.65.7-3.15 5.2-3.1-4.3 3.8"></path>
-    </svg>`,
   external: `
     <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M4 12 12 4M6 4h6v6"></path>
@@ -1029,6 +1021,22 @@ const icons = {
     <svg class="icon icon--up" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M8 13V3M4.5 6.5 8 3l3.5 3.5"></path>
     </svg>`,
+  disclosure: `
+    <svg class="icon icon--disclosure" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="m4.5 6.5 3.5 3.5 3.5-3.5"></path>
+    </svg>`,
+};
+
+const mediaIcons = {
+  play: `
+    <svg class="media-play-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="m4.25 2.75 8.5 5.25-8.5 5.25Z"></path>
+    </svg>`,
+  toggle: `
+    <svg class="media-toggle-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path class="media-toggle-icon__play" d="m4.25 2.75 8.5 5.25-8.5 5.25Z"></path>
+      <path class="media-toggle-icon__pause" d="M4.5 3h2.25v10H4.5zM9.25 3h2.25v10H9.25z"></path>
+    </svg>`,
 };
 
 const presenceSceneIcons = [
@@ -1039,7 +1047,7 @@ const presenceSceneIcons = [
     <path d="M4 16V8M8 19V5M12 14v-4M16 18V6M20 15V9"></path>
   </svg>`,
   `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="M4 17a8 8 0 0 1 16 0M12 17l4-6M6.5 17h11"></path>
+    <path d="M4 18a8 8 0 0 1 16 0M12 18l4.8-7.2M5.3 10.8l1.4 1.4M12 6v2M18.7 10.8l-1.4 1.4"></path>
   </svg>`,
 ];
 
@@ -1236,9 +1244,7 @@ function renderDiaryEntries(entries, l) {
               <span class="diary__play-label">${entry.videoPlayCta}</span>
               <span class="diary__play-meta">
                 <time datetime="${entry.videoDurationIso}">${entry.videoDuration}</time>
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="m9 6 9 6-9 6Z"></path>
-                </svg>
+                ${mediaIcons.play}
               </span>
             </button>
             <figcaption class="sr-only">${entry.imageAlt}</figcaption>
@@ -1473,7 +1479,7 @@ function renderStory(items, l) {
                     aria-label="${l.story.videoPlay}"
                     aria-pressed="false"
                   >
-                    <span class="story-frame__video-toggle-icon" aria-hidden="true"><i></i><i></i></span>
+                    ${mediaIcons.toggle}
                     <span class="sr-only" data-story-video-toggle-label>${l.story.videoPlay}</span>
                   </button>`
                 : `<img
@@ -1822,7 +1828,7 @@ function renderPage(l) {
           aria-label="${l.hero.videoPlay}"
           aria-pressed="false"
         >
-          <span class="hero__media-toggle-icon" aria-hidden="true"><i></i><i></i></span>
+          ${mediaIcons.toggle}
           <span class="sr-only" data-video-toggle-label>${l.hero.videoPlay}</span>
         </button>
       </div>
@@ -2095,7 +2101,7 @@ function renderPage(l) {
         <summary>
           <span>${l.proof.sourcesTitle}</span>
           <small>${l.proof.sourcesUpdated}</small>
-          ${icons.down}
+          ${icons.disclosure}
         </summary>
         <div class="proof-sources__grid">
           ${renderProofSources(l.proof)}
