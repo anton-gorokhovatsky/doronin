@@ -1041,14 +1041,13 @@ const mediaIcons = {
 
 const presenceSceneIcons = [
   `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="M4 8h7c3 0 3-4 0-4-1.6 0-2.6.8-3 2M4 12h12c3 0 3-4 0-4-1.6 0-2.6.8-3 2M4 16h8c3 0 3 4 0 4-1.6 0-2.6-.8-3-2"></path>
+    <path d="M4 9h10c2 0 3-1 3-3M4 15h12c2 0 3 1 3 3"></path>
   </svg>`,
   `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="M4 16V8M8 19V5M12 14v-4M16 18V6M20 15V9"></path>
+    <path d="M6 15V9M12 19V5M18 15V9"></path>
   </svg>`,
   `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="M2.5 19a9.5 9.5 0 0 1 19 0M12 19l5.8-7.2M4.2 13.8l2.2 1M7.2 10.2l1.5 1.8M12 8.5v2.4M16.8 10.2 15.3 12M19.8 13.8l-2.2 1"></path>
-    <circle cx="12" cy="19" r="1.35" fill="currentColor" stroke="none"></circle>
+    <path d="m5 6.5 5.5 5.5L5 17.5M12 6.5l5.5 5.5-5.5 5.5"></path>
   </svg>`,
 ];
 
