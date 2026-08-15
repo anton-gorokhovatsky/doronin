@@ -533,6 +533,247 @@ if (heroVideo && videoToggle) {
   }
 }
 
+const presenceAudio = document.querySelector("[data-presence-audio]");
+const presencePlayer = document.querySelector("[data-presence-player]");
+const presenceSceneButtons = Array.from(
+  document.querySelectorAll("[data-presence-scene]"),
+);
+
+if (presenceAudio && presencePlayer && presenceSceneButtons.length) {
+  let activePresenceScene = Math.max(
+    0,
+    presenceSceneButtons.findIndex(
+      (button) => button.getAttribute("aria-pressed") === "true",
+    ),
+  );
+  let presenceProgressFrame = 0;
+  let presenceAudioContext;
+  let presenceAnalyser;
+  let presenceFrequencyData;
+  let presenceStartTracked = false;
+
+  function presenceWaveBars() {
+    return Array.from(
+      presenceSceneButtons[activePresenceScene]?.querySelectorAll(
+        ".audio-story__wave i",
+      ) || [],
+    );
+  }
+
+  async function ensurePresenceAnalyser() {
+    if (!presenceAudioContext) {
+      const AudioContextClass =
+        window.AudioContext || window.webkitAudioContext;
+
+      if (!AudioContextClass) {
+        return;
+      }
+
+      try {
+        presenceAudioContext = new AudioContextClass();
+        const source =
+          presenceAudioContext.createMediaElementSource(presenceAudio);
+        presenceAnalyser = presenceAudioContext.createAnalyser();
+        presenceAnalyser.fftSize = 64;
+        presenceAnalyser.smoothingTimeConstant = 0.72;
+        presenceFrequencyData = new Uint8Array(
+          presenceAnalyser.frequencyBinCount,
+        );
+        source.connect(presenceAnalyser);
+        presenceAnalyser.connect(presenceAudioContext.destination);
+      } catch {
+        presenceAudioContext = undefined;
+        presenceAnalyser = undefined;
+        presenceFrequencyData = undefined;
+        return;
+      }
+    }
+
+    if (presenceAudioContext.state === "suspended") {
+      await presenceAudioContext.resume();
+    }
+  }
+
+  function updatePresenceWave() {
+    const bars = presenceWaveBars();
+
+    if (
+      reducedMotion.matches ||
+      !presenceAnalyser ||
+      !presenceFrequencyData ||
+      !bars.length
+    ) {
+      return;
+    }
+
+    presenceAnalyser.getByteFrequencyData(presenceFrequencyData);
+    const bins = [1, 3, 6, 10, 14];
+
+    for (const [index, bar] of bars.entries()) {
+      const strength = presenceFrequencyData[bins[index]] / 255;
+      bar.style.transform = `scaleY(${0.34 + strength * 1.18})`;
+    }
+  }
+
+  function resetPresenceWave() {
+    for (const bar of presencePlayer.querySelectorAll(
+      ".audio-story__wave i",
+    )) {
+      bar.style.removeProperty("transform");
+    }
+  }
+
+  function presenceDuration() {
+    if (Number.isFinite(presenceAudio.duration) && presenceAudio.duration > 0) {
+      return presenceAudio.duration;
+    }
+
+    return (
+      Number(presenceSceneButtons[activePresenceScene]?.dataset.duration) || 0
+    );
+  }
+
+  function syncPresenceStoryline(progress = 0) {
+    for (const [index, button] of presenceSceneButtons.entries()) {
+      const sceneProgress =
+        index < activePresenceScene
+          ? 1
+          : index === activePresenceScene
+            ? progress
+            : 0;
+
+      button.style.setProperty(
+        "--scene-progress",
+        `${Math.min(1, sceneProgress) * 100}%`,
+      );
+    }
+  }
+
+  function updatePresenceProgress() {
+    const duration = presenceDuration();
+    const isPlaying = !presenceAudio.paused && !presenceAudio.ended;
+    const progress = duration
+      ? Math.min(1, presenceAudio.currentTime / duration)
+      : 0;
+
+    syncPresenceStoryline(progress);
+
+    if (isPlaying) {
+      updatePresenceWave();
+      presenceProgressFrame = window.requestAnimationFrame(
+        updatePresenceProgress,
+      );
+    }
+  }
+
+  function syncPresenceControls() {
+    const isPlaying = !presenceAudio.paused && !presenceAudio.ended;
+
+    for (const [index, button] of presenceSceneButtons.entries()) {
+      const isActive = index === activePresenceScene;
+      const label =
+        isActive && isPlaying
+          ? button.dataset.pauseLabel
+          : button.dataset.playLabel;
+      const title = button.dataset.sceneTitle || "";
+
+      button.setAttribute("aria-pressed", String(isActive));
+      button.dataset.playing = String(isActive && isPlaying);
+      button.setAttribute("aria-label", title ? `${label}: ${title}` : label);
+    }
+
+    window.cancelAnimationFrame(presenceProgressFrame);
+    if (!isPlaying) {
+      resetPresenceWave();
+    }
+    updatePresenceProgress();
+  }
+
+  function trackPresenceStart() {
+    if (presenceStartTracked) {
+      return;
+    }
+
+    presenceStartTracked = true;
+    reachGoal("presence_audio_start");
+  }
+
+  async function playPresenceScene() {
+    try {
+      await ensurePresenceAnalyser();
+      await presenceAudio.play();
+      trackPresenceStart();
+    } catch {
+      syncPresenceControls();
+    }
+  }
+
+  async function selectPresenceScene(index, shouldPlay = true) {
+    const nextButton = presenceSceneButtons[index];
+
+    if (!nextButton) {
+      return;
+    }
+
+    activePresenceScene = index;
+    const nextSource = nextButton.dataset.audioSrc;
+
+    if (nextSource && presenceAudio.getAttribute("src") !== nextSource) {
+      presenceAudio.setAttribute("src", nextSource);
+      presenceAudio.load();
+    } else {
+      presenceAudio.currentTime = 0;
+    }
+
+    resetPresenceWave();
+    syncPresenceControls();
+
+    if (shouldPlay) {
+      await playPresenceScene();
+    }
+  }
+
+  for (const [index, button] of presenceSceneButtons.entries()) {
+    button.addEventListener("click", async () => {
+      if (index !== activePresenceScene) {
+        await selectPresenceScene(index);
+        return;
+      }
+
+      if (!presenceAudio.paused) {
+        presenceAudio.pause();
+        return;
+      }
+
+      if (
+        presenceAudio.ended ||
+        (Number.isFinite(presenceAudio.duration) &&
+          presenceAudio.currentTime > presenceAudio.duration - 0.3)
+      ) {
+        presenceAudio.currentTime = 0;
+      }
+
+      await playPresenceScene();
+    });
+  }
+
+  presenceAudio.addEventListener("play", syncPresenceControls);
+  presenceAudio.addEventListener("pause", syncPresenceControls);
+  presenceAudio.addEventListener("ended", () => {
+    resetPresenceWave();
+    syncPresenceControls();
+  });
+  presenceAudio.addEventListener("loadedmetadata", syncPresenceControls);
+  presenceAudio.addEventListener("error", syncPresenceControls);
+  reducedMotion.addEventListener("change", resetPresenceWave);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      presenceAudio.pause();
+    }
+  });
+  syncPresenceControls();
+}
+
 const heroPeaks = document.querySelector(".hero-peaks");
 
 if (heroPeaks && !reducedMotion.matches) {

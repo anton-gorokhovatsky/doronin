@@ -307,17 +307,16 @@
 .adventure-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: stretch;
   gap: clamp(1rem, 2.5vw, 2.5rem);
 }
 
 .adventure-card {
+  display: grid;
   grid-column: span 4;
+  grid-template-rows: auto minmax(0, 1fr);
   color: var(--text-editorial);
   text-decoration: none;
-}
-
-.adventure-card:nth-child(2) {
-  margin-top: 5rem;
 }
 
 .adventure-card__media {
@@ -382,12 +381,11 @@
 }
 
 .adventure-card__copy {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
   gap: 2rem;
-  min-height: 14rem;
-  padding: 1.25rem 0;
+  min-height: 12.5rem;
+  padding: 1.5rem 0 0;
   border-bottom: 0;
 }
 

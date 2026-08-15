@@ -28,11 +28,8 @@ const styleModuleNames = [
   "65-number-font-trial.css",
 ];
 const retiredAssetNames = new Set([
-  "audio-scene-01.m4a",
   "audio-scene-02.m4a",
   "audio-scene-03.m4a",
-  "audio-scene-04.m4a",
-  "audio-scene-05.m4a",
   "distance-bike-motion.mp4",
   "distance-bike-presence.jpg",
   "distance-bike-presence.mp4",
@@ -223,6 +220,32 @@ const locales = {
       formulaBase: "7336",
       formulaSpecial: "3775",
       formulaResult: "11 111",
+    },
+    presence: {
+      eyebrow: "Архив фильма «1111»",
+      title: "Присутствие",
+      note:
+        "Три короткие сцены из прошлого проекта: дыхание, ритм и скорость. Звук запускается только по вашему выбору.",
+      scenesLabel: "Выбрать звуковую сцену из фильма «1111»",
+      play: "Включить сцену",
+      pause: "Поставить сцену на паузу",
+      scenes: [
+        {
+          title: "Дыхание",
+          file: "audio-scene-01.m4a",
+          duration: "13.973333",
+        },
+        {
+          title: "Ритм",
+          file: "audio-scene-04.m4a",
+          duration: "20.138667",
+        },
+        {
+          title: "Скорость",
+          file: "audio-scene-05.m4a",
+          duration: "16.298667",
+        },
+      ],
     },
     viktor: {
       eyebrow: "О герое",
@@ -604,6 +627,32 @@ const locales = {
       formulaSpecial: "3775",
       formulaResult: "11,111",
     },
+    presence: {
+      eyebrow: "From the film “1111”",
+      title: "Presence",
+      note:
+        "Three short scenes from the previous project: breath, rhythm and speed. Sound starts only when you choose it.",
+      scenesLabel: "Choose a sound scene from the film “1111”",
+      play: "Play scene",
+      pause: "Pause scene",
+      scenes: [
+        {
+          title: "Breath",
+          file: "audio-scene-01.m4a",
+          duration: "13.973333",
+        },
+        {
+          title: "Rhythm",
+          file: "audio-scene-04.m4a",
+          duration: "20.138667",
+        },
+        {
+          title: "Speed",
+          file: "audio-scene-05.m4a",
+          duration: "16.298667",
+        },
+      ],
+    },
     viktor: {
       eyebrow: "About Viktor",
       title: "Viktor Doronin",
@@ -982,6 +1031,18 @@ const icons = {
     </svg>`,
 };
 
+const presenceSceneIcons = [
+  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M4 8h7c3 0 3-4 0-4-1.6 0-2.6.8-3 2M4 12h12c3 0 3-4 0-4-1.6 0-2.6.8-3 2M4 16h8c3 0 3 4 0 4-1.6 0-2.6-.8-3-2"></path>
+  </svg>`,
+  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M4 16V8M8 19V5M12 14v-4M16 18V6M20 15V9"></path>
+  </svg>`,
+  `<svg class="audio-story__scene-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M4 16 10 8M9 17l6-8M14 18l6-8"></path>
+  </svg>`,
+];
+
 function formatProjectNumber(value, lang) {
   if (value < 10000) return String(value);
   return new Intl.NumberFormat(lang === "ru" ? "ru-RU" : "en-US").format(value);
@@ -1290,6 +1351,58 @@ function renderAdventures(items, l) {
         </a>`,
     )
     .join("");
+}
+
+function renderPresence(presence, l) {
+  return `
+    <section class="audio-story" id="presence" aria-labelledby="presence-title">
+      <div class="audio-story__intro">
+        <div class="audio-story__meta">
+          <p>${presence.eyebrow}</p>
+        </div>
+        <div class="audio-story__copy">
+          <h2 id="presence-title">${presence.title}</h2>
+          <p>${presence.note}</p>
+        </div>
+      </div>
+      <div class="audio-story__player" data-presence-player>
+        <ol class="audio-story__storyline" aria-label="${presence.scenesLabel}">
+          ${presence.scenes
+            .map(
+              (scene, index) => `
+            <li>
+              <button
+                type="button"
+                data-presence-scene
+                data-scene-title="${scene.title}"
+                data-audio-src="${l.assetBase}assets/${scene.file}"
+                data-duration="${scene.duration}"
+                data-play-label="${presence.play}"
+                data-pause-label="${presence.pause}"
+                data-playing="false"
+                aria-label="${presence.play}: ${scene.title}"
+                aria-pressed="${index === 0 ? "true" : "false"}"
+              >
+                <span class="audio-story__scene-line" aria-hidden="true"><i data-scene-progress></i></span>
+                <span class="audio-story__scene-head">
+                  ${presenceSceneIcons[index]}
+                </span>
+                <span class="audio-story__scene-foot">
+                  <strong>${scene.title}</strong>
+                  <span class="audio-story__wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                </span>
+              </button>
+            </li>`,
+            )
+            .join("")}
+        </ol>
+      </div>
+      <audio
+        data-presence-audio
+        preload="none"
+        src="${l.assetBase}assets/${presence.scenes[0].file}"
+      ></audio>
+    </section>`;
 }
 
 function renderInterviews(items, l) {
@@ -1925,6 +2038,8 @@ function renderPage(l) {
         </div>
       </div>
     </section>
+
+    ${renderPresence(l.presence, l)}
 
     <section class="athlete section" id="viktor" aria-labelledby="viktor-title">
       <div class="athlete__media">

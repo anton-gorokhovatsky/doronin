@@ -35,6 +35,7 @@ const requiredAnalyticsGoals = [
   "theme_change",
   "hero_video_pause",
   "hero_video_resume",
+  "presence_audio_start",
   "proof_open",
   "diary_video_start",
   "diary_video_complete",
@@ -45,11 +46,8 @@ const requiredAnalyticsGoals = [
   "contact_telegram",
 ];
 const retiredProductionAssets = [
-  "audio-scene-01.m4a",
   "audio-scene-02.m4a",
   "audio-scene-03.m4a",
-  "audio-scene-04.m4a",
-  "audio-scene-05.m4a",
   "distance-bike-motion.mp4",
   "distance-bike-presence.mp4",
   "distance-run-motion.mp4",
@@ -204,11 +202,24 @@ for (const [lang, path] of pages) {
     )?.[1] || "";
   expect(
     heroMediaControls.includes("data-video-toggle") &&
-      !heroMediaControls.includes("data-sound-toggle") &&
-      !html.includes('class="audio-story"') &&
-      !html.includes("data-sound-player") &&
-      !html.includes("audio-scene-"),
-    `${lang}: новый hero должен оставаться единственным первым медиа-сценарием без звуков старого триатлона`,
+      !heroMediaControls.includes("data-sound-toggle"),
+    `${lang}: управление фоновым видео должно оставаться отдельным контролом первого экрана`,
+  );
+  const distanceIndex = html.indexOf('id="distance"');
+  const presenceIndex = html.indexOf('id="presence"');
+  const athleteIndex = html.indexOf('id="viktor"');
+  expect(
+    presenceIndex > distanceIndex &&
+      athleteIndex > presenceIndex &&
+      html.includes('class="audio-story"') &&
+      html.includes("data-presence-player") &&
+      (html.match(/\bdata-presence-scene\b/g) || []).length === 3 &&
+      html.includes("audio-scene-01.m4a") &&
+      html.includes("audio-scene-04.m4a") &&
+      html.includes("audio-scene-05.m4a") &&
+      !html.includes("audio-scene-02.m4a") &&
+      !html.includes("audio-scene-03.m4a"),
+    `${lang}: глава присутствия должна стоять между календарём и портретом, оставаться добровольной и содержать только три уместные архивные сцены`,
   );
   const heroVideoTag =
     html.match(/<video\b[^>]*\bdata-hero-video\b[^>]*>/su)?.[0] || "";
@@ -695,9 +706,14 @@ expect(
 );
 expect(
   !app.includes("data-sound-player") &&
+    app.includes("data-presence-player") &&
     !app.includes("data-distance-story") &&
     !app.includes("data-distance-total") &&
-    !generatedHtml.includes("audio-scene-") &&
+    generatedHtml.includes("audio-scene-01.m4a") &&
+    generatedHtml.includes("audio-scene-04.m4a") &&
+    generatedHtml.includes("audio-scene-05.m4a") &&
+    !generatedHtml.includes("audio-scene-02.m4a") &&
+    !generatedHtml.includes("audio-scene-03.m4a") &&
     /padding-top:\s*clamp\(2\.75rem,\s*4\.5vw,\s*4\.5rem\)/.test(
       diaryRule,
     ) &&

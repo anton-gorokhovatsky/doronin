@@ -11,6 +11,7 @@
     { "id": "theme_change", "category": "preference", "params": ["theme"] },
     { "id": "hero_video_pause", "category": "media", "params": [] },
     { "id": "hero_video_resume", "category": "media", "params": [] },
+    { "id": "presence_audio_start", "category": "media", "params": [] },
     { "id": "proof_open", "category": "evidence", "params": [] },
     { "id": "diary_video_start", "category": "media", "params": [] },
     { "id": "diary_video_complete", "category": "media", "params": [] },
