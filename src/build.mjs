@@ -214,9 +214,9 @@ const locales = {
       baseSummary: "22 базовых дня",
       specialSummary: "5 специальных этапов",
       rideSummary: "30 дней движения",
-      rhythmTitle: "Базовая единица проекта — 333 км",
+      rhythmTitle: "Ритм до финала",
       rhythmText:
-        "20 базовых дней — по 333 км; ещё два — по 338 км. Так до финала Виктор набирает ровно 10 000 км.",
+        "20 базовых дней — по 333 км; ещё два — по 338 км. Перед финальным этапом Виктор набирает ровно 10 000 км. Финальный этап — непрерывный заезд на 1111 км.",
       formulaLabel: "7336 плюс 3775 равно 11 111 километров",
       formulaBase: "7336",
       formulaSpecial: "3775",
@@ -630,9 +630,9 @@ const locales = {
       baseSummary: "22 base days",
       specialSummary: "5 special stages",
       rideSummary: "30 days in motion",
-      rhythmTitle: "The project’s base unit is 333 km",
+      rhythmTitle: "The rhythm before the final stage",
       rhythmText:
-        "Twenty base days cover 333 km each; two more cover 338 km. This brings Viktor to exactly 10,000 km before the final stage.",
+        "Twenty base days cover 333 km each; two more cover 338 km. Before the final stage, Viktor reaches exactly 10,000 km. The final stage is a continuous 1111 km ride.",
       formulaLabel: "7336 plus 3775 equals 11,111 kilometres",
       formulaBase: "7336",
       formulaSpecial: "3775",
