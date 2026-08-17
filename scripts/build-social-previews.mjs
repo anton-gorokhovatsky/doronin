@@ -5,7 +5,7 @@ import { startSiteServer } from "./lib/site-server.mjs";
 
 const previews = [
   {
-    file: "share-ru-bike-20260813.jpg",
+    file: "share-ru-bike-20260817.jpg",
     lang: "ru",
     date: "1–31 декабря 2026",
     name: "Виктор Доронин",
@@ -14,7 +14,7 @@ const previews = [
     line: "31 день на велосипеде",
   },
   {
-    file: "share-en-bike-20260813.jpg",
+    file: "share-en-bike-20260817.jpg",
     lang: "en",
     date: "December 1–31, 2026",
     name: "Viktor Doronin",
@@ -101,24 +101,30 @@ try {
             h1 {
               display: flex;
               align-items: baseline;
-              gap: 0.22em;
+              gap: 14px;
               margin: 0;
               font-family: "Micra", "Arial Black", sans-serif;
-              font-size: 98px;
+              font-size: 108px;
               font-weight: 700;
-              letter-spacing: -0.015em;
-              line-height: 0.92;
+              letter-spacing: -0.025em;
+              line-height: 0.88;
               text-transform: uppercase;
             }
-            h1 small { font-size: 0.43em; letter-spacing: 0; }
+            h1 > span {
+              word-spacing: -0.1em;
+            }
+            h1 small {
+              font-size: 0.34em;
+              letter-spacing: 0.015em;
+            }
             .line {
               width: fit-content;
-              margin-top: 22px;
-              padding: 10px 14px 9px;
+              margin-top: 18px;
+              padding: 9px 12px 8px;
               background: #dfff38;
               color: #041f15;
               font-family: "Micra", "Arial Black", sans-serif;
-              font-size: 28px;
+              font-size: 24px;
               line-height: 1;
               text-transform: uppercase;
             }
@@ -132,7 +138,7 @@ try {
             </header>
             <section>
               <p class="name">${preview.name}</p>
-              <h1>${preview.distance}<small>${preview.unit}</small></h1>
+              <h1><span>${preview.distance}</span><small>${preview.unit}</small></h1>
               <p class="line">${preview.line}</p>
             </section>
           </main>
