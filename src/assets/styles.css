@@ -1,10 +1,11 @@
 @import "./styles/00-foundations-navigation.css";
 @import "./styles/10-hero-audio.css";
 @import "./styles/20-editorial-distance-story.css";
+@import "./styles/21-diary-responsive.css";
 @import "./styles/25-bike-calendar.css";
 @import "./styles/30-proof-adventures-interviews.css";
+@import "./styles/31-proof-responsive.css";
 @import "./styles/40-partners-footer.css";
 @import "./styles/50-responsive.css";
 @import "./styles/55-editorial-menu.css";
 @import "./styles/60-themes-accessibility.css";
-@import "./styles/65-number-font-trial.css";

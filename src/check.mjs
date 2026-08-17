@@ -480,13 +480,14 @@ const styleModuleNames = [
   "00-foundations-navigation.css",
   "10-hero-audio.css",
   "20-editorial-distance-story.css",
+  "21-diary-responsive.css",
   "25-bike-calendar.css",
   "30-proof-adventures-interviews.css",
+  "31-proof-responsive.css",
   "40-partners-footer.css",
   "50-responsive.css",
   "55-editorial-menu.css",
   "60-themes-accessibility.css",
-  "65-number-font-trial.css",
 ];
 const sourceStyleManifest = await readFile(resolve("src/assets/styles.css"), "utf8");
 const sourceStyleBundle = (
@@ -496,6 +497,7 @@ const sourceStyleBundle = (
     ),
   )
 ).join("");
+const themeInitSource = await readFile(resolve("src/assets/theme-init.js"), "utf8");
 const [logoSvg, faviconAdaptive, faviconLight, faviconDark] = await Promise.all(
   ["logo.svg", "favicon-adaptive.svg", "favicon-light.svg", "favicon-dark.svg"].map(
     (file) => readFile(resolve(outputRoot, `assets/${file}`), "utf8"),
@@ -542,12 +544,21 @@ const viewportOnlyTypeClamps =
   sourceStyleBundle.match(
     /font-size:\s*clamp\([^;]*,\s*-?(?:\d+\.?\d*|\.\d+)vw\s*,/g,
   ) || [];
+const mobileMicraHeadingRule = css.match(
+  /\.manifesto h2,\s*\.section-heading h2,\s*\.section-heading--compact > h2,\s*\.diary-live__copy h2,\s*\.athlete__copy h2,\s*\.proof h2,\s*\.interviews__heading h2,\s*\.partners h2,\s*\.partners__cta,\s*\.site-footer h2\s*\{([^}]*)\}/s,
+)?.[1] || "";
 
 expect(
   sourceStyleManifest ===
     `${styleModuleNames.map((file) => `@import "./styles/${file}";`).join("\n")}\n` &&
     sourceStyleBundle === css,
-  "css: десять исходных модулей должны без дрейфа собираться в один production styles.css",
+  "css: исходные модули должны без дрейфа собираться в один production styles.css",
+);
+expect(
+  !/barlow|number-font-trial/i.test(
+    `${sourceStyleManifest}\n${sourceStyleBundle}\n${themeInitSource}`,
+  ),
+  "typography: production должен использовать Micra без скрытого Barlow-режима",
 );
 expect(
   projectPlanErrors.length === 0 &&
@@ -583,6 +594,13 @@ expect(
     app.includes('document.querySelectorAll("[data-optical-start]")') &&
     css.includes("--micra-leading-one-shift"),
   "typography: крупные числа должны подключать единую оптическую компенсацию начальной единицы",
+);
+expect(
+  css.includes("--leading-mobile-micra: 1.12") &&
+    mobileMicraHeadingRule.includes(
+      "line-height: var(--leading-mobile-micra)",
+    ),
+  "typography: крупные мобильные заголовки Micra должны использовать один проверенный интерлиньяж",
 );
 expect(
   /font-family:\s*"Commissioner"[\s\S]*?Commissioner-Cyrillic\.woff2[\s\S]*?font-weight:\s*400 800/s.test(

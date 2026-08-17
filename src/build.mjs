@@ -19,13 +19,14 @@ const styleModuleNames = [
   "00-foundations-navigation.css",
   "10-hero-audio.css",
   "20-editorial-distance-story.css",
+  "21-diary-responsive.css",
   "25-bike-calendar.css",
   "30-proof-adventures-interviews.css",
+  "31-proof-responsive.css",
   "40-partners-footer.css",
   "50-responsive.css",
   "55-editorial-menu.css",
   "60-themes-accessibility.css",
-  "65-number-font-trial.css",
 ];
 const retiredAssetNames = new Set([
   "audio-scene-02.m4a",

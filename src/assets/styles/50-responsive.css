@@ -511,22 +511,6 @@
     box-shadow: none;
   }
 
-  .diary__media {
-    grid-column: 1 / span 5;
-  }
-
-  .diary-live__count {
-    grid-column: 1 / span 5;
-  }
-
-  .diary-live__copy {
-    grid-column: 6 / -1;
-  }
-
-  .diary__copy {
-    grid-column: 6 / -1;
-  }
-
   .manifesto {
     min-height: 42rem;
   }
@@ -548,7 +532,6 @@
     grid-template-columns: 1fr;
   }
 
-  .diary__facts,
   .achievement-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -587,35 +570,6 @@
 
   .story-frame:nth-child(6) {
     grid-column: 2 / span 10;
-  }
-
-  .proof {
-    grid-template-columns: 1fr;
-  }
-
-  .proof-metrics {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-self: start;
-  }
-
-  .proof-sources__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .proof-source {
-    grid-template-columns: 2rem minmax(0, 1fr);
-    gap: 0.8rem 1.25rem;
-  }
-
-  .proof-source__index {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .proof-source h3,
-  .proof-source p,
-  .proof-source__links {
-    grid-column: 2;
   }
 
   .adventure-card {
@@ -772,44 +726,6 @@
   }
 }
 
-@media (max-width: 760px) {
-  .diary__facts {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.25rem;
-  }
-
-  .diary__fact strong {
-    max-width: 100%;
-    font-size: var(--type-narrow-metric-proof);
-    overflow-wrap: normal;
-    white-space: nowrap;
-  }
-
-  .diary__fact span {
-    max-width: 100%;
-  }
-
-  .diary__fact + .diary__fact {
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--line-dark);
-  }
-
-  .proof-metric {
-    gap: 0.45rem;
-  }
-
-  .proof-metric strong {
-    max-width: 100%;
-    font-size: min(var(--type-narrow-metric-proof), 2rem);
-    overflow-wrap: normal;
-    white-space: nowrap;
-  }
-
-  .proof-metric span {
-    max-width: 30ch;
-  }
-}
-
 @media (max-width: 640px) {
   :root {
     --type-display-hero: clamp(1.95rem, calc(0.5rem + 7.2vw), 3.7rem);
@@ -853,6 +769,7 @@
       calc(0.8rem + 11vw),
       16vw
     );
+    --leading-mobile-micra: 1.12;
     --type-footer-mark: clamp(3rem, calc(0.25rem + 15vw), 6rem);
     --logo-watermark-width: min(72vw, 32rem);
     --page-gutter: 16px;
@@ -1085,192 +1002,8 @@
     display: none;
   }
 
-  .diary {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2rem;
-  }
-
-  .diary__heading,
-  .diary-live,
-  .diary-live__count,
-  .diary-live__copy,
-  .diary-live__timeline,
-  .diary-stories,
-  .diary__media,
-  .diary__copy,
   .project-phases {
     grid-column: 1;
-  }
-
-  .diary-live {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2.25rem;
-    padding-top: 1.5rem;
-  }
-
-  .diary-live__count {
-    gap: 0.65rem;
-  }
-
-  .diary-live__count strong {
-    font-size: min(30vw, 7.5rem);
-  }
-
-  .diary-live__count span {
-    max-width: 22ch;
-  }
-
-  .diary-live__copy h2 {
-    max-width: 100%;
-    font-size: var(--type-narrow-section);
-  }
-
-  .diary-live__body {
-    font-size: var(--type-copy);
-  }
-
-  .diary-live__actions {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    justify-items: stretch;
-    gap: 0.75rem;
-  }
-
-  .diary-live__actions .button {
-    width: 100%;
-  }
-
-  .diary-live__timeline {
-    margin-top: 0;
-  }
-
-  .diary-stories {
-    overflow-x: hidden;
-  }
-
-  .diary__heading {
-    display: grid;
-    justify-content: stretch;
-    justify-items: start;
-    gap: 0.7rem;
-    align-items: start;
-  }
-
-  .diary__heading > .diary__range {
-    display: flex;
-    justify-content: flex-start;
-    max-width: 100%;
-    text-align: left;
-  }
-
-  .diary-stories__rail {
-    grid-template-columns: none;
-    grid-auto-columns: calc((100% - 3rem) / 2);
-    grid-auto-flow: column;
-    overflow-x: scroll;
-    overflow-y: hidden;
-    overscroll-behavior: none;
-    overscroll-behavior-x: none;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    touch-action: pan-x;
-  }
-
-  .diary-stories__rail::-webkit-scrollbar {
-    display: none;
-  }
-
-  .diary-stories__tab {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto;
-    gap: 0;
-    min-height: 0;
-    padding: 0.25rem 0.25rem 0.7rem;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-    user-select: none;
-    -webkit-user-drag: none;
-  }
-
-  .diary-stories__index {
-    position: absolute;
-    z-index: 1;
-    top: 0.65rem;
-    left: 0.65rem;
-    padding: 0.25rem 0.35rem;
-    background: var(--ink);
-    color: var(--paper);
-    line-height: 1;
-  }
-
-  .diary-stories__thumb {
-    display: block;
-    grid-row: 1;
-    aspect-ratio: 4 / 5;
-    overflow: hidden;
-    background: var(--ink-deep);
-  }
-
-  .diary-stories__thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.62;
-    pointer-events: none;
-    transition: opacity 180ms var(--ease-move);
-    user-select: none;
-    -webkit-user-drag: none;
-  }
-
-  .diary-stories__tab time {
-    grid-row: 2;
-    justify-self: start;
-    margin-top: 0.65rem;
-    padding-inline: 0.4rem;
-  }
-
-  .diary-stories__tab strong {
-    display: none;
-  }
-
-  .diary-stories__tab[aria-selected="true"] .diary-stories__thumb img {
-    opacity: 1;
-  }
-
-  .diary-stories__panels {
-    margin-top: 2rem;
-  }
-
-  .diary-story {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2rem;
-  }
-
-  .diary__media {
-    width: 100%;
-    aspect-ratio: 9 / 16;
-  }
-
-  .diary__copy h3 {
-    max-width: 100%;
-    font-size: var(--type-narrow-section);
-  }
-
-  .diary__facts {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.25rem;
-  }
-
-  .diary__fact strong {
-    font-size: var(--type-narrow-metric-proof);
-  }
-
-  .diary__fact + .diary__fact {
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--line-dark);
-  }
-
-  .project-phases {
     grid-template-columns: minmax(0, 1fr);
     margin-top: 0.5rem;
   }
@@ -1802,8 +1535,7 @@
     white-space: normal;
   }
 
-  .achievement strong,
-  .proof-metric strong {
+  .achievement strong {
     font-size: var(--type-narrow-metric-proof);
   }
 
@@ -1812,85 +1544,6 @@
     font-size: min(var(--type-display-medium), var(--type-narrow-section));
     overflow-wrap: break-word;
     hyphens: auto;
-  }
-
-  .proof {
-    min-height: auto;
-  }
-
-  .proof-metric {
-    min-height: 0;
-    gap: 0.4rem;
-    padding: 0.85rem 0;
-    border-right: 0;
-  }
-
-  .proof-metrics {
-    grid-template-columns: minmax(0, 1fr);
-    border-left: 0;
-  }
-
-  .proof-sources summary {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.65rem;
-  }
-
-  .proof-sources summary small {
-    grid-column: 1;
-    grid-row: 2;
-    padding-bottom: 0.8rem;
-  }
-
-  .proof-sources summary .icon {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-  }
-
-  .proof-sources__grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
-  }
-
-  .proof-source,
-  .proof-source:nth-child(even) {
-    grid-template-columns: 2rem minmax(0, 1fr);
-    gap: 0.75rem 1rem;
-    padding: 1.5rem 0;
-    border-left: 0;
-  }
-
-  .proof-source:nth-child(n + 2) {
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--line-dark);
-  }
-
-  .proof-source h3 {
-    font-size: min(var(--type-display-small), 1.45rem);
-    line-height: 1.15;
-  }
-
-  .proof-source p {
-    font-size: var(--type-service-strong);
-    line-height: 1.45;
-  }
-
-  .proof-source__links {
-    gap: 0.35rem;
-    margin-top: 0.2rem;
-  }
-
-  .proof-source__links > div {
-    grid-template-columns: repeat(
-      auto-fit,
-      minmax(min(6.25rem, 100%), 1fr)
-    );
-    gap: 0.35rem 0.75rem;
-  }
-
-  .proof-source__links a {
-    justify-content: flex-start;
-    gap: 0.35rem;
-    min-height: 2rem;
   }
 
   .adventure-grid {
@@ -2041,16 +1694,8 @@
     font-size: 0;
   }
 
-  .manifesto h2,
-  .proof h2 {
+  .manifesto h2 {
     font-size: var(--type-narrow-statement);
-  }
-
-  .proof h2 {
-    max-width: 100%;
-    font-size: min(var(--type-narrow-statement), calc(0.1rem + 6vw));
-    line-height: 1.06;
-    text-wrap: balance;
   }
 
   .section-heading h2,
@@ -2062,28 +1707,24 @@
 
   .manifesto h2,
   .section-heading h2,
-  .section-heading--compact > h2 {
-    line-height: 1.1;
-  }
-
-  .athlete__copy h2,
-  .partners h2,
-  .site-footer h2 {
-    font-size: var(--type-narrow-feature);
-  }
-
-  .manifesto h2,
-  .section-heading h2,
   .section-heading--compact > h2,
+  .diary-live__copy h2,
   .athlete__copy h2,
   .proof h2,
   .interviews__heading h2,
   .partners h2,
   .partners__cta,
   .site-footer h2 {
+    line-height: var(--leading-mobile-micra);
     overflow-wrap: normal;
     word-break: normal;
     hyphens: none;
+  }
+
+  .athlete__copy h2,
+  .partners h2,
+  .site-footer h2 {
+    font-size: var(--type-narrow-feature);
   }
 
   .distance-card h3,

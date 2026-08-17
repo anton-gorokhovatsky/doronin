@@ -1,0 +1,139 @@
+@media (max-width: 960px) {
+  .proof {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .proof-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-self: start;
+  }
+
+  .proof-sources__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .proof-source {
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.8rem 1.25rem;
+  }
+
+  .proof-source__index {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .proof-source h3,
+  .proof-source p,
+  .proof-source__links {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 760px) {
+  .proof-metric {
+    gap: 0.45rem;
+  }
+
+  .proof-metric strong {
+    max-width: 100%;
+    font-size: min(var(--type-narrow-metric-proof), 2rem);
+    overflow-wrap: normal;
+    white-space: nowrap;
+  }
+
+  .proof-metric span {
+    max-width: 30ch;
+  }
+}
+
+@media (max-width: 640px) {
+  .proof {
+    min-height: auto;
+  }
+
+  .proof-metric {
+    min-height: 0;
+    gap: 0.4rem;
+    padding: 0.85rem 0;
+    border-right: 0;
+  }
+
+  .proof-metric strong {
+    font-size: var(--type-narrow-metric-proof);
+  }
+
+  .proof-metrics {
+    grid-template-columns: minmax(0, 1fr);
+    border-left: 0;
+  }
+
+  .proof-sources summary {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.65rem;
+  }
+
+  .proof-sources summary small {
+    grid-column: 1;
+    grid-row: 2;
+    padding-bottom: 0.8rem;
+  }
+
+  .proof-sources summary .icon {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .proof-sources__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .proof-source,
+  .proof-source:nth-child(even) {
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.75rem 1rem;
+    padding: 1.5rem 0;
+    border-left: 0;
+  }
+
+  .proof-source:nth-child(n + 2) {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line-dark);
+  }
+
+  .proof-source h3 {
+    font-size: min(var(--type-display-small), 1.45rem);
+    line-height: 1.15;
+  }
+
+  .proof-source p {
+    font-size: var(--type-service-strong);
+    line-height: 1.45;
+  }
+
+  .proof-source__links {
+    gap: 0.35rem;
+    margin-top: 0.2rem;
+  }
+
+  .proof-source__links > div {
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(min(6.25rem, 100%), 1fr)
+    );
+    gap: 0.35rem 0.75rem;
+  }
+
+  .proof-source__links a {
+    justify-content: flex-start;
+    gap: 0.35rem;
+    min-height: 2rem;
+  }
+
+  .proof h2 {
+    max-width: 100%;
+    font-size: min(var(--type-narrow-statement), calc(0.1rem + 6vw));
+    line-height: 1.06;
+    text-wrap: balance;
+  }
+}

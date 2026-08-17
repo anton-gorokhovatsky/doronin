@@ -746,10 +746,48 @@ const specs = [
   },
 ];
 
+// `target` only positions the viewport. `captureScope` names what the frame
+// actually validates so an internal fragment cannot be mistaken for a whole
+// section in artifacts and review links.
+const targetCaptureScopes = new Map([
+  [".athlete", "section"],
+  [".diary-live", "section"],
+  [".bike-calendar__segment--finish", "fragment"],
+  [".site-footer__intro", "fragment"],
+  [".bike-calendar__sequence", "fragment"],
+  [".diary__heading", "fragment"],
+  [".manifesto__copy", "fragment"],
+  [".bike-calendar__segments", "fragment"],
+  [".bike-calendar__total", "fragment"],
+  [".bike-calendar__rhythm", "fragment"],
+  [".achievement-grid", "fragment"],
+  [".partners__closing", "fragment"],
+  [".proof-source", "fragment"],
+  [".partner-formats__list", "fragment"],
+  [".diary-stories__rail", "fragment"],
+  [".story-frame:nth-child(3)", "fragment"],
+]);
+
+const screenshotSpecs = specs.map((spec) => {
+  if (!spec.target) return { ...spec, captureScope: "viewport" };
+
+  const captureScope = targetCaptureScopes.get(spec.target);
+  expect(
+    captureScope,
+    `${spec.name}: target ${spec.target} must declare section or fragment scope`,
+  );
+
+  return {
+    ...spec,
+    name: `${spec.name}-${captureScope}`,
+    captureScope,
+  };
+});
+
 const screenshotFilter = process.env.SCREENSHOT_FILTER;
 const selectedSpecs = screenshotFilter
-  ? specs.filter((spec) => spec.name.includes(screenshotFilter))
-  : specs;
+  ? screenshotSpecs.filter((spec) => spec.name.includes(screenshotFilter))
+  : screenshotSpecs;
 
 const manifest = [];
 try {
@@ -765,7 +803,7 @@ await writeFile(
   "utf8",
 );
 
-console.log(`Screenshot gate: ${manifest.length}/${specs.length} PASS`);
+console.log(`Screenshot gate: ${manifest.length}/${screenshotSpecs.length} PASS`);
 for (const item of manifest) {
   console.log(`${item.name} ${item.hash.slice(0, 12)} overflow=0`);
 }
