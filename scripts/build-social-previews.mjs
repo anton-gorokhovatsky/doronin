@@ -1,11 +1,12 @@
 import { chromium } from "playwright";
+import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 import { startSiteServer } from "./lib/site-server.mjs";
 
 const previews = [
   {
-    file: "share-ru-bike-20260817-2.jpg",
+    file: "share-ru-bike-20260817-3.jpg",
     lang: "ru",
     date: "1–31 декабря 2026",
     name: "Виктор Доронин",
@@ -14,7 +15,7 @@ const previews = [
     line: "31 день на велосипеде",
   },
   {
-    file: "share-en-bike-20260817-2.jpg",
+    file: "share-en-bike-20260817-3.jpg",
     lang: "en",
     date: "December 1–31, 2026",
     name: "Viktor Doronin",
@@ -26,6 +27,15 @@ const previews = [
 
 const server = await startSiteServer("src/assets");
 const browser = await chromium.launch({ headless: true });
+const commissionerCyrillic = (
+  await readFile(resolve("src/assets/fonts/Commissioner-Cyrillic.woff2"))
+).toString("base64");
+const commissionerLatin = (
+  await readFile(resolve("src/assets/fonts/Commissioner-Latin.woff2"))
+).toString("base64");
+const micra = (
+  await readFile(resolve("src/assets/fonts/Micra-Bold.woff"))
+).toString("base64");
 
 try {
   for (const preview of previews) {
@@ -38,19 +48,19 @@ try {
           <style>
             @font-face {
               font-family: "Commissioner";
-              src: url("fonts/Commissioner-Cyrillic.woff2") format("woff2");
+              src: url("data:font/woff2;base64,${commissionerCyrillic}") format("woff2");
               font-weight: 400 800;
               font-display: block;
             }
             @font-face {
               font-family: "Commissioner";
-              src: url("fonts/Commissioner-Latin.woff2") format("woff2");
+              src: url("data:font/woff2;base64,${commissionerLatin}") format("woff2");
               font-weight: 400 800;
               font-display: block;
             }
             @font-face {
               font-family: "Micra";
-              src: url("fonts/Micra-Bold.woff") format("woff");
+              src: url("data:font/woff;base64,${micra}") format("woff");
               font-weight: 700;
               font-display: block;
             }
@@ -141,6 +151,17 @@ try {
       { waitUntil: "networkidle" },
     );
     await page.evaluate(() => document.fonts.ready);
+    const micraFaceStatus = await page.evaluate(() => {
+      const micraFace = [...document.fonts].find(
+        (fontFace) => fontFace.family.replaceAll('"', "") === "Micra",
+      );
+      return micraFace?.status ?? null;
+    });
+    if (micraFaceStatus !== "loaded") {
+      throw new Error(
+        `MicraC failed to load for ${preview.file}: face=${micraFaceStatus}`,
+      );
+    }
     await page.screenshot({
       path: resolve("src/assets", preview.file),
       type: "jpeg",
