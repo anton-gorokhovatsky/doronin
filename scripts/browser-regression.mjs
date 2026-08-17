@@ -196,6 +196,7 @@ async function auditPage(browser, browserName, origin, testCase) {
     if (testCase.viewport.width <= 390) {
       const firstScreen = await page.evaluate(() => {
         const heroContent = document.querySelector(".hero__content").getBoundingClientRect();
+        const introStyle = getComputedStyle(document.querySelector(".hero__intro"));
         const heroText = [".hero__kicker", ".hero__intro"].map((selector) => {
           const element = document.querySelector(selector);
           const bounds = element.getBoundingClientRect();
@@ -217,9 +218,10 @@ async function auditPage(browser, browserName, origin, testCase) {
         return {
           heroHeight: heroContent.height,
           heroText,
-          introWeight: getComputedStyle(
-            document.querySelector(".hero__intro"),
-          ).fontWeight,
+          heroColor: getComputedStyle(document.querySelector(".hero")).color,
+          introColor: introStyle.color,
+          introSize: Number.parseFloat(introStyle.fontSize),
+          introWeight: introStyle.fontWeight,
           innerHeight,
           statusTop: status.top,
           heroBottom: heroContent.bottom,
@@ -231,6 +233,9 @@ async function auditPage(browser, browserName, origin, testCase) {
         near(firstScreen.heroHeight, firstScreen.innerHeight, 1) &&
           firstScreen.statusTop >= firstScreen.heroBottom - 1 &&
           firstScreen.secondaryDisplay === "none" &&
+          firstScreen.introColor !== firstScreen.heroColor &&
+          firstScreen.introSize >= 16 &&
+          firstScreen.introSize <= 17.1 &&
           firstScreen.introWeight === "400" &&
           firstScreen.heroText.every(
             (item) =>
