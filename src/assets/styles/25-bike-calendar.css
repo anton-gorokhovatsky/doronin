@@ -400,6 +400,10 @@
     min-width: 0;
   }
 
+  .bike-calendar__rhythm > div > p {
+    line-height: 0.98;
+  }
+
   .bike-calendar__rhythm > * {
     min-width: 0;
   }

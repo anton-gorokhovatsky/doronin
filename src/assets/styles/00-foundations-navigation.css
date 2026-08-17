@@ -85,7 +85,7 @@
   --partners-title-color: var(--text-partners);
   --manifesto-mark-opacity: 0.065;
   --proof-mark-color: var(--text-proof);
-  --proof-mark-opacity: 0.065;
+  --proof-mark-opacity: 0.045;
   --footer-mark-filter: none;
   --line-light: rgba(241, 245, 237, 0.16);
   --line-dark: rgba(4, 31, 21, 0.16);

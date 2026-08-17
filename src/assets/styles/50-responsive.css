@@ -1326,7 +1326,7 @@
     position: relative;
     inset: auto;
     grid-template-columns: auto minmax(0, 1fr);
-    gap: 0.4rem 1rem;
+    gap: 0.4rem 0.25rem;
     align-content: start;
     align-items: end;
     width: auto;

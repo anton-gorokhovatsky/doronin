@@ -79,7 +79,7 @@ html.motion-reduced *::after {
     linear-gradient(132deg, #031a12 0%, #02160f 54%, #0b2818 100%);
   --proof-title-color: #a92f1e;
   --proof-mark-color: #b93420;
-  --proof-mark-opacity: 0.065;
+  --proof-mark-opacity: 0.045;
 }
 
 :root.theme-light .velocity-cut {
