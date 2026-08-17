@@ -133,6 +133,7 @@
   .proof h2 {
     max-width: 100%;
     font-size: min(var(--type-narrow-statement), calc(0.1rem + 6vw));
+    hanging-punctuation: none;
     line-height: 1.06;
     text-wrap: balance;
   }

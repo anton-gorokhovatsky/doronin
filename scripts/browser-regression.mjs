@@ -217,6 +217,9 @@ async function auditPage(browser, browserName, origin, testCase) {
         return {
           heroHeight: heroContent.height,
           heroText,
+          introWeight: getComputedStyle(
+            document.querySelector(".hero__intro"),
+          ).fontWeight,
           innerHeight,
           statusTop: status.top,
           heroBottom: heroContent.bottom,
@@ -228,6 +231,7 @@ async function auditPage(browser, browserName, origin, testCase) {
         near(firstScreen.heroHeight, firstScreen.innerHeight, 1) &&
           firstScreen.statusTop >= firstScreen.heroBottom - 1 &&
           firstScreen.secondaryDisplay === "none" &&
+          firstScreen.introWeight === "400" &&
           firstScreen.heroText.every(
             (item) =>
               item.height > 0 &&
@@ -1474,9 +1478,25 @@ async function auditPage(browser, browserName, origin, testCase) {
     );
 
     if (testCase.viewport.width <= 390) {
+      const mobileSurfaceFixes = await page.evaluate(() => {
+        const proofTitle = getComputedStyle(document.querySelector(".proof h2"));
+        const audioDivider = getComputedStyle(
+          document.querySelector(".audio-story"),
+          "::before",
+        );
+        return {
+          audioDividerImage: audioDivider.backgroundImage,
+          proofHangingPunctuation: proofTitle.getPropertyValue(
+            "hanging-punctuation",
+          ),
+        };
+      });
       expect(
-        (await page.locator(".bike-calendar__sequence > li").count()) === 5,
-        `${prefix}: mobile cycling sequence missing`,
+        (await page.locator(".bike-calendar__sequence > li").count()) === 5 &&
+          mobileSurfaceFixes.audioDividerImage === "none" &&
+          (browserName !== "webkit" ||
+            mobileSurfaceFixes.proofHangingPunctuation === "none"),
+        `${prefix}: mobile cycling sequence or Safari surface fixes regressed (${JSON.stringify(mobileSurfaceFixes)})`,
       );
     }
 

@@ -1,4 +1,4 @@
-import { access, readFile } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
 import { createDiaryContent } from "./content/diary/index.mjs";
@@ -24,6 +24,13 @@ const analyticsRegistry = JSON.parse(
 );
 const analyticsGoalIds = analyticsRegistry.goals.map(({ id }) => id);
 const analyticsGoalIdSet = new Set(analyticsGoalIds);
+const analyticsDocumentation = await readFile(
+  resolve("docs/analytics-goals.md"),
+  "utf8",
+);
+const documentedAnalyticsGoalIds = [
+  ...analyticsDocumentation.matchAll(/`([a-z][a-z0-9_]+)`/g),
+].map(([, goal]) => goal);
 const triggeredAnalyticsGoals = new Set();
 const requiredAnalyticsGoals = [
   "menu_open",
@@ -65,6 +72,45 @@ function expect(condition, message) {
   if (!condition) {
     failures.push(message);
   }
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function findAnchorByClass(html, className) {
+  return html.match(
+    new RegExp(
+      `<a\\b[^>]*class="[^"]*\\b${escapeRegExp(className)}\\b[^"]*"[^>]*>[\\s\\S]*?<\\/a>`,
+      "u",
+    ),
+  )?.[0] || "";
+}
+
+function compactMarkupText(markup) {
+  return markup
+    .replace(/<svg[\s\S]*?<\/svg>/gu, " ")
+    .replace(/<[^>]+>/gu, " ")
+    .replace(/\s+/gu, " ")
+    .trim();
+}
+
+async function listRelativeFiles(root, relativeRoot = "") {
+  const entries = await readdir(resolve(root, relativeRoot), {
+    withFileTypes: true,
+  });
+  const files = [];
+  for (const entry of entries) {
+    const relativePath = relativeRoot
+      ? `${relativeRoot}/${entry.name}`
+      : entry.name;
+    if (entry.isDirectory()) {
+      files.push(...(await listRelativeFiles(root, relativePath)));
+    } else if (entry.isFile()) {
+      files.push(relativePath);
+    }
+  }
+  return files;
 }
 
 for (const asset of retiredProductionAssets) {
@@ -190,6 +236,59 @@ for (const [lang, path] of pages) {
         headerNavigation.includes(`href="${target}"`),
       ),
     `${lang}: меню должно содержать отдельный живой дневник и семь реальных глав страницы`,
+  );
+  const actionCopy =
+    lang === "ru"
+      ? {
+          explore: "Посмотреть форматы участия",
+          discuss: "Обсудить участие",
+          email: "Написать по почте",
+          telegram: "Написать в Telegram",
+        }
+      : {
+          explore: "View partnership options",
+          discuss: "Discuss a partnership",
+          email: "Send an email",
+          telegram: "Message on Telegram",
+        };
+  const heroPartnerAction = findAnchorByClass(html, "button--primary");
+  const discussionActions = [
+    findAnchorByClass(html, "header-cta"),
+    findAnchorByClass(html, "site-nav__cta"),
+    findAnchorByClass(html, "site-footer__cta"),
+  ];
+  const contactActions = [
+    ...html.matchAll(
+      /<a\b[^>]*class="[^"]*\bcontact-action\b[^"]*"[^>]*>[\s\S]*?<\/a>/gu,
+    ),
+  ].map(([anchor]) => anchor);
+  expect(
+    heroPartnerAction.includes('href="#partners"') &&
+      heroPartnerAction.includes('data-analytics-goal="partner_interest"') &&
+      heroPartnerAction.includes('icon--down') &&
+      compactMarkupText(heroPartnerAction) === actionCopy.explore,
+    `${lang}: действие первого экрана должно вести к форматам участия и буквально называть этот переход`,
+  );
+  expect(
+    discussionActions.every(
+      (anchor) =>
+        anchor.includes('href="#partner-contact"') &&
+        anchor.includes('data-analytics-goal="partner_interest"') &&
+        compactMarkupText(anchor) === actionCopy.discuss,
+    ) &&
+      discussionActions[1].includes('icon--down') &&
+      discussionActions[2].includes('icon--up'),
+    `${lang}: каждое действие обсуждения участия должно вести в один контактный модуль с направленной SVG-иконкой`,
+  );
+  expect(
+    contactActions.length === 2 &&
+      contactActions[0].includes('href="mailto:') &&
+      contactActions[0].includes('data-analytics-goal="contact_email"') &&
+      compactMarkupText(contactActions[0]) === actionCopy.email &&
+      contactActions[1].includes('href="https://t.me/') &&
+      contactActions[1].includes('data-analytics-goal="contact_telegram"') &&
+      compactMarkupText(contactActions[1]) === actionCopy.telegram,
+    `${lang}: почта и Telegram должны оставаться двумя явно названными внешними каналами`,
   );
   expect(
     html.includes('<details class="nav-shell">') &&
@@ -473,6 +572,19 @@ const generatedHtml = (
 ).join("\n");
 const css = await readFile(resolve(outputRoot, "assets/styles.css"), "utf8");
 const app = await readFile(resolve(outputRoot, "assets/app.js"), "utf8");
+const referencedAssetNames = new Set([
+  ...`${generatedHtml}\n${css}`.matchAll(
+    /\bassets\/([a-z0-9][a-z0-9._/-]*)/giu,
+  ),
+  ...css.matchAll(/url\(["']?\.\/([a-z0-9][a-z0-9._/-]*)/giu),
+].map((match) => match[1]));
+const builtAssetNames = await listRelativeFiles(resolve(outputRoot, "assets"));
+const missingAssetNames = [...referencedAssetNames].filter(
+  (assetName) => !builtAssetNames.includes(assetName),
+);
+const unreferencedAssetNames = builtAssetNames.filter(
+  (assetName) => !referencedAssetNames.has(assetName),
+);
 for (const [, goal] of app.matchAll(/\breachGoal\("([a-z0-9_-]+)"/g)) {
   triggeredAnalyticsGoals.add(goal);
 }
@@ -574,8 +686,11 @@ expect(
   `status: схема, локали, HTTPS-источник и вывод подтверждённого обновления должны быть валидны${projectStatusErrors.length ? ` (${projectStatusErrors.join("; ")})` : ""}`,
 );
 expect(
-  css.includes("hanging-punctuation: first allow-end last"),
-  "css: отсутствует progressive enhancement для висячей пунктуации",
+  css.includes("hanging-punctuation: first allow-end last") &&
+    /@media \(max-width:\s*640px\)[\s\S]*?\.proof h2\s*\{[^}]*hanging-punctuation:\s*none/s.test(
+      css,
+    ),
+  "css: висячая пунктуация должна оставаться progressive enhancement без выхода кавычек на мобильном proof-заголовке",
 );
 expect(
   typographyRoleTokens.every((token) =>
@@ -706,6 +821,15 @@ expect(
   "mobile: текст hero должен иметь стабильный paint-layer, а число футера — примыкать к подписи справа",
 );
 expect(
+  /@media \(max-width:\s*640px\)[\s\S]*?\.hero__intro\s*\{[^}]*font-weight:\s*400/s.test(
+    css,
+  ) &&
+    /\.audio-story::before\s*\{[^}]*background:\s*var\(--line-light\)/s.test(
+      css,
+    ),
+  "mobile: вводный текст hero должен быть обычного веса, а граница звуковой главы — без отдельного кислотного рудимента",
+);
+expect(
   normalizedCss.split(productionGlassMaterial).length === 3 &&
     (css.match(/background:\s*var\(--glass-material\)/g) || []).length >= 6 &&
     css.includes(".site-header:has(.nav-shell[open])::before") &&
@@ -801,6 +925,16 @@ expect(
     app.includes('window.ym(analyticsRegistry.counterId, "destruct"') &&
     app.includes('localStorage.getItem("analytics") !== "off"'),
   "analytics: полный privacy-safe реестр должен точно совпадать с реальными HTML/JS-триггерами",
+);
+expect(
+  new Set(documentedAnalyticsGoalIds).size === documentedAnalyticsGoalIds.length &&
+    JSON.stringify([...documentedAnalyticsGoalIds].sort()) ===
+      JSON.stringify([...analyticsGoalIds].sort()),
+  "analytics: человекочитаемая документация должна перечислять ровно цели машиночитаемого реестра",
+);
+expect(
+  missingAssetNames.length === 0 && unreferencedAssetNames.length === 0,
+  `build: production должен содержать ровно используемые HTML/CSS-ассеты${missingAssetNames.length ? `; отсутствуют: ${missingAssetNames.join(", ")}` : ""}${unreferencedAssetNames.length ? `; не используются: ${unreferencedAssetNames.join(", ")}` : ""}`,
 );
 expect(
   app.includes('diaryStories.classList.add("has-diary-stories")') &&

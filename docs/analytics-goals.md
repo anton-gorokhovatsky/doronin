@@ -7,13 +7,14 @@
 
 | Группа | Цели |
 |---|---|
-| Навигация | `menu_open`, `chapter_navigation`, `project_explore` |
-| Конверсия | `partner_interest`, `contact_email`, `contact_telegram` |
+| Навигация | `menu_open`, `chapter_navigation` |
+| Конверсия | `project_explore`, `partner_interest` |
+| Вовлечение | `diary_explore`, `diary_follow` |
 | Предпочтения | `language_switch`, `theme_change` |
-| Первый экран | `hero_video_pause`, `hero_video_resume` |
+| Медиа | `hero_video_pause`, `hero_video_resume`, `presence_audio_start`, `diary_video_start`, `diary_video_complete` |
 | Доказательства | `proof_open` |
-| Звук | `sound_scene_select`, `sound_story_start`, `sound_story_complete` |
-| Дневник и фильм | `diary_video_start`, `diary_video_complete`, `diary_open`, `film_open` |
+| Контент | `diary_open`, `film_open` |
+| Контакт | `contact_email`, `contact_telegram` |
 
 ## Privacy contract
 

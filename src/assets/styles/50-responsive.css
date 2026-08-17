@@ -882,6 +882,7 @@
 
   .hero__intro {
     max-width: 31ch;
+    font-weight: 400;
   }
 
   .hero__title {

@@ -105,7 +105,7 @@
   right: var(--page-gutter);
   left: var(--page-gutter);
   height: 1px;
-  background: linear-gradient(90deg, var(--acid) 0 5.5rem, var(--line-light) 5.5rem);
+  background: var(--line-light);
   content: "";
 }
 

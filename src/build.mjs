@@ -28,25 +28,6 @@ const styleModuleNames = [
   "55-editorial-menu.css",
   "60-themes-accessibility.css",
 ];
-const retiredAssetNames = new Set([
-  "audio-scene-02.m4a",
-  "audio-scene-03.m4a",
-  "distance-bike-motion.mp4",
-  "distance-bike-presence.jpg",
-  "distance-bike-presence.mp4",
-  "distance-bike.jpg",
-  "distance-run-motion.mp4",
-  "distance-run-presence.jpg",
-  "distance-run-presence.mp4",
-  "distance-run.jpg",
-  "distance-swim-motion.mp4",
-  "distance-swim-presence.jpg",
-  "distance-swim-presence.mp4",
-  "distance-swim.jpg",
-  "effort-breath.mp3",
-  "velocity-run.jpg",
-  "velocity-water.jpg",
-]);
 const styleBundle = (
   await Promise.all(
     styleModuleNames.map((file) => readFile(resolve(styleModulesRoot, file), "utf8")),
@@ -170,7 +151,7 @@ const locales = {
       imageAlt: "Виктор Доронин на велосипеде во время скоростного заезда",
       videoPlay: "Включить видео",
       videoPause: "Пауза",
-      primaryCta: "Обсудить участие",
+      primaryCta: "Посмотреть форматы участия",
       secondaryCta: "Следить за дневником",
       statusFallback: "Старт 1 декабря 2026",
       statusMeta: "11 111 км · 31 день",
@@ -576,7 +557,7 @@ const locales = {
       ["#interviews", "Interviews"],
       ["#partners", "Partners"],
     ],
-    headerCta: "Discuss partnership",
+    headerCta: "Discuss a partnership",
     hero: {
       kicker: "December 1–31, 2026 · Viktor Doronin",
       lineOne: ["11,111", "km"],
@@ -587,7 +568,7 @@ const locales = {
       imageAlt: "Viktor Doronin riding at speed during a cycling event",
       videoPlay: "Play video",
       videoPause: "Pause",
-      primaryCta: "Discuss a partnership",
+      primaryCta: "View partnership options",
       secondaryCta: "Follow the diary",
       statusFallback: "Starts December 1, 2026",
       statusMeta: "11,111 km · 31 days",
@@ -1825,7 +1806,7 @@ function renderPage(l) {
           </div>
           <div class="site-nav__actions">
             ${renderMenuSettings(l)}
-            <a class="site-nav__cta action-primary" href="${mailHref}" data-analytics-goal="contact_email"><span>${l.footer.partnerCta}</span>${icons.external}</a>
+            <a class="site-nav__cta action-primary" href="#partner-contact" data-analytics-goal="partner_interest"><span>${l.footer.partnerCta}</span>${icons.down}</a>
           </div>
         </div>
       </nav>
@@ -2262,8 +2243,8 @@ function renderPage(l) {
         >${l.footer.titleLineOne}</span>
         <span data-footer-countdown data-optical-start aria-live="polite">${l.footer.titleLineTwo}</span>
       </h2>
-      <a class="site-footer__cta action-primary" href="${mailHref}" data-analytics-goal="contact_email">
-        ${l.footer.partnerCta}${icons.external}
+      <a class="site-footer__cta action-primary" href="#partner-contact" data-analytics-goal="partner_interest">
+        ${l.footer.partnerCta}${icons.up}
       </a>
     </div>
 
@@ -2311,24 +2292,45 @@ function renderPage(l) {
 `, l.lang);
 }
 
+const renderedPages = Object.values(locales).map((locale) => [
+  locale,
+  renderPage(locale),
+]);
+const productionAssetNames = new Set([
+  ...`${styleBundle}\n${renderedPages.map(([, html]) => html).join("\n")}`.matchAll(
+    /\bassets\/([a-z0-9][a-z0-9._/-]*)/giu,
+  ),
+  ...styleBundle.matchAll(/url\(["']?\.\/([a-z0-9][a-z0-9._/-]*)/giu),
+].map((match) => match[1]));
+const productionAssetDirectories = new Set();
+for (const assetName of productionAssetNames) {
+  const parts = assetName.split("/");
+  for (let index = 1; index < parts.length; index += 1) {
+    productionAssetDirectories.add(parts.slice(0, index).join("/"));
+  }
+}
+
 await mkdir(assetOutput, { recursive: true });
 await cp(assetSource, assetOutput, {
   recursive: true,
   filter: (source) => {
+    if (source === assetSource) return true;
     const assetName = source.slice(assetSource.length + 1);
     return (
       source !== styleModulesRoot &&
       !source.startsWith(`${styleModulesRoot}/`) &&
-      !retiredAssetNames.has(assetName)
+      assetName !== "styles.css" &&
+      (productionAssetNames.has(assetName) ||
+        productionAssetDirectories.has(assetName))
     );
   },
 });
 await writeFile(resolve(assetOutput, "styles.css"), styleBundle, "utf8");
 
-for (const locale of Object.values(locales)) {
+for (const [locale, html] of renderedPages) {
   const outputPath = resolve(outputRoot, locale.outputPath);
   await mkdir(resolve(outputPath, ".."), { recursive: true });
-  await writeFile(outputPath, renderPage(locale), "utf8");
+  await writeFile(outputPath, html, "utf8");
 }
 
 await writeFile(resolve(outputRoot, ".nojekyll"), "", "utf8");
