@@ -112,7 +112,18 @@ async function capture(browser, origin, spec) {
       await page.waitForTimeout(100);
     }
     if (spec.target) {
-      await page.locator(spec.target).first().scrollIntoViewIfNeeded();
+      const target = page.locator(spec.target).first();
+      const targetInsideCalendarDetails = await target.evaluate(
+        (element) =>
+          !element.matches("[data-calendar-details]") &&
+          Boolean(element.closest("[data-calendar-details]")),
+      );
+      if (targetInsideCalendarDetails) {
+        await page.locator("[data-calendar-details]").evaluate((element) => {
+          element.open = true;
+        });
+      }
+      await target.scrollIntoViewIfNeeded();
     }
 
     await page.waitForTimeout(180);
@@ -187,6 +198,18 @@ async function capture(browser, origin, spec) {
           );
         })(),
         projectPhase: document.body.dataset.projectPhase,
+        calendarPhase: document.body.dataset.calendarPhase,
+        calendarOpen:
+          document.querySelector("[data-calendar-details]")?.open ?? false,
+        calendarCurrentCount: document.querySelectorAll(
+          '.bike-calendar__segment[aria-current="step"]',
+        ).length,
+        calendarCurrentVisible: (() => {
+          const current = document.querySelector("[data-calendar-current]");
+          if (!current || current.hidden) return false;
+          const rect = current.getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0;
+        })(),
         phaseFixture: document.body.dataset.phaseFixture || null,
         scrollWidth: document.documentElement.scrollWidth,
         theme: document.documentElement.dataset.theme || "system",
@@ -274,6 +297,24 @@ async function capture(browser, origin, spec) {
           metrics.phaseFixture === spec.expectedPhase &&
           (await page.locator(`[data-project-phase-item="${spec.expectedPhase}"]`).getAttribute("aria-current")) === "step",
         `${spec.name}: deterministic ${spec.expectedPhase} state missing`,
+      );
+    }
+    if (spec.expectedCalendarPhase) {
+      expect(
+        metrics.calendarPhase === spec.expectedCalendarPhase,
+        `${spec.name}: deterministic calendar phase ${spec.expectedCalendarPhase} missing`,
+      );
+    }
+    if (typeof spec.expectedCalendarOpen === "boolean") {
+      expect(
+        metrics.calendarOpen === spec.expectedCalendarOpen,
+        `${spec.name}: calendar disclosure state is not ${spec.expectedCalendarOpen ? "open" : "closed"}`,
+      );
+    }
+    if (spec.expectCalendarCurrent) {
+      expect(
+        metrics.calendarCurrentCount === 1 && metrics.calendarCurrentVisible,
+        `${spec.name}: current planned stage is not visible and linked to one card`,
       );
     }
     if (spec.theme === "dark") {
@@ -482,6 +523,40 @@ const specs = [
     theme: "dark",
     target: ".bike-calendar__sequence",
     viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-1440-light-bike-calendar-disclosure",
+    path: "/?phase=before#distance",
+    locale: "ru",
+    theme: "light",
+    target: ".bike-calendar__details",
+    expectedPhase: "before",
+    expectedCalendarPhase: "far",
+    expectedCalendarOpen: false,
+    viewport: { width: 1440, height: 900 },
+  },
+  {
+    name: "ru-390-light-bike-calendar-disclosure",
+    path: "/?phase=before#distance",
+    locale: "ru",
+    theme: "light",
+    target: ".bike-calendar__details",
+    expectedPhase: "before",
+    expectedCalendarPhase: "far",
+    expectedCalendarOpen: false,
+    viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-1440-light-bike-calendar-active",
+    path: "/?phase=active#distance",
+    locale: "ru",
+    theme: "light",
+    target: ".bike-calendar__current",
+    expectedPhase: "active",
+    expectedCalendarPhase: "active",
+    expectedCalendarOpen: true,
+    expectCalendarCurrent: true,
+    viewport: { width: 1440, height: 900 },
   },
   {
     name: "ru-320-light-bike-calendar-sequence",
@@ -755,6 +830,8 @@ const targetCaptureScopes = new Map([
   [".bike-calendar__segment--finish", "fragment"],
   [".site-footer__intro", "fragment"],
   [".bike-calendar__sequence", "fragment"],
+  [".bike-calendar__details", "fragment"],
+  [".bike-calendar__current", "fragment"],
   [".diary__heading", "fragment"],
   [".manifesto__copy", "fragment"],
   [".bike-calendar__segments", "fragment"],

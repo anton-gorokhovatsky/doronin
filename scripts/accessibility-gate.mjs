@@ -52,8 +52,8 @@ async function runReflowMatrix(browser, browserName, origin) {
   const specs = [
     ["RU 320 reflow", "/?a11y=ru-320-reflow#top", { width: 320, height: 844 }],
     ["EN 320 reflow", "/en/?a11y=en-320-reflow#top", { width: 320, height: 844 }],
-    ["RU 200% text", "/?a11y=ru-text-200&text=200#top", { width: 1280, height: 720 }],
-    ["EN 200% text", "/en/?a11y=en-text-200&text=200#top", { width: 1280, height: 720 }],
+    ["RU 200% text", "/?a11y=ru-text-200&text=200&calendar=open#top", { width: 1280, height: 720 }],
+    ["EN 200% text", "/en/?a11y=en-text-200&text=200&calendar=open#top", { width: 1280, height: 720 }],
   ];
   const results = [];
 
@@ -232,6 +232,7 @@ async function runKeyboardRoute(browser, browserName, origin, viewport) {
     );
 
     const required = {
+      calendar: false,
       contact: false,
       diary: false,
       primary: false,
@@ -265,6 +266,9 @@ async function runKeyboardRoute(browser, browserName, origin, viewport) {
             rect.width <= 0 ||
             rect.height <= 0,
           matches: [
+            active.matches("[data-calendar-details] > summary")
+              ? "calendar"
+              : null,
             active.matches(".partners__channels a, .site-footer__contacts a")
               ? "contact"
               : null,

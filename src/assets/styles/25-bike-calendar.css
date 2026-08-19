@@ -12,6 +12,138 @@
   min-width: 0;
 }
 
+.bike-calendar__current[hidden] {
+  display: none;
+}
+
+.bike-calendar__current {
+  display: grid;
+  gap: 0.8rem;
+  padding: clamp(1.35rem, 2.8vw, 2.5rem);
+  color: var(--paper);
+  background: var(--ink);
+}
+
+.bike-calendar__current > p {
+  margin: 0;
+  color: var(--paper-dim);
+  font-size: clamp(0.72rem, 0.2vw + 0.67rem, 0.9rem);
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.bike-calendar__current > a {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.45fr) minmax(0, 1fr) auto auto;
+  gap: 1rem clamp(1rem, 2vw, 2rem);
+  align-items: center;
+  min-height: 4.5rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.bike-calendar__current > a > span {
+  font-size: clamp(0.78rem, 0.2vw + 0.72rem, 0.95rem);
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.bike-calendar__current > a > strong {
+  font-family: var(--display);
+  font-size: clamp(1.25rem, calc(0.9rem + 1.2vw), 2.4rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.bike-calendar__current [data-calendar-current-value] {
+  color: var(--acid);
+  white-space: nowrap;
+}
+
+.bike-calendar__current [data-calendar-current-value]:empty {
+  display: none;
+}
+
+.bike-calendar__current .icon {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.bike-calendar__details {
+  min-width: 0;
+  border-top: 1px solid var(--line-dark);
+  border-bottom: 1px solid var(--line-dark);
+}
+
+.bike-calendar__details > summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  min-height: clamp(5.5rem, 7vw, 7rem);
+  padding-block: 1.2rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.bike-calendar__details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.bike-calendar__details > summary > span {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.bike-calendar__details > summary strong {
+  font-size: clamp(1rem, calc(0.84rem + 0.45vw), 1.4rem);
+  font-weight: 800;
+  letter-spacing: 0.045em;
+  line-height: 1.15;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.bike-calendar__details > summary small {
+  color: var(--muted-dark);
+  font-size: clamp(0.78rem, 0.16vw + 0.73rem, 0.92rem);
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.bike-calendar__details > summary .icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  transition: transform 180ms var(--ease-move);
+}
+
+.bike-calendar__details[open] > summary .icon {
+  transform: rotate(180deg);
+}
+
+.bike-calendar__details-body {
+  display: grid;
+  gap: clamp(3.5rem, 7vw, 7rem);
+  min-width: 0;
+  padding-block: clamp(3.5rem, 7vw, 7rem);
+  border-top: 1px solid var(--line-dark);
+}
+
+body[data-calendar-phase="near"] .bike-calendar__details > summary {
+  padding-inline: clamp(1rem, 2vw, 2rem);
+  background: color-mix(in srgb, var(--acid) 10%, transparent);
+}
+
+.bike-calendar__segment[aria-current="step"] {
+  box-shadow: inset 0 0 0 3px var(--acid);
+}
+
 .bike-calendar__sequence {
   display: grid;
   grid-template-columns: repeat(15, minmax(0, 1fr));
@@ -393,6 +525,46 @@
     text-align: right;
     line-height: 1.3;
     white-space: nowrap;
+  }
+
+  .bike-calendar__current {
+    padding: 1.25rem;
+  }
+
+  .bike-calendar__current > a {
+    grid-template:
+      "date icon" auto
+      "title icon" auto
+      "value icon" auto /
+      minmax(0, 1fr) auto;
+    gap: 0.55rem 1rem;
+    min-height: 0;
+  }
+
+  .bike-calendar__current [data-calendar-current-date] {
+    grid-area: date;
+  }
+
+  .bike-calendar__current [data-calendar-current-title] {
+    grid-area: title;
+    font-size: clamp(1.15rem, calc(0.82rem + 2.4vw), 1.6rem);
+  }
+
+  .bike-calendar__current [data-calendar-current-value] {
+    grid-area: value;
+  }
+
+  .bike-calendar__current .icon {
+    grid-area: icon;
+  }
+
+  .bike-calendar__details > summary {
+    min-height: 5.5rem;
+  }
+
+  .bike-calendar__details-body {
+    gap: clamp(3.25rem, 12vw, 5rem);
+    padding-block: clamp(3.25rem, 12vw, 5rem);
   }
 
   .bike-calendar__rhythm {

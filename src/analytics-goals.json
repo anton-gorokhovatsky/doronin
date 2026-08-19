@@ -16,6 +16,7 @@
     { "id": "diary_video_start", "category": "media", "params": [] },
     { "id": "diary_video_complete", "category": "media", "params": [] },
     { "id": "diary_open", "category": "content", "params": [] },
+    { "id": "calendar_open", "category": "content", "params": ["phase"] },
     { "id": "diary_follow", "category": "engagement", "params": [] },
     { "id": "film_open", "category": "content", "params": [] },
     { "id": "contact_email", "category": "contact", "params": [] },

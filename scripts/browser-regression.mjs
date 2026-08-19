@@ -101,7 +101,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       `${prefix}: icon aspect ratios diverged (${JSON.stringify(iconAudit.malformed)})`,
     );
     expect(
-      iconAudit.disclosureCount === 2 && iconAudit.mediaToggleCount === 2,
+      iconAudit.disclosureCount === 3 && iconAudit.mediaToggleCount === 2,
       `${prefix}: shared icon roles regressed (${JSON.stringify(iconAudit)})`,
     );
     expect(
@@ -748,6 +748,18 @@ async function auditPage(browser, browserName, origin, testCase) {
     expect(
       usableMediaControl || verifiedPosterFallback,
       `${prefix}: hero media has neither a usable control nor a verified poster fallback (${JSON.stringify(heroMediaState)})`,
+    );
+
+    const calendarDetails = page.locator("[data-calendar-details]");
+    expect(
+      (await page.locator("body").getAttribute("data-calendar-phase")) === "far" &&
+        !(await calendarDetails.evaluate((element) => element.open)),
+      `${prefix}: far-before calendar must start collapsed`,
+    );
+    await calendarDetails.locator("summary").click();
+    expect(
+      await calendarDetails.evaluate((element) => element.open),
+      `${prefix}: full calendar did not open from its named disclosure`,
     );
 
     const calendarState = await page.locator(".bike-calendar").evaluate((element) => {
@@ -1536,6 +1548,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       "menu_open",
       "theme_change",
       "proof_open",
+      "calendar_open",
       "chapter_navigation",
       "project_explore",
       "language_switch",
@@ -1551,13 +1564,74 @@ async function auditPage(browser, browserName, origin, testCase) {
           counterId === 111159425 &&
           command === "reachGoal" &&
           Object.keys(params || {}).every((key) =>
-            ["chapter", "language", "location", "theme"].includes(
+            ["chapter", "language", "location", "phase", "theme"].includes(
               key,
             ),
           ),
       ),
       `${prefix}: analytics emitted an unknown counter, command, or parameter`,
     );
+
+    if (testCase.name === "RU 1440×900") {
+      const phaseCases = [
+        ["near-unconfirmed", "/?phase=near#distance"],
+        ["near-confirmed", "/?phase=near&calendar=confirmed#distance"],
+        ["active", "/?phase=active#distance"],
+        ["finished", "/?phase=finished#distance"],
+      ];
+      const calendarPhases = [];
+
+      for (const [name, path] of phaseCases) {
+        await page.goto(`${origin}${path}`, { waitUntil: "domcontentloaded" });
+        await page.evaluate(() => document.fonts.ready);
+        calendarPhases.push(
+          await page.evaluate((phaseName) => {
+            const details = document.querySelector("[data-calendar-details]");
+            const current = document.querySelector("[data-calendar-current]");
+            return {
+              calendarPhase: document.body.dataset.calendarPhase,
+              calendarReady: document.body.dataset.calendarReady,
+              currentCount: document.querySelectorAll(
+                '.bike-calendar__segment[aria-current="step"]',
+              ).length,
+              currentHidden: current?.hidden ?? true,
+              currentHref: current
+                ?.querySelector("[data-calendar-current-link]")
+                ?.getAttribute("href"),
+              name: phaseName,
+              open: details?.open ?? false,
+              projectPhase: document.body.dataset.projectPhase,
+              title: details?.querySelector("summary strong")?.textContent.trim(),
+            };
+          }, name),
+        );
+      }
+
+      const [nearUnconfirmed, nearConfirmed, active, finished] = calendarPhases;
+      expect(
+        nearUnconfirmed.calendarPhase === "near" &&
+          nearUnconfirmed.calendarReady === "false" &&
+          nearUnconfirmed.open === false &&
+          nearUnconfirmed.title === "План декабря" &&
+          nearConfirmed.calendarPhase === "near" &&
+          nearConfirmed.calendarReady === "true" &&
+          nearConfirmed.open === true &&
+          active.projectPhase === "active" &&
+          active.calendarPhase === "active" &&
+          active.open === true &&
+          active.currentCount === 1 &&
+          active.currentHidden === false &&
+          active.currentHref === "#calendar-segment-06" &&
+          active.title === "Календарь прохождения" &&
+          finished.projectPhase === "finished" &&
+          finished.calendarPhase === "finished" &&
+          finished.open === true &&
+          finished.currentCount === 0 &&
+          finished.currentHidden === true &&
+          finished.title === "Архив плана декабря",
+        `${prefix}: calendar phase contract regressed (${JSON.stringify(calendarPhases)})`,
+      );
+    }
 
     expect(errors.length === 0, `${prefix}: page errors: ${errors.join("; ")}`);
     return `${prefix}: PASS`;
@@ -1581,7 +1655,7 @@ expect(browsers.length > 0, "Browser regression has no valid engines to run");
 const cases = [
   {
     name: "RU 1440×900",
-    path: "/?browser-regression=ru-desktop#top",
+    path: "/?browser-regression=ru-desktop&phase=before#top",
     viewport: { width: 1440, height: 900 },
     darkLabel: "Тёмная",
     lightLabel: "Светлая",
@@ -1590,7 +1664,7 @@ const cases = [
   },
   {
     name: "RU 390×844",
-    path: "/?browser-regression=ru-mobile#top",
+    path: "/?browser-regression=ru-mobile&phase=before#top",
     viewport: { width: 390, height: 844 },
     darkLabel: "Тёмная",
     lightLabel: "Светлая",
@@ -1599,7 +1673,7 @@ const cases = [
   },
   {
     name: "EN 320×844",
-    path: "/en/?browser-regression=en-mobile#top",
+    path: "/en/?browser-regression=en-mobile&phase=before#top",
     viewport: { width: 320, height: 844 },
     darkLabel: "Dark",
     lightLabel: "Light",

@@ -47,6 +47,7 @@ const requiredAnalyticsGoals = [
   "diary_video_start",
   "diary_video_complete",
   "diary_open",
+  "calendar_open",
   "diary_follow",
   "film_open",
   "contact_email",
@@ -409,14 +410,22 @@ for (const [lang, path] of pages) {
   );
   expect(
     html.includes('class="bike-calendar"') &&
+      html.includes('class="bike-calendar__details"') &&
+      html.includes("data-calendar-details") &&
+      html.includes('data-calendar-ready="false"') &&
+      html.includes('data-calendar-near-days="30"') &&
+      html.includes("data-calendar-current") &&
+      (html.match(/data-calendar-phase-copy/g) || []).length === 2 &&
       (html.match(/class="bike-calendar__segment bike-calendar__segment--/g) || [])
         .length === projectPlan.segments.length &&
+      (html.match(/id="calendar-segment-\d{2}"/g) || []).length ===
+        projectPlan.segments.length &&
       (html.match(/<li style="--calendar-order:/g) || []).length ===
       projectPlan.specialSequenceKm.length &&
       projectPlan.specialSequenceKm.every((distance) =>
         html.includes(`>${distance}</strong>`),
       ),
-    `${lang}: календарь должен рендерить все сегменты и пять специальных этапов из project-plan.json`,
+    `${lang}: календарь должен оставлять пять вершин на поверхности и рендерить все сегменты плана в фазовом раскрытии`,
   );
   expect(
     (html.match(/class="bike-calendar__operator /g) || []).length === 2 &&
@@ -674,6 +683,7 @@ expect(
 );
 expect(
   projectPlanErrors.length === 0 &&
+    validateProjectPlan({ ...projectPlan, unconfirmedFacts: [] }).length === 0 &&
     projectPlan.targetDistanceKm === 11111 &&
     projectPlan.specialSequenceKm.join("→") === "333→555→777→999→1111",
   `plan: календарь, сумма и последовательность специальных этапов должны проходить каноническую проверку${projectPlanErrors.length ? ` (${projectPlanErrors.join("; ")})` : ""}`,
@@ -760,10 +770,16 @@ expect(
     /\.bike-calendar__segment--finish\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/s.test(
       css,
     ) &&
+    /\.bike-calendar__details\s*\{[^}]*border-top:\s*1px solid var\(--line-dark\)[^}]*border-bottom:\s*1px solid var\(--line-dark\)/s.test(
+      css,
+    ) &&
+    /\.bike-calendar__details-body\s*\{[^}]*display:\s*grid[^}]*border-top:\s*1px solid var\(--line-dark\)/s.test(
+      css,
+    ) &&
     /@media \(max-width:\s*820px\)[\s\S]*?\.bike-calendar__sequence\s*\{[^}]*grid-template-columns:\s*1fr[^}]*width:\s*100%[^}]*min-width:\s*0/s.test(
       css,
     ),
-  "css: календарь должен иметь одну колонку на mobile, две пропорциональные строки этапов и полноширинный финиш на desktop",
+  "css: календарь должен иметь фазовое раскрытие, одну колонку на mobile, две пропорциональные строки этапов и полноширинный финиш на desktop",
 );
 expect(
   css.includes(".button:hover .icon--down") &&
@@ -913,7 +929,7 @@ expect(
         Array.isArray(params) &&
         params.every(
           (param) =>
-            ["chapter", "language", "location", "theme"].includes(
+            ["chapter", "language", "location", "phase", "theme"].includes(
               param,
             ),
         ),
@@ -952,14 +968,20 @@ expect(
 );
 expect(
   app.includes("document.body.dataset.projectPhase = projectPhase") &&
+    app.includes("document.body.dataset.calendarPhase = calendarPhase") &&
     app.includes("phaseFixtureDates") &&
+    app.includes('near: "2026-11-15T12:00:00+03:00"') &&
+    app.includes('calendarFixture === "confirmed"') &&
+    app.includes('calendarPhase === "near" && calendarReady') &&
+    app.includes('segment.setAttribute("aria-current", "step")') &&
+    app.includes('reachGoal("calendar_open", { phase: calendarPhase })') &&
     app.includes("localFixtureHost") &&
     app.includes("document.body.dataset.phaseFixture = phaseFixture") &&
     app.includes('requestedTextScale === "200"') &&
     css.includes('html[data-text-fixture="200"]') &&
     app.includes("[data-project-phase-item]") &&
     app.includes("[data-phase-copy]"),
-  "js: подготовка, 31 день и архив должны иметь три состояния и локальные детерминированные fixtures",
+  "js: календарь должен различать дальнюю и ближнюю подготовку, текущий этап и архив с локальными детерминированными fixtures",
 );
 
 if (failures.length > 0) {

@@ -83,13 +83,12 @@ export function validateProjectPlan(plan) {
   }
   if (
     !Array.isArray(plan.unconfirmedFacts) ||
-    plan.unconfirmedFacts.length === 0 ||
     plan.unconfirmedFacts.some(
       (fact) => typeof fact !== "string" || fact.trim().length === 0,
     ) ||
     new Set(plan.unconfirmedFacts).size !== plan.unconfirmedFacts.length
   ) {
-    errors.push("unconfirmedFacts must contain unique non-empty identifiers");
+    errors.push("unconfirmedFacts must be an array of unique non-empty identifiers");
   }
   if (!Array.isArray(plan.segments) || plan.segments.length === 0) {
     errors.push("segments must be a non-empty array");

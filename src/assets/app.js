@@ -1,9 +1,11 @@
 const requestParameters = new URLSearchParams(window.location.search);
 const requestedTheme = requestParameters.get("theme");
 const requestedPhase = requestParameters.get("phase");
+const requestedCalendar = requestParameters.get("calendar");
 const requestedTextScale = requestParameters.get("text");
 const phaseFixtureDates = {
   before: "2026-07-31T12:00:00+03:00",
+  near: "2026-11-15T12:00:00+03:00",
   active: "2026-12-15T12:00:00+03:00",
   finished: "2027-01-02T12:00:00+03:00",
 };
@@ -13,6 +15,10 @@ const localFixtureHost = /^(?:127(?:\.\d{1,3}){3}|localhost|\[::1\])$/i.test(
 const phaseFixture =
   localFixtureHost && Object.hasOwn(phaseFixtureDates, requestedPhase)
     ? requestedPhase
+    : null;
+const calendarFixture =
+  localFixtureHost && ["open", "confirmed"].includes(requestedCalendar)
+    ? requestedCalendar
     : null;
 if (localFixtureHost && requestedTextScale === "200") {
   document.documentElement.dataset.textFixture = "200";
@@ -982,9 +988,16 @@ if (eventStatus) {
   let footerCountLabel = "";
   let footerPrefixMode = "before";
   let projectPhase = "before";
+  let calendarPhase = "far";
 
   if (now < start) {
     const days = Math.max(1, Math.ceil((start - now) / day));
+    const calendarDetails = document.querySelector("[data-calendar-details]");
+    const nearStartDays = Number.parseInt(
+      calendarDetails?.dataset.calendarNearDays || "30",
+      10,
+    );
+    calendarPhase = days <= nearStartDays ? "near" : "far";
     visibleSegments = 12;
     statusTimeline = "calendar";
     progressSegments = Math.max(
@@ -1025,6 +1038,7 @@ if (eventStatus) {
     showLiveUpdate = true;
     footerPrefixMode = "active";
     projectPhase = "active";
+    calendarPhase = "active";
     value.textContent = String(projectDay).padStart(2, "0");
     label.textContent = eventStatus.dataset.active;
     footerCountValue = value.textContent;
@@ -1035,6 +1049,7 @@ if (eventStatus) {
     showLiveUpdate = true;
     footerPrefixMode = "finished";
     projectPhase = "finished";
+    calendarPhase = "finished";
     value.textContent = "31/31";
     label.textContent = eventStatus.dataset.finished;
     footerStatusText = label.textContent;
@@ -1212,8 +1227,12 @@ if (eventStatus) {
   }
 
   document.body.dataset.projectPhase = projectPhase;
+  document.body.dataset.calendarPhase = calendarPhase;
   if (phaseFixture) {
     document.body.dataset.phaseFixture = phaseFixture;
+  }
+  if (calendarFixture) {
+    document.body.dataset.calendarFixture = calendarFixture;
   }
 
   for (const phaseCopy of document.querySelectorAll("[data-phase-copy]")) {
@@ -1232,6 +1251,105 @@ if (eventStatus) {
     } else {
       phaseItem.removeAttribute("aria-current");
     }
+  }
+
+  const calendarDetails = document.querySelector("[data-calendar-details]");
+
+  if (calendarDetails) {
+    const calendarReady =
+      calendarDetails.dataset.calendarReady === "true" ||
+      calendarFixture === "confirmed";
+    const calendarSegments = [
+      ...calendarDetails.querySelectorAll("[data-calendar-start]"),
+    ];
+    const projectDate = new Date(now.getTime() + 3 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    const currentSegment =
+      calendarPhase === "active"
+        ? calendarSegments.find(
+            (segment) =>
+              segment.dataset.calendarStart <= projectDate &&
+              segment.dataset.calendarEnd >= projectDate,
+          )
+        : null;
+    const shouldOpenCalendar =
+      calendarFixture === "open" ||
+      calendarPhase === "active" ||
+      calendarPhase === "finished" ||
+      (calendarPhase === "near" && calendarReady);
+
+    document.body.dataset.calendarReady = String(calendarReady);
+    calendarDetails.open = shouldOpenCalendar;
+
+    for (const phaseCopy of document.querySelectorAll(
+      "[data-calendar-phase-copy]",
+    )) {
+      const copy = phaseCopy.dataset[calendarPhase];
+
+      if (copy) {
+        phaseCopy.textContent = copy;
+      }
+    }
+
+    for (const segment of calendarSegments) {
+      if (segment === currentSegment) {
+        segment.setAttribute("aria-current", "step");
+      } else {
+        segment.removeAttribute("aria-current");
+      }
+    }
+
+    const calendarCurrent = document.querySelector("[data-calendar-current]");
+
+    if (calendarCurrent) {
+      calendarCurrent.hidden = !currentSegment;
+
+      if (currentSegment) {
+        const currentLink = calendarCurrent.querySelector(
+          "[data-calendar-current-link]",
+        );
+        const currentDate = calendarCurrent.querySelector(
+          "[data-calendar-current-date]",
+        );
+        const currentTitle = calendarCurrent.querySelector(
+          "[data-calendar-current-title]",
+        );
+        const currentValue = calendarCurrent.querySelector(
+          "[data-calendar-current-value]",
+        );
+
+        if (currentLink) currentLink.href = `#${currentSegment.id}`;
+        if (currentDate) {
+          currentDate.textContent = currentSegment.dataset.calendarDate || "";
+        }
+        if (currentTitle) {
+          currentTitle.textContent = currentSegment.dataset.calendarLabel || "";
+        }
+        if (currentValue) {
+          currentValue.textContent = currentSegment.dataset.calendarValue || "";
+        }
+      }
+    }
+
+    const revealCalendarTarget = () => {
+      const targetId = window.location.hash.slice(1);
+      const target = targetId ? document.getElementById(targetId) : null;
+
+      if (target && calendarDetails.contains(target)) {
+        calendarDetails.open = true;
+      }
+    };
+    let calendarOpenTracked = false;
+
+    calendarDetails.querySelector("summary")?.addEventListener("click", () => {
+      if (!calendarDetails.open && !calendarOpenTracked) {
+        reachGoal("calendar_open", { phase: calendarPhase });
+        calendarOpenTracked = true;
+      }
+    });
+    window.addEventListener("hashchange", revealCalendarTarget);
+    revealCalendarTarget();
   }
 
   syncOpticalStart(value);
