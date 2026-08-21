@@ -273,7 +273,7 @@ async function runKeyboardRoute(browser, browserName, origin, viewport) {
               ? "contact"
               : null,
             active.matches(
-              "[data-diary-story-newer], [data-diary-story-earlier], [data-diary-video-play]",
+              "[data-diary-story-newer], [data-diary-story-earlier], [data-diary-media-tab], [data-diary-media-previous], [data-diary-media-next], [data-diary-video-play]",
             )
               ? "diary"
               : null,

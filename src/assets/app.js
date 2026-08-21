@@ -1462,7 +1462,9 @@ if (diaryStories) {
       panel.hidden = !isActive;
 
       if (!isActive) {
-        panel.querySelector("video")?.pause();
+        for (const video of panel.querySelectorAll("video")) {
+          video.pause();
+        }
       } else if (animate && !reducedMotion.matches) {
         panel.classList.add(
           diaryDirection >= 0
@@ -1569,10 +1571,142 @@ if (diaryStories) {
   }
 }
 
+const diaryMediaGalleries = [
+  ...document.querySelectorAll("[data-diary-gallery]"),
+];
+
+for (const gallery of diaryMediaGalleries) {
+  const mediaTabs = [...gallery.querySelectorAll("[data-diary-media-tab]")];
+  const mediaPanels = [...gallery.querySelectorAll("[data-diary-media-panel]")];
+
+  if (!mediaTabs.length || mediaTabs.length !== mediaPanels.length) {
+    continue;
+  }
+
+  const mediaRail = gallery.querySelector("[data-diary-media-tabs]");
+  const mediaPrevious = gallery.querySelector("[data-diary-media-previous]");
+  const mediaNext = gallery.querySelector("[data-diary-media-next]");
+  const mediaPositionCurrent = gallery.querySelector(
+    "[data-diary-media-position-current]",
+  );
+  const mediaPosition = gallery.querySelector("[data-diary-media-position]");
+  const mediaKind = gallery.querySelector("[data-diary-media-kind]");
+  const mediaPositionTemplate =
+    mediaPosition?.dataset.diaryMediaPositionTemplate || "";
+  let activeMediaIndex = Math.max(
+    0,
+    mediaTabs.findIndex(
+      (tab) => tab.getAttribute("aria-selected") === "true",
+    ),
+  );
+
+  const revealMediaTab = (tab) => {
+    if (!mediaRail || !tab) return;
+
+    const tabStart = tab.offsetLeft;
+    const tabEnd = tabStart + tab.offsetWidth;
+    const visibleStart = mediaRail.scrollLeft;
+    const visibleEnd = visibleStart + mediaRail.clientWidth;
+
+    if (tabStart < visibleStart) {
+      mediaRail.scrollTo({ left: tabStart });
+    } else if (tabEnd > visibleEnd) {
+      mediaRail.scrollTo({
+        left: Math.max(0, tabEnd - mediaRail.clientWidth),
+      });
+    }
+  };
+
+  const syncMediaNavigation = (index) => {
+    const current = index + 1;
+    const total = mediaTabs.length;
+    const label = mediaTabs[index]?.dataset.diaryMediaLabel || "";
+
+    if (mediaPositionCurrent) {
+      mediaPositionCurrent.textContent = String(current).padStart(2, "0");
+    }
+    if (mediaKind) mediaKind.textContent = label;
+    if (mediaPosition) {
+      mediaPosition.textContent = mediaPositionTemplate
+        .replace("{current}", String(current))
+        .replace("{total}", String(total))
+        .replace("{label}", label);
+    }
+    if (mediaPrevious) mediaPrevious.disabled = index <= 0;
+    if (mediaNext) mediaNext.disabled = index >= total - 1;
+  };
+
+  const activateMedia = (
+    tab,
+    { focus = false, reveal = false } = {},
+  ) => {
+    const panelId = tab?.getAttribute("aria-controls");
+    if (!panelId) return;
+
+    for (const mediaTab of mediaTabs) {
+      const isActive = mediaTab === tab;
+      mediaTab.setAttribute("aria-selected", String(isActive));
+      mediaTab.tabIndex = isActive ? 0 : -1;
+    }
+
+    for (const panel of mediaPanels) {
+      const isActive = panel.id === panelId;
+      panel.hidden = !isActive;
+      if (!isActive) {
+        for (const video of panel.querySelectorAll("video")) {
+          video.pause();
+        }
+      }
+    }
+
+    activeMediaIndex = mediaTabs.indexOf(tab);
+    syncMediaNavigation(activeMediaIndex);
+    if (reveal) revealMediaTab(tab);
+    if (focus) tab.focus();
+  };
+
+  for (const [index, tab] of mediaTabs.entries()) {
+    tab.addEventListener("click", () => {
+      activateMedia(tab, { reveal: true });
+    });
+
+    tab.addEventListener("keydown", (event) => {
+      let nextIndex = null;
+
+      if (event.key === "ArrowRight") nextIndex = index + 1;
+      if (event.key === "ArrowLeft") nextIndex = index - 1;
+      if (event.key === "Home") nextIndex = 0;
+      if (event.key === "End") nextIndex = mediaTabs.length - 1;
+      if (nextIndex === null) return;
+
+      event.preventDefault();
+      const nextTab = mediaTabs.at(
+        (nextIndex + mediaTabs.length) % mediaTabs.length,
+      );
+      activateMedia(nextTab, { focus: true, reveal: true });
+    });
+  }
+
+  mediaPrevious?.addEventListener("click", () => {
+    const previousTab = mediaTabs[activeMediaIndex - 1];
+    if (previousTab) activateMedia(previousTab, { reveal: true });
+  });
+
+  mediaNext?.addEventListener("click", () => {
+    const nextTab = mediaTabs[activeMediaIndex + 1];
+    if (nextTab) activateMedia(nextTab, { reveal: true });
+  });
+
+  activateMedia(mediaTabs[activeMediaIndex]);
+  gallery.classList.add("has-media-gallery");
+}
+
 const diaryVideos = [...document.querySelectorAll("[data-diary-video]")];
 
 for (const diaryVideo of diaryVideos) {
-  const diaryVideoFrame = diaryVideo.closest(".diary__media");
+  const diaryVideoFrame =
+    diaryVideo.closest("[data-diary-media-panel]") ||
+    diaryVideo.closest(".diary__media");
   const diaryVideoPlay = diaryVideoFrame?.querySelector(
     "[data-diary-video-play]",
   );

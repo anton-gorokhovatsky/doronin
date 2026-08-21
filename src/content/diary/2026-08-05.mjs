@@ -13,33 +13,33 @@ export default {
       en: "finish time",
     },
     {
-      value: { ru: "10:40", en: "10:40" },
-      ru: "ближайший прогноз",
-      en: "closest prediction",
+      value: { ru: "3:33/км", en: "3:33/km" },
+      ru: "темп на дистанции",
+      en: "pace across the distance",
     },
   ],
   content: {
     ru: {
-      tabLabel: "После перелёта",
-      title: "Старт после ночного перелёта",
+      tabLabel: "ББК: 3000 метров",
+      title: "1\u00a0августа\u00a0— ББК",
       imageAlt:
         "Виктор Доронин финиширует на Битве Беговых Клубов; на плашке показан результат 10:39.37",
       lead:
-        "Виктор прилетел из Владивостока в ночь перед Битвой Беговых Клубов и вышел на старт с джетлагом. Зафиксированный в записи результат — 10:39.37.",
+        "3000\u00a0метров за 10:39.37\u00a0— это темп 3:33 на 1\u00a0км.",
       note:
-        "Ближе всех в конкурсе прогнозов оказался Степан Зайцев с 10:40. В этой же записи Виктор сообщил, что декабрьский челлендж изменит формат; позднее утверждённая модель проекта — 11\u202f111\u00a0км на велосипеде, как указано на сайте.",
+        "Возможно ли лучше? Думаю, да\u00a0— если бы не перестройка на московское время и ночной перелёт накануне.",
       externalLabel:
         "Откроется запись дневника Виктора от 5 августа в Telegram",
     },
     en: {
-      tabLabel: "After the flight",
-      title: "A race after a red-eye",
+      tabLabel: "BBK: 3000 metres",
+      title: "August\u00a01\u00a0— BBK",
       imageAlt:
         "Viktor Doronin finishes at the Battle of Running Clubs; the result panel shows 10:39.37",
       lead:
-        "Viktor flew in from Vladivostok on the night before the Battle of Running Clubs and started with jet lag. The result recorded in the update is 10:39.37.",
+        "3000\u00a0metres in 10:39.37\u00a0— a pace of 3:33 per kilometre.",
       note:
-        "Stepan Zaitsev came closest in the prediction contest with 10:40. In the same update, Viktor said the December challenge would change format; the model later approved for the project is 11,111\u00a0km by bicycle, as stated on this site.",
+        "Could it have been faster? I think so\u00a0— without the shift back to Moscow time and the overnight flight the day before.",
       externalLabel:
         "Opens Viktor’s August 5 training diary entry on Telegram",
     },

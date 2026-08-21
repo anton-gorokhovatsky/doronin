@@ -1,5 +1,5 @@
 @media (max-width: 960px) {
-  .diary__media,
+  .diary__gallery,
   .diary-live__count {
     grid-column: 1 / span 5;
   }
@@ -53,7 +53,7 @@
   .diary-live__copy,
   .diary-live__timeline,
   .diary-stories,
-  .diary__media,
+  .diary__gallery,
   .diary__copy {
     grid-column: 1;
   }
@@ -195,6 +195,25 @@
 
   .diary__media--image {
     aspect-ratio: var(--diary-media-aspect, 4 / 5);
+  }
+
+  .diary__media--mixed {
+    aspect-ratio: var(--diary-media-aspect, 3 / 4);
+  }
+
+  .diary-media__position {
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+  }
+
+  .diary-media__kind {
+    flex-basis: 100%;
+    margin: 0.2rem 0 0;
+    white-space: normal;
+  }
+
+  .diary-media__rail {
+    grid-auto-columns: 4.25rem;
   }
 
   .diary__copy h3 {

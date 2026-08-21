@@ -130,8 +130,15 @@ for (const [lang, path] of pages) {
     (total, entry) => total + entry.facts.length,
     0,
   );
-  const diaryVideoCount = diary.entries.filter((entry) => entry.video).length;
-  const diaryImageCount = diary.entries.length - diaryVideoCount;
+  const diaryMedia = diary.entries.flatMap((entry) => entry.media);
+  const diaryVideoCount = diaryMedia.filter(
+    (media) => media.kind === "video",
+  ).length;
+  const diaryImageCount = diaryMedia.length - diaryVideoCount;
+  const diaryMediaTabCount = diary.entries.reduce(
+    (total, entry) => total + (entry.media.length > 1 ? entry.media.length : 0),
+    0,
+  );
   const embeddedAnalyticsRegistry = html.match(
     /<script type="application\/json" id="analytics-goal-registry">([^<]+)<\/script>/,
   )?.[1];
@@ -148,6 +155,7 @@ for (const [lang, path] of pages) {
     .replace(/<svg[\s\S]*?<\/svg>/g, " ")
     .replace(/<[^>]+>/g, " ")
     .replace(/[ \t\r\n]+/g, " ");
+  const normalizedVisibleText = visibleText.replace(/[\u00a0\u202f]/gu, " ");
   const semanticNumberText = [
     html
       .replace(/<(?:script|style)\b[\s\S]*?<\/(?:script|style)>/giu, " ")
@@ -389,8 +397,12 @@ for (const [lang, path] of pages) {
       diary.entries.every(
         (entry) =>
           html.includes(entry.href) &&
-          (!entry.video || html.includes(`assets/${entry.video}`)) &&
-          html.includes(`assets/${entry.image}`),
+          html.includes(`assets/${entry.image}`) &&
+          entry.media.every(
+            (media) =>
+              html.includes(`assets/${media.src}`) &&
+              (!media.poster || html.includes(`assets/${media.poster}`)),
+          ),
       ) &&
       (html.match(/data-diary-video(?=\s|>)/g) || []).length ===
         diaryVideoCount &&
@@ -398,6 +410,15 @@ for (const [lang, path] of pages) {
         diaryVideoCount &&
       (html.match(/data-diary-image(?=\s|>)/g) || []).length ===
         diaryImageCount &&
+      (html.match(/data-diary-gallery(?=\s|>)/g) || []).length ===
+        diary.entries.length &&
+      (html.match(/data-diary-media-panel(?=\s|>)/g) || []).length ===
+        diaryMedia.length &&
+      (html.match(/data-diary-media-tab(?=\s|>)/g) || []).length ===
+        diaryMediaTabCount &&
+      html.includes("data-diary-media-position-current") &&
+      html.includes("data-diary-media-previous") &&
+      html.includes("data-diary-media-next") &&
       html.includes("data-diary-story-position-current") &&
       html.includes("data-diary-story-newer") &&
       html.includes("data-diary-story-earlier") &&
@@ -408,6 +429,17 @@ for (const [lang, path] of pages) {
       (html.match(/class="diary__fact"/g) || []).length === diaryFactCount &&
       (html.match(/data-project-phase-item="/g) || []).length === 3,
     `${lang}: дневник должен соединять живой путь к старту, все структурированные записи и три состояния проекта`,
+  );
+  expect(
+    !normalizedVisibleText.includes("10:40") &&
+      (lang === "ru"
+        ? html.includes("1\u00a0августа\u00a0— ББК") &&
+          normalizedVisibleText.includes("3000 метров за 10:39.37") &&
+          normalizedVisibleText.includes("темп 3:33 на 1 км")
+        : html.includes("August\u00a01\u00a0— BBK") &&
+          normalizedVisibleText.includes("3000 metres in 10:39.37") &&
+          normalizedVisibleText.includes("a pace of 3:33 per kilometre")),
+    `${lang}: запись ББК должна содержать авторский текст без лишнего прогноза 10:40`,
   );
   expect(
     html.includes('class="proof-sources"') &&
@@ -818,7 +850,8 @@ expect(
 );
 expect(
   css.includes(".diary__media") &&
-    css.includes(".diary__media > img") &&
+    css.includes(".diary-media__panel--image > img") &&
+    css.includes(".diary-media__rail") &&
     css.includes(".diary-stories__controls") &&
     css.includes(".proof-sources__grid") &&
     css.includes(".interview-card--index .interview-card__media") &&
@@ -968,6 +1001,9 @@ expect(
     app.includes('storyTab.setAttribute("aria-selected", String(isActive))') &&
     app.includes("syncDiaryStoryNavigation") &&
     app.includes("[data-diary-story-earlier]") &&
+    app.includes('document.querySelectorAll("[data-diary-gallery]")') &&
+    app.includes("activateMedia") &&
+    app.includes("[data-diary-media-next]") &&
     app.includes('document.querySelectorAll("[data-diary-video]")') &&
     app.includes('diaryVideoFrame.classList.add("has-custom-control")') &&
     app.includes("diaryVideo.controls = true"),

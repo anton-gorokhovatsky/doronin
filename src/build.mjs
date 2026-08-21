@@ -1254,6 +1254,173 @@ function renderDiaryTabs(entries) {
     .join("");
 }
 
+function renderDiaryGallery(entry, entryIndex, l) {
+  const hasMultipleMedia = entry.media.length > 1;
+  const activeMediaIndex = entry.featuredMedia;
+  const activeMedia = entry.media[activeMediaIndex];
+  const mediaPanels = entry.media
+    .map((media, mediaIndex) => {
+      const isActive = mediaIndex === activeMediaIndex;
+      const panelId = `diary-media-${entry.date}-${mediaIndex + 1}`;
+      const tabId = `diary-media-tab-${entry.date}-${mediaIndex + 1}`;
+      const relationship = hasMultipleMedia
+        ? `role="tabpanel" aria-labelledby="${tabId}"`
+        : "";
+
+      return `
+        <div
+          class="diary-media__panel diary-media__panel--${media.kind}"
+          id="${panelId}"
+          ${relationship}
+          ${isActive ? "" : "hidden"}
+          data-diary-media-panel
+        >
+          ${
+            media.kind === "image"
+              ? `<img
+                  src="${l.assetBase}assets/${media.src}"
+                  alt="${escapeAttribute(media.alt)}"
+                  width="${media.width}"
+                  height="${media.height}"
+                  loading="${entryIndex === 0 && isActive ? "eager" : "lazy"}"
+                  decoding="async"
+                  data-diary-image
+                >`
+              : `<video
+                  src="${l.assetBase}assets/${media.src}"
+                  poster="${l.assetBase}assets/${media.poster}"
+                  width="${media.width}"
+                  height="${media.height}"
+                  preload="none"
+                  controls
+                  playsinline
+                  aria-label="${escapeAttribute(media.alt)}"
+                  data-diary-video
+                ></video>
+                <button
+                  class="diary__play"
+                  type="button"
+                  aria-label="${escapeAttribute(media.playLabel)}"
+                  data-diary-video-play
+                >
+                  <span class="diary__play-label">${entry.videoPlayCta}</span>
+                  <span class="diary__play-meta">
+                    <time datetime="${media.durationIso}">${media.duration}</time>
+                    ${mediaIcons.play}
+                  </span>
+                </button>`
+          }
+        </div>`;
+    })
+    .join("");
+
+  const mediaNavigation = hasMultipleMedia
+    ? `
+      <div class="diary-media__navigation">
+        <div class="diary-media__status">
+          <span class="diary-media__position" aria-hidden="true">
+            <strong data-diary-media-position-current>${String(
+              activeMediaIndex + 1,
+            ).padStart(2, "0")}</strong>
+            <span>/</span>
+            <span>${String(entry.media.length).padStart(2, "0")}</span>
+            <span class="diary-media__kind" data-diary-media-kind>${activeMedia.statusLabel}</span>
+          </span>
+          <span
+            class="sr-only"
+            aria-live="polite"
+            data-diary-media-position
+            data-diary-media-position-template="${escapeAttribute(
+              l.diary.mediaPositionTemplate,
+            )}"
+          >${l.diary.mediaPositionTemplate
+            .replace("{current}", String(activeMediaIndex + 1))
+            .replace("{total}", String(entry.media.length))
+            .replace("{label}", activeMedia.statusLabel)}</span>
+          <div class="diary-media__controls" role="group" aria-label="${escapeAttribute(
+            l.diary.mediaGalleryLabel,
+          )}">
+            <button
+              type="button"
+              aria-label="${escapeAttribute(l.diary.mediaPreviousLabel)}"
+              data-diary-media-previous
+              ${activeMediaIndex === 0 ? "disabled" : ""}
+            >${icons.newer}</button>
+            <button
+              type="button"
+              aria-label="${escapeAttribute(l.diary.mediaNextLabel)}"
+              data-diary-media-next
+              ${activeMediaIndex === entry.media.length - 1 ? "disabled" : ""}
+            >${icons.earlier}</button>
+          </div>
+        </div>
+        <div
+          class="diary-media__rail"
+          role="tablist"
+          aria-label="${escapeAttribute(l.diary.mediaGalleryLabel)}"
+          data-diary-media-tabs
+        >
+          ${entry.media
+            .map((media, mediaIndex) => {
+              const isActive = mediaIndex === activeMediaIndex;
+              const thumbnail = media.poster || media.src;
+
+              return `
+                <button
+                  class="diary-media__tab diary-media__tab--${media.kind}"
+                  id="diary-media-tab-${entry.date}-${mediaIndex + 1}"
+                  type="button"
+                  role="tab"
+                  aria-controls="diary-media-${entry.date}-${mediaIndex + 1}"
+                  aria-selected="${isActive ? "true" : "false"}"
+                  aria-label="${escapeAttribute(media.tabLabel)}"
+                  data-diary-media-label="${escapeAttribute(media.statusLabel)}"
+                  data-diary-media-tab
+                  draggable="false"
+                  tabindex="${isActive ? "0" : "-1"}"
+                >
+                  <img
+                    src="${l.assetBase}assets/${thumbnail}"
+                    alt=""
+                    width="${media.width}"
+                    height="${media.height}"
+                    loading="lazy"
+                    decoding="async"
+                    draggable="false"
+                  >
+                  <span class="diary-media__tab-index" aria-hidden="true">${String(
+                    mediaIndex + 1,
+                  ).padStart(2, "0")}</span>
+                  <span class="diary-media__tab-kind" aria-hidden="true">
+                    ${
+                      media.kind === "video"
+                        ? `${mediaIcons.play}<time datetime="${media.durationIso}">${media.duration}</time>`
+                        : media.kindLabel
+                    }
+                  </span>
+                </button>`;
+            })
+            .join("")}
+        </div>
+      </div>`
+    : "";
+
+  return `
+    <div
+      class="diary__gallery${hasMultipleMedia ? " diary__gallery--multiple" : ""}"
+      data-diary-gallery
+    >
+      <figure
+        class="diary__media diary__media--${entry.mediaKind}"
+        style="--diary-media-aspect:${entry.mediaAspect || activeMedia.aspect}"
+        aria-label="${escapeAttribute(l.diary.mediaGalleryLabel)}"
+      >
+        ${mediaPanels}
+      </figure>
+      ${mediaNavigation}
+    </div>`;
+}
+
 function renderDiaryEntries(entries, l) {
   return entries
     .map(
@@ -1266,44 +1433,7 @@ function renderDiaryEntries(entries, l) {
           tabindex="0"
           data-diary-story-panel
         >
-          <figure class="diary__media diary__media--${entry.mediaKind}" style="--diary-media-aspect:${entry.mediaAspect ?? "9 / 16"}">
-            ${
-              entry.mediaKind === "image"
-                ? `<img
-                    src="${l.assetBase}assets/${entry.image}"
-                    alt="${escapeAttribute(entry.imageAlt)}"
-                    width="${entry.mediaWidth ?? 720}"
-                    height="${entry.mediaHeight ?? 1280}"
-                    loading="${index === 0 ? "eager" : "lazy"}"
-                    decoding="async"
-                    data-diary-image
-                  >`
-                : `<video
-                    src="${l.assetBase}assets/${entry.video}"
-                    poster="${l.assetBase}assets/${entry.image}"
-                    width="${entry.mediaWidth ?? 720}"
-                    height="${entry.mediaHeight ?? 1280}"
-                    preload="${index === 0 ? "metadata" : "none"}"
-                    controls
-                    playsinline
-                    aria-label="${escapeAttribute(entry.videoLabel)}"
-                    data-diary-video
-                  ></video>
-                  <button
-                    class="diary__play"
-                    type="button"
-                    aria-label="${escapeAttribute(entry.videoPlayLabel)}"
-                    data-diary-video-play
-                  >
-                    <span class="diary__play-label">${entry.videoPlayCta}</span>
-                    <span class="diary__play-meta">
-                      <time datetime="${entry.videoDurationIso}">${entry.videoDuration}</time>
-                      ${mediaIcons.play}
-                    </span>
-                  </button>
-                  <figcaption class="sr-only">${entry.imageAlt}</figcaption>`
-            }
-          </figure>
+          ${renderDiaryGallery(entry, index, l)}
           <div class="diary__copy">
             <h3>${entry.title}</h3>
             <p class="diary__lead">${entry.lead}</p>

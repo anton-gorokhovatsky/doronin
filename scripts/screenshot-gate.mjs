@@ -61,6 +61,12 @@ async function capture(browser, origin, spec) {
     if (Number.isInteger(spec.diaryStory)) {
       await page.locator("[data-diary-story-tab]").nth(spec.diaryStory).click();
     }
+    if (Number.isInteger(spec.diaryMedia)) {
+      await page
+        .locator(".diary-story:not([hidden]) [data-diary-media-tab]")
+        .nth(spec.diaryMedia)
+        .click();
+    }
     if (Number.isFinite(spec.videoFrame)) {
       await page.locator("[data-hero-video]").evaluate(
         async (video, frame) => {
@@ -254,6 +260,41 @@ async function capture(browser, origin, spec) {
             visiblePanels: panels.filter((panel) => !panel.hidden).length,
           };
         })(),
+        diaryMedia: (() => {
+          const gallery = document.querySelector(
+            ".diary-story:not([hidden]) .diary__gallery--multiple",
+          );
+          if (!gallery) return null;
+          const tabs = [
+            ...gallery.querySelectorAll("[data-diary-media-tab]"),
+          ];
+          const panels = [
+            ...gallery.querySelectorAll("[data-diary-media-panel]"),
+          ];
+          const selected = tabs.findIndex(
+            (tab) => tab.getAttribute("aria-selected") === "true",
+          );
+          const stage = gallery
+            .querySelector(".diary__media")
+            .getBoundingClientRect();
+          return {
+            tabs: tabs.length,
+            panels: panels.length,
+            selected,
+            visiblePanels: panels
+              .map((panel, index) => (!panel.hidden ? index : -1))
+              .filter((index) => index >= 0),
+            activeKind: panels[selected]?.classList.contains(
+              "diary-media__panel--video",
+            )
+              ? "video"
+              : "image",
+            position: gallery
+              .querySelector("[data-diary-media-position-current]")
+              ?.textContent.trim(),
+            stageRatio: stage.width / stage.height,
+          };
+        })(),
       };
     });
     expect(
@@ -329,6 +370,20 @@ async function capture(browser, origin, spec) {
           metrics.diaryStories.selected === 1 &&
           metrics.diaryStories.visiblePanels === 1,
         `${spec.name}: diary story rail clips or exposes the wrong state (${JSON.stringify(metrics.diaryStories)})`,
+      );
+    }
+    if (spec.expectDiaryMedia) {
+      expect(
+        metrics.diaryMedia &&
+          metrics.diaryMedia.tabs === 9 &&
+          metrics.diaryMedia.panels === 9 &&
+          metrics.diaryMedia.selected === spec.diaryMedia &&
+          JSON.stringify(metrics.diaryMedia.visiblePanels) ===
+            JSON.stringify([spec.diaryMedia]) &&
+          metrics.diaryMedia.activeKind === "video" &&
+          metrics.diaryMedia.position === "03" &&
+          Math.abs(metrics.diaryMedia.stageRatio - 0.75) <= 0.02,
+        `${spec.name}: mixed diary gallery exposes the wrong visual state (${JSON.stringify(metrics.diaryMedia)})`,
       );
     }
 
@@ -736,8 +791,22 @@ const specs = [
     theme: "light",
     target: ".diary-story:not([hidden])",
     diaryStory: 1,
+    diaryMedia: 2,
     expectDiaryStories: true,
+    expectDiaryMedia: true,
     viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-1440-light-diary-entry-mixed",
+    path: "/?gate=ru-1440-light-diary-entry-mixed#diary",
+    locale: "ru",
+    theme: "light",
+    target: ".diary-story:not([hidden]) .diary__gallery",
+    diaryStory: 1,
+    diaryMedia: 2,
+    expectDiaryStories: true,
+    expectDiaryMedia: true,
+    viewport: { width: 1440, height: 900 },
   },
   {
     name: "ru-1440-light-diary-live",
@@ -864,6 +933,7 @@ const targetCaptureScopes = new Map([
   [".diary-stories__rail", "fragment"],
   [".diary-stories", "section"],
   [".diary-story:not([hidden])", "fragment"],
+  [".diary-story:not([hidden]) .diary__gallery", "fragment"],
   [".story-frame:nth-child(3)", "fragment"],
 ]);
 

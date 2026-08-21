@@ -46,6 +46,12 @@ const localeCopy = {
     storyNewerLabel: "Более новая запись",
     storyEarlierLabel: "Более ранняя запись",
     storyPositionTemplate: "Запись {current} из {total}",
+    mediaGalleryLabel: "Фото и видео записи",
+    mediaPreviousLabel: "Предыдущий материал",
+    mediaNextLabel: "Следующий материал",
+    mediaPositionTemplate: "Материал {current} из {total}: {label}",
+    mediaPhotoLabel: "Фото",
+    mediaVideoLabel: "Видео",
     videoPlayCta: "Смотреть видео",
     cta: "Читать запись в Telegram",
     phasesLabel: "Состояния проекта",
@@ -84,6 +90,12 @@ const localeCopy = {
     storyNewerLabel: "Newer entry",
     storyEarlierLabel: "Earlier entry",
     storyPositionTemplate: "Entry {current} of {total}",
+    mediaGalleryLabel: "Entry photos and videos",
+    mediaPreviousLabel: "Previous media item",
+    mediaNextLabel: "Next media item",
+    mediaPositionTemplate: "Media item {current} of {total}: {label}",
+    mediaPhotoLabel: "Photo",
+    mediaVideoLabel: "Video",
     videoPlayCta: "Watch video",
     cta: "Read the update on Telegram",
     phasesLabel: "Project states",
@@ -113,6 +125,7 @@ const requiredContentFields = [
 
 const requiredVideoFields = ["video", "videoDuration", "videoDurationIso"];
 const requiredVideoContentFields = ["videoLabel", "videoPlayLabel"];
+const requiredMediaFields = ["src", "width", "height", "aspect"];
 
 function validateEntries() {
   const indexes = new Set();
@@ -135,6 +148,53 @@ function validateEntries() {
       throw new Error(`Diary entry ${entry.date} has no facts.`);
     }
 
+    if (entry.media !== undefined) {
+      if (!Array.isArray(entry.media) || entry.media.length < 2) {
+        throw new Error(
+          `Diary entry ${entry.date} media must contain at least two items.`,
+        );
+      }
+      if (
+        !Number.isInteger(entry.featuredMedia) ||
+        entry.featuredMedia < 0 ||
+        entry.featuredMedia >= entry.media.length
+      ) {
+        throw new Error(
+          `Diary entry ${entry.date} has an invalid featured media index.`,
+        );
+      }
+
+      for (const [mediaIndex, media] of entry.media.entries()) {
+        if (!["image", "video"].includes(media.kind)) {
+          throw new Error(
+            `Diary entry ${entry.date} media ${mediaIndex + 1} has an invalid kind.`,
+          );
+        }
+        for (const field of requiredMediaFields) {
+          const value = media[field];
+          const valid =
+            field === "width" || field === "height"
+              ? Number.isFinite(value) && value > 0
+              : typeof value === "string" && value;
+          if (!valid) {
+            throw new Error(
+              `Diary entry ${entry.date} media ${mediaIndex + 1} is missing ${field}.`,
+            );
+          }
+        }
+        if (
+          media.kind === "video" &&
+          [media.poster, media.duration, media.durationIso].some(
+            (value) => typeof value !== "string" || !value,
+          )
+        ) {
+          throw new Error(
+            `Diary entry ${entry.date} video ${mediaIndex + 1} is incomplete.`,
+          );
+        }
+      }
+    }
+
     if (entry.video) {
       for (const field of requiredVideoFields) {
         if (typeof entry[field] !== "string" || !entry[field]) {
@@ -154,6 +214,24 @@ function validateEntries() {
         for (const field of requiredVideoContentFields) {
           if (typeof localized?.[field] !== "string" || !localized[field]) {
             throw new Error(`Diary entry ${entry.date} is missing ${lang}.${field}.`);
+          }
+        }
+      }
+      if (entry.media) {
+        for (const [mediaIndex, media] of entry.media.entries()) {
+          if (typeof media.alt?.[lang] !== "string" || !media.alt[lang]) {
+            throw new Error(
+              `Diary entry ${entry.date} media ${mediaIndex + 1} is missing ${lang}.alt.`,
+            );
+          }
+          if (
+            media.kind === "video" &&
+            (typeof media.playLabel?.[lang] !== "string" ||
+              !media.playLabel[lang])
+          ) {
+            throw new Error(
+              `Diary entry ${entry.date} video ${mediaIndex + 1} is missing ${lang}.playLabel.`,
+            );
           }
         }
       }
@@ -196,6 +274,48 @@ function formatCount(count, lang) {
   return `${count}\u00a0${noun}`;
 }
 
+function localizeEntryMedia(entry, lang, copy) {
+  const localizedContent = entry.content[lang];
+  const sourceMedia = entry.media || [
+    {
+      kind: entry.video ? "video" : "image",
+      src: entry.video || entry.image,
+      poster: entry.video ? entry.image : undefined,
+      width: entry.mediaWidth || 720,
+      height: entry.mediaHeight || 1280,
+      aspect: entry.mediaAspect || (entry.video ? "9 / 16" : "4 / 5"),
+      duration: entry.videoDuration,
+      durationIso: entry.videoDurationIso,
+      alt: { [lang]: localizedContent.imageAlt },
+      playLabel: { [lang]: localizedContent.videoPlayLabel },
+    },
+  ];
+
+  return sourceMedia.map((media) => {
+    const kindLabel =
+      media.kind === "video" ? copy.mediaVideoLabel : copy.mediaPhotoLabel;
+    const alt = media.alt?.[lang] || localizedContent.imageAlt;
+
+    return {
+      kind: media.kind,
+      src: media.src,
+      poster: media.poster,
+      width: media.width,
+      height: media.height,
+      aspect: media.aspect,
+      duration: media.duration,
+      durationIso: media.durationIso,
+      alt,
+      playLabel: media.playLabel?.[lang] || localizedContent.videoPlayLabel,
+      kindLabel,
+      statusLabel: media.duration
+        ? `${kindLabel}\u00a0·\u00a0${media.duration}`
+        : kindLabel,
+      tabLabel: `${kindLabel}: ${alt}`,
+    };
+  });
+}
+
 export function createDiaryContent(lang) {
   if (!localeCopy[lang]) throw new Error(`Unsupported diary locale: ${lang}.`);
 
@@ -208,23 +328,30 @@ export function createDiaryContent(lang) {
     rangeCount: formatCount(entries.length, lang),
     rangeStart: formatDate(oldest.date, lang, false, true),
     rangeEnd: formatDate(newest.date, lang, true, true),
-    entries: entries.map((entry) => ({
-      index: entry.index,
-      date: entry.date,
-      href: entry.href,
-      image: entry.image,
-      video: entry.video,
-      videoDuration: entry.videoDuration,
-      videoDurationIso: entry.videoDurationIso,
-      mediaKind: entry.video ? "video" : "image",
-      mediaWidth: entry.mediaWidth,
-      mediaHeight: entry.mediaHeight,
-      mediaAspect: entry.mediaAspect,
-      dateLabel: formatDate(entry.date, lang),
-      videoPlayCta: copy.videoPlayCta,
-      cta: copy.cta,
-      facts: entry.facts.map((fact) => [fact.value[lang], fact[lang]]),
-      ...entry.content[lang],
-    })),
+    entries: entries.map((entry) => {
+      const media = localizeEntryMedia(entry, lang, copy);
+      const featuredMedia = entry.featuredMedia || 0;
+
+      return {
+        index: entry.index,
+        date: entry.date,
+        href: entry.href,
+        image: entry.image,
+        video: entry.video,
+        videoDuration: entry.videoDuration,
+        videoDurationIso: entry.videoDurationIso,
+        media,
+        featuredMedia,
+        mediaKind: media.length > 1 ? "mixed" : media[0].kind,
+        mediaWidth: entry.mediaWidth,
+        mediaHeight: entry.mediaHeight,
+        mediaAspect: entry.mediaAspect,
+        dateLabel: formatDate(entry.date, lang),
+        videoPlayCta: copy.videoPlayCta,
+        cta: copy.cta,
+        facts: entry.facts.map((fact) => [fact.value[lang], fact[lang]]),
+        ...entry.content[lang],
+      };
+    }),
   };
 }
