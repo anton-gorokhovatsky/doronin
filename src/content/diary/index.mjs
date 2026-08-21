@@ -302,6 +302,8 @@ function localizeEntryMedia(entry, lang, copy) {
       width: media.width,
       height: media.height,
       aspect: media.aspect,
+      fit: media.fit,
+      position: media.position,
       duration: media.duration,
       durationIso: media.durationIso,
       alt,

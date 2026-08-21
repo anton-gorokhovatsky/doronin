@@ -742,7 +742,8 @@
 }
 
 .diary__media--mixed .diary-media__panel--image > img {
-  object-fit: contain;
+  object-fit: var(--diary-image-fit, contain);
+  object-position: var(--diary-image-position, 50% 50%);
 }
 
 .diary-media__navigation {
@@ -1015,7 +1016,7 @@
 
 .diary__copy {
   grid-column: 6 / -1;
-  align-self: center;
+  align-self: start;
 }
 
 .diary__copy h3 {

@@ -1282,6 +1282,11 @@ function renderDiaryGallery(entry, entryIndex, l) {
                   alt="${escapeAttribute(media.alt)}"
                   width="${media.width}"
                   height="${media.height}"
+                  ${
+                    media.fit || media.position
+                      ? `style="--diary-image-fit:${media.fit || "contain"};--diary-image-position:${media.position || "50% 50%"}"`
+                      : ""
+                  }
                   loading="${entryIndex === 0 && isActive ? "eager" : "lazy"}"
                   decoding="async"
                   data-diary-image

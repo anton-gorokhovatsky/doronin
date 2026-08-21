@@ -437,7 +437,7 @@ for (const [lang, path] of pages) {
           !normalizedVisibleText.includes("3000 метров за 10:39.37") &&
           normalizedVisibleText.includes("10:39.37") &&
           normalizedVisibleText.includes("3:33/км")
-        : html.includes("August\u00a01\u00a0— BBK") &&
+        : normalizedVisibleText.includes("August 1 — Battle of Running Clubs") &&
           !normalizedVisibleText.includes("3000 metres in 10:39.37") &&
           normalizedVisibleText.includes("10:39.37") &&
           normalizedVisibleText.includes("3:33/km")),
@@ -857,6 +857,8 @@ expect(
 expect(
   css.includes(".diary__media") &&
     css.includes(".diary-media__panel--image > img") &&
+    css.includes("object-fit: var(--diary-image-fit, contain)") &&
+    css.includes("align-self: start") &&
     css.includes(".diary-media__rail") &&
     css.includes(".diary-stories__controls") &&
     css.includes(".proof-sources__grid") &&

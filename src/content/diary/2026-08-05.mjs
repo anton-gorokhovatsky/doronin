@@ -25,6 +25,8 @@ export default {
       width: 1280,
       height: 853,
       aspect: "1280 / 853",
+      fit: "cover",
+      position: "47% 50%",
       alt: {
         ru: "Виктор Доронин бежит вдоль трибун на дистанции 3000 метров",
         en: "Viktor Doronin runs past the stands during the 3000-metre race",
@@ -55,8 +57,8 @@ export default {
         "Откроется запись дневника Виктора от 5 августа в Telegram",
     },
     en: {
-      tabLabel: "BBK: 3000 metres",
-      title: "August\u00a01\u00a0— BBK",
+      tabLabel: "Battle of Running Clubs: 3000 metres",
+      title: "August\u00a01\u00a0— Battle of Running Clubs",
       imageAlt:
         "Viktor Doronin runs towards the finish of the 3000-metre race at the Battle of Running Clubs",
       note:
