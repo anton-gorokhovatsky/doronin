@@ -1435,8 +1435,8 @@ function renderDiaryEntries(entries, l) {
         >
           ${renderDiaryGallery(entry, index, l)}
           <div class="diary__copy">
-            <h3>${entry.title}</h3>
-            <p class="diary__lead">${entry.lead}</p>
+            <h3 data-optical-start data-optical-scope="first-line">${entry.title}</h3>
+            ${entry.lead ? `<p class="diary__lead">${entry.lead}</p>` : ""}
             <div class="diary__facts">
               ${renderMetrics(entry.facts, "diary__fact")}
             </div>

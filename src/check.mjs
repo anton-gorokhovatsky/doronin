@@ -434,12 +434,18 @@ for (const [lang, path] of pages) {
     !normalizedVisibleText.includes("10:40") &&
       (lang === "ru"
         ? html.includes("1\u00a0августа\u00a0— ББК") &&
-          normalizedVisibleText.includes("3000 метров за 10:39.37") &&
-          normalizedVisibleText.includes("темп 3:33 на 1 км")
+          !normalizedVisibleText.includes("3000 метров за 10:39.37") &&
+          normalizedVisibleText.includes("10:39.37") &&
+          normalizedVisibleText.includes("3:33/км")
         : html.includes("August\u00a01\u00a0— BBK") &&
-          normalizedVisibleText.includes("3000 metres in 10:39.37") &&
-          normalizedVisibleText.includes("a pace of 3:33 per kilometre")),
-    `${lang}: запись ББК должна содержать авторский текст без лишнего прогноза 10:40`,
+          !normalizedVisibleText.includes("3000 metres in 10:39.37") &&
+          normalizedVisibleText.includes("10:39.37") &&
+          normalizedVisibleText.includes("3:33/km")),
+    `${lang}: запись ББК должна показывать результат без лишнего вводного абзаца и прогноза 10:40`,
+  );
+  expect(
+    html.includes('<h3 data-optical-start data-optical-scope="first-line">'),
+    `${lang}: заголовки дневника должны компенсировать первый глиф только на первой строке`,
   );
   expect(
     html.includes('class="proof-sources"') &&

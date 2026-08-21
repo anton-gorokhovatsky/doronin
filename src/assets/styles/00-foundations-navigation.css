@@ -234,6 +234,11 @@ a {
   --optical-start-shift: var(--micra-leading-one-shift);
 }
 
+[data-optical-start][data-optical-scope="first-line"] {
+  translate: none;
+  text-indent: var(--optical-start-shift);
+}
+
 .icon {
   display: block;
   flex: 0 0 auto;

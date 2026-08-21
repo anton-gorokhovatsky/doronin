@@ -118,7 +118,6 @@ const requiredContentFields = [
   "tabLabel",
   "title",
   "imageAlt",
-  "lead",
   "note",
   "externalLabel",
 ];
