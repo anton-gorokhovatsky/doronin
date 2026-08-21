@@ -720,6 +720,26 @@ const specs = [
     viewport: { width: 390, height: 844 },
   },
   {
+    name: "ru-1440-light-diary-stories-current",
+    path: "/?gate=ru-1440-light-diary-stories#diary",
+    locale: "ru",
+    theme: "light",
+    target: ".diary-stories",
+    diaryStory: 0,
+    expectDiaryStories: true,
+    viewport: { width: 1440, height: 900 },
+  },
+  {
+    name: "ru-390-light-diary-entry-second",
+    path: "/?gate=ru-390-light-diary-entry-second#diary",
+    locale: "ru",
+    theme: "light",
+    target: ".diary-story:not([hidden])",
+    diaryStory: 1,
+    expectDiaryStories: true,
+    viewport: { width: 390, height: 844 },
+  },
+  {
     name: "ru-1440-light-diary-live",
     path: "/?gate=ru-1440-light-diary-live#diary",
     locale: "ru",
@@ -842,6 +862,8 @@ const targetCaptureScopes = new Map([
   [".proof-source", "fragment"],
   [".partner-formats__list", "fragment"],
   [".diary-stories__rail", "fragment"],
+  [".diary-stories", "section"],
+  [".diary-story:not([hidden])", "fragment"],
   [".story-frame:nth-child(3)", "fragment"],
 ]);
 

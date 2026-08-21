@@ -8,7 +8,10 @@ import { createDiaryContent } from "../src/content/diary/index.mjs";
 import { startSiteServer } from "./lib/site-server.mjs";
 
 const execFileAsync = promisify(execFile);
-const diaryEntryCount = createDiaryContent("ru").entries.length;
+const diaryEntries = createDiaryContent("ru").entries;
+const diaryEntryCount = diaryEntries.length;
+const diaryVideoEntryCount = diaryEntries.filter((entry) => entry.video).length;
+const diaryImageEntryCount = diaryEntryCount - diaryVideoEntryCount;
 
 function expect(condition, message) {
   if (!condition) throw new Error(message);
@@ -1135,7 +1138,11 @@ async function auditPage(browser, browserName, origin, testCase) {
     const diaryPanels = page.locator("[data-diary-story-panel]");
     expect(
       (await diaryTabs.count()) === diaryEntryCount &&
-        (await diaryPanels.count()) === diaryEntryCount,
+        (await diaryPanels.count()) === diaryEntryCount &&
+        (await page.locator("[data-diary-video]").count()) ===
+          diaryVideoEntryCount &&
+        (await page.locator("[data-diary-image]").count()) ===
+          diaryImageEntryCount,
       `${prefix}: training diary does not expose all structured stories`,
     );
     const diaryRangeState = await page.locator(".diary__heading").evaluate(
@@ -1299,6 +1306,11 @@ async function auditPage(browser, browserName, origin, testCase) {
             .map((panel, index) => (!panel.hidden ? index : -1))
             .filter((index) => index >= 0),
           railFits: rail.scrollWidth <= rail.clientWidth + 1,
+          visibleTabCount: tabBounds.filter(
+            (bounds) =>
+              bounds.left >= railBounds.left - 1 &&
+              bounds.right <= railBounds.right + 1,
+          ).length,
           thirdPeeks:
             tabBounds[0]?.left >= railBounds.left - 1 &&
             tabBounds[1]?.right <= railBounds.right + 1 &&
@@ -1322,16 +1334,34 @@ async function auditPage(browser, browserName, origin, testCase) {
           overscrollBehaviorX: getComputedStyle(rail).overscrollBehaviorX,
           touchAction: getComputedStyle(rail).touchAction,
           nativeDragDisabled: tabs.every((tab) => !tab.draggable),
+          positionCurrent: element
+            .querySelector("[data-diary-story-position-current]")
+            ?.textContent.trim(),
+          newerDisabled: element.querySelector("[data-diary-story-newer]")
+            ?.disabled,
+          earlierDisabled: element.querySelector("[data-diary-story-earlier]")
+            ?.disabled,
         };
       });
     const initialDiaryState = await readDiaryState();
+    const expectedVisibleDiaryTabs =
+      testCase.viewport.width <= 640
+        ? 2
+        : testCase.viewport.width <= 960
+          ? 3
+          : 4;
     expect(
       initialDiaryState.contained &&
         initialDiaryState.selected === 0 &&
         JSON.stringify(initialDiaryState.visiblePanels) === "[0]" &&
-        (testCase.viewport.width > 390
-          ? initialDiaryState.railFits
-          : !initialDiaryState.railFits &&
+        !initialDiaryState.railFits &&
+        initialDiaryState.visibleTabCount === expectedVisibleDiaryTabs &&
+        initialDiaryState.positionCurrent === "01" &&
+        initialDiaryState.newerDisabled &&
+        !initialDiaryState.earlierDisabled &&
+        (testCase.viewport.width > 640
+          ? true
+          :
             initialDiaryState.thirdPeeks &&
             initialDiaryState.thirdPeekWidth >= 44 &&
             initialDiaryState.overscrollBehaviorX === "none" &&
@@ -1342,6 +1372,17 @@ async function auditPage(browser, browserName, origin, testCase) {
             )),
       `${prefix}: initial diary story state regressed (${JSON.stringify(initialDiaryState)})`,
     );
+    await page.locator("[data-diary-story-earlier]").click();
+    const controlledDiaryState = await readDiaryState();
+    expect(
+      controlledDiaryState.selected === 1 &&
+        JSON.stringify(controlledDiaryState.visiblePanels) === "[1]" &&
+        controlledDiaryState.positionCurrent === "02" &&
+        !controlledDiaryState.newerDisabled &&
+        !controlledDiaryState.earlierDisabled,
+      `${prefix}: diary story controls regressed (${JSON.stringify(controlledDiaryState)})`,
+    );
+    await page.locator("[data-diary-story-newer]").click();
     await diaryTabs.nth(diaryEntryCount - 1).click();
     await page.waitForTimeout(220);
     const selectedDiaryState = await readDiaryState();
@@ -1349,12 +1390,14 @@ async function auditPage(browser, browserName, origin, testCase) {
       selectedDiaryState.selected === diaryEntryCount - 1 &&
         JSON.stringify(selectedDiaryState.visiblePanels) ===
           JSON.stringify([diaryEntryCount - 1]) &&
-        (testCase.viewport.width > 390
-          ? selectedDiaryState.railFits
-          : !selectedDiaryState.railFits &&
-            selectedDiaryState.scrollLeft > 0 &&
-            selectedDiaryState.selectedFullyVisible &&
-            /(?:x|inline)/u.test(selectedDiaryState.scrollSnapType)),
+        !selectedDiaryState.railFits &&
+        selectedDiaryState.scrollLeft > 0 &&
+        selectedDiaryState.selectedFullyVisible &&
+        selectedDiaryState.positionCurrent ===
+          String(diaryEntryCount).padStart(2, "0") &&
+        !selectedDiaryState.newerDisabled &&
+        selectedDiaryState.earlierDisabled &&
+        /(?:x|inline)/u.test(selectedDiaryState.scrollSnapType),
       `${prefix}: diary story switch or mobile reveal regressed (${JSON.stringify(selectedDiaryState)})`,
     );
     await diaryTabs.nth(diaryEntryCount - 1).evaluate((tab) => tab.focus());
@@ -1363,7 +1406,9 @@ async function auditPage(browser, browserName, origin, testCase) {
     expect(
       keyboardDiaryState.selected === diaryEntryCount - 2 &&
         JSON.stringify(keyboardDiaryState.visiblePanels) ===
-          JSON.stringify([diaryEntryCount - 2]),
+          JSON.stringify([diaryEntryCount - 2]) &&
+        keyboardDiaryState.positionCurrent ===
+          String(diaryEntryCount - 1).padStart(2, "0"),
       `${prefix}: diary story keyboard navigation regressed (${JSON.stringify(keyboardDiaryState)})`,
     );
     await diaryTabs.first().click();

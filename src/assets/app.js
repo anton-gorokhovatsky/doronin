@@ -1372,6 +1372,19 @@ if (diaryStories) {
   const diaryStoryPanels = [
     ...diaryStories.querySelectorAll("[data-diary-story-panel]"),
   ];
+  const diaryStoryRail = diaryStories.querySelector("[data-diary-story-tabs]");
+  const diaryStoryNewer = diaryStories.querySelector("[data-diary-story-newer]");
+  const diaryStoryEarlier = diaryStories.querySelector(
+    "[data-diary-story-earlier]",
+  );
+  const diaryStoryPositionCurrent = diaryStories.querySelector(
+    "[data-diary-story-position-current]",
+  );
+  const diaryStoryPosition = diaryStories.querySelector(
+    "[data-diary-story-position]",
+  );
+  const diaryStoryPositionTemplate =
+    diaryStoryPosition?.dataset.diaryStoryPositionTemplate || "";
   const diaryStoryMotionTimers = new WeakMap();
   let activeDiaryIndex = Math.max(
     0,
@@ -1380,6 +1393,41 @@ if (diaryStories) {
     ),
   );
   let diaryStoriesVisible = false;
+
+  const revealDiaryStoryTab = (tab) => {
+    if (!diaryStoryRail || !tab) return;
+
+    const tabStart = tab.offsetLeft;
+    const tabEnd = tabStart + tab.offsetWidth;
+    const visibleStart = diaryStoryRail.scrollLeft;
+    const visibleEnd = visibleStart + diaryStoryRail.clientWidth;
+
+    if (tabStart < visibleStart) {
+      diaryStoryRail.scrollTo({ left: tabStart });
+    } else if (tabEnd > visibleEnd) {
+      diaryStoryRail.scrollTo({
+        left: Math.max(0, tabEnd - diaryStoryRail.clientWidth),
+      });
+    }
+  };
+
+  const syncDiaryStoryNavigation = (index) => {
+    const current = index + 1;
+    const total = diaryStoryTabs.length;
+
+    if (diaryStoryPositionCurrent) {
+      diaryStoryPositionCurrent.textContent = String(current).padStart(2, "0");
+    }
+    if (diaryStoryPosition) {
+      diaryStoryPosition.textContent = diaryStoryPositionTemplate
+        .replace("{current}", String(current))
+        .replace("{total}", String(total));
+    }
+    if (diaryStoryNewer) diaryStoryNewer.disabled = index <= 0;
+    if (diaryStoryEarlier) {
+      diaryStoryEarlier.disabled = index >= diaryStoryTabs.length - 1;
+    }
+  };
 
   const activateDiaryStory = (
     tab,
@@ -1437,9 +1485,10 @@ if (diaryStories) {
     }
 
     activeDiaryIndex = nextDiaryIndex;
+    syncDiaryStoryNavigation(activeDiaryIndex);
 
     if (reveal) {
-      tab.scrollIntoView({ block: "nearest", inline: "nearest" });
+      revealDiaryStoryTab(tab);
     }
     if (focus) tab.focus();
   };
@@ -1469,6 +1518,22 @@ if (diaryStories) {
         history.replaceState(null, "", nextTab.hash);
       });
     }
+
+    diaryStoryNewer?.addEventListener("click", () => {
+      const nextTab = diaryStoryTabs[activeDiaryIndex - 1];
+      if (!nextTab) return;
+
+      activateDiaryStory(nextTab, { reveal: true });
+      history.replaceState(null, "", nextTab.hash);
+    });
+
+    diaryStoryEarlier?.addEventListener("click", () => {
+      const nextTab = diaryStoryTabs[activeDiaryIndex + 1];
+      if (!nextTab) return;
+
+      activateDiaryStory(nextTab, { reveal: true });
+      history.replaceState(null, "", nextTab.hash);
+    });
 
     const hashTab = diaryStoryTabs.find(
       (tab) => tab.hash === window.location.hash,

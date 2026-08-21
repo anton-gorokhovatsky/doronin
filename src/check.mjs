@@ -130,6 +130,8 @@ for (const [lang, path] of pages) {
     (total, entry) => total + entry.facts.length,
     0,
   );
+  const diaryVideoCount = diary.entries.filter((entry) => entry.video).length;
+  const diaryImageCount = diary.entries.length - diaryVideoCount;
   const embeddedAnalyticsRegistry = html.match(
     /<script type="application\/json" id="analytics-goal-registry">([^<]+)<\/script>/,
   )?.[1];
@@ -387,11 +389,18 @@ for (const [lang, path] of pages) {
       diary.entries.every(
         (entry) =>
           html.includes(entry.href) &&
-          html.includes(`assets/${entry.video}`) &&
+          (!entry.video || html.includes(`assets/${entry.video}`)) &&
           html.includes(`assets/${entry.image}`),
       ) &&
-      html.includes("data-diary-video") &&
-      html.includes("data-diary-video-play") &&
+      (html.match(/data-diary-video(?=\s|>)/g) || []).length ===
+        diaryVideoCount &&
+      (html.match(/data-diary-video-play(?=\s|>)/g) || []).length ===
+        diaryVideoCount &&
+      (html.match(/data-diary-image(?=\s|>)/g) || []).length ===
+        diaryImageCount &&
+      html.includes("data-diary-story-position-current") &&
+      html.includes("data-diary-story-newer") &&
+      html.includes("data-diary-story-earlier") &&
       (html.match(/data-diary-story-tab(?=\s|>)/g) || []).length ===
         diary.entries.length &&
       (html.match(/data-diary-story-panel/g) || []).length ===
@@ -809,6 +818,8 @@ expect(
 );
 expect(
   css.includes(".diary__media") &&
+    css.includes(".diary__media > img") &&
+    css.includes(".diary-stories__controls") &&
     css.includes(".proof-sources__grid") &&
     css.includes(".interview-card--index .interview-card__media") &&
     css.includes(".partner-process__list") &&
@@ -955,6 +966,8 @@ expect(
 expect(
   app.includes('diaryStories.classList.add("has-diary-stories")') &&
     app.includes('storyTab.setAttribute("aria-selected", String(isActive))') &&
+    app.includes("syncDiaryStoryNavigation") &&
+    app.includes("[data-diary-story-earlier]") &&
     app.includes('document.querySelectorAll("[data-diary-video]")') &&
     app.includes('diaryVideoFrame.classList.add("has-custom-control")') &&
     app.includes("diaryVideo.controls = true"),

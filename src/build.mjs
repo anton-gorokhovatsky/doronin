@@ -1046,6 +1046,14 @@ const icons = {
     <svg class="icon icon--disclosure" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="m4.5 6.5 3.5 3.5 3.5-3.5"></path>
     </svg>`,
+  newer: `
+    <svg class="icon icon--newer" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="m10.5 3-5 5 5 5"></path>
+    </svg>`,
+  earlier: `
+    <svg class="icon icon--earlier" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="m5.5 3 5 5-5 5"></path>
+    </svg>`,
 };
 
 const mediaIcons = {
@@ -1258,31 +1266,43 @@ function renderDiaryEntries(entries, l) {
           tabindex="0"
           data-diary-story-panel
         >
-          <figure class="diary__media" style="--diary-media-aspect:${entry.mediaAspect ?? "9 / 16"}">
-            <video
-              src="${l.assetBase}assets/${entry.video}"
-              poster="${l.assetBase}assets/${entry.image}"
-              width="${entry.mediaWidth ?? 720}"
-              height="${entry.mediaHeight ?? 1280}"
-              preload="${index === 0 ? "metadata" : "none"}"
-              controls
-              playsinline
-              aria-label="${entry.videoLabel}"
-              data-diary-video
-            ></video>
-            <button
-              class="diary__play"
-              type="button"
-              aria-label="${entry.videoPlayLabel}"
-              data-diary-video-play
-            >
-              <span class="diary__play-label">${entry.videoPlayCta}</span>
-              <span class="diary__play-meta">
-                <time datetime="${entry.videoDurationIso}">${entry.videoDuration}</time>
-                ${mediaIcons.play}
-              </span>
-            </button>
-            <figcaption class="sr-only">${entry.imageAlt}</figcaption>
+          <figure class="diary__media diary__media--${entry.mediaKind}" style="--diary-media-aspect:${entry.mediaAspect ?? "9 / 16"}">
+            ${
+              entry.mediaKind === "image"
+                ? `<img
+                    src="${l.assetBase}assets/${entry.image}"
+                    alt="${escapeAttribute(entry.imageAlt)}"
+                    width="${entry.mediaWidth ?? 720}"
+                    height="${entry.mediaHeight ?? 1280}"
+                    loading="${index === 0 ? "eager" : "lazy"}"
+                    decoding="async"
+                    data-diary-image
+                  >`
+                : `<video
+                    src="${l.assetBase}assets/${entry.video}"
+                    poster="${l.assetBase}assets/${entry.image}"
+                    width="${entry.mediaWidth ?? 720}"
+                    height="${entry.mediaHeight ?? 1280}"
+                    preload="${index === 0 ? "metadata" : "none"}"
+                    controls
+                    playsinline
+                    aria-label="${escapeAttribute(entry.videoLabel)}"
+                    data-diary-video
+                  ></video>
+                  <button
+                    class="diary__play"
+                    type="button"
+                    aria-label="${escapeAttribute(entry.videoPlayLabel)}"
+                    data-diary-video-play
+                  >
+                    <span class="diary__play-label">${entry.videoPlayCta}</span>
+                    <span class="diary__play-meta">
+                      <time datetime="${entry.videoDurationIso}">${entry.videoDuration}</time>
+                      ${mediaIcons.play}
+                    </span>
+                  </button>
+                  <figcaption class="sr-only">${entry.imageAlt}</figcaption>`
+            }
           </figure>
           <div class="diary__copy">
             <h3>${entry.title}</h3>
@@ -2026,6 +2046,34 @@ function renderPage(l) {
         </span>
       </div>
       <div class="diary-stories" id="diary-archive" data-diary-stories>
+        <div class="diary-stories__navigation">
+          <span class="diary-stories__position" aria-hidden="true">
+            <strong data-diary-story-position-current>01</strong>
+            <span>/</span>
+            <span>${String(l.diary.entries.length).padStart(2, "0")}</span>
+          </span>
+          <span
+            class="sr-only"
+            aria-live="polite"
+            data-diary-story-position
+            data-diary-story-position-template="${escapeAttribute(l.diary.storyPositionTemplate)}"
+          >${l.diary.storyPositionTemplate
+            .replace("{current}", "1")
+            .replace("{total}", String(l.diary.entries.length))}</span>
+          <div class="diary-stories__controls" role="group" aria-label="${l.diary.storiesLabel}">
+            <button
+              type="button"
+              aria-label="${l.diary.storyNewerLabel}"
+              data-diary-story-newer
+              disabled
+            >${icons.newer}</button>
+            <button
+              type="button"
+              aria-label="${l.diary.storyEarlierLabel}"
+              data-diary-story-earlier
+            >${icons.earlier}</button>
+          </div>
+        </div>
         <div
           class="diary-stories__rail"
           role="tablist"

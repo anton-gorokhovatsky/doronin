@@ -272,7 +272,11 @@ async function runKeyboardRoute(browser, browserName, origin, viewport) {
             active.matches(".partners__channels a, .site-footer__contacts a")
               ? "contact"
               : null,
-            active.matches("[data-diary-video-play]") ? "diary" : null,
+            active.matches(
+              "[data-diary-story-newer], [data-diary-story-earlier], [data-diary-video-play]",
+            )
+              ? "diary"
+              : null,
             active.matches("[data-video-toggle]") ? "heroVideo" : null,
             active.matches(".button--primary") ? "primary" : null,
           ].filter(Boolean),

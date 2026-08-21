@@ -3,10 +3,18 @@ import march23 from "./2026-03-23.mjs";
 import april23 from "./2026-04-23.mjs";
 import may09 from "./2026-05-09.mjs";
 import may12 from "./2026-05-12.mjs";
+import july06 from "./2026-07-06.mjs";
+import august05 from "./2026-08-05.mjs";
 
-const entries = [march10, march23, april23, may09, may12].sort((first, second) =>
-  second.date.localeCompare(first.date),
-);
+const entries = [
+  march10,
+  march23,
+  april23,
+  may09,
+  may12,
+  july06,
+  august05,
+].sort((first, second) => second.date.localeCompare(first.date));
 
 const localeCopy = {
   ru: {
@@ -35,6 +43,9 @@ const localeCopy = {
     timelineFinish: "31 декабря",
     liveFinishedCountLabel: "дней проекта",
     storiesLabel: "Записи дневника подготовки",
+    storyNewerLabel: "Более новая запись",
+    storyEarlierLabel: "Более ранняя запись",
+    storyPositionTemplate: "Запись {current} из {total}",
     videoPlayCta: "Смотреть видео",
     cta: "Читать запись в Telegram",
     phasesLabel: "Состояния проекта",
@@ -70,6 +81,9 @@ const localeCopy = {
     timelineFinish: "December 31",
     liveFinishedCountLabel: "project days",
     storiesLabel: "Training diary entries",
+    storyNewerLabel: "Newer entry",
+    storyEarlierLabel: "Earlier entry",
+    storyPositionTemplate: "Entry {current} of {total}",
     videoPlayCta: "Watch video",
     cta: "Read the update on Telegram",
     phasesLabel: "Project states",
@@ -86,21 +100,19 @@ const requiredEntryFields = [
   "date",
   "href",
   "image",
-  "video",
-  "videoDuration",
-  "videoDurationIso",
 ];
 
 const requiredContentFields = [
   "tabLabel",
   "title",
   "imageAlt",
-  "videoLabel",
-  "videoPlayLabel",
   "lead",
   "note",
   "externalLabel",
 ];
+
+const requiredVideoFields = ["video", "videoDuration", "videoDurationIso"];
+const requiredVideoContentFields = ["videoLabel", "videoPlayLabel"];
 
 function validateEntries() {
   const indexes = new Set();
@@ -123,11 +135,26 @@ function validateEntries() {
       throw new Error(`Diary entry ${entry.date} has no facts.`);
     }
 
+    if (entry.video) {
+      for (const field of requiredVideoFields) {
+        if (typeof entry[field] !== "string" || !entry[field]) {
+          throw new Error(`Diary entry ${entry.date} is missing ${field}.`);
+        }
+      }
+    }
+
     for (const lang of Object.keys(localeCopy)) {
       const localized = entry.content?.[lang];
       for (const field of requiredContentFields) {
         if (typeof localized?.[field] !== "string" || !localized[field]) {
           throw new Error(`Diary entry ${entry.date} is missing ${lang}.${field}.`);
+        }
+      }
+      if (entry.video) {
+        for (const field of requiredVideoContentFields) {
+          if (typeof localized?.[field] !== "string" || !localized[field]) {
+            throw new Error(`Diary entry ${entry.date} is missing ${lang}.${field}.`);
+          }
         }
       }
       if (entry.facts.some((fact) => !fact.value?.[lang] || !fact[lang])) {
@@ -189,6 +216,7 @@ export function createDiaryContent(lang) {
       video: entry.video,
       videoDuration: entry.videoDuration,
       videoDurationIso: entry.videoDurationIso,
+      mediaKind: entry.video ? "video" : "image",
       mediaWidth: entry.mediaWidth,
       mediaHeight: entry.mediaHeight,
       mediaAspect: entry.mediaAspect,
