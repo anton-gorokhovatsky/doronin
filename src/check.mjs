@@ -765,6 +765,9 @@ expect(
   css.includes('[data-optical-start][data-optical-leading="1"]') &&
     app.includes('document.querySelectorAll("[data-optical-start]")') &&
     css.includes("--micra-leading-one-shift") &&
+    /\.event-status__value\s*\{[^}]*--optical-start-shift:\s*var\(--micra-leading-glyph-shift\)/s.test(
+      css,
+    ) &&
     /\.diary-live__count strong\s*\{[^}]*--optical-start-shift:\s*var\(--micra-leading-glyph-shift\)/s.test(
       css,
     ),

@@ -733,6 +733,7 @@
 }
 
 .event-status__value {
+  --optical-start-shift: var(--micra-leading-glyph-shift);
   color: var(--paper);
   font-family: var(--display);
   font-size: var(--type-number-event);
