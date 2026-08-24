@@ -235,6 +235,7 @@
 }
 
 .diary-live__count strong {
+  --optical-start-shift: var(--micra-leading-glyph-shift);
   display: block;
   max-width: 100%;
   color: var(--text-editorial);

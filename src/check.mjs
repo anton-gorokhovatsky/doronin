@@ -764,7 +764,10 @@ expect(
 expect(
   css.includes('[data-optical-start][data-optical-leading="1"]') &&
     app.includes('document.querySelectorAll("[data-optical-start]")') &&
-    css.includes("--micra-leading-one-shift"),
+    css.includes("--micra-leading-one-shift") &&
+    /\.diary-live__count strong\s*\{[^}]*--optical-start-shift:\s*var\(--micra-leading-glyph-shift\)/s.test(
+      css,
+    ),
   "typography: крупные числа должны подключать единую оптическую компенсацию начальной единицы",
 );
 expect(
