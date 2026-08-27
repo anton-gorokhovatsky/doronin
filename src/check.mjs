@@ -253,6 +253,7 @@ for (const [lang, path] of pages) {
       ? {
           explore: "Посмотреть форматы участия",
           diary: "Следить за дневником",
+          diaryTelegram: "Открыть дневник в Telegram",
           discuss: "Обсудить участие",
           email: "Написать по почте",
           telegram: "Написать в Telegram",
@@ -260,12 +261,18 @@ for (const [lang, path] of pages) {
       : {
           explore: "View partnership options",
           diary: "Follow the diary",
+          diaryTelegram: "Open the diary in Telegram",
           discuss: "Discuss a partnership",
           email: "Send an email",
           telegram: "Message on Telegram",
         };
   const heroPartnerAction = findAnchorByClass(html, "button--primary");
   const heroDiaryAction = findAnchorByClass(html, "button--ghost");
+  const diaryArchiveAction = findAnchorByClass(html, "button--diary");
+  const diaryTelegramAction = findAnchorByClass(
+    html,
+    "button--diary-secondary",
+  );
   const discussionActions = [
     findAnchorByClass(html, "header-cta"),
     findAnchorByClass(html, "site-nav__cta"),
@@ -284,10 +291,30 @@ for (const [lang, path] of pages) {
     `${lang}: действие первого экрана должно вести к форматам участия и буквально называть этот переход`,
   );
   expect(
-    heroDiaryAction.includes('href="#diary-archive"') &&
+    heroDiaryAction.includes('href="#diary"') &&
       heroDiaryAction.includes('data-analytics-goal="diary_explore"') &&
       compactMarkupText(heroDiaryAction) === actionCopy.diary,
-    `${lang}: действие дневника на первом экране должно вести прямо к архиву подготовки`,
+    `${lang}: действие дневника на первом экране должно вести к началу дневниковой главы`,
+  );
+  expect(
+    diaryArchiveAction.includes('href="#diary-archive"') &&
+      diaryArchiveAction.includes(
+        'data-analytics-goal="diary_explore"',
+      ) &&
+      diaryArchiveAction.includes('icon--down') &&
+      compactMarkupText(diaryArchiveAction) === actionCopy.diary,
+    `${lang}: главное действие внутри дневника должно вести к архиву подготовки`,
+  );
+  expect(
+    diaryTelegramAction.includes('href="https://t.me/') &&
+      diaryTelegramAction.includes(
+        'data-analytics-goal="diary_follow"',
+      ) &&
+      diaryTelegramAction.includes('target="_blank"') &&
+      diaryTelegramAction.includes('rel="noopener noreferrer"') &&
+      diaryTelegramAction.includes('icon--external') &&
+      compactMarkupText(diaryTelegramAction) === actionCopy.diaryTelegram,
+    `${lang}: вторичное действие дневника должно явно называть внешний переход в Telegram`,
   );
   expect(
     discussionActions.every(

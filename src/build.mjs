@@ -2048,7 +2048,7 @@ function renderPage(l) {
         <p class="hero__intro">${l.hero.intro}</p>
         <div class="hero__actions">
           <a class="button button--primary action-primary" href="#partners" data-analytics-goal="partner_interest">${l.hero.primaryCta}${icons.down}</a>
-          <a class="button button--ghost" href="#diary-archive" data-analytics-goal="diary_explore">${l.hero.secondaryCta}</a>
+          <a class="button button--ghost" href="#diary" data-analytics-goal="diary_explore">${l.hero.secondaryCta}</a>
         </div>
       </div>
 
@@ -2136,13 +2136,17 @@ function renderPage(l) {
           <div class="diary-live__actions">
             <a
               class="button button--diary"
+              href="#diary-archive"
+              data-analytics-goal="diary_explore"
+              aria-label="${l.diary.liveFollowLabel}"
+            >${l.diary.liveFollowCta}${icons.down}</a>
+            <a
+              class="button button--diary-secondary"
               href="${shared.viktorTelegramHref}"
               data-analytics-goal="diary_follow"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="${l.diary.liveFollowLabel}"
-            >${l.diary.liveFollowCta}${icons.external}</a>
-            <a class="button button--diary-secondary" href="#diary-archive">${l.diary.archiveCta}${icons.down}</a>
+            >${l.diary.telegramCta}${icons.external}</a>
           </div>
         </div>
         <div class="diary-live__timeline" aria-hidden="true">

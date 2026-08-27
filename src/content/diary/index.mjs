@@ -34,8 +34,8 @@ const localeCopy = {
     liveBodyFinished:
       "Записи подготовки и прохождения дистанции остаются хронологией проекта — от первых решений до зафиксированного результата.",
     liveFollowCta: "Следить за дневником",
-    liveFollowLabel: "Открыть дневник Виктора в Telegram",
-    archiveCta: "Смотреть контрольные точки",
+    liveFollowLabel: "Перейти к архиву подготовки",
+    telegramCta: "Открыть дневник в Telegram",
     archiveLabel: "Архив подготовки",
     timelineArchiveStart: "10 марта",
     timelineNow: "Сейчас",
@@ -78,8 +78,8 @@ const localeCopy = {
     liveBodyFinished:
       "The preparation and distance updates remain as the project’s chronology — from the first decisions to the recorded result.",
     liveFollowCta: "Follow the diary",
-    liveFollowLabel: "Open Viktor’s diary on Telegram",
-    archiveCta: "See previous checkpoints",
+    liveFollowLabel: "Go to the preparation archive",
+    telegramCta: "Open the diary in Telegram",
     archiveLabel: "Preparation archive",
     timelineArchiveStart: "March 10",
     timelineNow: "Now",
