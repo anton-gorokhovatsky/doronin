@@ -252,17 +252,20 @@ for (const [lang, path] of pages) {
     lang === "ru"
       ? {
           explore: "Посмотреть форматы участия",
+          diary: "Следить за дневником",
           discuss: "Обсудить участие",
           email: "Написать по почте",
           telegram: "Написать в Telegram",
         }
       : {
           explore: "View partnership options",
+          diary: "Follow the diary",
           discuss: "Discuss a partnership",
           email: "Send an email",
           telegram: "Message on Telegram",
         };
   const heroPartnerAction = findAnchorByClass(html, "button--primary");
+  const heroDiaryAction = findAnchorByClass(html, "button--ghost");
   const discussionActions = [
     findAnchorByClass(html, "header-cta"),
     findAnchorByClass(html, "site-nav__cta"),
@@ -279,6 +282,12 @@ for (const [lang, path] of pages) {
       heroPartnerAction.includes('icon--down') &&
       compactMarkupText(heroPartnerAction) === actionCopy.explore,
     `${lang}: действие первого экрана должно вести к форматам участия и буквально называть этот переход`,
+  );
+  expect(
+    heroDiaryAction.includes('href="#diary-archive"') &&
+      heroDiaryAction.includes('data-analytics-goal="diary_explore"') &&
+      compactMarkupText(heroDiaryAction) === actionCopy.diary,
+    `${lang}: действие дневника на первом экране должно вести прямо к архиву подготовки`,
   );
   expect(
     discussionActions.every(
@@ -393,7 +402,8 @@ for (const [lang, path] of pages) {
       html.includes('class="diary-live"') &&
       html.includes("data-diary-countdown") &&
       html.includes('data-analytics-goal="diary_follow"') &&
-      html.includes('id="diary-archive"') &&
+      html.includes('class="diary__heading" id="diary-archive"') &&
+      html.includes('class="diary-stories" data-diary-stories') &&
       diary.entries.every(
         (entry) =>
           html.includes(entry.href) &&

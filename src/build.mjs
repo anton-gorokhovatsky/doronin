@@ -2048,7 +2048,7 @@ function renderPage(l) {
         <p class="hero__intro">${l.hero.intro}</p>
         <div class="hero__actions">
           <a class="button button--primary action-primary" href="#partners" data-analytics-goal="partner_interest">${l.hero.primaryCta}${icons.down}</a>
-          <a class="button button--ghost" href="#diary" data-analytics-goal="diary_explore">${l.hero.secondaryCta}</a>
+          <a class="button button--ghost" href="#diary-archive" data-analytics-goal="diary_explore">${l.hero.secondaryCta}</a>
         </div>
       </div>
 
@@ -2168,7 +2168,7 @@ function renderPage(l) {
           </div>
         </div>
       </div>
-      <div class="diary__heading">
+      <div class="diary__heading" id="diary-archive">
         <p class="diary__eyebrow">${l.diary.archiveLabel}</p>
         <span class="diary__range">
           <span class="diary__range-count">${l.diary.rangeCount}</span>
@@ -2180,7 +2180,7 @@ function renderPage(l) {
           </span>
         </span>
       </div>
-      <div class="diary-stories" id="diary-archive" data-diary-stories>
+      <div class="diary-stories" data-diary-stories>
         <div class="diary-stories__navigation">
           <span class="diary-stories__position" aria-hidden="true">
             <strong data-diary-story-position-current>01</strong>
