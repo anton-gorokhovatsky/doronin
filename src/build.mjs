@@ -1222,33 +1222,6 @@ function renderMetrics(items, className) {
     .join("");
 }
 
-function getDiaryTitleDensity(title) {
-  const longestWord = Math.max(
-    ...title.split(/\s+/u).map((word) => Array.from(word).length),
-  );
-
-  return longestWord >= 13 ? "long-word" : "default";
-}
-
-function renderDiaryTitle(title) {
-  const words = title.split(/\s+/u);
-  const longestWordIndex = words.reduce(
-    (longestIndex, word, index) =>
-      Array.from(word).length > Array.from(words[longestIndex]).length
-        ? index
-        : longestIndex,
-    0,
-  );
-
-  if (Array.from(words[longestWordIndex]).length < 13 || longestWordIndex === 0) {
-    return title;
-  }
-
-  return `${words.slice(0, longestWordIndex).join(" ")}<wbr> ${words
-    .slice(longestWordIndex)
-    .join(" ")}`;
-}
-
 function renderDiaryText(text, className) {
   return text
     .split(/\n{2,}/u)
@@ -1287,7 +1260,6 @@ function renderDiaryTabs(entries) {
           role="tab"
           aria-controls="diary-entry-${entry.date}"
           aria-selected="${index === 0 ? "true" : "false"}"
-          data-title-density="${getDiaryTitleDensity(entry.tabLabel)}"
           data-diary-story-tab
           draggable="false"
         >
@@ -1484,8 +1456,6 @@ function renderDiaryGallery(entry, entryIndex, l) {
 function renderDiaryEntries(entries, l) {
   return entries
     .map((entry, index) => {
-      const titleDensity = getDiaryTitleDensity(entry.title);
-
       return `
         <article
           class="diary-story"
@@ -1496,8 +1466,8 @@ function renderDiaryEntries(entries, l) {
           data-diary-story-panel
         >
           ${renderDiaryGallery(entry, index, l)}
-          <div class="diary__copy" data-title-density="${titleDensity}">
-            <h3 data-optical-start data-optical-scope="first-line">${renderDiaryTitle(entry.title)}</h3>
+          <div class="diary__copy">
+            <h3 data-optical-start data-optical-scope="first-line">${entry.title}</h3>
             ${entry.lead ? renderDiaryText(entry.lead, "diary__lead") : ""}
             <div class="diary__facts">
               ${renderMetrics(entry.facts, "diary__fact")}

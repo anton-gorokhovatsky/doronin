@@ -1032,22 +1032,6 @@
   word-break: normal;
 }
 
-.diary__copy[data-title-density="long-word"] h3 {
-  font-size: clamp(2.1rem, calc(1.45rem + 1.25vw), 2.55rem);
-}
-
-@media (min-width: 961px) {
-  .diary__copy[data-title-density="long-word"] {
-    grid-column: 5 / -1;
-  }
-}
-
-@media (min-width: 1200px) {
-  .diary__copy[data-title-density="long-word"] h3 {
-    font-size: min(var(--type-chapter), calc(0.5rem + 3.25vw));
-  }
-}
-
 .diary__lead {
   max-width: var(--measure-lead);
   margin: 1.5rem 0 0;

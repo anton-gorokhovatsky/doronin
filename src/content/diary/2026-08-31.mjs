@@ -20,8 +20,8 @@ export default {
   ],
   content: {
     ru: {
-      tabLabel: "Фокус на восстановлении",
-      title: "Фокус на восстановлении",
+      tabLabel: "Фокус — отдых",
+      title: "Фокус — отдых",
       imageAlt:
         "Виктор Доронин на беговой дорожке держит перед камерой батончик «Мега-Вита»",
       lead:
@@ -32,8 +32,8 @@ export default {
         "Откроется запись дневника Виктора от 31 августа в Telegram",
     },
     en: {
-      tabLabel: "Focus on recovery",
-      title: "Focus on recovery",
+      tabLabel: "Focus on rest",
+      title: "Focus on rest",
       imageAlt:
         "Viktor Doronin holds a Mega-Vita bar towards the camera on an athletics track",
       lead:

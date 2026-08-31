@@ -221,10 +221,6 @@
     font-size: var(--type-narrow-section);
   }
 
-  .diary__copy[data-title-density="long-word"] h3 {
-    font-size: min(var(--type-chapter), calc(0.025rem + 4.7vw));
-  }
-
   .diary__facts {
     grid-template-columns: minmax(0, 1fr);
     gap: 1.25rem;
