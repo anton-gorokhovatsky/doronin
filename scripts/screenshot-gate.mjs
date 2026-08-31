@@ -58,7 +58,9 @@ async function capture(browser, origin, spec) {
       await proof.scrollIntoViewIfNeeded();
       await proof.locator("summary").click();
     }
-    if (Number.isInteger(spec.diaryStory)) {
+    if (spec.diaryStoryDate) {
+      await page.locator(`#diary-tab-${spec.diaryStoryDate}`).click();
+    } else if (Number.isInteger(spec.diaryStory)) {
       await page.locator("[data-diary-story-tab]").nth(spec.diaryStory).click();
     }
     if (Number.isInteger(spec.diaryMedia)) {
@@ -785,12 +787,12 @@ const specs = [
     viewport: { width: 1440, height: 900 },
   },
   {
-    name: "ru-390-light-diary-entry-second",
-    path: "/?gate=ru-390-light-diary-entry-second#diary",
+    name: "ru-390-light-diary-entry-mixed",
+    path: "/?gate=ru-390-light-diary-entry-mixed#diary",
     locale: "ru",
     theme: "light",
     target: ".diary-story:not([hidden])",
-    diaryStory: 1,
+    diaryStoryDate: "2026-07-06",
     diaryMedia: 2,
     expectDiaryStories: true,
     expectDiaryMedia: true,
@@ -802,7 +804,7 @@ const specs = [
     locale: "ru",
     theme: "light",
     target: ".diary-story:not([hidden]) .diary__gallery",
-    diaryStory: 1,
+    diaryStoryDate: "2026-07-06",
     diaryMedia: 2,
     expectDiaryStories: true,
     expectDiaryMedia: true,
