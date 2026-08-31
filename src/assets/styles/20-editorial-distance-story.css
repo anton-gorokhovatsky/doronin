@@ -610,6 +610,10 @@
   white-space: pre-line;
 }
 
+.diary-stories__tab[data-title-density="long-word"] strong {
+  font-size: clamp(0.78rem, calc(0.7rem + 0.25vw), 1rem);
+}
+
 .diary-stories__tab:hover,
 .diary-stories__tab:focus-visible {
   color: var(--text-editorial);
@@ -1030,6 +1034,10 @@
   text-wrap: balance;
   text-transform: uppercase;
   word-break: normal;
+}
+
+.diary__copy[data-title-density="long-word"] h3 {
+  font-size: clamp(2.1rem, calc(1.45rem + 1.25vw), 2.55rem);
 }
 
 .diary__lead {

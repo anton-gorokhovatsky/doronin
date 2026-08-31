@@ -1222,6 +1222,14 @@ function renderMetrics(items, className) {
     .join("");
 }
 
+function getDiaryTitleDensity(title) {
+  const longestWord = Math.max(
+    ...title.split(/\s+/u).map((word) => Array.from(word).length),
+  );
+
+  return longestWord >= 13 ? "long-word" : "default";
+}
+
 function renderDiaryTabs(entries) {
   return entries
     .map(
@@ -1233,6 +1241,7 @@ function renderDiaryTabs(entries) {
           role="tab"
           aria-controls="diary-entry-${entry.date}"
           aria-selected="${index === 0 ? "true" : "false"}"
+          data-title-density="${getDiaryTitleDensity(entry.tabLabel)}"
           data-diary-story-tab
           draggable="false"
         >
@@ -1429,10 +1438,7 @@ function renderDiaryGallery(entry, entryIndex, l) {
 function renderDiaryEntries(entries, l) {
   return entries
     .map((entry, index) => {
-      const longestTitleWord = Math.max(
-        ...entry.title.split(/\s+/u).map((word) => Array.from(word).length),
-      );
-      const titleDensity = longestTitleWord >= 13 ? "long-word" : "default";
+      const titleDensity = getDiaryTitleDensity(entry.title);
 
       return `
         <article
