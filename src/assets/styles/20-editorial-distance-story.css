@@ -1037,6 +1037,7 @@
   margin: 1.5rem 0 0;
   font-size: var(--type-copy-lead);
   line-height: var(--leading-copy-lead);
+  white-space: pre-line;
 }
 
 .diary__facts {
@@ -1075,6 +1076,7 @@
   margin: 2rem 0 0;
   color: var(--text-editorial-muted);
   font-size: var(--type-service-strong);
+  white-space: pre-line;
 }
 
 .text-link--dark {

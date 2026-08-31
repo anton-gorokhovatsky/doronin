@@ -1428,8 +1428,13 @@ function renderDiaryGallery(entry, entryIndex, l) {
 
 function renderDiaryEntries(entries, l) {
   return entries
-    .map(
-      (entry, index) => `
+    .map((entry, index) => {
+      const longestTitleWord = Math.max(
+        ...entry.title.split(/\s+/u).map((word) => Array.from(word).length),
+      );
+      const titleDensity = longestTitleWord >= 13 ? "long-word" : "default";
+
+      return `
         <article
           class="diary-story"
           id="diary-entry-${entry.date}"
@@ -1439,7 +1444,7 @@ function renderDiaryEntries(entries, l) {
           data-diary-story-panel
         >
           ${renderDiaryGallery(entry, index, l)}
-          <div class="diary__copy">
+          <div class="diary__copy" data-title-density="${titleDensity}">
             <h3 data-optical-start data-optical-scope="first-line">${entry.title}</h3>
             ${entry.lead ? `<p class="diary__lead">${entry.lead}</p>` : ""}
             <div class="diary__facts">
@@ -1458,8 +1463,8 @@ function renderDiaryEntries(entries, l) {
               <span class="sr-only">${entry.externalLabel}</span>
             </a>
           </div>
-        </article>`,
-    )
+        </article>`;
+    })
     .join("");
 }
 

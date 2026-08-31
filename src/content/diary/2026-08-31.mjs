@@ -20,26 +20,26 @@ export default {
   ],
   content: {
     ru: {
-      tabLabel: "92 дня до старта",
-      title: "92 дня до старта",
+      tabLabel: "Фокус на восстановлении",
+      title: "Фокус на восстановлении",
       imageAlt:
         "Виктор Доронин на беговой дорожке держит перед камерой батончик «Мега-Вита»",
       lead:
-        "За неделю Виктор проехал около 800\u00a0км: шесть заездов в Tour de Kamishin и тест-драйв велосипеда с друзьями. Бег\u00a0— около трёх часов в лёгком режиме.",
+        "92 дня до челленджа 11\u202f111\u00a0км\n\nПрошлая неделя:\n• Вело: ~800\u00a0км за неделю. Тур до Камышина (6 райдов) + тест-драйв байка с друзьями.\n• Бег: порядка 3 часов, в лёгком режиме.",
       note:
-        "Фокус\u00a0— восстановление и сон. На велосипеде Виктор убрал твёрдую пищу и оставил углеводные коктейли с изотоником\u00a0— около 100\u00a0г углеводов в час. По его словам, результаты анализов\u00a0— в полном балансе.",
+        "Главное, чтобы организм успевал усваивать нагрузку, а я нормально высыпался.\n\n• Питание: в жизни без фанатизма. На вело\u00a0— твёрдую пищу убрал, только углеводные коктейли с изотоником. Моя формула: ~100\u00a0г углев/час.\n• Анализы: сдал, всё в полном балансе.\n\nВывод: инвестируй в организм заранее, не жди дефицитов!",
       externalLabel:
         "Откроется запись дневника Виктора от 31 августа в Telegram",
     },
     en: {
-      tabLabel: "92 days to the start",
-      title: "92 days to the start",
+      tabLabel: "Focus on recovery",
+      title: "Focus on recovery",
       imageAlt:
         "Viktor Doronin holds a Mega-Vita bar towards the camera on an athletics track",
       lead:
-        "Viktor rode about 800\u00a0km over the week: six Tour de Kamishin rides and a bike test ride with friends. Running added around three hours at an easy pace.",
+        "92 days until the 11,111\u00a0km challenge\n\nLast week:\n• Cycling: ~800\u00a0km over the week. Tour de Kamishin (6 rides) + a bike test ride with friends.\n• Running: around 3 hours at an easy pace.",
       note:
-        "The focus is recovery and sleep. On the bike, Viktor has dropped solid food in favour of carbohydrate mixes with an isotonic drink\u00a0— about 100\u00a0g of carbohydrate per hour. He says his test results are all in balance.",
+        "The main thing is to give my body time to absorb the load and make sure I get enough sleep.\n\n• Nutrition: no fanaticism in daily life. On the bike, I’ve cut out solid food\u00a0— only carbohydrate mixes with an isotonic drink. My formula: ~100\u00a0g of carbohydrate per hour.\n• Tests: done, everything is fully in balance.\n\nTakeaway: invest in your body ahead of time; don’t wait for deficiencies!",
       externalLabel:
         "Opens Viktor’s August 31 training diary entry on Telegram",
     },
