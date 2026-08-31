@@ -1351,12 +1351,7 @@ async function auditPage(browser, browserName, origin, testCase) {
         };
       });
     const initialDiaryState = await readDiaryState();
-    const expectedVisibleDiaryTabs =
-      testCase.viewport.width <= 640
-        ? 2
-        : testCase.viewport.width <= 960
-          ? 3
-          : 4;
+    const expectedVisibleDiaryTabs = testCase.viewport.width <= 640 ? 2 : 3;
     expect(
       initialDiaryState.contained &&
         initialDiaryState.selected === 0 &&

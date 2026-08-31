@@ -1230,6 +1230,33 @@ function getDiaryTitleDensity(title) {
   return longestWord >= 13 ? "long-word" : "default";
 }
 
+function renderDiaryText(text, className) {
+  return text
+    .split(/\n{2,}/u)
+    .map((group) => group.trim())
+    .filter(Boolean)
+    .map((group) => {
+      const lines = group.split("\n").map((line) => line.trim());
+      const listStart = lines.findIndex((line) => line.startsWith("• "));
+
+      if (listStart === -1) {
+        return `<p class="${className}">${lines.join(" ")}</p>`;
+      }
+
+      const introduction = lines.slice(0, listStart).join(" ");
+      const items = lines.slice(listStart).map((line) => line.replace(/^•\s+/u, ""));
+
+      return `
+        <div class="${className} ${className}--list">
+          ${introduction ? `<p>${introduction}</p>` : ""}
+          <ul class="diary-copy-list">
+            ${items.map((item) => `<li>${item}</li>`).join("")}
+          </ul>
+        </div>`;
+    })
+    .join("");
+}
+
 function renderDiaryTabs(entries) {
   return entries
     .map(
@@ -1452,11 +1479,11 @@ function renderDiaryEntries(entries, l) {
           ${renderDiaryGallery(entry, index, l)}
           <div class="diary__copy" data-title-density="${titleDensity}">
             <h3 data-optical-start data-optical-scope="first-line">${entry.title}</h3>
-            ${entry.lead ? `<p class="diary__lead">${entry.lead}</p>` : ""}
+            ${entry.lead ? renderDiaryText(entry.lead, "diary__lead") : ""}
             <div class="diary__facts">
               ${renderMetrics(entry.facts, "diary__fact")}
             </div>
-            <p class="diary__note">${entry.note}</p>
+            ${renderDiaryText(entry.note, "diary__note")}
             <a
               class="text-link text-link--dark"
               href="${entry.href}"
