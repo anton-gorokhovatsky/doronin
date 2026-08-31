@@ -1291,6 +1291,22 @@ async function auditPage(browser, browserName, origin, testCase) {
           (tab) => tab.getAttribute("aria-selected") === "true",
         );
         const selectedBounds = selectedTab?.getBoundingClientRect();
+        const visiblePanel = panels.find((panel) => !panel.hidden);
+        const visibleTitle = visiblePanel?.querySelector("h3");
+        const visibleCopy = visibleTitle?.parentElement.getBoundingClientRect();
+        const titleRange = document.createRange();
+        if (visibleTitle) titleRange.selectNodeContents(visibleTitle);
+        const titleContained = Boolean(
+          visibleTitle &&
+            visibleCopy &&
+            [...titleRange.getClientRects()]
+              .filter((bounds) => bounds.width > 1)
+              .every(
+                (bounds) =>
+                  bounds.left >= visibleCopy.left - 1 &&
+                  bounds.right <= visibleCopy.right + 1,
+              ),
+        );
         return {
           contained: tabs.every((tab) => {
             const bounds = tab.getBoundingClientRect();
@@ -1333,6 +1349,7 @@ async function auditPage(browser, browserName, origin, testCase) {
               selectedBounds.left >= railBounds.left - 1 &&
               selectedBounds.right <= railBounds.right + 1,
           ),
+          titleContained,
           scrollLeft: rail.scrollLeft,
           scrollSnapType: getComputedStyle(rail).scrollSnapType,
           scrollSnapStops: tabs.map(
@@ -1356,6 +1373,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       initialDiaryState.contained &&
         initialDiaryState.selected === 0 &&
         JSON.stringify(initialDiaryState.visiblePanels) === "[0]" &&
+        initialDiaryState.titleContained &&
         !initialDiaryState.railFits &&
         initialDiaryState.visibleTabCount === expectedVisibleDiaryTabs &&
         initialDiaryState.positionCurrent === "01" &&

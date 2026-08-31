@@ -1230,6 +1230,25 @@ function getDiaryTitleDensity(title) {
   return longestWord >= 13 ? "long-word" : "default";
 }
 
+function renderDiaryTitle(title) {
+  const words = title.split(/\s+/u);
+  const longestWordIndex = words.reduce(
+    (longestIndex, word, index) =>
+      Array.from(word).length > Array.from(words[longestIndex]).length
+        ? index
+        : longestIndex,
+    0,
+  );
+
+  if (Array.from(words[longestWordIndex]).length < 13 || longestWordIndex === 0) {
+    return title;
+  }
+
+  return `${words.slice(0, longestWordIndex).join(" ")}<wbr> ${words
+    .slice(longestWordIndex)
+    .join(" ")}`;
+}
+
 function renderDiaryText(text, className) {
   return text
     .split(/\n{2,}/u)
@@ -1478,7 +1497,7 @@ function renderDiaryEntries(entries, l) {
         >
           ${renderDiaryGallery(entry, index, l)}
           <div class="diary__copy" data-title-density="${titleDensity}">
-            <h3 data-optical-start data-optical-scope="first-line">${entry.title}</h3>
+            <h3 data-optical-start data-optical-scope="first-line">${renderDiaryTitle(entry.title)}</h3>
             ${entry.lead ? renderDiaryText(entry.lead, "diary__lead") : ""}
             <div class="diary__facts">
               ${renderMetrics(entry.facts, "diary__fact")}
