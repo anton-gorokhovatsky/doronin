@@ -46,6 +46,21 @@
   transform: translate(-50%, calc(-50% + 0.2rem));
 }
 
+.menu-toggle__icon > svg {
+  display: none;
+  width: 100%;
+  height: 100%;
+}
+
+.menu-toggle > .menu-toggle__icon[data-morph-ready]::before,
+.menu-toggle > .menu-toggle__icon[data-morph-ready]::after {
+  display: none;
+}
+
+.menu-toggle__icon[data-morph-ready] > svg {
+  display: block;
+}
+
 .nav-shell[open] .menu-toggle > .menu-toggle__icon {
   top: auto;
   transform: none;

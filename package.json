@@ -16,6 +16,9 @@
     "gate:screenshots": "node scripts/screenshot-gate.mjs",
     "gate": "node scripts/release-gate.mjs"
   },
+  "dependencies": {
+    "morphicons": "1.7.1"
+  },
   "devDependencies": {
     "@axe-core/playwright": "4.12.1",
     "playwright": "1.61.1"

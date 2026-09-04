@@ -6,6 +6,7 @@ import { chromium, webkit } from "playwright";
 
 import { createDiaryContent } from "../src/content/diary/index.mjs";
 import { startSiteServer } from "./lib/site-server.mjs";
+import { checkMenuMorph } from "./lib/menu-morph-checks.mjs";
 
 const execFileAsync = promisify(execFile);
 const diaryEntries = createDiaryContent("ru").entries;
@@ -163,6 +164,7 @@ async function auditPage(browser, browserName, origin, testCase) {
     );
 
     const menuToggle = page.locator(".menu-toggle");
+    await checkMenuMorph(page);
     if (testCase.viewport.width > 960) {
       expect(
         (await menuToggle.locator(".menu-toggle__label").innerText()).trim() ===

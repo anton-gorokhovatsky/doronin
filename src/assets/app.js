@@ -1824,7 +1824,33 @@ function syncNavigationMode() {
 syncNavigationMode();
 desktopNavigation.addEventListener?.("change", syncNavigationMode);
 
+// Shared icon-motion token: critically damped (c = 2 * sqrt(k)), no bounce.
+const iconMorphSpring = Object.freeze({ stiffness: 900, damping: 60 });
+
 for (const navigation of document.querySelectorAll(".nav-shell")) {
+  const icon = navigation.querySelector("[data-menu-morph-src]");
+  if (icon) {
+    import(new URL(icon.dataset.menuMorphSrc, document.baseURI).href)
+      .then(({ createMorph }) => {
+        const path = icon.querySelector("path");
+        const closedPath = path.getAttribute("d");
+        const openPath = path.dataset.openPath;
+        const currentPath = () => navigation.open ? openPath : closedPath;
+        const morph = createMorph(path, currentPath(), { reducedMotion: "user" });
+        const syncIcon = () => {
+          if (reducedMotion.matches) morph.set(currentPath());
+          else morph.morphTo(currentPath(), iconMorphSpring);
+        };
+
+        navigation.addEventListener("toggle", syncIcon);
+        reducedMotion.addEventListener("change", syncIcon);
+        icon.setAttribute("data-morph-ready", "");
+      })
+      .catch(() => {
+        // Optional enhancement: native details and the CSS icon still work.
+      });
+  }
+
   navigation.addEventListener("toggle", () => {
     const toggle = navigation.querySelector(".menu-toggle");
     const toggleLabel = navigation.open

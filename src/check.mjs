@@ -1,5 +1,5 @@
 import { access, readFile, readdir } from "node:fs/promises";
-import { resolve } from "node:path";
+import { posix, resolve } from "node:path";
 
 import { createDiaryContent } from "./content/diary/index.mjs";
 import { validateProjectPlan } from "./project-plan-validation.mjs";
@@ -671,6 +671,17 @@ const referencedAssetNames = new Set([
   ),
   ...css.matchAll(/url\(["']?\.\/([a-z0-9][a-z0-9._/-]*)/giu),
 ].map((match) => match[1]));
+// Follow local ESM imports as well as direct HTML/CSS references.
+for (const assetName of referencedAssetNames) {
+  if (!assetName.endsWith(".js")) continue;
+  const source = await readFile(resolve(outputRoot, "assets", assetName), "utf8");
+  for (const [, dependency] of source.matchAll(/from ["'](\.\/[^"']+\.js)["']/gu)) {
+    referencedAssetNames.add(posix.join(posix.dirname(assetName), dependency));
+  }
+  if (/^vendor\/morphicons-[\d.]+\/dom\.js$/u.test(assetName)) {
+    referencedAssetNames.add(posix.join(posix.dirname(assetName), "LICENSE"));
+  }
+}
 const builtAssetNames = await listRelativeFiles(resolve(outputRoot, "assets"));
 const missingAssetNames = [...referencedAssetNames].filter(
   (assetName) => !builtAssetNames.includes(assetName),
@@ -1045,7 +1056,7 @@ expect(
 );
 expect(
   missingAssetNames.length === 0 && unreferencedAssetNames.length === 0,
-  `build: production должен содержать ровно используемые HTML/CSS-ассеты${missingAssetNames.length ? `; отсутствуют: ${missingAssetNames.join(", ")}` : ""}${unreferencedAssetNames.length ? `; не используются: ${unreferencedAssetNames.join(", ")}` : ""}`,
+  `build: production должен содержать ровно используемые HTML/CSS/JS-ассеты${missingAssetNames.length ? `; отсутствуют: ${missingAssetNames.join(", ")}` : ""}${unreferencedAssetNames.length ? `; не используются: ${unreferencedAssetNames.join(", ")}` : ""}`,
 );
 expect(
   app.includes('diaryStories.classList.add("has-diary-stories")') &&

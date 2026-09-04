@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { createDiaryContent } from "./content/diary/index.mjs";
 import { validateProjectPlan } from "./project-plan-validation.mjs";
@@ -14,6 +15,18 @@ if (!allowedOutputRoots.has(outputRoot)) {
 }
 const assetSource = resolve("src/assets");
 const assetOutput = resolve(outputRoot, "assets");
+const morphiconsEntry = fileURLToPath(import.meta.resolve("morphicons/dom"));
+const morphiconsDist = dirname(morphiconsEntry);
+const morphiconsPackage = JSON.parse(
+  await readFile(resolve(morphiconsDist, "../package.json"), "utf8"),
+);
+const morphiconsAssetPath = `vendor/morphicons-${morphiconsPackage.version}`;
+// The DOM entry imports the two shared chunks; no framework bindings ship.
+const morphiconsFiles = new Set([
+  "dom.js",
+  ...[...(await readFile(morphiconsEntry, "utf8")).matchAll(/from "\.\/([^"/]+\.js)"/gu)]
+    .map((match) => match[1]),
+]);
 const styleModulesRoot = resolve(assetSource, "styles");
 const styleModuleNames = [
   "00-foundations-navigation.css",
@@ -60,6 +73,7 @@ const analyticsRegistryJson = JSON.stringify(analyticsRegistry).replace(
 );
 const assetVersion = createHash("sha256")
   .update(styleBundle)
+  .update(morphiconsPackage.version)
   .update(await readFile(resolve(assetSource, "app.js")))
   .update(await readFile(resolve(assetSource, "theme-init.js")))
   .digest("hex")
@@ -1973,7 +1987,11 @@ function renderPage(l) {
       >
         <span class="menu-toggle__label">${l.menu}</span>
         <span class="menu-toggle__current" data-current-chapter>${l.nav[0][1]}</span>
-        <span class="menu-toggle__icon" aria-hidden="true"></span>
+        <span class="menu-toggle__icon" aria-hidden="true" data-menu-morph-src="${l.assetBase}assets/${morphiconsAssetPath}/dom.js">
+          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" aria-hidden="true" focusable="false">
+            <path d="M4 34H96M4 66H96" data-open-path="M17.4731 17.4731L82.5269 82.5269M17.4731 82.5269L82.5269 17.4731" vector-effect="non-scaling-stroke" stroke-width="1"/>
+          </svg>
+        </span>
       </summary>
       <nav class="site-nav" aria-label="${l.menu}">
         <div class="site-nav__chapters">
@@ -2611,6 +2629,12 @@ await cp(assetSource, assetOutput, {
   },
 });
 await writeFile(resolve(assetOutput, "styles.css"), styleBundle, "utf8");
+const morphiconsOutput = resolve(assetOutput, morphiconsAssetPath);
+await mkdir(morphiconsOutput, { recursive: true });
+for (const file of morphiconsFiles) {
+  await cp(resolve(morphiconsDist, file), resolve(morphiconsOutput, file));
+}
+await cp(resolve(morphiconsDist, "../LICENSE"), resolve(morphiconsOutput, "LICENSE"));
 
 for (const [locale, html] of renderedPages) {
   const outputPath = resolve(outputRoot, locale.outputPath);
