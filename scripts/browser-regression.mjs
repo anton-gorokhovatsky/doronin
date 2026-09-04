@@ -7,6 +7,7 @@ import { chromium, webkit } from "playwright";
 import { createDiaryContent } from "../src/content/diary/index.mjs";
 import { startSiteServer } from "./lib/site-server.mjs";
 import { checkMenuMorph } from "./lib/menu-morph-checks.mjs";
+import { checkEditorialInitial, checkEditorialFallback, checkDeferredDecoration } from "./lib/editorial-checks.mjs";
 
 const execFileAsync = promisify(execFile);
 const diaryEntries = createDiaryContent("ru").entries;
@@ -36,6 +37,8 @@ async function auditPage(browser, browserName, origin, testCase) {
   });
   const page = await context.newPage();
   const errors = [];
+  const requestedPaths = [];
+  page.on("request", (request) => requestedPaths.push(new URL(request.url()).pathname));
   page.on("pageerror", (error) => errors.push(error.message));
   await page.route("https://mc.yandex.ru/**", (route) => route.abort());
   // The screenshot gate validates the actual imagery. This suite validates
@@ -54,6 +57,7 @@ async function auditPage(browser, browserName, origin, testCase) {
   try {
     await page.goto(`${origin}${testCase.path}`, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => document.fonts.ready);
+    await checkEditorialInitial(page, requestedPaths);
     await page.evaluate(
       () =>
         new Promise((resolve) =>
@@ -1835,6 +1839,8 @@ async function auditPage(browser, browserName, origin, testCase) {
     }
 
     expect(errors.length === 0, `${prefix}: page errors: ${errors.join("; ")}`);
+    await checkDeferredDecoration(page);
+    await checkEditorialFallback(browser, origin, testCase);
     return `${prefix}: PASS`;
   } finally {
     await context.close();

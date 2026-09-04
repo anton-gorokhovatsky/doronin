@@ -23,6 +23,7 @@ const localeCopy = {
     phaseBefore: "Дневник пути к старту",
     phaseActive: "Дневник дистанции",
     phaseFinished: "Архив истории",
+    startLabel: "старт",
     liveKickerBefore: "Путь к 1 декабря",
     liveKickerActive: "Проект начался",
     liveKickerFinished: "После финиша",
@@ -30,7 +31,7 @@ const localeCopy = {
     liveTitleActive: "Дистанция идёт. Дневник продолжается.",
     liveTitleFinished: "Дистанция завершена. История остаётся.",
     liveBodyBefore:
-      "Здесь появляются подтверждённые записи Виктора: тренировки, решения, трудные дни и маленькие победы. Без искусственного ежедневного графика — в честном ритме реальной подготовки.",
+      "Здесь Виктор рассказывает о тренировках, самочувствии и решениях по ходу подготовки.",
     liveBodyActive:
       "Дневник фиксирует ход дистанции, решения команды и состояние Виктора по мере появления подтверждённых обновлений.",
     liveBodyFinished:
@@ -67,6 +68,7 @@ const localeCopy = {
     phaseBefore: "Road-to-start diary",
     phaseActive: "Distance diary",
     phaseFinished: "Story archive",
+    startLabel: "start",
     liveKickerBefore: "The road to December 1",
     liveKickerActive: "The project is underway",
     liveKickerFinished: "After the finish",
@@ -74,7 +76,7 @@ const localeCopy = {
     liveTitleActive: "The distance is underway. The diary continues.",
     liveTitleFinished: "The distance is complete. The story remains.",
     liveBodyBefore:
-      "Verified notes from Viktor appear here: training, decisions, difficult days and small wins. No artificial daily schedule — the honest rhythm of real preparation.",
+      "Viktor writes about his training, how he feels and the decisions he makes during preparation.",
     liveBodyActive:
       "The diary records the distance, the team’s decisions and Viktor’s condition as verified updates become available.",
     liveBodyFinished:

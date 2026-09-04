@@ -102,6 +102,10 @@
   opacity: 1;
 }
 
+.js .velocity-cut:not(.is-velocity-loaded)::before {
+  background-image: none;
+}
+
 .velocity-cut.is-velocity-prepared::before {
   transform: var(--velocity-image-enter);
 }
@@ -123,7 +127,7 @@
 .velocity-cut--out-of-proof {
   --velocity-from: var(--surface-proof);
   --velocity-to: var(--surface-editorial);
-  --velocity-image: url("./story-motion-city.jpg");
+  --velocity-image: url("./story-motion-city-1800.jpg");
   --velocity-image-position: 68% 48%;
   --velocity-image-enter: translateX(2.5%) scaleX(1.62) scaleY(0.7);
   --velocity-line-angle: 270deg;
@@ -374,6 +378,10 @@
   background: var(--text-editorial);
   transform: scaleX(var(--diary-progress));
   transform-origin: left;
+}
+
+.diary-live:not(.is-timeline-ready) .diary-live__timeline > span::before {
+  display: none;
 }
 
 .diary-live__timeline > div {
@@ -1032,11 +1040,15 @@
   word-break: normal;
 }
 
-.diary__lead {
+.diary__lead,
+.diary__note {
   max-width: var(--measure-lead);
-  margin: 1.5rem 0 0;
   font-size: var(--type-copy-lead);
   line-height: var(--leading-copy-lead);
+}
+
+.diary__lead {
+  margin: 1.5rem 0 0;
 }
 
 .diary__lead + .diary__lead {
@@ -1075,11 +1087,8 @@
 }
 
 .diary__note {
-  max-width: 58ch;
   margin: 2rem 0 0;
-  color: var(--text-editorial-muted);
-  font-size: var(--type-service-strong);
-  line-height: 1.55;
+  color: var(--text-editorial);
 }
 
 .diary__note + .diary__note {

@@ -856,6 +856,21 @@ if (sectionLabels.length && !reducedMotion.matches) {
 
 const velocityCuts = [...document.querySelectorAll(".velocity-cut")];
 
+// CSS backgrounds have no native lazy loading. Prepare them shortly before
+// they enter the viewport, independently of the user's motion preference.
+if ("IntersectionObserver" in window) {
+  const velocityMediaObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add("is-velocity-loaded");
+      velocityMediaObserver.unobserve(entry.target);
+    }
+  }, { rootMargin: "600px 0px", threshold: 0 });
+  velocityCuts.forEach((cut) => velocityMediaObserver.observe(cut));
+} else {
+  velocityCuts.forEach((cut) => cut.classList.add("is-velocity-loaded"));
+}
+
 if (velocityCuts.length && !reducedMotion.matches) {
   if ("IntersectionObserver" in window) {
     const velocityCutObserver = new IntersectionObserver(
@@ -1130,6 +1145,7 @@ if (eventStatus) {
       "--diary-progress",
       String(diaryProgress),
     );
+    diaryLive.classList.add("is-timeline-ready");
 
     const timelineNow = diaryLive.querySelector("[data-timeline-now]");
     if (timelineNow) {
@@ -1222,7 +1238,7 @@ if (eventStatus) {
     }
   }
 
-  if (footerPrefix && footerPrefixMode !== "before") {
+  if (footerPrefix) {
     footerPrefix.textContent = footerPrefix.dataset[footerPrefixMode];
   }
 

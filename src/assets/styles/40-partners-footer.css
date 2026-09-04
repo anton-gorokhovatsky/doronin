@@ -606,6 +606,15 @@
   gap: 0.28em;
 }
 
+.site-footer h2 [data-footer-countdown] > time {
+  font-family: var(--body);
+  font-size: var(--type-copy-lead);
+  font-weight: 500;
+  line-height: var(--leading-copy-lead);
+  text-transform: none;
+  white-space: normal;
+}
+
 .site-footer h2 [data-footer-countdown-value] {
   display: grid;
   flex: 0 0 auto;

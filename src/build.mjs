@@ -162,7 +162,7 @@ const locales = {
       lineTwo: ["31", "день"],
       accent: "НА ВЕЛОСИПЕДЕ",
       intro:
-        "Базовый ритм держит дистанцию между пятью вершинами. Финал — самый длинный непрерывный заезд.",
+        "Пять специальных этапов, между ними — базовые дневные заезды. Финал — самый длинный непрерывный заезд.",
       imageAlt: "Виктор Доронин на велосипеде во время скоростного заезда",
       videoPlay: "Включить видео",
       videoPause: "Пауза",
@@ -192,7 +192,7 @@ const locales = {
       eyebrow: "Декабрь 2026 · 31 день",
       title: "Календарь с нарастающей нагрузкой",
       intro:
-        "Между специальными этапами остаются базовые блоки для рабочего ритма и подготовки к следующему испытанию.",
+        "Разверните календарь, чтобы увидеть даты, дистанции и накопленный километраж каждого блока.",
       totalLabel: "Общая дистанция",
       totalValue: "11 111",
       totalUnit: "км",
@@ -320,9 +320,9 @@ const locales = {
           dateLabel: "31 мая 2026",
         },
         {
-          image: "story-motion-city.jpg",
-          width: "3500",
-          height: "2333",
+          image: "story-motion-city-1800.jpg",
+          width: "1800",
+          height: "1200",
           alt: "Виктор Доронин бежит рядом с другими спортсменами по залитой солнцем дорожке",
           caption: "Движение",
           date: "2026-06-19",
@@ -522,9 +522,9 @@ const locales = {
     },
     footer: {
       titleLineOne: "История начинается через",
+      titleFallback: "Старт проекта",
       titleActive: "История идёт",
       titleFinished: "История продолжается",
-      titleLineTwo: "скоро",
       afterCredits: "Следить за дневником",
       navLabel: "Навигация",
       contactLabel: "Связаться",
@@ -589,7 +589,7 @@ const locales = {
       lineTwo: ["31", "days"],
       accent: "BY BIKE",
       intro:
-        "A steady base rhythm carries the project between five peaks. The finale is the longest continuous ride.",
+        "Five special stages, with daily base rides between them. The finale is the longest continuous ride.",
       imageAlt: "Viktor Doronin riding at speed during a cycling event",
       videoPlay: "Play video",
       videoPause: "Pause",
@@ -618,7 +618,7 @@ const locales = {
       eyebrow: "December 2026 · 31 days",
       title: "A calendar built to escalate",
       intro:
-        "Base blocks between the special stages preserve a working rhythm and create a clear approach to the next test.",
+        "Open the full calendar for each block’s dates, distance and running total.",
       totalLabel: "Total distance",
       totalValue: "11,111",
       totalUnit: "km",
@@ -744,9 +744,9 @@ const locales = {
           dateLabel: "May 31, 2026",
         },
         {
-          image: "story-motion-city.jpg",
-          width: "3500",
-          height: "2333",
+          image: "story-motion-city-1800.jpg",
+          width: "1800",
+          height: "1200",
           alt: "Viktor Doronin runs alongside other athletes on a sunlit path",
           caption: "Motion",
           date: "2026-06-19",
@@ -946,9 +946,9 @@ const locales = {
     },
     footer: {
       titleLineOne: "The story begins in",
+      titleFallback: "Project start",
       titleActive: "The story is unfolding",
       titleFinished: "The story continues",
-      titleLineTwo: "soon",
       afterCredits: "Follow the diary",
       navLabel: "Navigation",
       contactLabel: "Get in touch",
@@ -1894,6 +1894,18 @@ function typographHtml(html, lang) {
 }
 
 function renderPage(l) {
+  const startDate = new Date(`${projectPlan.period.startDate}T12:00:00Z`);
+  const startFormatter = new Intl.DateTimeFormat(l.lang, {
+    day: "numeric", month: "long", year: "numeric", timeZone: "UTC",
+  });
+  const startParts = startFormatter.formatToParts(startDate);
+  const startDay = startParts.find((part) => part.type === "day").value;
+  const startMonthYear = startParts
+    .filter((part) => part.type === "month" || part.type === "year")
+    .map((part) => part.value).join(" ");
+  const startDateLabel = l.lang === "ru"
+    ? `${startDay} ${startMonthYear}`
+    : startFormatter.format(startDate);
   const encodedSubject = encodeURIComponent(l.partners.mailSubject);
   const mailHref = `mailto:${shared.email}?subject=${encodedSubject}`;
   const statusForms = l.hero.beforeForms.map((form) => form.replaceAll('"', "&quot;"));
@@ -2153,8 +2165,8 @@ function renderPage(l) {
         data-finished-count-label="${escapeAttribute(l.diary.liveFinishedCountLabel)}"
       >
         <div class="diary-live__count" aria-live="polite" aria-atomic="true">
-          <strong data-diary-countdown data-optical-start>110</strong>
-          <span data-diary-countdown-label>${l.hero.beforeForms[2]}</span>
+          <strong data-diary-countdown data-optical-start>${startDay}</strong>
+          <span data-diary-countdown-label>${startMonthYear} · ${l.diary.startLabel}</span>
         </div>
         <div class="diary-live__copy">
           <p
@@ -2206,6 +2218,7 @@ function renderPage(l) {
             <b
               class="diary-live__timeline-now"
               data-timeline-now
+              hidden
               data-before="${escapeAttribute(l.diary.timelineNow)}"
             >${l.diary.timelineNow}</b>
             <b
@@ -2541,10 +2554,11 @@ function renderPage(l) {
       <h2 id="footer-title">
         <span
           data-footer-prefix
+          data-before="${escapeAttribute(l.footer.titleLineOne)}"
           data-active="${l.footer.titleActive}"
           data-finished="${l.footer.titleFinished}"
-        >${l.footer.titleLineOne}</span>
-        <span data-footer-countdown data-optical-start aria-live="polite">${l.footer.titleLineTwo}</span>
+        >${l.footer.titleFallback}</span>
+        <span data-footer-countdown data-optical-start aria-live="polite"><time datetime="${projectPlan.period.startDate}">${startDateLabel}</time></span>
       </h2>
       <a class="site-footer__cta action-primary" href="#partner-contact" data-analytics-goal="partner_interest">
         ${l.footer.partnerCta}${icons.up}
