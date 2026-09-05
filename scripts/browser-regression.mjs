@@ -7,7 +7,7 @@ import { chromium, webkit } from "playwright";
 import { createDiaryContent } from "../src/content/diary/index.mjs";
 import { startSiteServer } from "./lib/site-server.mjs";
 import { checkMenuMorph } from "./lib/menu-morph-checks.mjs";
-import { checkEditorialInitial, checkEditorialFallback, checkDeferredDecoration } from "./lib/editorial-checks.mjs";
+import { checkEditorialInitial, checkEditorialFallback, checkDeferredDecoration, checkUpperPageRoutes } from "./lib/editorial-checks.mjs";
 
 const execFileAsync = promisify(execFile);
 const diaryEntries = createDiaryContent("ru").entries;
@@ -1223,7 +1223,7 @@ async function auditPage(browser, browserName, origin, testCase) {
         const primary = element.querySelector(
           '[data-analytics-goal="diary_follow"]',
         );
-        const archive = element.querySelector('a[href="#diary-archive"]');
+        const archive = element.querySelector('[data-diary-latest]');
         const bounds = element.getBoundingClientRect();
         const nodeBounds = [count, label, primary, archive].map((node) => {
           const box = node?.getBoundingClientRect();
@@ -1838,6 +1838,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       );
     }
 
+    await checkUpperPageRoutes(page);
     expect(errors.length === 0, `${prefix}: page errors: ${errors.join("; ")}`);
     await checkDeferredDecoration(page);
     await checkEditorialFallback(browser, origin, testCase);

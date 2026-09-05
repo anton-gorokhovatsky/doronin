@@ -202,6 +202,7 @@ html.motion-reduced *::after {
   --sand: #ffc24d;
   --surface-editorial: #061820;
   --text-editorial: var(--paper);
+  --text-link-emphasis: var(--acid);
   --text-editorial-muted: rgba(205, 221, 216, 0.76);
   --text-editorial-strong-muted: rgba(222, 234, 229, 0.88);
   --text-editorial-faint: rgba(177, 198, 192, 0.58);

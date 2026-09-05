@@ -345,11 +345,6 @@
   transition: transform 500ms var(--ease-exit);
 }
 
-.adventure-card:hover .adventure-card__media img {
-  transform: scale(1.025);
-  transition-timing-function: var(--ease-enter);
-}
-
 .distance-story__visual,
 .athlete__media,
 .story-frame__media,
@@ -405,7 +400,8 @@
   font-size: var(--type-service-strong);
 }
 
-.adventure-card__action {
+.adventure-card__action,
+.interview-card__action {
   display: inline-flex;
   align-items: center;
   justify-self: start;
@@ -414,9 +410,13 @@
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  color: inherit;
+  opacity: 0.78;
+  transition: color 180ms var(--ease-move), opacity 180ms var(--ease-move);
 }
 
 .interviews {
+  --text-link-emphasis: var(--acid);
   background:
     radial-gradient(circle at 78% 18%, rgba(223, 255, 56, 0.07), transparent 28rem),
     var(--ink-deep);
@@ -596,35 +596,47 @@
 }
 
 .interview-card__action {
-  display: inline-flex;
-  align-items: center;
   justify-content: flex-start;
-  gap: var(--inline-action-gap);
   width: fit-content;
   margin-top: auto;
   padding-top: 2rem;
-  color: rgba(241, 245, 237, 0.76);
-  font-size: var(--type-service);
-  font-weight: 750;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
-.interview-card__action .icon {
-  transition: transform 180ms var(--ease-exit);
+:is(.adventure-card, .interview-card) h3 {
+  transition: color 180ms var(--ease-move);
+}
+
+:is(.adventure-card__action, .interview-card__action) .icon {
+  transition: transform 180ms var(--ease-move);
+}
+
+.text-link:is(:hover, :focus-visible),
+:is(.adventure-card, .interview-card):is(:hover, :focus-visible)
+  :is(.adventure-card__action, .interview-card__action) {
+  color: var(--text-link-emphasis);
+  opacity: 1;
+}
+
+.text-link:is(:hover, :focus-visible) .text-link__label,
+:is(.adventure-card, .interview-card):is(:hover, :focus-visible) .text-link__label {
+  text-decoration-thickness: 2px;
+}
+
+:is(.adventure-card, .interview-card):is(:hover, :focus-visible) h3 {
+  color: var(--text-link-emphasis);
+}
+
+:is(.adventure-card, .interview-card):is(:hover, :focus-visible) .icon {
+  transform: var(--icon-motion-external);
+}
+
+.text-link:is(:hover, :focus-visible) .icon--down {
+  transform: var(--icon-motion-down);
 }
 
 @media (hover: hover) {
-  .interview-card:hover h3 {
-    color: var(--acid);
-  }
-
-  .interview-card:hover .interview-card__media img {
+  :is(.adventure-card, .interview-card):hover img {
     transform: scale(1.025);
     transition-timing-function: var(--ease-enter);
-  }
-
-  .interview-card:hover .interview-card__action .icon {
-    transform: var(--icon-motion-external);
   }
 }

@@ -364,6 +364,18 @@ for (const button of document.querySelectorAll("[data-analytics-option]")) {
 const proofSources = document.querySelector(".proof-sources");
 
 if (proofSources) {
+  for (const link of document.querySelectorAll('a[href="#proof-sources"]')) {
+    link.addEventListener("click", () => {
+      proofSources.open = true;
+    });
+  }
+
+  const revealProofSourcesTarget = () => {
+    if (window.location.hash === "#proof-sources") proofSources.open = true;
+  };
+  window.addEventListener("hashchange", revealProofSourcesTarget);
+  revealProofSourcesTarget();
+
   const proofSourcesSummary = proofSources.querySelector("summary");
   let proofSourcesRestoreFrame = 0;
   let proofSourcesPreviousOverflowAnchor = null;
@@ -1551,6 +1563,10 @@ if (diaryStories) {
 
       activateDiaryStory(nextTab, { reveal: true });
       history.replaceState(null, "", nextTab.hash);
+    });
+
+    document.querySelector("[data-diary-latest]")?.addEventListener("click", () => {
+      activateDiaryStory(diaryStoryTabs[0], { reveal: true, animate: false });
     });
 
     const hashTab = diaryStoryTabs.find(

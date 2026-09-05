@@ -96,6 +96,7 @@ const shared = {
   viktorTelegramHref: "https://t.me/doroninvdele",
   viktorInstagramHref: "https://www.instagram.com/victordoronin/",
   filmHref: "https://vkvideo.ru/video-224465212_456239107",
+  project1111InterviewHref: "https://youtu.be/4H2fddBQ6VQ",
   serialHrefs: [
     "https://vkvideo.ru/video-224465212_456239087",
     "https://vkvideo.ru/video-224465212_456239090",
@@ -340,6 +341,9 @@ const locales = {
       ],
     },
     proof: {
+      briefLabel: "Проект «1111» · декабрь 2024",
+      briefText: "Виктор преодолел 1111 км без сна в трёх дисциплинах.",
+      briefCta: "Смотреть источники",
       eyebrow: "Архив предыдущего проекта",
       title: "«1111»: фильм и проверяемый результат",
       body:
@@ -352,9 +356,15 @@ const locales = {
       filmCta: "Смотреть фильм о проекте «1111»",
       externalLabel: "Откроется ВКонтакте в новой вкладке",
       sourcesTitle: "Факты и источники",
-      sourcesUpdated: "Проверено 31 июля 2026",
+      sourcesUpdated: "Просмотры проверены 31 июля 2026",
       sourceLabel: "Источники",
       sources: [
+        {
+          title: "1111 км без сна · декабрь 2024",
+          body:
+            "В описании интервью SPORTFERMA указан результат Виктора 24 декабря 2024 года: 1111 км в трёх дисциплинах без сна.",
+          links: [["Интервью SPORTFERMA · 18 января 2025", shared.project1111InterviewHref]],
+        },
         {
           title: "≈1,3 млн просмотров",
           body:
@@ -426,7 +436,7 @@ const locales = {
           title: "Проект «1111»: 58 часов без сна",
           source: "SPORTFERMA",
           image: "interview-01.jpg",
-          href: "https://youtu.be/4H2fddBQ6VQ",
+          href: shared.project1111InterviewHref,
         },
         {
           title: "252 км по Сахаре",
@@ -764,6 +774,9 @@ const locales = {
       ],
     },
     proof: {
+      briefLabel: "Project “1111” · December 2024",
+      briefText: "Viktor covered 1111 km without sleep across three disciplines.",
+      briefCta: "View the sources",
       eyebrow: "Archive of the previous project",
       title: "“1111”: the film and a verifiable result",
       body:
@@ -776,9 +789,15 @@ const locales = {
       filmCta: "Watch the film about Project “1111”",
       externalLabel: "Opens VK in a new tab",
       sourcesTitle: "Facts and sources",
-      sourcesUpdated: "Checked July 31, 2026",
+      sourcesUpdated: "View counts checked July 31, 2026",
       sourceLabel: "Sources",
       sources: [
+        {
+          title: "1111 km without sleep · December 2024",
+          body:
+            "The SPORTFERMA interview description records Viktor’s December 24, 2024 result: 1111 km across three disciplines without sleep.",
+          links: [["SPORTFERMA interview · January 18, 2025", shared.project1111InterviewHref]],
+        },
         {
           title: "≈1.3M views",
           body:
@@ -850,7 +869,7 @@ const locales = {
           title: "Project “1111”: 58 hours without sleep",
           source: "SPORTFERMA",
           image: "interview-01.jpg",
-          href: "https://youtu.be/4H2fddBQ6VQ",
+          href: shared.project1111InterviewHref,
         },
         {
           title: "252 km across the Sahara",
@@ -1583,7 +1602,7 @@ function renderAdventures(items, l) {
               <h3>${item.title}</h3>
               <p>${item.meta}</p>
             </div>
-            <span class="adventure-card__action">${l.adventures.watch}${icons.external}</span>
+            <span class="adventure-card__action"><span class="text-link__label">${l.adventures.watch}</span>${icons.external}</span>
           </div>
         </a>`,
     )
@@ -1684,7 +1703,7 @@ function renderInterviews(items, l, startIndex = 0) {
             </p>
             <h3>${item.title}</h3>
             <span class="interview-card__action">
-              ${l.interviews.watch}
+              <span class="text-link__label">${l.interviews.watch}</span>
               ${icons.external}
             </span>
           </div>
@@ -2104,7 +2123,7 @@ function renderPage(l) {
         </h1>
         <p class="hero__intro">${l.hero.intro}</p>
         <div class="hero__actions">
-          <a class="button button--primary action-primary" href="#partners" data-analytics-goal="partner_interest">${l.hero.primaryCta}${icons.down}</a>
+          <a class="button button--primary action-primary" href="#partner-formats" data-analytics-goal="partner_interest">${l.hero.primaryCta}${icons.down}</a>
           <a class="button button--ghost" href="#diary" data-analytics-goal="diary_explore">${l.hero.secondaryCta}</a>
         </div>
       </div>
@@ -2157,6 +2176,16 @@ function renderPage(l) {
       </div>
     </section>
 
+    <aside class="proof-brief section--light" aria-label="${escapeAttribute(l.proof.briefLabel)}">
+      <div class="proof-brief__copy">
+        <p class="proof-brief__label">${l.proof.briefLabel}</p>
+        <p class="proof-brief__text">${l.proof.briefText}</p>
+      </div>
+      <a class="text-link text-link--dark proof-brief__link" href="#proof-sources" data-analytics-goal="proof_open">
+        <span class="text-link__label">${l.proof.briefCta}</span>${icons.down}
+      </a>
+    </aside>
+
     <section class="diary section section--light" id="diary" aria-labelledby="diary-title">
       <div
         class="diary-live"
@@ -2169,13 +2198,6 @@ function renderPage(l) {
           <span data-diary-countdown-label>${startMonthYear} · ${l.diary.startLabel}</span>
         </div>
         <div class="diary-live__copy">
-          <p
-            class="diary-live__kicker"
-            data-phase-copy
-            data-before="${escapeAttribute(l.diary.liveKickerBefore)}"
-            data-active="${escapeAttribute(l.diary.liveKickerActive)}"
-            data-finished="${escapeAttribute(l.diary.liveKickerFinished)}"
-          >${l.diary.liveKickerBefore}</p>
           <h2
             id="diary-title"
             data-phase-copy
@@ -2192,18 +2214,18 @@ function renderPage(l) {
           >${l.diary.liveBodyBefore}</p>
           <div class="diary-live__actions">
             <a
-              class="button button--diary"
-              href="#diary-archive"
+              class="text-link text-link--dark diary-live__latest"
+              href="#diary-entry-${l.diary.latest.date}"
+              data-diary-latest
               data-analytics-goal="diary_explore"
-              aria-label="${l.diary.liveFollowLabel}"
-            >${l.diary.liveFollowCta}${icons.down}</a>
+            ><span class="text-link__label">${l.diary.latestLabel} · <time datetime="${l.diary.latest.date}">${l.diary.latest.dateLabel}</time></span>${icons.down}</a>
             <a
-              class="button button--diary-secondary"
+              class="text-link text-link--dark diary-live__follow"
               href="${shared.viktorTelegramHref}"
               data-analytics-goal="diary_follow"
               target="_blank"
               rel="noopener noreferrer"
-            >${l.diary.telegramCta}${icons.external}</a>
+            ><span class="text-link__label">${l.diary.telegramCta}</span>${icons.external}</a>
           </div>
         </div>
         <div class="diary-live__timeline" aria-hidden="true">
@@ -2429,7 +2451,7 @@ function renderPage(l) {
       <div class="proof-metrics">
         ${renderMetrics(l.proof.metrics, "proof-metric")}
       </div>
-      <details class="proof-sources">
+      <details class="proof-sources" id="proof-sources">
         <summary>
           <span>${l.proof.sourcesTitle}</span>
           <small>${l.proof.sourcesUpdated}</small>
@@ -2507,7 +2529,7 @@ function renderPage(l) {
         </div>
       </div>
       <div class="partners__offer">
-        <div class="partner-formats">
+        <div class="partner-formats" id="partner-formats">
           <p class="partner-formats__label">${l.partners.formatsLabel}</p>
           <ol class="partner-formats__list">
             ${renderPartnerFormats(l.partners)}

@@ -63,3 +63,55 @@ export async function checkDeferredDecoration(page) {
       getComputedStyle(target, "::before").backgroundImage !== "none";
   });
 }
+
+export async function checkUpperPageRoutes(page) {
+  const previousScrollBehavior = await page.evaluate(() => {
+    const previous = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = "auto";
+    return previous;
+  });
+  try {
+    const timelineLabelsFit = await page.locator(".diary-live__timeline").evaluate((timeline) => {
+      const labels = [...timeline.querySelectorAll("b:not([hidden])")]
+        .map((label) => label.getBoundingClientRect());
+      return labels.every((box, index) =>
+        box.left >= 0 && box.right <= innerWidth &&
+        labels.slice(index + 1).every((other) =>
+          box.right <= other.left || box.left >= other.right ||
+          box.bottom <= other.top || box.top >= other.bottom));
+    });
+    assert(timelineLabelsFit, "The diary timeline labels must remain readable without overlap");
+
+    await page.locator(".hero .button--primary").click();
+    assert.equal(new URL(page.url()).hash, "#partner-formats");
+    const formatsVisible = await page.locator(".partner-formats").evaluate((element) => {
+      const label = element.querySelector(".partner-formats__label").getBoundingClientRect();
+      const first = element.querySelector(".partner-format").getBoundingClientRect();
+      return label.top >= 0 && label.bottom < innerHeight && first.top < innerHeight;
+    });
+    assert(formatsVisible, "The partnership action must reveal the promised formats");
+
+    await page.locator(".proof-brief__link").click();
+    await page.waitForFunction(() => document.querySelector(".proof-sources").open);
+    assert.equal(new URL(page.url()).hash, "#proof-sources");
+    await page.waitForFunction(() => {
+      const summary = document.querySelector(".proof-sources summary").getBoundingClientRect();
+      const first = document.querySelector(".proof-sources .proof-source").getBoundingClientRect();
+      return summary.top >= 0 && summary.bottom < innerHeight && first.top < innerHeight;
+    });
+    await page.locator(".proof-sources").evaluate((element) => { element.open = false; });
+
+    const latest = page.locator("[data-diary-latest]");
+    const target = await latest.getAttribute("href");
+    await page.locator("[data-diary-story-tab]").last().click();
+    assert.equal(await page.locator(target).isVisible(), false);
+    await latest.click();
+    assert.equal(new URL(page.url()).hash, target);
+    assert(await page.locator(target).isVisible(), "The latest-date link must select the latest entry");
+    assert.equal(await page.locator('[data-diary-story-tab][aria-selected="true"]').getAttribute("href"), target);
+  } finally {
+    await page.evaluate((previous) => {
+      document.documentElement.style.scrollBehavior = previous;
+    }, previousScrollBehavior);
+  }
+}

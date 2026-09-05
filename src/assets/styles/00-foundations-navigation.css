@@ -39,6 +39,7 @@
   --surface-editorial: var(--paper);
   --editorial-color-scheme: light;
   --text-editorial: var(--ink);
+  --text-link-emphasis: var(--ink);
   --text-editorial-muted: rgba(4, 31, 21, 0.7);
   --text-editorial-strong-muted: rgba(4, 31, 21, 0.76);
   --text-editorial-faint: rgba(4, 31, 21, 0.48);

@@ -238,6 +238,9 @@ async function capture(browser, origin, spec) {
             box.bottom <= bounds.bottom + 1
           );
         })(),
+        diaryIntroOverflow: [...document.querySelectorAll(".diary-live h2, .diary-live p, .diary-live a")]
+          .filter((element) => element.scrollWidth > element.clientWidth + 1)
+          .map((element) => element.textContent.trim().replace(/\s+/g, " ")),
         diaryStories: (() => {
           const tabs = [...document.querySelectorAll("[data-diary-story-tab]")];
           const panels = [...document.querySelectorAll("[data-diary-story-panel]")];
@@ -315,6 +318,8 @@ async function capture(browser, origin, spec) {
     }
     if (spec.textScale) {
       expect(parseFloat(metrics.fontSize) >= 31.9, `${spec.name}: 200% text scale missing`);
+    }
+    if (spec.textScale && metrics.menuOpen) {
       expect(!metrics.menuItemOverlap, `${spec.name}: menu items overlap at 200% text`);
       expect(
         metrics.menuItemOverflow.length === 0,
@@ -366,6 +371,10 @@ async function capture(browser, origin, spec) {
     if (spec.target === ".partners__closing") {
       expect(metrics.partnerReferenceFit, `${spec.name}: partner proof reference overflow`);
     }
+    if (spec.target === ".diary-live") {
+      expect(metrics.diaryIntroOverflow.length === 0,
+        `${spec.name}: diary introduction clips (${metrics.diaryIntroOverflow.join("; ")})`);
+    }
     if (spec.expectDiaryStories) {
       expect(
         metrics.diaryStories.contained &&
@@ -404,6 +413,40 @@ const server = await startSiteServer("preview");
 const browser = await chromium.launch({ headless: true });
 
 const specs = [
+  {
+    name: "ru-1440-light-proof-brief",
+    path: "/?gate=ru-1440-proof-brief#top",
+    locale: "ru",
+    theme: "light",
+    target: ".proof-brief",
+    viewport: { width: 1440, height: 900 },
+  },
+  {
+    name: "en-390-light-proof-brief",
+    path: "/en/?gate=en-390-proof-brief#top",
+    locale: "en",
+    theme: "light",
+    target: ".proof-brief",
+    viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-390-text-200-diary-live",
+    path: "/?gate=ru-390-text-200-diary&text=200#diary",
+    locale: "ru",
+    theme: "light",
+    target: ".diary-live",
+    textScale: 200,
+    viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "en-390-text-200-diary-live",
+    path: "/en/?gate=en-390-text-200-diary&text=200#diary",
+    locale: "en",
+    theme: "light",
+    target: ".diary-live",
+    textScale: 200,
+    viewport: { width: 390, height: 844 },
+  },
   {
     name: "ru-1440-system-top",
     path: "/?gate=ru-1440-system#top",
@@ -916,6 +959,7 @@ const specs = [
 // actually validates so an internal fragment cannot be mistaken for a whole
 // section in artifacts and review links.
 const targetCaptureScopes = new Map([
+  [".proof-brief", "section"],
   [".athlete", "section"],
   [".diary-live", "section"],
   [".bike-calendar__segment--finish", "fragment"],

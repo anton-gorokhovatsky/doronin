@@ -737,6 +737,8 @@
   font-size: clamp(0.75rem, calc(0.65rem + 0.18vw), 0.95rem);
   line-height: 1.1;
   text-transform: uppercase;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.35em;
   counter-increment: footer-navigation;
 }
 
@@ -764,6 +766,15 @@
 }
 
 @media (hover: hover) {
+  .site-footer__nav .site-nav__link:hover {
+    color: var(--acid);
+    text-decoration-line: underline;
+  }
+
+  .site-footer__nav .site-nav__link:hover::before {
+    color: currentColor;
+  }
+
   .site-footer__cta:hover {
     background: var(--paper);
     color: var(--ink);
@@ -793,6 +804,15 @@
   .site-footer__cta:hover {
     opacity: 1;
   }
+}
+
+.site-footer__nav .site-nav__link:focus-visible {
+  color: var(--acid);
+  text-decoration-line: underline;
+}
+
+.site-footer__nav .site-nav__link:focus-visible::before {
+  color: currentColor;
 }
 
 .text-link:focus-visible,

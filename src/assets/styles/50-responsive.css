@@ -1724,6 +1724,11 @@
     hyphens: none;
   }
 
+  .diary-live__copy h2 {
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+
   .athlete__copy h2,
   .partners h2,
   .site-footer h2 {

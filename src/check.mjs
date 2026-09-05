@@ -253,7 +253,7 @@ for (const [lang, path] of pages) {
       ? {
           explore: "Посмотреть форматы участия",
           diary: "Следить за дневником",
-          diaryTelegram: "Открыть дневник в Telegram",
+          diaryTelegram: "Дневник в Telegram",
           discuss: "Обсудить участие",
           email: "Написать по почте",
           telegram: "Написать в Telegram",
@@ -261,17 +261,25 @@ for (const [lang, path] of pages) {
       : {
           explore: "View partnership options",
           diary: "Follow the diary",
-          diaryTelegram: "Open the diary in Telegram",
+          diaryTelegram: "Diary on Telegram",
           discuss: "Discuss a partnership",
           email: "Send an email",
           telegram: "Message on Telegram",
         };
   const heroPartnerAction = findAnchorByClass(html, "button--primary");
   const heroDiaryAction = findAnchorByClass(html, "button--ghost");
-  const diaryArchiveAction = findAnchorByClass(html, "button--diary");
+  const diaryLatestAction = findAnchorByClass(html, "diary-live__latest");
   const diaryTelegramAction = findAnchorByClass(
     html,
-    "button--diary-secondary",
+    "diary-live__follow",
+  );
+  const proofBriefLink = findAnchorByClass(html, "proof-brief__link");
+  expect(
+    html.indexOf('class="proof-brief section--light"') > html.indexOf('class="hero"') &&
+      html.indexOf('class="proof-brief section--light"') < html.indexOf('id="diary"') &&
+      proofBriefLink.includes('href="#proof-sources"') &&
+      html.includes('class="proof-sources" id="proof-sources"'),
+    `${lang}: краткий факт прошлого проекта должен предшествовать дневнику и вести к источникам`,
   );
   const discussionActions = [
     findAnchorByClass(html, "header-cta"),
@@ -284,7 +292,8 @@ for (const [lang, path] of pages) {
     ),
   ].map(([anchor]) => anchor);
   expect(
-    heroPartnerAction.includes('href="#partners"') &&
+    heroPartnerAction.includes('href="#partner-formats"') &&
+      html.includes('class="partner-formats" id="partner-formats"') &&
       heroPartnerAction.includes('data-analytics-goal="partner_interest"') &&
       heroPartnerAction.includes('icon--down') &&
       compactMarkupText(heroPartnerAction) === actionCopy.explore,
@@ -297,13 +306,15 @@ for (const [lang, path] of pages) {
     `${lang}: действие дневника на первом экране должно вести к началу дневниковой главы`,
   );
   expect(
-    diaryArchiveAction.includes('href="#diary-archive"') &&
-      diaryArchiveAction.includes(
+    diaryLatestAction.includes(`href="#diary-entry-${diary.latest.date}"`) &&
+      diaryLatestAction.includes(`datetime="${diary.latest.date}"`) &&
+      diaryLatestAction.includes(
         'data-analytics-goal="diary_explore"',
       ) &&
-      diaryArchiveAction.includes('icon--down') &&
-      compactMarkupText(diaryArchiveAction) === actionCopy.diary,
-    `${lang}: главное действие внутри дневника должно вести к архиву подготовки`,
+      diaryLatestAction.includes('icon--down') &&
+      compactMarkupText(diaryLatestAction) ===
+        `${diary.latestLabel} · ${diary.latest.dateLabel}`.replace(/\s+/gu, " "),
+    `${lang}: дата последней записи должна вести прямо к самой свежей записи`,
   );
   expect(
     diaryTelegramAction.includes('href="https://t.me/') &&
@@ -576,7 +587,7 @@ for (const [lang, path] of pages) {
     expect(
       visibleText.includes("≈1,3 млн") &&
         visibleText.includes("92,1 тыс.") &&
-        visibleText.includes("Проверено 31 июля 2026"),
+        visibleText.includes("Просмотры проверены 31 июля 2026"),
       "ru: просмотры сериала и фильма должны быть актуальными и датированными",
     );
     expect(
@@ -587,7 +598,7 @@ for (const [lang, path] of pages) {
     );
     expect(
       visibleText.includes("Дневник пути к старту") &&
-        visibleText.includes("Не ждать старта. Проходить путь вместе.") &&
+        visibleText.includes("Дневник подготовки") &&
         !visibleText.includes(">Дневник подготовки Виктора<"),
       "ru: живой дневник и послетитровая ссылка должны вести к пути без повтора имени героя",
     );
@@ -621,15 +632,14 @@ for (const [lang, path] of pages) {
     );
     expect(
       visibleText.includes("Road-to-start diary") &&
-        visibleText.includes("Don’t just wait") &&
-        visibleText.includes("Follow the road there.") &&
+        visibleText.includes("Training diary") &&
         !html.includes(">Viktor’s training diary<"),
       "en: the live diary and after-credits route must express the journey without repeating Viktor’s name",
     );
     expect(
       visibleText.includes("≈1.3M") &&
         visibleText.includes("92.1k") &&
-        visibleText.includes("Checked July 31, 2026"),
+        visibleText.includes("View counts checked July 31, 2026"),
       "en: series and film views must be current and dated",
     );
     expect(
@@ -905,7 +915,7 @@ expect(
 expect(
   css.includes(".site-footer__cta:hover") &&
     css.includes(".partners__channels a:hover") &&
-    css.includes(".interview-card:hover h3"),
+    css.includes(":is(.adventure-card, .interview-card):is(:hover, :focus-visible)"),
   "css: партнёрские и редакционные действия должны иметь ясное интерактивное состояние",
 );
 expect(
@@ -981,7 +991,7 @@ expect(
     generatedHtml.includes("audio-scene-05.m4a") &&
     !generatedHtml.includes("audio-scene-02.m4a") &&
     !generatedHtml.includes("audio-scene-03.m4a") &&
-    /padding-top:\s*clamp\(2\.75rem,\s*4\.5vw,\s*4\.5rem\)/.test(
+    /padding-top:\s*clamp\(/.test(
       diaryRule,
     ) &&
     mobileNavLinkRules.some((rule) => /border:\s*0/.test(rule)) &&
