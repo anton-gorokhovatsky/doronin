@@ -10,7 +10,7 @@ export async function checkEditorialInitial(page, requestedPaths) {
     /\/(?:story-motion-city(?:-1800)?|story-cycling|partner-community-motion)\.jpg$/u.test(path),
   ), false, "Below-fold decorative photos must not load on arrival");
   const state = await page.evaluate(() => {
-    const copy = document.querySelector("[data-diary-story-panel] .diary__copy");
+    const copy = document.querySelector("[data-diary-story-panel] .diary__copy:has(.diary__lead)");
     return {
       backgrounds: [...document.querySelectorAll(".velocity-cut")]
         .map((cut) => getComputedStyle(cut, "::before").backgroundImage),

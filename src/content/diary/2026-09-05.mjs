@@ -60,8 +60,6 @@ export default {
       title: "Первая длительная на ТТ-велосипеде",
       imageAlt:
         "Виктор Доронин в велошлеме после заезда в Красной Поляне",
-      lead:
-        "87 дней до челленджа 11\u202f111\n\nПервая длительная на ТТ-велосипеде.\n\n122 км, набор высоты 848 метров",
       note:
         "Ну что сказать? Было непросто, но мы держались.\n\nКатался вместе с Павлом, а на финише встретил Антона из Дасти. Мир тесен.\n\nДасти здесь, Красная Поляна это место силы.",
       externalLabel:
@@ -72,8 +70,6 @@ export default {
       title: "First long ride on the TT bike",
       imageAlt:
         "Viktor Doronin wearing a cycling helmet after a ride in Krasnaya Polyana",
-      lead:
-        "87 days until the 11,111 challenge\n\nFirst long ride on the TT bike.\n\n122 km, 848 metres of elevation gain",
       note:
         "Well, what can I say? It wasn’t easy, but we hung in there.\n\nI rode with Pavel, and at the finish I ran into Anton from Dusty. Small world.\n\nDusty is here. Krasnaya Polyana is a place that gives you strength.",
       externalLabel:
