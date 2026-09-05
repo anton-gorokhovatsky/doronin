@@ -163,7 +163,7 @@ const locales = {
       lineTwo: ["31", "день"],
       accent: "НА ВЕЛОСИПЕДЕ",
       intro:
-        "В декабре 2024 года Виктор преодолел 1111 км без сна в трёх дисциплинах.",
+        "В декабре 2024 года Виктор преодолел 1111 км без сна в трёх дисциплинах. Впереди — новое испытание.",
       evidenceCta: "Интервью о проекте «1111»",
       imageAlt: "Виктор Доронин на велосипеде во время скоростного заезда",
       videoPlay: "Включить видео",
@@ -597,7 +597,7 @@ const locales = {
       lineTwo: ["31", "days"],
       accent: "BY BIKE",
       intro:
-        "In December 2024, Viktor covered 1111 km without sleep across three disciplines.",
+        "In December 2024, Viktor covered 1111 km without sleep across three disciplines. A new challenge lies ahead.",
       evidenceCta: "Interview about Project “1111”",
       imageAlt: "Viktor Doronin riding at speed during a cycling event",
       videoPlay: "Play video",
