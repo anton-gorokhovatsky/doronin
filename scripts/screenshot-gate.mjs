@@ -414,19 +414,19 @@ const browser = await chromium.launch({ headless: true });
 
 const specs = [
   {
-    name: "ru-1440-light-proof-brief",
-    path: "/?gate=ru-1440-proof-brief#top",
+    name: "ru-1440-light-hero-evidence",
+    path: "/?gate=ru-1440-hero-evidence#top",
     locale: "ru",
     theme: "light",
-    target: ".proof-brief",
+    target: ".hero__evidence",
     viewport: { width: 1440, height: 900 },
   },
   {
-    name: "en-390-light-proof-brief",
-    path: "/en/?gate=en-390-proof-brief#top",
+    name: "en-390-light-hero-evidence",
+    path: "/en/?gate=en-390-hero-evidence#top",
     locale: "en",
     theme: "light",
-    target: ".proof-brief",
+    target: ".hero__evidence",
     viewport: { width: 390, height: 844 },
   },
   {
@@ -959,7 +959,7 @@ const specs = [
 // actually validates so an internal fragment cannot be mistaken for a whole
 // section in artifacts and review links.
 const targetCaptureScopes = new Map([
-  [".proof-brief", "section"],
+  [".hero__evidence", "fragment"],
   [".athlete", "section"],
   [".diary-live", "section"],
   [".bike-calendar__segment--finish", "fragment"],

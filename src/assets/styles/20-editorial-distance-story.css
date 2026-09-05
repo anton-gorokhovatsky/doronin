@@ -209,43 +209,6 @@
   color: var(--text-editorial-muted);
 }
 
-.proof-brief {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem 3rem;
-  padding: clamp(1.5rem, 3vw, 2.5rem) var(--page-gutter);
-  border-bottom: 1px solid var(--line-dark);
-}
-
-.proof-brief__copy {
-  flex: 1 1 30rem;
-  min-width: 0;
-}
-
-.proof-brief__label {
-  margin: 0 0 0.6rem;
-  color: var(--text-editorial-muted);
-  font-size: var(--type-service-strong);
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.proof-brief__text {
-  max-width: 64ch;
-  margin: 0;
-  font-size: var(--type-copy-lead);
-  font-weight: 600;
-  line-height: var(--leading-copy-lead);
-}
-
-.proof-brief .text-link {
-  flex: 0 1 auto;
-  min-height: 2.75rem;
-  margin-top: 0;
-}
-
 .diary {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));

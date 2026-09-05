@@ -273,13 +273,16 @@ for (const [lang, path] of pages) {
     html,
     "diary-live__follow",
   );
-  const proofBriefLink = findAnchorByClass(html, "proof-brief__link");
+  const heroEvidenceLink = findAnchorByClass(html, "hero__evidence-link");
   expect(
-    html.indexOf('class="proof-brief section--light"') > html.indexOf('class="hero"') &&
-      html.indexOf('class="proof-brief section--light"') < html.indexOf('id="diary"') &&
-      proofBriefLink.includes('href="#proof-sources"') &&
+    html.indexOf('class="hero__evidence"') > html.indexOf('class="hero"') &&
+      html.indexOf('class="hero__evidence"') < html.indexOf('class="hero__actions"') &&
+      heroEvidenceLink.includes('href="https://youtu.be/4H2fddBQ6VQ"') &&
+      heroEvidenceLink.includes('target="_blank"') &&
+      heroEvidenceLink.includes('rel="noopener noreferrer"') &&
+      heroEvidenceLink.includes('icon--external') &&
       html.includes('class="proof-sources" id="proof-sources"'),
-    `${lang}: краткий факт прошлого проекта должен предшествовать дневнику и вести к источникам`,
+    `${lang}: опыт Виктора должен быть частью первого экрана с прямой ссылкой на интервью о прошлом проекте`,
   );
   const discussionActions = [
     findAnchorByClass(html, "header-cta"),

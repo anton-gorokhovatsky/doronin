@@ -163,7 +163,8 @@ const locales = {
       lineTwo: ["31", "день"],
       accent: "НА ВЕЛОСИПЕДЕ",
       intro:
-        "Пять специальных этапов, между ними — базовые дневные заезды. Финал — самый длинный непрерывный заезд.",
+        "В декабре 2024 года Виктор преодолел 1111 км без сна в трёх дисциплинах.",
+      evidenceCta: "Интервью о проекте «1111»",
       imageAlt: "Виктор Доронин на велосипеде во время скоростного заезда",
       videoPlay: "Включить видео",
       videoPause: "Пауза",
@@ -341,9 +342,6 @@ const locales = {
       ],
     },
     proof: {
-      briefLabel: "Проект «1111» · декабрь 2024",
-      briefText: "Виктор преодолел 1111 км без сна в трёх дисциплинах.",
-      briefCta: "Смотреть источники",
       eyebrow: "Архив предыдущего проекта",
       title: "«1111»: фильм и проверяемый результат",
       body:
@@ -599,7 +597,8 @@ const locales = {
       lineTwo: ["31", "days"],
       accent: "BY BIKE",
       intro:
-        "Five special stages, with daily base rides between them. The finale is the longest continuous ride.",
+        "In December 2024, Viktor covered 1111 km without sleep across three disciplines.",
+      evidenceCta: "Interview about Project “1111”",
       imageAlt: "Viktor Doronin riding at speed during a cycling event",
       videoPlay: "Play video",
       videoPause: "Pause",
@@ -774,9 +773,6 @@ const locales = {
       ],
     },
     proof: {
-      briefLabel: "Project “1111” · December 2024",
-      briefText: "Viktor covered 1111 km without sleep across three disciplines.",
-      briefCta: "View the sources",
       eyebrow: "Archive of the previous project",
       title: "“1111”: the film and a verifiable result",
       body:
@@ -2121,7 +2117,12 @@ function renderPage(l) {
           ${renderHeroLine(l.hero.lineTwo)}
           <em data-optical-start>${l.hero.accent}</em>
         </h1>
-        <p class="hero__intro">${l.hero.intro}</p>
+        <div class="hero__evidence">
+          <p class="hero__intro">${l.hero.intro}</p>
+          <a class="text-link hero__evidence-link" href="${shared.project1111InterviewHref}" target="_blank" rel="noopener noreferrer" data-analytics-goal="proof_open">
+            <span class="text-link__label">${l.hero.evidenceCta}</span>${icons.external}
+          </a>
+        </div>
         <div class="hero__actions">
           <a class="button button--primary action-primary" href="#partner-formats" data-analytics-goal="partner_interest">${l.hero.primaryCta}${icons.down}</a>
           <a class="button button--ghost" href="#diary" data-analytics-goal="diary_explore">${l.hero.secondaryCta}</a>
@@ -2175,16 +2176,6 @@ function renderPage(l) {
         ${renderHeroPeaks(projectPlan, l)}
       </div>
     </section>
-
-    <aside class="proof-brief section--light" aria-label="${escapeAttribute(l.proof.briefLabel)}">
-      <div class="proof-brief__copy">
-        <p class="proof-brief__label">${l.proof.briefLabel}</p>
-        <p class="proof-brief__text">${l.proof.briefText}</p>
-      </div>
-      <a class="text-link text-link--dark proof-brief__link" href="#proof-sources" data-analytics-goal="proof_open">
-        <span class="text-link__label">${l.proof.briefCta}</span>${icons.down}
-      </a>
-    </aside>
 
     <section class="diary section section--light" id="diary" aria-labelledby="diary-title">
       <div

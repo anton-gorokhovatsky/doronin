@@ -91,15 +91,26 @@ export async function checkUpperPageRoutes(page) {
     });
     assert(formatsVisible, "The partnership action must reveal the promised formats");
 
-    await page.locator(".proof-brief__link").click();
-    await page.waitForFunction(() => document.querySelector(".proof-sources").open);
-    assert.equal(new URL(page.url()).hash, "#proof-sources");
-    await page.waitForFunction(() => {
-      const summary = document.querySelector(".proof-sources summary").getBoundingClientRect();
-      const first = document.querySelector(".proof-sources .proof-source").getBoundingClientRect();
-      return summary.top >= 0 && summary.bottom < innerHeight && first.top < innerHeight;
+    const interviewUrl = "https://youtu.be/4H2fddBQ6VQ";
+    const interviewRoute = (route) => route.fulfill({
+      status: 200,
+      contentType: "text/html",
+      body: "<!doctype html><title>Interview destination</title>",
     });
-    await page.locator(".proof-sources").evaluate((element) => { element.open = false; });
+    await page.context().route(interviewUrl, interviewRoute);
+    try {
+      await page.locator(".hero__evidence-link").focus();
+      const [interview] = await Promise.all([
+        page.waitForEvent("popup"),
+        page.locator(".hero__evidence-link").press("Enter"),
+      ]);
+      await interview.waitForLoadState("domcontentloaded");
+      assert.equal(interview.url(), interviewUrl);
+      await interview.close();
+      assert.equal(new URL(page.url()).hash, "#partner-formats");
+    } finally {
+      await page.context().unroute(interviewUrl, interviewRoute);
+    }
 
     const latest = page.locator("[data-diary-latest]");
     const target = await latest.getAttribute("href");

@@ -1,4 +1,5 @@
 .hero {
+  --text-link-emphasis: var(--acid);
   --hero-foot-height: clamp(10.75rem, 10vw, 12.75rem);
   --hero-content-bottom-gap: clamp(2.25rem, 3vw, 3.75rem);
   --hero-status-optical-drop: 2.15rem;
@@ -577,6 +578,13 @@
   font-size: var(--type-copy-lead);
   font-weight: 450;
   line-height: var(--leading-copy-lead);
+}
+
+.hero__evidence .text-link {
+  max-width: 100%;
+  min-height: 2.75rem;
+  margin-top: 0.35rem;
+  font-size: var(--type-service);
 }
 
 .hero__actions {
