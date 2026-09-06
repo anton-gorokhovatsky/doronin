@@ -1261,17 +1261,17 @@ function renderDiaryText(text, className) {
       const listStart = lines.findIndex((line) => line.startsWith("• "));
 
       if (listStart === -1) {
-        return `<p class="${className}">${lines.join(" ")}</p>`;
+        return `<p class="${className}" data-author-copy>${lines.join("<br>")}</p>`;
       }
 
-      const introduction = lines.slice(0, listStart).join(" ");
+      const introduction = lines.slice(0, listStart).join("<br>");
       const items = lines.slice(listStart).map((line) => line.replace(/^•\s+/u, ""));
 
       return `
         <div class="${className} ${className}--list">
-          ${introduction ? `<p>${introduction}</p>` : ""}
+          ${introduction ? `<p data-author-copy>${introduction}</p>` : ""}
           <ul class="diary-copy-list">
-            ${items.map((item) => `<li>${item}</li>`).join("")}
+            ${items.map((item) => `<li data-author-copy>${item}</li>`).join("")}
           </ul>
         </div>`;
     })
@@ -1498,9 +1498,9 @@ function renderDiaryEntries(entries, l) {
           <div class="diary__copy">
             <h3 data-optical-start data-optical-scope="first-line">${entry.title}</h3>
             ${entry.lead ? renderDiaryText(entry.lead, "diary__lead") : ""}
-            <div class="diary__facts">
+            ${entry.facts.length ? `<div class="diary__facts">
               ${renderMetrics(entry.facts, "diary__fact")}
-            </div>
+            </div>` : ""}
             ${renderDiaryText(entry.note, "diary__note")}
             <a
               class="text-link text-link--dark"
@@ -1856,9 +1856,14 @@ const units = {
   en: /(categories|crossings|days?|hours?|km|laps|lengths|marathons|metres?|minutes|outlets|views|years?)/giu,
 };
 
-function typographText(value, lang) {
-  let text = value
-    .replace(/\.{3}/g, "…")
+function typographText(value, lang, authorCopy = false) {
+  // Authorial punctuation stays verbatim; only spacing and number grouping change.
+  let text = authorCopy ? value : value.replace(/\.{3}/g, "…");
+  if (authorCopy) {
+    text = text.replace(/(?<![\p{L}\p{N}])\d{5,}(?![\p{L}\p{N}])/gu,
+      (number) => formatProjectNumber(Number(number), lang));
+  }
+  text = text
     .replace(/\s+—\s+/g, "\u00A0— ")
     .replace(/(\d) (?=\d{3}(?:\D|$))/g, "$1\u202F");
 
@@ -1895,9 +1900,15 @@ function escapeAttribute(value) {
 }
 
 function typographHtml(html, lang) {
+  let authorCopy = false;
   const textNodes = html
     .split(/(<[^>]+>)/g)
-    .map((part) => (part.startsWith("<") ? part : typographText(part, lang)))
+    .map((part) => {
+      if (!part.startsWith("<")) return typographText(part, lang, authorCopy);
+      if (/^<(?:p|li)\b[^>]*\bdata-author-copy\b/.test(part)) authorCopy = true;
+      if (/^<\/(?:p|li)>/.test(part)) authorCopy = false;
+      return part;
+    })
     .join("");
 
   return textNodes

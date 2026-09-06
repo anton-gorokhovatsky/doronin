@@ -141,8 +141,8 @@ function validateEntries() {
     indexes.add(entry.index);
     dates.add(entry.date);
 
-    if (!Array.isArray(entry.facts) || entry.facts.length === 0) {
-      throw new Error(`Diary entry ${entry.date} has no facts.`);
+    if (!Array.isArray(entry.facts)) {
+      throw new Error(`Diary entry ${entry.date} facts must be an array.`);
     }
 
     if (entry.media !== undefined) {

@@ -9,10 +9,7 @@ export default {
   mediaWidth: 720,
   mediaHeight: 960,
   mediaAspect: "3 / 4",
-  facts: [
-    { value: { ru: "1", en: "1" }, ru: "день до старта «Три горы»", en: "day before the Three Mountains start" },
-    { value: { ru: "9", en: "9" }, ru: "фрагментов о восстановлении", en: "notes on recovery" },
-  ],
+  facts: [],
   content: {
     ru: {
       tabLabel: "Перед стартом",
@@ -20,8 +17,8 @@ export default {
       imageAlt: "Виктор Доронин восстанавливается в бане после тренировочного сбора в Красной Поляне",
       videoLabel: "Видео из дневника подготовки: Виктор Доронин рассказывает о восстановлении перед стартом",
       videoPlayLabel: "Воспроизвести 9-секундное видео о восстановлении перед стартом",
-      lead: "Перед стартом «Три горы» Виктор завершает сбор в Красной Поляне и отдельно фиксирует восстановление как часть подготовки.",
-      note: "Нагрузка не заканчивается последним подъёмом: следующий старт начинается с того, как спортсмен возвращает себе силы.",
+      lead: "Сборы в Поляне подходят к концу - сегодня уже старт «Три горы» и дорога домой.",
+      note: "Вчера отправились нашей компанией в баню.\n\nРусская баня в горах на сборах - это отдельная песня. Что может быть красивей?\n\nМы отправились в «<a href=\"https://t.me/russkiye_traditsii\" target=\"_blank\" rel=\"noopener noreferrer\">Русские традиции</a>» и могу сказать, что это одно из самых кайфовых мест для восстановления.\n\nА вы перед стартом как восстанавливайтесь?",
       externalLabel: "Откроется запись дневника Виктора от 9 мая в Telegram",
     },
     en: {
@@ -30,8 +27,8 @@ export default {
       imageAlt: "Viktor Doronin recovers in a banya after a training camp in Krasnaya Polyana",
       videoLabel: "Training diary video: Viktor Doronin talks about recovery before the next start",
       videoPlayLabel: "Play the 9-second video about pre-race recovery",
-      lead: "Before the Three Mountains start, Viktor closes his Krasnaya Polyana camp by treating recovery as part of the work itself.",
-      note: "The load does not end with the last climb: the next start begins with how the athlete restores his capacity.",
+      lead: "The training camp in Polyana is coming to an end - today it’s already time for the Three Mountains start and the trip home.",
+      note: "Yesterday our group went to the banya.\n\nA Russian banya in the mountains during a training camp is something else. What could be more beautiful?\n\nWe went to <a href=\"https://t.me/russkiye_traditsii\" target=\"_blank\" rel=\"noopener noreferrer\">Russkiye Traditsii</a>, and I can say it’s one of the most enjoyable places to recover.\n\nHow do you recover before a race?",
       externalLabel: "Opens Viktor’s May 9 training diary entry on Telegram",
     },
   },

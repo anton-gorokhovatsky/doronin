@@ -482,7 +482,7 @@ for (const [lang, path] of pages) {
     `${lang}: дневник должен соединять живой путь к старту, все структурированные записи и три состояния проекта`,
   );
   expect(
-    !normalizedVisibleText.includes("10:40") &&
+    normalizedVisibleText.includes("10:40") &&
       (lang === "ru"
         ? html.includes("1\u00a0августа\u00a0— ББК") &&
           !normalizedVisibleText.includes("3000 метров за 10:39.37") &&
@@ -492,7 +492,7 @@ for (const [lang, path] of pages) {
           !normalizedVisibleText.includes("3000 metres in 10:39.37") &&
           normalizedVisibleText.includes("10:39.37") &&
           normalizedVisibleText.includes("3:33/km")),
-    `${lang}: запись ББК должна показывать результат без лишнего вводного абзаца и прогноза 10:40`,
+    `${lang}: запись ББК должна сохранять результат и авторский рассказ о прогнозе 10:40`,
   );
   expect(
     html.includes('<h3 data-optical-start data-optical-scope="first-line">'),
