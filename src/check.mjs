@@ -215,6 +215,14 @@ for (const [lang, path] of pages) {
   );
   expect(!/\.{3}/u.test(visibleText), `${lang}: использовать знак многоточия`);
   expect(
+    !textFragments.some((fragment) => /\s[-–]\s/u.test(fragment)),
+    `${lang}: пунктуационное тире должно быть длинным, а дефис оставаться внутри слов`,
+  );
+  expect(
+    lang !== "ru" || !/[“”]/u.test(visibleText),
+    "ru: в тексте нужны русские кавычки «ёлочки»",
+  );
+  expect(
     (html.match(/class="icon icon--/g) || []).length >= 8,
     `${lang}: ожидаются единые SVG-иконки для действий`,
   );
@@ -590,7 +598,7 @@ for (const [lang, path] of pages) {
     expect(
       visibleText.includes("≈1,3 млн") &&
         visibleText.includes("92,1 тыс.") &&
-        visibleText.includes("Просмотры проверены 31 июля 2026"),
+        normalizedVisibleText.includes("Просмотры проверены 31 июля 2026"),
       "ru: просмотры сериала и фильма должны быть актуальными и датированными",
     );
     expect(
@@ -611,7 +619,7 @@ for (const [lang, path] of pages) {
         visibleText.includes("Движение") &&
         visibleText.includes("Вместе") &&
         visibleText.includes("Фото — Женя Ханай") &&
-        visibleText.includes("19 июня 2026"),
+        normalizedVisibleText.includes("19 июня 2026"),
       "ru: фотосерия о герое должна сохранять утверждённые главы, авторство и даты",
     );
   } else {
@@ -642,7 +650,7 @@ for (const [lang, path] of pages) {
     expect(
       visibleText.includes("≈1.3M") &&
         visibleText.includes("92.1k") &&
-        visibleText.includes("View counts checked July 31, 2026"),
+        normalizedVisibleText.includes("View counts checked July 31, 2026"),
       "en: series and film views must be current and dated",
     );
     expect(
@@ -651,7 +659,7 @@ for (const [lang, path] of pages) {
         visibleText.includes("Motion") &&
         visibleText.includes("Together") &&
         visibleText.includes("Photography — Zhenya Khanai") &&
-        visibleText.includes("June 19, 2026"),
+        normalizedVisibleText.includes("June 19, 2026"),
       "en: the Viktor photo story must preserve the approved chapters, credit and dates",
     );
   }

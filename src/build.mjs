@@ -1852,16 +1852,24 @@ const shortWords = {
 };
 
 const units = {
-  ru: /(бассейнов|года|день|дня|дней|декабря|категориях|км|кругов|лет|марафона|метров|минут|млн|м|переправы|просмотров|СМИ|часа|часов)/giu,
-  en: /(categories|crossings|days?|hours?|km|laps|lengths|marathons|metres?|minutes|outlets|views|years?)/giu,
+  ru: /(бассейнов|года|день|дня|дней|января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря|категориях|километров|километра|километр|км|кругов|лет|марафона|метров|минуты|минут|минута|мин|млн|м|переправы|просмотров|СМИ|часа|часов|час|Вт|г)/giu,
+  en: /(categories|crossings|days?|hours?|kilometres?|km|laps|lengths|marathons|metres?|minutes?|outlets|views|years?|W|g)/giu,
 };
 
 function typographText(value, lang, authorCopy = false) {
-  // Authorial punctuation stays verbatim; only spacing and number grouping change.
-  let text = authorCopy ? value : value.replace(/\.{3}/g, "…");
+  let text = value.replace(/\.{3}/g, "…");
   if (authorCopy) {
-    text = text.replace(/(?<![\p{L}\p{N}])\d{5,}(?![\p{L}\p{N}])/gu,
-      (number) => formatProjectNumber(Number(number), lang));
+    // Keep the author's words and paragraphs; normalize typographic signs.
+    text = text
+      .replace(/(?<![\p{L}\d:-])(\d+(?:[,.]\d+)?)[ \t\u00A0\u202F]*[-–][ \t\u00A0\u202F]*(\d+(?:[,.]\d+)?)(?![\p{L}\d:-])/gu, "$1–$2")
+      .replace(/\s+[-–]\s+/gu, "\u00A0— ")
+      .replace(/(?<![\p{L}\p{N}])\d{5,}(?![\p{L}\p{N}])/gu,
+        (number) => formatProjectNumber(Number(number), lang));
+    if (lang === "ru") {
+      text = text.replaceAll("“", "«").replaceAll("”", "»")
+        .replace(/(^|[\s([—–])"(?=\S)/gu, "$1«")
+        .replace(/"(?=$|[\s.,!?:;)\]])/gu, "»");
+    }
   }
   text = text
     .replace(/\s+—\s+/g, "\u00A0— ")
@@ -1879,8 +1887,8 @@ function typographText(value, lang, authorCopy = false) {
       .replace(/(?<!\p{L})([А-ЯЁ])\.\s+([А-ЯЁ])\./gu, "$1.\u00A0$2.");
   } else {
     text = text.replace(
-      /\b(December)\s+(\d{1,2}),\s+(\d{4})/gu,
-      "$1\u00A0$2,\u00A0$3",
+      /\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:,\s+(\d{4}))?/gu,
+      (_, month, day, year) => `${month}\u00A0${day}${year ? `,\u00A0${year}` : ""}`,
     );
   }
 
