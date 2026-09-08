@@ -7,7 +7,7 @@ import { chromium, webkit } from "playwright";
 import { createDiaryContent } from "../src/content/diary/index.mjs";
 import { startSiteServer } from "./lib/site-server.mjs";
 import { checkMenuMorph } from "./lib/menu-morph-checks.mjs";
-import { checkEditorialInitial, checkEditorialFallback, checkDeferredDecoration, checkUpperPageRoutes } from "./lib/editorial-checks.mjs";
+import { checkEditorialInitial, checkEditorialFallback, checkDeferredDecoration, checkUpperPageRoutes, selectDiaryEntry, checkDiaryReadingRoute } from "./lib/editorial-checks.mjs";
 
 const execFileAsync = promisify(execFile);
 const diaryEntries = createDiaryContent("ru").entries;
@@ -116,7 +116,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       `${prefix}: icon aspect ratios diverged (${JSON.stringify(iconAudit.malformed)})`,
     );
     expect(
-      iconAudit.disclosureCount === 3 && iconAudit.mediaToggleCount === 2,
+      iconAudit.disclosureCount === 4 && iconAudit.mediaToggleCount === 2,
       `${prefix}: shared icon roles regressed (${JSON.stringify(iconAudit)})`,
     );
     expect(
@@ -1147,10 +1147,10 @@ async function auditPage(browser, browserName, origin, testCase) {
       );
     }
 
-    const diaryTabs = page.locator("[data-diary-story-tab]");
+    const diaryLinks = page.locator("[data-diary-story-link]");
     const diaryPanels = page.locator("[data-diary-story-panel]");
     expect(
-      (await diaryTabs.count()) === diaryEntryCount &&
+      (await diaryLinks.count()) === diaryEntryCount &&
         (await diaryPanels.count()) === diaryEntryCount &&
         (await page.locator("[data-diary-video]").count()) ===
           diaryVideoMediaCount &&
@@ -1158,273 +1158,7 @@ async function auditPage(browser, browserName, origin, testCase) {
           diaryImageMediaCount,
       `${prefix}: training diary does not expose all structured stories`,
     );
-    const diaryRangeState = await page.locator(".diary__heading").evaluate(
-      (element) => {
-        const range = element.querySelector(".diary__range");
-        const count = range.querySelector(".diary__range-count");
-        const start = range.querySelector(".diary__range-start");
-        const end = range.querySelector(".diary__range-end");
-        const dot = range.querySelector(".diary__range-dot");
-        const period = range.querySelector(".diary__range-period");
-        const headingLabel = element.querySelector(".diary__eyebrow");
-        const groups = [count, start, end];
-        const bounds = groups.map((group) => group.getBoundingClientRect());
-        const rangeBounds = range.getBoundingClientRect();
-        return {
-          atomic: groups.every(
-            (group) => getComputedStyle(group).whiteSpace === "nowrap",
-          ),
-          containsNbsp:
-            count.textContent.includes("\u00a0") &&
-            start.textContent.includes("\u00a0") &&
-            end.textContent.includes("\u00a0"),
-          dotDisplay: getComputedStyle(dot).display,
-          display: getComputedStyle(range).display,
-          headingDisplay: getComputedStyle(element).display,
-          headingLeft: element.getBoundingClientRect().left,
-          labelLeft: headingLabel.getBoundingClientRect().left,
-          periodLeft: period.getBoundingClientRect().left,
-          rangeLeft: range.getBoundingClientRect().left,
-          inBounds:
-            bounds.every(
-              (box) =>
-                box.left >= rangeBounds.left - 1 &&
-                box.right <= rangeBounds.right + 1,
-            ),
-          tops: bounds.map((box) => box.top),
-        };
-      },
-    );
-    expect(
-      diaryRangeState.atomic &&
-        diaryRangeState.containsNbsp &&
-        diaryRangeState.inBounds &&
-        (testCase.viewport.width <= 390
-          ? diaryRangeState.headingDisplay === "grid" &&
-            diaryRangeState.display === "flex" &&
-            diaryRangeState.dotDisplay !== "none" &&
-            near(diaryRangeState.headingLeft, diaryRangeState.labelLeft, 1) &&
-            near(diaryRangeState.headingLeft, diaryRangeState.rangeLeft, 1) &&
-            diaryRangeState.tops[0] <= diaryRangeState.tops[1] &&
-            near(diaryRangeState.tops[1], diaryRangeState.tops[2], 1) &&
-            (near(diaryRangeState.tops[0], diaryRangeState.tops[1], 1) ||
-              near(diaryRangeState.headingLeft, diaryRangeState.periodLeft, 1))
-          : diaryRangeState.display === "flex" &&
-            diaryRangeState.dotDisplay !== "none" &&
-            Math.max(...diaryRangeState.tops) -
-              Math.min(...diaryRangeState.tops) <=
-              1),
-      `${prefix}: diary date range loses semantic grouping (${JSON.stringify(diaryRangeState)})`,
-    );
-    const diaryLiveState = await page.locator("[data-diary-live]").evaluate(
-      (element) => {
-        const title = element.querySelector("#diary-title");
-        const body = element.querySelector(".diary-live__body");
-        const primary = element.querySelector(
-          '[data-analytics-goal="diary_follow"]',
-        );
-        const archive = element.querySelector('[data-diary-latest]');
-        const bounds = element.getBoundingClientRect();
-        const nodeBounds = [title, body, primary, archive].map((node) => {
-          const box = node?.getBoundingClientRect();
-          return box
-            ? {
-                left: box.left,
-                right: box.right,
-                top: box.top,
-                bottom: box.bottom,
-              }
-            : null;
-        });
-        return {
-          title: title?.textContent.trim(),
-          body: body?.textContent.trim(),
-          repeatsCountdown: Boolean(element.querySelector("[data-diary-countdown]")),
-          progress: Number.parseFloat(
-            getComputedStyle(element).getPropertyValue("--diary-progress"),
-          ),
-          actionsPresent: Boolean(primary && archive),
-          bounds: {
-            left: bounds.left,
-            right: bounds.right,
-            top: bounds.top,
-            bottom: bounds.bottom,
-          },
-          nodeBounds,
-          contentInBounds: [title, body, primary, archive].every((node) => {
-            const box = node?.getBoundingClientRect();
-            return (
-              box &&
-              box.left >= bounds.left - 1 &&
-              box.right <= bounds.right + 1 &&
-              box.top >= bounds.top - 1 &&
-              box.bottom <= bounds.bottom + 1
-            );
-          }),
-        };
-      },
-    );
-    expect(
-      diaryLiveState.title.length > 0 &&
-        diaryLiveState.body.length > 0 &&
-        !diaryLiveState.repeatsCountdown &&
-        diaryLiveState.progress >= 0 &&
-        diaryLiveState.progress <= 1 &&
-        diaryLiveState.actionsPresent &&
-        diaryLiveState.contentInBounds,
-      `${prefix}: live diary contract regressed (${JSON.stringify(diaryLiveState)})`,
-    );
-    const readDiaryState = () =>
-      page.locator("[data-diary-stories]").evaluate((element) => {
-        const tabs = [...element.querySelectorAll("[data-diary-story-tab]")];
-        const panels = [...element.querySelectorAll("[data-diary-story-panel]")];
-        const rail = element.querySelector("[data-diary-story-tabs]");
-        const railBounds = rail.getBoundingClientRect();
-        const tabBounds = tabs.map((tab) => tab.getBoundingClientRect());
-        const selectedTab = tabs.find(
-          (tab) => tab.getAttribute("aria-selected") === "true",
-        );
-        const selectedBounds = selectedTab?.getBoundingClientRect();
-        const visiblePanel = panels.find((panel) => !panel.hidden);
-        const visibleTitle = visiblePanel?.querySelector("h3");
-        const visibleCopy = visibleTitle?.parentElement.getBoundingClientRect();
-        const titleRange = document.createRange();
-        if (visibleTitle) titleRange.selectNodeContents(visibleTitle);
-        const titleContained = Boolean(
-          visibleTitle &&
-            visibleCopy &&
-            [...titleRange.getClientRects()]
-              .filter((bounds) => bounds.width > 1)
-              .every(
-                (bounds) =>
-                  bounds.left >= visibleCopy.left - 1 &&
-                  bounds.right <= visibleCopy.right + 1,
-              ),
-        );
-        return {
-          contained: tabs.every((tab) => {
-            const bounds = tab.getBoundingClientRect();
-            return [...tab.children]
-              .filter((child) => getComputedStyle(child).display !== "none")
-              .every((child) => {
-                const box = child.getBoundingClientRect();
-                return (
-                  box.left >= bounds.left - 1 &&
-                  box.right <= bounds.right + 1 &&
-                  box.top >= bounds.top - 1 &&
-                  box.bottom <= bounds.bottom + 1
-                );
-              });
-          }),
-          selected: tabs.findIndex(
-            (tab) => tab.getAttribute("aria-selected") === "true",
-          ),
-          visiblePanels: panels
-            .map((panel, index) => (!panel.hidden ? index : -1))
-            .filter((index) => index >= 0),
-          railFits: rail.scrollWidth <= rail.clientWidth + 1,
-          visibleTabCount: tabBounds.filter(
-            (bounds) =>
-              bounds.left >= railBounds.left - 1 &&
-              bounds.right <= railBounds.right + 1,
-          ).length,
-          thirdPeeks:
-            tabBounds[0]?.left >= railBounds.left - 1 &&
-            tabBounds[1]?.right <= railBounds.right + 1 &&
-            tabBounds[2]?.left < railBounds.right - 1 &&
-            tabBounds[2]?.right > railBounds.right + 1,
-          thirdPeekWidth: Math.max(
-            0,
-            Math.min(tabBounds[2]?.right || 0, railBounds.right) -
-              Math.max(tabBounds[2]?.left || 0, railBounds.left),
-          ),
-          selectedFullyVisible: Boolean(
-            selectedBounds &&
-              selectedBounds.left >= railBounds.left - 1 &&
-              selectedBounds.right <= railBounds.right + 1,
-          ),
-          titleContained,
-          scrollLeft: rail.scrollLeft,
-          scrollSnapType: getComputedStyle(rail).scrollSnapType,
-          scrollSnapStops: tabs.map(
-            (tab) => getComputedStyle(tab).scrollSnapStop,
-          ),
-          overscrollBehaviorX: getComputedStyle(rail).overscrollBehaviorX,
-          touchAction: getComputedStyle(rail).touchAction,
-          nativeDragDisabled: tabs.every((tab) => !tab.draggable),
-          positionCurrent: element
-            .querySelector("[data-diary-story-position-current]")
-            ?.textContent.trim(),
-          newerDisabled: element.querySelector("[data-diary-story-newer]")
-            ?.disabled,
-          earlierDisabled: element.querySelector("[data-diary-story-earlier]")
-            ?.disabled,
-        };
-      });
-    const initialDiaryState = await readDiaryState();
-    const expectedVisibleDiaryTabs = testCase.viewport.width <= 640 ? 2 : 3;
-    expect(
-      initialDiaryState.contained &&
-        initialDiaryState.selected === 0 &&
-        JSON.stringify(initialDiaryState.visiblePanels) === "[0]" &&
-        initialDiaryState.titleContained &&
-        !initialDiaryState.railFits &&
-        initialDiaryState.visibleTabCount === expectedVisibleDiaryTabs &&
-        initialDiaryState.positionCurrent === "01" &&
-        initialDiaryState.newerDisabled &&
-        !initialDiaryState.earlierDisabled &&
-        (testCase.viewport.width > 640
-          ? true
-          :
-            initialDiaryState.thirdPeeks &&
-            initialDiaryState.thirdPeekWidth >= 44 &&
-            initialDiaryState.overscrollBehaviorX === "none" &&
-            initialDiaryState.touchAction === "pan-x" &&
-            initialDiaryState.nativeDragDisabled &&
-            initialDiaryState.scrollSnapStops.every(
-              (value) => value === "always",
-            )),
-      `${prefix}: initial diary story state regressed (${JSON.stringify(initialDiaryState)})`,
-    );
-    await page.locator("[data-diary-story-earlier]").click();
-    const controlledDiaryState = await readDiaryState();
-    expect(
-      controlledDiaryState.selected === 1 &&
-        JSON.stringify(controlledDiaryState.visiblePanels) === "[1]" &&
-        controlledDiaryState.positionCurrent === "02" &&
-        !controlledDiaryState.newerDisabled &&
-        !controlledDiaryState.earlierDisabled,
-      `${prefix}: diary story controls regressed (${JSON.stringify(controlledDiaryState)})`,
-    );
-    await page.locator("[data-diary-story-newer]").click();
-    await diaryTabs.nth(diaryEntryCount - 1).click();
-    await page.waitForTimeout(220);
-    const selectedDiaryState = await readDiaryState();
-    expect(
-      selectedDiaryState.selected === diaryEntryCount - 1 &&
-        JSON.stringify(selectedDiaryState.visiblePanels) ===
-          JSON.stringify([diaryEntryCount - 1]) &&
-        !selectedDiaryState.railFits &&
-        selectedDiaryState.scrollLeft > 0 &&
-        selectedDiaryState.selectedFullyVisible &&
-        selectedDiaryState.positionCurrent ===
-          String(diaryEntryCount).padStart(2, "0") &&
-        !selectedDiaryState.newerDisabled &&
-        selectedDiaryState.earlierDisabled &&
-        /(?:x|inline)/u.test(selectedDiaryState.scrollSnapType),
-      `${prefix}: diary story switch or mobile reveal regressed (${JSON.stringify(selectedDiaryState)})`,
-    );
-    await diaryTabs.nth(diaryEntryCount - 1).evaluate((tab) => tab.focus());
-    await page.keyboard.press("ArrowLeft");
-    const keyboardDiaryState = await readDiaryState();
-    expect(
-      keyboardDiaryState.selected === diaryEntryCount - 2 &&
-        JSON.stringify(keyboardDiaryState.visiblePanels) ===
-          JSON.stringify([diaryEntryCount - 2]) &&
-        keyboardDiaryState.positionCurrent ===
-          String(diaryEntryCount - 1).padStart(2, "0"),
-      `${prefix}: diary story keyboard navigation regressed (${JSON.stringify(keyboardDiaryState)})`,
-    );
+    await checkDiaryReadingRoute(page, diaryEntryCount);
 
     expect(
       mixedDiaryEntryIndex >= 0 &&
@@ -1435,7 +1169,7 @@ async function auditPage(browser, browserName, origin, testCase) {
           6,
       `${prefix}: mixed diary fixture no longer describes the complete Telegram album`,
     );
-    await diaryTabs.nth(mixedDiaryEntryIndex).click();
+    await selectDiaryEntry(page, mixedDiaryEntryIndex);
     const mixedGallery = diaryPanels
       .nth(mixedDiaryEntryIndex)
       .locator("[data-diary-gallery]");
@@ -1559,7 +1293,7 @@ async function auditPage(browser, browserName, origin, testCase) {
         finalMixedGalleryState.nextDisabled,
       `${prefix}: mixed diary rail does not reveal its last item (${JSON.stringify(finalMixedGalleryState)})`,
     );
-    await diaryTabs.first().click();
+    await selectDiaryEntry(page, 0);
 
     const proof = page.locator(".proof-sources");
     const proofScrollBehavior = await page.evaluate(() => {

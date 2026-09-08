@@ -230,9 +230,7 @@ for (const [lang, path] of pages) {
     /<header\b[\s\S]*?<details class="nav-shell"[\s\S]*?<\/header>[\s\S]*?<section class="hero"[\s\S]*?class="hero__media-toggle"/u.test(
       html,
     ) &&
-      !/<header\b[\s\S]*?class="hero__media-toggle"[\s\S]*?<\/header>/u.test(
-        html,
-      ),
+      !html.match(/<header\b[\s\S]*?<\/header>/u)?.[0].includes('class="hero__media-toggle"'),
     `${lang}: меню относится к шапке, а управление видео — к кадру первого экрана`,
   );
   const headerNavigation =
@@ -276,7 +274,6 @@ for (const [lang, path] of pages) {
         };
   const heroPartnerAction = findAnchorByClass(html, "button--primary");
   const heroDiaryAction = findAnchorByClass(html, "button--ghost");
-  const diaryLatestAction = findAnchorByClass(html, "diary-live__latest");
   const diaryTelegramAction = findAnchorByClass(
     html,
     "diary-live__follow",
@@ -317,15 +314,11 @@ for (const [lang, path] of pages) {
     `${lang}: действие дневника на первом экране должно вести к началу дневниковой главы`,
   );
   expect(
-    diaryLatestAction.includes(`href="#diary-entry-${diary.latest.date}"`) &&
-      diaryLatestAction.includes(`datetime="${diary.latest.date}"`) &&
-      diaryLatestAction.includes(
-        'data-analytics-goal="diary_explore"',
-      ) &&
-      diaryLatestAction.includes('icon--down') &&
-      compactMarkupText(diaryLatestAction) ===
-        `${diary.latestLabel} · ${diary.latest.dateLabel}`.replace(/\s+/gu, " "),
-    `${lang}: дата последней записи должна вести прямо к самой свежей записи`,
+    !html.includes("data-diary-latest") &&
+      !html.includes("data-timeline-now") &&
+      html.indexOf('class="diary-stories__panels"') < html.indexOf('class="diary-archive"') &&
+      html.includes(`class="diary-story__date" datetime="${diary.latest.date}"`),
+    `${lang}: дневник должен начинаться с датированной записи, а выбор остальных идти после неё`,
   );
   expect(
     diaryTelegramAction.includes('href="https://t.me/') &&
@@ -450,9 +443,9 @@ for (const [lang, path] of pages) {
     html.includes('id="diary"') &&
       html.includes('class="diary-live"') &&
       !html.includes("data-diary-countdown") &&
-      html.includes("data-diary-latest") &&
+      !html.includes("data-diary-latest") &&
       html.includes('data-analytics-goal="diary_follow"') &&
-      html.includes('class="diary__heading" id="diary-archive"') &&
+      html.includes('class="diary-archive" id="diary-archive"') &&
       html.includes('class="diary-stories" data-diary-stories') &&
       diary.entries.every(
         (entry) =>
@@ -479,10 +472,8 @@ for (const [lang, path] of pages) {
       html.includes("data-diary-media-position-current") &&
       html.includes("data-diary-media-previous") &&
       html.includes("data-diary-media-next") &&
-      html.includes("data-diary-story-position-current") &&
-      html.includes("data-diary-story-newer") &&
-      html.includes("data-diary-story-earlier") &&
-      (html.match(/data-diary-story-tab(?=\s|>)/g) || []).length ===
+      !html.includes("data-diary-story-position-current") &&
+      (html.match(/data-diary-story-link(?=\s|>)/g) || []).length ===
         diary.entries.length &&
       (html.match(/data-diary-story-panel/g) || []).length ===
         diary.entries.length &&
@@ -504,7 +495,7 @@ for (const [lang, path] of pages) {
     `${lang}: запись ББК должна сохранять результат и авторский рассказ о прогнозе 10:40`,
   );
   expect(
-    html.includes('<h3 data-optical-start data-optical-scope="first-line">'),
+    /<h3 id="diary-entry-title-[^"]+" data-optical-start data-optical-scope="first-line">/u.test(html),
     `${lang}: заголовки дневника должны компенсировать первый глиф только на первой строке`,
   );
   expect(
@@ -933,20 +924,17 @@ expect(
     css.includes("object-fit: var(--diary-image-fit, contain)") &&
     css.includes("align-self: start") &&
     css.includes(".diary-media__rail") &&
-    css.includes(".diary-stories__controls") &&
+    css.includes(".diary-archive__link") &&
     css.includes(".proof-sources__grid") &&
     css.includes(".interview-card--index .interview-card__media") &&
     css.includes(".partner-process__list") &&
-    css.includes("overscroll-behavior-x: none") &&
+    css.includes("overscroll-behavior-x: contain") &&
     css.includes("scroll-snap-stop: always") &&
     css.includes("touch-action: pan-x") &&
-    generatedHtml.includes('data-diary-story-tab\n          draggable="false"') &&
-    Object.values(diaryByLocale).every(
-      (diary) =>
-        generatedHtml.includes(`class="diary__range-count">${diary.rangeCount}`) &&
-        generatedHtml.includes(`class="diary__range-start">${diary.rangeStart}`) &&
-        generatedHtml.includes(`class="diary__range-end">${diary.rangeEnd}`),
-    ),
+    generatedHtml.includes("data-diary-story-link") &&
+    Object.values(diaryByLocale).every((diary) =>
+      diary.entries.every((entry) =>
+        generatedHtml.includes(`class="diary-story__date" datetime="${entry.date}"`))),
   "css: дневник, источники, мобильный индекс интервью и партнёрский процесс должны быть оформлены",
 );
 expect(
@@ -1079,9 +1067,9 @@ expect(
 );
 expect(
   app.includes('diaryStories.classList.add("has-diary-stories")') &&
-    app.includes('storyTab.setAttribute("aria-selected", String(isActive))') &&
-    app.includes("syncDiaryStoryNavigation") &&
-    app.includes("[data-diary-story-earlier]") &&
+    app.includes("showDiaryEntry") &&
+    app.includes('window.addEventListener("hashchange", () => revealDiaryHash(true))') &&
+    app.includes('history.pushState(null, "", link.hash)') &&
     app.includes('document.querySelectorAll("[data-diary-gallery]")') &&
     app.includes("activateMedia") &&
     app.includes("[data-diary-media-next]") &&

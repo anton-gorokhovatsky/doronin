@@ -37,12 +37,14 @@ export async function checkEditorialFallback(browser, origin, testCase) {
     assert((await date.innerText()).includes(period.startDate.slice(0, 4)));
     assert.equal(await page.locator("[data-diary-countdown]").count(), 0);
     assert(await page.locator("#diary-title").isVisible());
-    assert.match(await page.locator("[data-diary-latest]").getAttribute("href"),
-      /^#diary-entry-\d{4}-\d{2}-\d{2}$/u);
-    assert.equal(await page.locator("[data-timeline-now]").isVisible(), false);
-    assert.equal(await page.locator(".diary-live__timeline > span").evaluate(
-      (track) => getComputedStyle(track, "::before").display,
-    ), "none");
+    assert.equal(await page.locator("[data-diary-story-panel]:visible").count(),
+      await page.locator("[data-diary-story-link]").count());
+    await page.locator(".diary-archive > summary").click();
+    const last = page.locator("[data-diary-story-link]").last();
+    const target = await last.getAttribute("href");
+    await last.click();
+    assert.equal(new URL(page.url()).hash, target);
+    assert(await page.locator(target).isVisible());
     assert(!/через\s+скоро|begins\s+in\s+soon/u.test(
       (await page.locator("#footer-title").innerText()).replace(/\s+/gu, " "),
     ));
@@ -71,17 +73,6 @@ export async function checkUpperPageRoutes(page) {
     return previous;
   });
   try {
-    const timelineLabelsFit = await page.locator(".diary-live__timeline").evaluate((timeline) => {
-      const labels = [...timeline.querySelectorAll("b:not([hidden])")]
-        .map((label) => label.getBoundingClientRect());
-      return labels.every((box, index) =>
-        box.left >= 0 && box.right <= innerWidth &&
-        labels.slice(index + 1).every((other) =>
-          box.right <= other.left || box.left >= other.right ||
-          box.bottom <= other.top || box.top >= other.bottom));
-    });
-    assert(timelineLabelsFit, "The diary timeline labels must remain readable without overlap");
-
     await page.locator(".hero .button--primary").click();
     assert.equal(new URL(page.url()).hash, "#partner-formats");
     const formatsVisible = await page.locator(".partner-formats").evaluate((element) => {
@@ -112,17 +103,79 @@ export async function checkUpperPageRoutes(page) {
       await page.context().unroute(interviewUrl, interviewRoute);
     }
 
-    const latest = page.locator("[data-diary-latest]");
-    const target = await latest.getAttribute("href");
-    await page.locator("[data-diary-story-tab]").last().click();
-    assert.equal(await page.locator(target).isVisible(), false);
-    await latest.click();
-    assert.equal(new URL(page.url()).hash, target);
-    assert(await page.locator(target).isVisible(), "The latest-date link must select the latest entry");
-    assert.equal(await page.locator('[data-diary-story-tab][aria-selected="true"]').getAttribute("href"), target);
+    await selectDiaryEntry(page, -1);
+    const heroDiaryAction = page.locator(".hero .button--ghost");
+    if (await heroDiaryAction.isVisible()) {
+      await heroDiaryAction.click();
+    } else {
+      await page.locator(".menu-toggle").click();
+      await page.locator('.site-nav a[href="#diary"]').click();
+    }
+    assert.equal(new URL(page.url()).hash, "#diary");
+    assert(await page.locator("[data-diary-story-panel]").first().isVisible(),
+      "Following the diary must show the latest entry");
   } finally {
     await page.evaluate((previous) => {
       document.documentElement.style.scrollBehavior = previous;
     }, previousScrollBehavior);
   }
+}
+
+export async function selectDiaryEntry(page, index) {
+  const links = page.locator("[data-diary-story-link]");
+  const resolvedIndex = index < 0 ? await links.count() + index : index;
+  const link = links.nth(resolvedIndex);
+  if (await link.getAttribute("hidden") !== null) return;
+  const archive = page.locator(".diary-archive");
+  if (await archive.getAttribute("open") === null) {
+    await archive.locator("summary").click();
+  }
+  await link.click();
+}
+
+export async function checkDiaryReadingRoute(page, total) {
+  const panels = page.locator("[data-diary-story-panel]");
+  const archive = page.locator(".diary-archive");
+  await panels.first().scrollIntoViewIfNeeded();
+  const layout = await page.locator("#diary").evaluate((diary) => {
+    const heading = diary.querySelector(".diary-live").getBoundingClientRect();
+    const story = diary.querySelector("[data-diary-story-panel]:not([hidden])");
+    const box = story.getBoundingClientRect();
+    const archive = diary.querySelector(".diary-archive").getBoundingClientRect();
+    const title = story.querySelector("h3");
+    const range = document.createRange(); range.selectNodeContents(title);
+    const titleBox = title.getBoundingClientRect();
+    return {
+      directEntry: box.top >= heading.bottom && box.top - heading.bottom <= 64,
+      archiveAfterStory: archive.top >= box.bottom,
+      titleFits: [...range.getClientRects()].every(r => r.left >= titleBox.left - 1 && r.right <= titleBox.right + 1),
+      date: story.querySelector("time").getAttribute("datetime"),
+    };
+  });
+  assert(layout.directEntry && layout.archiveAfterStory && layout.titleFits,
+    `The diary must lead directly into one dated story: ${JSON.stringify(layout)}`);
+  assert.equal(await page.locator("[data-diary-story-panel]:visible").count(), 1);
+  assert.equal(await archive.getAttribute("open"), null);
+  assert.equal(await page.locator("[data-diary-story-link]:not([hidden])").count(), total - 1);
+  await selectDiaryEntry(page, total - 1);
+  const olderId = await panels.last().getAttribute("id");
+  assert.equal(new URL(page.url()).hash, `#${olderId}`);
+  assert(await panels.last().isVisible());
+  assert.equal(await archive.getAttribute("open"), null);
+  assert.equal(await page.evaluate(() => document.activeElement?.id), olderId);
+
+  await archive.locator("summary").focus();
+  await page.keyboard.press("Enter");
+  const tabKey = page.context().browser().browserType().name() === "webkit" ? "Alt+Tab" : "Tab";
+  await page.keyboard.press(tabKey);
+  assert.equal(await page.evaluate(() => document.activeElement?.getAttribute("href")),
+    `#${await panels.first().getAttribute("id")}`);
+  await page.keyboard.press("Enter");
+  assert(await panels.first().isVisible());
+  assert.equal(await archive.getAttribute("open"), null);
+  await page.goBack();
+  await page.waitForFunction(id => !document.getElementById(id).hidden, olderId);
+  await page.goForward();
+  const firstId = await panels.first().getAttribute("id");
+  await page.waitForFunction(id => !document.getElementById(id).hidden, firstId);
 }

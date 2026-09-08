@@ -7,6 +7,7 @@ import { promisify } from "node:util";
 import { chromium } from "playwright";
 
 import { startSiteServer } from "./lib/site-server.mjs";
+import { selectDiaryEntry } from "./lib/editorial-checks.mjs";
 
 const execFileAsync = promisify(execFile);
 const outputRoot = resolve("artifacts/gate/automated");
@@ -59,9 +60,14 @@ async function capture(browser, origin, spec) {
       await proof.locator("summary").click();
     }
     if (spec.diaryStoryDate) {
-      await page.locator(`#diary-tab-${spec.diaryStoryDate}`).click();
+      const index = await page.locator("[data-diary-story-link]").evaluateAll((links, date) =>
+        links.findIndex(link => link.hash === `#diary-entry-${date}`), spec.diaryStoryDate);
+      await selectDiaryEntry(page, index);
     } else if (Number.isInteger(spec.diaryStory)) {
-      await page.locator("[data-diary-story-tab]").nth(spec.diaryStory).click();
+      await selectDiaryEntry(page, spec.diaryStory);
+    }
+    if (spec.target === ".diary-archive") {
+      await page.locator(".diary-archive > summary").click();
     }
     if (Number.isInteger(spec.diaryMedia)) {
       await page
@@ -242,10 +248,10 @@ async function capture(browser, origin, spec) {
           .filter((element) => element.scrollWidth > element.clientWidth + 1)
           .map((element) => element.textContent.trim().replace(/\s+/g, " ")),
         diaryStories: (() => {
-          const tabs = [...document.querySelectorAll("[data-diary-story-tab]")];
+          const tabs = [...document.querySelectorAll("[data-diary-story-link]")];
           const panels = [...document.querySelectorAll("[data-diary-story-panel]")];
           return {
-            contained: tabs.every((tab) => {
+            contained: tabs.filter((tab) => tab.getClientRects().length).every((tab) => {
               const bounds = tab.getBoundingClientRect();
               return [...tab.children]
                 .filter((child) => getComputedStyle(child).display !== "none")
@@ -260,7 +266,7 @@ async function capture(browser, origin, spec) {
                 });
             }),
             selected: tabs.filter(
-              (tab) => tab.getAttribute("aria-selected") === "true",
+              (tab) => tab.hidden,
             ).length,
             visiblePanels: panels.filter((panel) => !panel.hidden).length,
           };
@@ -380,7 +386,7 @@ async function capture(browser, origin, spec) {
         metrics.diaryStories.contained &&
           metrics.diaryStories.selected === 1 &&
           metrics.diaryStories.visiblePanels === 1,
-        `${spec.name}: diary story rail clips or exposes the wrong state (${JSON.stringify(metrics.diaryStories)})`,
+        `${spec.name}: diary archive clips or exposes the wrong story (${JSON.stringify(metrics.diaryStories)})`,
       );
     }
     if (spec.expectDiaryMedia) {
@@ -671,7 +677,7 @@ const specs = [
     path: "/?gate=ru-390-light-diary-heading#diary",
     locale: "ru",
     theme: "light",
-    target: ".diary__heading",
+    target: ".diary-story:not([hidden]) .diary-story__heading",
     viewport: { width: 390, height: 844 },
   },
   {
@@ -815,7 +821,7 @@ const specs = [
     path: "/?gate=ru-390-light-diary#diary",
     locale: "ru",
     theme: "light",
-    target: ".diary-stories__rail",
+    target: ".diary-archive",
     expectDiaryStories: true,
     viewport: { width: 390, height: 844 },
   },
@@ -892,7 +898,7 @@ const specs = [
     path: "/?gate=ru-320-light-diary#diary",
     locale: "ru",
     theme: "light",
-    target: ".diary-stories__rail",
+    target: ".diary-archive",
     expectDiaryStories: true,
     viewport: { width: 320, height: 844 },
   },
@@ -925,7 +931,7 @@ const specs = [
     path: "/en/?gate=en-320-light-diary#diary",
     locale: "en",
     theme: "light",
-    target: ".diary-stories__rail",
+    target: ".diary-archive",
     expectDiaryStories: true,
     viewport: { width: 320, height: 844 },
   },
@@ -967,7 +973,7 @@ const targetCaptureScopes = new Map([
   [".bike-calendar__sequence", "fragment"],
   [".bike-calendar__details", "fragment"],
   [".bike-calendar__current", "fragment"],
-  [".diary__heading", "fragment"],
+  [".diary-story:not([hidden]) .diary-story__heading", "fragment"],
   [".manifesto__copy", "fragment"],
   [".bike-calendar__segments", "fragment"],
   [".bike-calendar__total", "fragment"],
@@ -976,7 +982,7 @@ const targetCaptureScopes = new Map([
   [".partners__closing", "fragment"],
   [".proof-source", "fragment"],
   [".partner-formats__list", "fragment"],
-  [".diary-stories__rail", "fragment"],
+  [".diary-archive", "fragment"],
   [".diary-stories", "section"],
   [".diary-story:not([hidden])", "fragment"],
   [".diary-story:not([hidden]) .diary__gallery", "fragment"],

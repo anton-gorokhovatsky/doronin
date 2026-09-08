@@ -1278,35 +1278,19 @@ function renderDiaryText(text, className) {
     .join("");
 }
 
-function renderDiaryTabs(entries) {
+function renderDiaryLinks(entries) {
   return entries
-    .map(
-      (entry, index) => `
+    .map((entry) => `
         <a
-          class="diary-stories__tab"
-          id="diary-tab-${entry.date}"
+          class="diary-archive__link"
           href="#diary-entry-${entry.date}"
-          role="tab"
-          aria-controls="diary-entry-${entry.date}"
-          aria-selected="${index === 0 ? "true" : "false"}"
-          data-diary-story-tab
-          draggable="false"
+          data-diary-story-link
+          data-analytics-goal="diary_explore"
         >
-          <span class="diary-stories__index">${entry.index}</span>
-          <span class="diary-stories__thumb" aria-hidden="true">
-            <img
-              src="${entry.image}"
-              alt=""
-              width="${entry.mediaWidth ?? 720}"
-              height="${entry.mediaHeight ?? 1280}"
-              loading="lazy"
-              decoding="async"
-            >
-          </span>
           <time datetime="${entry.date}">${entry.dateLabel}</time>
-          <strong>${entry.tabLabel}</strong>
-        </a>`,
-    )
+          <span>${entry.tabLabel.replaceAll("\n", " ")}</span>
+          ${icons.up}
+        </a>`)
     .join("");
 }
 
@@ -1489,14 +1473,16 @@ function renderDiaryEntries(entries, l) {
         <article
           class="diary-story"
           id="diary-entry-${entry.date}"
-          role="tabpanel"
-          aria-labelledby="diary-tab-${entry.date}"
-          tabindex="0"
+          aria-labelledby="diary-entry-title-${entry.date}"
+          tabindex="-1"
           data-diary-story-panel
         >
+          <header class="diary-story__heading">
+            <time class="diary-story__date" datetime="${entry.date}">${entry.fullDateLabel}</time>
+            <h3 id="diary-entry-title-${entry.date}" data-optical-start data-optical-scope="first-line">${entry.title}</h3>
+          </header>
           ${renderDiaryGallery(entry, index, l)}
           <div class="diary__copy">
-            <h3 data-optical-start data-optical-scope="first-line">${entry.title}</h3>
             ${entry.lead ? renderDiaryText(entry.lead, "diary__lead") : ""}
             ${entry.facts.length ? `<div class="diary__facts">
               ${renderMetrics(entry.facts, "diary__fact")}
@@ -2197,11 +2183,7 @@ function renderPage(l) {
     </section>
 
     <section class="diary section section--light" id="diary" aria-labelledby="diary-title">
-      <div
-        class="diary-live"
-        data-diary-live
-        data-campaign-start="2026-03-10T00:00:00+03:00"
-      >
+      <header class="diary-live" data-diary-live>
         <div class="diary-live__copy">
           <h2
             id="diary-title"
@@ -2210,110 +2192,25 @@ function renderPage(l) {
             data-active="${escapeAttribute(l.diary.liveTitleActive)}"
             data-finished="${escapeAttribute(l.diary.liveTitleFinished)}"
           >${l.diary.liveTitleBefore}</h2>
-          <p
-            class="diary-live__body"
-            data-phase-copy
-            data-before="${escapeAttribute(l.diary.liveBodyBefore)}"
-            data-active="${escapeAttribute(l.diary.liveBodyActive)}"
-            data-finished="${escapeAttribute(l.diary.liveBodyFinished)}"
-          >${l.diary.liveBodyBefore}</p>
-          <div class="diary-live__actions">
-            <a
-              class="text-link text-link--dark diary-live__latest"
-              href="#diary-entry-${l.diary.latest.date}"
-              data-diary-latest
-              data-analytics-goal="diary_explore"
-            ><span class="text-link__label">${l.diary.latestLabel} · <time datetime="${l.diary.latest.date}">${l.diary.latest.dateLabel}</time></span>${icons.down}</a>
-            <a
-              class="text-link text-link--dark diary-live__follow"
-              href="${shared.viktorTelegramHref}"
-              data-analytics-goal="diary_follow"
-              target="_blank"
-              rel="noopener noreferrer"
-            ><span class="text-link__label">${l.diary.telegramCta}</span>${icons.external}</a>
-          </div>
         </div>
-        <div class="diary-live__timeline" aria-hidden="true">
-          <span><i></i></span>
-          <div>
-            <b
-              data-phase-copy
-              data-before="${escapeAttribute(l.diary.timelineArchiveStart)}"
-              data-active="${escapeAttribute(l.diary.timelineStart)}"
-              data-finished="${escapeAttribute(l.diary.timelineStart)}"
-            >${l.diary.timelineArchiveStart}</b>
-            <b
-              class="diary-live__timeline-now"
-              data-timeline-now
-              hidden
-              data-before="${escapeAttribute(l.diary.timelineNow)}"
-            >${l.diary.timelineNow}</b>
-            <b
-              data-phase-copy
-              data-before="${escapeAttribute(l.diary.timelineStart)}"
-              data-active="${escapeAttribute(l.diary.timelineFinish)}"
-              data-finished="${escapeAttribute(l.diary.timelineFinish)}"
-            >${l.diary.timelineStart}</b>
-          </div>
-        </div>
-      </div>
-      <div class="diary__heading" id="diary-archive">
-        <p class="diary__eyebrow">${l.diary.archiveLabel}</p>
-        <span class="diary__range">
-          <span class="diary__range-count">${l.diary.rangeCount}</span>
-          <span class="diary__range-period">
-            <span class="diary__range-dot" aria-hidden="true">·\u00a0</span>
-            <span class="diary__range-start">${l.diary.rangeStart}</span>
-            <span class="diary__range-dash">\u00a0—\u00a0</span>
-            <span class="diary__range-end">${l.diary.rangeEnd}</span>
-          </span>
-        </span>
-      </div>
+        <a
+          class="text-link text-link--dark diary-live__follow"
+          href="${shared.viktorTelegramHref}"
+          data-analytics-goal="diary_follow"
+          target="_blank"
+          rel="noopener noreferrer"
+        ><span class="text-link__label">${l.diary.telegramCta}</span>${icons.external}</a>
+      </header>
       <div class="diary-stories" data-diary-stories>
-        <div class="diary-stories__navigation">
-          <span class="diary-stories__position" aria-hidden="true">
-            <strong data-diary-story-position-current>01</strong>
-            <span>/</span>
-            <span>${String(l.diary.entries.length).padStart(2, "0")}</span>
-          </span>
-          <span
-            class="sr-only"
-            aria-live="polite"
-            data-diary-story-position
-            data-diary-story-position-template="${escapeAttribute(l.diary.storyPositionTemplate)}"
-          >${l.diary.storyPositionTemplate
-            .replace("{current}", "1")
-            .replace("{total}", String(l.diary.entries.length))}</span>
-          <div class="diary-stories__controls" role="group" aria-label="${l.diary.storiesLabel}">
-            <button
-              type="button"
-              aria-label="${l.diary.storyNewerLabel}"
-              data-diary-story-newer
-              disabled
-            >${icons.newer}</button>
-            <button
-              type="button"
-              aria-label="${l.diary.storyEarlierLabel}"
-              data-diary-story-earlier
-            >${icons.earlier}</button>
-          </div>
-        </div>
-        <div
-          class="diary-stories__rail"
-          role="tablist"
-          aria-label="${l.diary.storiesLabel}"
-          data-diary-story-tabs
-        >
-          ${renderDiaryTabs(
-            l.diary.entries.map((entry) => ({
-              ...entry,
-              image: `${l.assetBase}assets/${entry.image}`,
-            })),
-          )}
-        </div>
         <div class="diary-stories__panels">
           ${renderDiaryEntries(l.diary.entries, l)}
         </div>
+        <details class="diary-archive" id="diary-archive">
+          <summary><span>${l.diary.archiveLabel}</span>${icons.disclosure}</summary>
+          <nav class="diary-archive__links" aria-label="${l.diary.storiesLabel}">
+            ${renderDiaryLinks(l.diary.entries)}
+          </nav>
+        </details>
       </div>
       <ol class="project-phases" aria-label="${l.diary.phasesLabel}">
         ${renderProjectPhases(l.diary)}

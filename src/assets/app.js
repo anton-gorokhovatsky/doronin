@@ -1136,33 +1136,6 @@ if (eventStatus) {
     update.hidden = false;
   }
 
-  const diaryLive = document.querySelector("[data-diary-live]");
-
-  if (diaryLive) {
-    const campaignStart = new Date(diaryLive.dataset.campaignStart);
-    const campaignDuration = Math.max(day, start - campaignStart);
-    const projectDuration = Math.max(day, end - start);
-    const diaryProgress =
-      projectPhase === "before"
-        ? Math.max(0, Math.min(campaignDuration, now - campaignStart)) /
-          campaignDuration
-        : projectPhase === "active"
-          ? Math.max(0, Math.min(projectDuration, now - start)) / projectDuration
-          : 1;
-    diaryLive.style.setProperty(
-      "--diary-progress",
-      String(diaryProgress),
-    );
-    diaryLive.classList.add("is-timeline-ready");
-
-    const timelineNow = diaryLive.querySelector("[data-timeline-now]");
-    if (timelineNow) {
-      timelineNow.hidden = projectPhase !== "before";
-      timelineNow.textContent =
-        timelineNow.dataset.before || timelineNow.textContent;
-    }
-  }
-
   const partnerCountdown = document.querySelector("[data-partner-countdown]");
 
   if (partnerCountdown) {
@@ -1378,213 +1351,60 @@ for (const analyticsTarget of document.querySelectorAll(
 const diaryStories = document.querySelector("[data-diary-stories]");
 
 if (diaryStories) {
-  const diaryStoryTabs = [
-    ...diaryStories.querySelectorAll("[data-diary-story-tab]"),
-  ];
-  const diaryStoryPanels = [
-    ...diaryStories.querySelectorAll("[data-diary-story-panel]"),
-  ];
-  const diaryStoryRail = diaryStories.querySelector("[data-diary-story-tabs]");
-  const diaryStoryNewer = diaryStories.querySelector("[data-diary-story-newer]");
-  const diaryStoryEarlier = diaryStories.querySelector(
-    "[data-diary-story-earlier]",
-  );
-  const diaryStoryPositionCurrent = diaryStories.querySelector(
-    "[data-diary-story-position-current]",
-  );
-  const diaryStoryPosition = diaryStories.querySelector(
-    "[data-diary-story-position]",
-  );
-  const diaryStoryPositionTemplate =
-    diaryStoryPosition?.dataset.diaryStoryPositionTemplate || "";
-  const diaryStoryMotionTimers = new WeakMap();
-  let activeDiaryIndex = Math.max(
-    0,
-    diaryStoryTabs.findIndex(
-      (tab) => tab.getAttribute("aria-selected") === "true",
-    ),
-  );
-  let diaryStoriesVisible = false;
+  const diaryLinks = [...diaryStories.querySelectorAll("[data-diary-story-link]")];
+  const diaryPanels = [...diaryStories.querySelectorAll("[data-diary-story-panel]")];
+  const diaryArchive = diaryStories.querySelector(".diary-archive");
 
-  const revealDiaryStoryTab = (tab) => {
-    if (!diaryStoryRail || !tab) return;
+  const showDiaryEntry = (id, { navigate = false } = {}) => {
+    const selected = diaryPanels.find((panel) => panel.id === id);
+    if (!selected) return;
 
-    const tabStart = tab.offsetLeft;
-    const tabEnd = tabStart + tab.offsetWidth;
-    const visibleStart = diaryStoryRail.scrollLeft;
-    const visibleEnd = visibleStart + diaryStoryRail.clientWidth;
-
-    if (tabStart < visibleStart) {
-      diaryStoryRail.scrollTo({ left: tabStart });
-    } else if (tabEnd > visibleEnd) {
-      diaryStoryRail.scrollTo({
-        left: Math.max(0, tabEnd - diaryStoryRail.clientWidth),
-      });
-    }
-  };
-
-  const syncDiaryStoryNavigation = (index) => {
-    const current = index + 1;
-    const total = diaryStoryTabs.length;
-
-    if (diaryStoryPositionCurrent) {
-      diaryStoryPositionCurrent.textContent = String(current).padStart(2, "0");
-    }
-    if (diaryStoryPosition) {
-      diaryStoryPosition.textContent = diaryStoryPositionTemplate
-        .replace("{current}", String(current))
-        .replace("{total}", String(total));
-    }
-    if (diaryStoryNewer) diaryStoryNewer.disabled = index <= 0;
-    if (diaryStoryEarlier) {
-      diaryStoryEarlier.disabled = index >= diaryStoryTabs.length - 1;
-    }
-  };
-
-  const activateDiaryStory = (
-    tab,
-    { focus = false, reveal = false, animate = diaryStoriesVisible } = {},
-  ) => {
-    const panelId = tab?.getAttribute("aria-controls");
-    if (!panelId) return;
-
-    const nextDiaryIndex = diaryStoryTabs.indexOf(tab);
-    const diaryDirection = nextDiaryIndex >= activeDiaryIndex ? 1 : -1;
-
-    for (const storyTab of diaryStoryTabs) {
-      const isActive = storyTab === tab;
-      storyTab.setAttribute("aria-selected", String(isActive));
-      storyTab.tabIndex = isActive ? 0 : -1;
-    }
-
-    for (const panel of diaryStoryPanels) {
-      const isActive = panel.id === panelId;
-      const previousTimer = diaryStoryMotionTimers.get(panel);
-
-      if (previousTimer) {
-        window.clearTimeout(previousTimer);
-        diaryStoryMotionTimers.delete(panel);
-      }
-
-      panel.classList.remove("is-diary-entering");
-      panel.classList.remove(
-        "is-diary-entering--forward",
-        "is-diary-entering--backward",
-      );
-      panel.hidden = !isActive;
-
-      if (!isActive) {
-        for (const video of panel.querySelectorAll("video")) {
-          video.pause();
-        }
-      } else if (animate && !reducedMotion.matches) {
-        panel.classList.add(
-          diaryDirection >= 0
-            ? "is-diary-entering--forward"
-            : "is-diary-entering--backward",
-        );
-        void panel.offsetWidth;
-        panel.classList.add("is-diary-entering");
-
-        const timer = window.setTimeout(() => {
-          panel.classList.remove(
-            "is-diary-entering",
-            "is-diary-entering--forward",
-            "is-diary-entering--backward",
-          );
-          diaryStoryMotionTimers.delete(panel);
-        }, 920);
-        diaryStoryMotionTimers.set(panel, timer);
+    for (const panel of diaryPanels) {
+      panel.hidden = panel !== selected;
+      if (panel.hidden) {
+        for (const video of panel.querySelectorAll("video")) video.pause();
       }
     }
+    for (const link of diaryLinks) link.hidden = link.hash === `#${id}`;
 
-    activeDiaryIndex = nextDiaryIndex;
-    syncDiaryStoryNavigation(activeDiaryIndex);
-
-    if (reveal) {
-      revealDiaryStoryTab(tab);
+    if (navigate) {
+      diaryArchive.open = false;
+      selected.focus({ preventScroll: true });
+      selected.scrollIntoView({
+        block: "start",
+        behavior: reducedMotion.matches ? "instant" : "smooth",
+      });
     }
-    if (focus) tab.focus();
   };
 
-  if (diaryStoryTabs.length && diaryStoryPanels.length) {
-    for (const [index, tab] of diaryStoryTabs.entries()) {
-      tab.addEventListener("click", (event) => {
-        event.preventDefault();
-        activateDiaryStory(tab, { reveal: true });
-        history.replaceState(null, "", tab.hash);
-      });
-
-      tab.addEventListener("keydown", (event) => {
-        let nextIndex = null;
-
-        if (event.key === "ArrowRight") nextIndex = index + 1;
-        if (event.key === "ArrowLeft") nextIndex = index - 1;
-        if (event.key === "Home") nextIndex = 0;
-        if (event.key === "End") nextIndex = diaryStoryTabs.length - 1;
-        if (nextIndex === null) return;
-
-        event.preventDefault();
-        const nextTab = diaryStoryTabs.at(
-          (nextIndex + diaryStoryTabs.length) % diaryStoryTabs.length,
-        );
-        activateDiaryStory(nextTab, { focus: true, reveal: true });
-        history.replaceState(null, "", nextTab.hash);
-      });
-    }
-
-    diaryStoryNewer?.addEventListener("click", () => {
-      const nextTab = diaryStoryTabs[activeDiaryIndex - 1];
-      if (!nextTab) return;
-
-      activateDiaryStory(nextTab, { reveal: true });
-      history.replaceState(null, "", nextTab.hash);
+  for (const link of diaryLinks) {
+    link.addEventListener("click", (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      history.pushState(null, "", link.hash);
+      showDiaryEntry(link.hash.slice(1), { navigate: true });
     });
-
-    diaryStoryEarlier?.addEventListener("click", () => {
-      const nextTab = diaryStoryTabs[activeDiaryIndex + 1];
-      if (!nextTab) return;
-
-      activateDiaryStory(nextTab, { reveal: true });
-      history.replaceState(null, "", nextTab.hash);
-    });
-
-    document.querySelector("[data-diary-latest]")?.addEventListener("click", () => {
-      activateDiaryStory(diaryStoryTabs[0], { reveal: true, animate: false });
-    });
-
-    const hashTab = diaryStoryTabs.find(
-      (tab) => tab.hash === window.location.hash,
-    );
-    const initialTab =
-      hashTab ||
-      diaryStoryTabs.find((tab) => tab.getAttribute("aria-selected") === "true") ||
-      diaryStoryTabs[0];
-
-    activateDiaryStory(initialTab, {
-      reveal: Boolean(hashTab),
-      animate: false,
-    });
-    diaryStories.classList.add("has-diary-stories");
-
-    if ("IntersectionObserver" in window) {
-      const diaryStoriesObserver = new IntersectionObserver(
-        ([entry]) => {
-          if (!entry.isIntersecting) {
-            return;
-          }
-
-          diaryStoriesVisible = true;
-          diaryStoriesObserver.disconnect();
-        },
-        { threshold: 0.2 },
-      );
-
-      diaryStoriesObserver.observe(diaryStories);
-    } else {
-      diaryStoriesVisible = true;
-    }
   }
+
+  for (const link of document.querySelectorAll('a[href="#diary"]')) {
+    link.addEventListener("click", (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      showDiaryEntry(diaryPanels[0]?.id);
+    });
+  }
+
+  const revealDiaryHash = (navigate) => {
+    const id = window.location.hash.slice(1);
+    const target = diaryPanels.find((panel) => panel.id === id);
+    if (target) showDiaryEntry(target.id, { navigate });
+    else if (!id || id === "diary" || id === "top") showDiaryEntry(diaryPanels[0]?.id);
+    if (id === "diary-archive") diaryArchive.open = true;
+  };
+
+  showDiaryEntry(diaryPanels[0]?.id);
+  revealDiaryHash(false);
+  diaryStories.classList.add("has-diary-stories");
+  window.addEventListener("hashchange", () => revealDiaryHash(true));
 }
 
 const diaryMediaGalleries = [
