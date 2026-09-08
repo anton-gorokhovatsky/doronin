@@ -449,7 +449,8 @@ for (const [lang, path] of pages) {
   expect(
     html.includes('id="diary"') &&
       html.includes('class="diary-live"') &&
-      html.includes("data-diary-countdown") &&
+      !html.includes("data-diary-countdown") &&
+      html.includes("data-diary-latest") &&
       html.includes('data-analytics-goal="diary_follow"') &&
       html.includes('class="diary__heading" id="diary-archive"') &&
       html.includes('class="diary-stories" data-diary-stories') &&
@@ -835,9 +836,6 @@ expect(
     app.includes('document.querySelectorAll("[data-optical-start]")') &&
     css.includes("--micra-leading-one-shift") &&
     /\.event-status__value\s*\{[^}]*--optical-start-shift:\s*var\(--micra-leading-glyph-shift\)/s.test(
-      css,
-    ) &&
-    /\.diary-live__count strong\s*\{[^}]*--optical-start-shift:\s*var\(--micra-leading-glyph-shift\)/s.test(
       css,
     ),
   "typography: крупные числа должны подключать единую оптическую компенсацию начальной единицы",

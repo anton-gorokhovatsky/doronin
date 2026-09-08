@@ -35,10 +35,10 @@ export async function checkEditorialFallback(browser, origin, testCase) {
     const date = page.locator("[data-footer-countdown] time");
     assert.equal(await date.getAttribute("datetime"), period.startDate);
     assert((await date.innerText()).includes(period.startDate.slice(0, 4)));
-    assert.equal(await page.locator("[data-diary-countdown]").innerText(),
-      String(new Date(`${period.startDate}T12:00:00Z`).getUTCDate()));
-    assert((await page.locator("[data-diary-countdown-label]").innerText())
-      .includes(period.startDate.slice(0, 4)));
+    assert.equal(await page.locator("[data-diary-countdown]").count(), 0);
+    assert(await page.locator("#diary-title").isVisible());
+    assert.match(await page.locator("[data-diary-latest]").getAttribute("href"),
+      /^#diary-entry-\d{4}-\d{2}-\d{2}$/u);
     assert.equal(await page.locator("[data-timeline-now]").isVisible(), false);
     assert.equal(await page.locator(".diary-live__timeline > span").evaluate(
       (track) => getComputedStyle(track, "::before").display,

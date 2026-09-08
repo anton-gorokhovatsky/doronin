@@ -1137,10 +1137,6 @@ if (eventStatus) {
   }
 
   const diaryLive = document.querySelector("[data-diary-live]");
-  const diaryCountdown = diaryLive?.querySelector("[data-diary-countdown]");
-  const diaryCountdownLabel = diaryLive?.querySelector(
-    "[data-diary-countdown-label]",
-  );
 
   if (diaryLive) {
     const campaignStart = new Date(diaryLive.dataset.campaignStart);
@@ -1165,18 +1161,6 @@ if (eventStatus) {
       timelineNow.textContent =
         timelineNow.dataset.before || timelineNow.textContent;
     }
-  }
-
-  if (diaryCountdown) {
-    diaryCountdown.textContent = value.textContent;
-    syncOpticalStart(diaryCountdown);
-  }
-
-  if (diaryCountdownLabel) {
-    diaryCountdownLabel.textContent =
-      projectPhase === "finished"
-        ? diaryLive.dataset.finishedCountLabel
-        : label.textContent;
   }
 
   const partnerCountdown = document.querySelector("[data-partner-countdown]");

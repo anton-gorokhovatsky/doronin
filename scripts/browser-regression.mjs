@@ -1218,14 +1218,14 @@ async function auditPage(browser, browserName, origin, testCase) {
     );
     const diaryLiveState = await page.locator("[data-diary-live]").evaluate(
       (element) => {
-        const count = element.querySelector("[data-diary-countdown]");
-        const label = element.querySelector("[data-diary-countdown-label]");
+        const title = element.querySelector("#diary-title");
+        const body = element.querySelector(".diary-live__body");
         const primary = element.querySelector(
           '[data-analytics-goal="diary_follow"]',
         );
         const archive = element.querySelector('[data-diary-latest]');
         const bounds = element.getBoundingClientRect();
-        const nodeBounds = [count, label, primary, archive].map((node) => {
+        const nodeBounds = [title, body, primary, archive].map((node) => {
           const box = node?.getBoundingClientRect();
           return box
             ? {
@@ -1237,8 +1237,9 @@ async function auditPage(browser, browserName, origin, testCase) {
             : null;
         });
         return {
-          count: count?.textContent.trim(),
-          label: label?.textContent.trim(),
+          title: title?.textContent.trim(),
+          body: body?.textContent.trim(),
+          repeatsCountdown: Boolean(element.querySelector("[data-diary-countdown]")),
           progress: Number.parseFloat(
             getComputedStyle(element).getPropertyValue("--diary-progress"),
           ),
@@ -1250,7 +1251,7 @@ async function auditPage(browser, browserName, origin, testCase) {
             bottom: bounds.bottom,
           },
           nodeBounds,
-          contentInBounds: [label, primary, archive].every((node) => {
+          contentInBounds: [title, body, primary, archive].every((node) => {
             const box = node?.getBoundingClientRect();
             return (
               box &&
@@ -1260,30 +1261,17 @@ async function auditPage(browser, browserName, origin, testCase) {
               box.bottom <= bounds.bottom + 1
             );
           }),
-          countWithinOpticalAllowance: (() => {
-            const box = count?.getBoundingClientRect();
-            const shift = Math.abs(
-              Number.parseFloat(getComputedStyle(count).translate) || 0,
-            );
-            return Boolean(
-              box &&
-                box.left >= bounds.left - shift - 1 &&
-                box.right <= bounds.right + 1 &&
-                box.top >= bounds.top - 1 &&
-                box.bottom <= bounds.bottom + 1,
-            );
-          })(),
         };
       },
     );
     expect(
-      /^\d{1,3}(?:\/31)?$/u.test(diaryLiveState.count) &&
-        diaryLiveState.label.length > 0 &&
+      diaryLiveState.title.length > 0 &&
+        diaryLiveState.body.length > 0 &&
+        !diaryLiveState.repeatsCountdown &&
         diaryLiveState.progress >= 0 &&
         diaryLiveState.progress <= 1 &&
         diaryLiveState.actionsPresent &&
-        diaryLiveState.contentInBounds &&
-        diaryLiveState.countWithinOpticalAllowance,
+        diaryLiveState.contentInBounds,
       `${prefix}: live diary contract regressed (${JSON.stringify(diaryLiveState)})`,
     );
     const readDiaryState = () =>

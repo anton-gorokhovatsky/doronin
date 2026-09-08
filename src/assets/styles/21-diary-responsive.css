@@ -47,7 +47,6 @@
 
   .diary__heading,
   .diary-live,
-  .diary-live__count,
   .diary-live__copy,
   .diary-live__timeline,
   .diary-stories,
@@ -60,21 +59,6 @@
     grid-template-columns: minmax(0, 1fr);
     gap: 1.25rem;
     padding-top: 0;
-  }
-
-  .diary-live__count {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.65rem 1rem;
-  }
-
-  .diary-live__count strong {
-    font-size: var(--type-number-context);
-  }
-
-  .diary-live__count span {
-    max-width: 22ch;
   }
 
   .diary-live__copy h2 {

@@ -2201,12 +2201,7 @@ function renderPage(l) {
         class="diary-live"
         data-diary-live
         data-campaign-start="2026-03-10T00:00:00+03:00"
-        data-finished-count-label="${escapeAttribute(l.diary.liveFinishedCountLabel)}"
       >
-        <div class="diary-live__count" aria-live="polite" aria-atomic="true">
-          <strong data-diary-countdown data-optical-start>${startDay}</strong>
-          <span data-diary-countdown-label>${startMonthYear} · ${l.diary.startLabel}</span>
-        </div>
         <div class="diary-live__copy">
           <h2
             id="diary-title"

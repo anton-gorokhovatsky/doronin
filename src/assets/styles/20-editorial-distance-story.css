@@ -227,30 +227,6 @@
   padding: 0;
 }
 
-.diary-live__count {
-  grid-column: 1 / span 3;
-  align-self: start;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.8rem;
-  min-width: 0;
-}
-
-.diary-live__count strong {
-  --optical-start-shift: var(--micra-leading-glyph-shift);
-  display: block;
-  max-width: 100%;
-  color: var(--text-editorial);
-  font-family: var(--display);
-  font-size: var(--type-number-event);
-  font-variant-numeric: lining-nums tabular-nums;
-  letter-spacing: -0.035em;
-  line-height: 0.78;
-  white-space: nowrap;
-}
-
-.diary-live__count span,
 .diary-live__timeline b {
   color: var(--text-editorial-muted);
   font-size: var(--type-service-strong);
@@ -260,14 +236,8 @@
   text-transform: uppercase;
 }
 
-.diary-live__count span {
-  max-width: 18ch;
-  padding-left: 0.15rem;
-  color: var(--text-editorial);
-}
-
 .diary-live__copy {
-  grid-column: 4 / -1;
+  grid-column: 1 / -1;
   align-self: start;
 }
 
