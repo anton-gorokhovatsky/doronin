@@ -66,9 +66,6 @@ async function capture(browser, origin, spec) {
     } else if (Number.isInteger(spec.diaryStory)) {
       await selectDiaryEntry(page, spec.diaryStory);
     }
-    if (spec.target === ".diary-archive") {
-      await page.locator(".diary-archive > summary").click();
-    }
     if (Number.isInteger(spec.diaryMedia)) {
       await page
         .locator(".diary-story:not([hidden]) [data-diary-media-tab]")

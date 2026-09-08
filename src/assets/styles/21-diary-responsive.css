@@ -1,4 +1,8 @@
 @media (max-width: 960px) {
+  .diary-archive__links {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .diary__gallery {
     grid-column: 1 / span 5;
   }
@@ -72,22 +76,7 @@
   }
 
   .diary-archive__link {
-    grid-template-columns: minmax(0, 1fr) auto;
-    padding-inline: 0.5rem;
-  }
-
-  .diary-archive__link time {
-    grid-column: 1;
-  }
-
-  .diary-archive__link > span {
-    grid-column: 1;
-  }
-
-  .diary-archive__link > .icon {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    align-self: center;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .diary__media {

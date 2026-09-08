@@ -1353,7 +1353,6 @@ const diaryStories = document.querySelector("[data-diary-stories]");
 if (diaryStories) {
   const diaryLinks = [...diaryStories.querySelectorAll("[data-diary-story-link]")];
   const diaryPanels = [...diaryStories.querySelectorAll("[data-diary-story-panel]")];
-  const diaryArchive = diaryStories.querySelector(".diary-archive");
 
   const showDiaryEntry = (id, { navigate = false } = {}) => {
     const selected = diaryPanels.find((panel) => panel.id === id);
@@ -1368,7 +1367,6 @@ if (diaryStories) {
     for (const link of diaryLinks) link.hidden = link.hash === `#${id}`;
 
     if (navigate) {
-      diaryArchive.open = false;
       selected.focus({ preventScroll: true });
       selected.scrollIntoView({
         block: "start",
@@ -1398,7 +1396,6 @@ if (diaryStories) {
     const target = diaryPanels.find((panel) => panel.id === id);
     if (target) showDiaryEntry(target.id, { navigate });
     else if (!id || id === "diary" || id === "top") showDiaryEntry(diaryPanels[0]?.id);
-    if (id === "diary-archive") diaryArchive.open = true;
   };
 
   showDiaryEntry(diaryPanels[0]?.id);

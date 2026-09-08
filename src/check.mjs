@@ -445,7 +445,8 @@ for (const [lang, path] of pages) {
       !html.includes("data-diary-countdown") &&
       !html.includes("data-diary-latest") &&
       html.includes('data-analytics-goal="diary_follow"') &&
-      html.includes('class="diary-archive" id="diary-archive"') &&
+      html.includes('<nav class="diary-archive" id="diary-archive" aria-labelledby="diary-archive-title">') &&
+      html.includes('<h3 class="diary-archive__title" id="diary-archive-title">') &&
       html.includes('class="diary-stories" data-diary-stories') &&
       diary.entries.every(
         (entry) =>

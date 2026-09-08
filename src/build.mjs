@@ -1280,7 +1280,10 @@ function renderDiaryText(text, className) {
 
 function renderDiaryLinks(entries) {
   return entries
-    .map((entry) => `
+    .map((entry) => {
+      const title = entry.tabLabel.replaceAll("\n", " ");
+      const lastAtomStart = title.search(/(?:\d+(?:[.,]\d+)?\s+)?\S+$/u);
+      return `
         <a
           class="diary-archive__link"
           href="#diary-entry-${entry.date}"
@@ -1288,9 +1291,9 @@ function renderDiaryLinks(entries) {
           data-analytics-goal="diary_explore"
         >
           <time datetime="${entry.date}">${entry.dateLabel}</time>
-          <span>${entry.tabLabel.replaceAll("\n", " ")}</span>
-          ${icons.up}
-        </a>`)
+          <span class="diary-archive__entry"><span class="diary-archive__name">${title.slice(0, lastAtomStart)}<span class="diary-archive__tail">${title.slice(lastAtomStart)}${icons.up}</span></span></span>
+        </a>`;
+    })
     .join("");
 }
 
@@ -2205,12 +2208,12 @@ function renderPage(l) {
         <div class="diary-stories__panels">
           ${renderDiaryEntries(l.diary.entries, l)}
         </div>
-        <details class="diary-archive" id="diary-archive">
-          <summary><span>${l.diary.archiveLabel}</span>${icons.disclosure}</summary>
-          <nav class="diary-archive__links" aria-label="${l.diary.storiesLabel}">
+        <nav class="diary-archive" id="diary-archive" aria-labelledby="diary-archive-title">
+          <h3 class="diary-archive__title" id="diary-archive-title">${l.diary.archiveLabel}</h3>
+          <div class="diary-archive__links">
             ${renderDiaryLinks(l.diary.entries)}
-          </nav>
-        </details>
+          </div>
+        </nav>
       </div>
       <ol class="project-phases" aria-label="${l.diary.phasesLabel}">
         ${renderProjectPhases(l.diary)}
