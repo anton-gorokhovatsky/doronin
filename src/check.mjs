@@ -236,8 +236,9 @@ for (const [lang, path] of pages) {
   const headerNavigation =
     html.match(/<nav class="site-nav"[\s\S]*?<\/nav>/u)?.[0] || "";
   const headerChapterTargets = [
-    "#about",
+    "#top",
     "#distance",
+    "#diary",
     "#viktor",
     "#proof",
     "#adventures",
@@ -245,14 +246,13 @@ for (const [lang, path] of pages) {
     "#partners",
   ];
   expect(
-    headerNavigation.includes('class="site-nav__diary"') &&
-      headerNavigation.includes('href="#diary"') &&
+    headerNavigation.includes('href="#diary"') &&
       (headerNavigation.match(/class="site-nav__link"/g) || []).length ===
         headerChapterTargets.length &&
       headerChapterTargets.every((target) =>
         headerNavigation.includes(`href="${target}"`),
       ),
-    `${lang}: меню должно содержать отдельный живой дневник и семь реальных глав страницы`,
+    `${lang}: меню должно содержать восемь реальных разделов страницы, включая дневник`,
   );
   const actionCopy =
     lang === "ru"
@@ -403,9 +403,9 @@ for (const [lang, path] of pages) {
   );
   expect(
     (html.match(/class="partner-format"/g) || []).length === 3 &&
-      (html.match(/class="partner-process__step"/g) || []).length === 3 &&
+      (html.match(/class="partners__process"/g) || []).length === 1 &&
       (html.match(/class="partner-proof__link"/g) || []).length === 1,
-    `${lang}: партнёрский сценарий должен содержать три формата, три шага и одну ссылку на доказательства`,
+    `${lang}: партнёрский сценарий должен содержать три формата, краткое пояснение у контакта и одну ссылку на доказательства`,
   );
   expect(
     html.includes('id="interviews"') &&
@@ -441,7 +441,7 @@ for (const [lang, path] of pages) {
   );
   expect(
     html.includes('id="diary"') &&
-      html.includes('class="diary-live"') &&
+      html.includes('class="diary-live section-heading"') &&
       !html.includes("data-diary-countdown") &&
       !html.includes("data-diary-latest") &&
       html.includes('data-analytics-goal="diary_follow"') &&
@@ -590,8 +590,8 @@ for (const [lang, path] of pages) {
     );
     expect(
       visibleText.includes("≈1,3 млн") &&
-        visibleText.includes("92,1 тыс.") &&
-        normalizedVisibleText.includes("Просмотры проверены 31 июля 2026"),
+        visibleText.includes("92,8 тыс.") &&
+        normalizedVisibleText.includes("Просмотры проверены 9 сентября 2026"),
       "ru: просмотры сериала и фильма должны быть актуальными и датированными",
     );
     expect(
@@ -601,7 +601,7 @@ for (const [lang, path] of pages) {
       "ru: названия партнёрских направлений должны оставаться короткими",
     );
     expect(
-      visibleText.includes("Дневник пути к старту") &&
+      headerNavigation.includes('href="#diary"') &&
         visibleText.includes("Дневник подготовки") &&
         !visibleText.includes(">Дневник подготовки Виктора<"),
       "ru: живой дневник и послетитровая ссылка должны вести к пути без повтора имени героя",
@@ -635,15 +635,15 @@ for (const [lang, path] of pages) {
       "en: названия партнёрских направлений должны оставаться короткими",
     );
     expect(
-      visibleText.includes("Road-to-start diary") &&
+      headerNavigation.includes('href="#diary"') &&
         visibleText.includes("Training diary") &&
         !html.includes(">Viktor’s training diary<"),
       "en: the live diary and after-credits route must express the journey without repeating Viktor’s name",
     );
     expect(
       visibleText.includes("≈1.3M") &&
-        visibleText.includes("92.1k") &&
-        normalizedVisibleText.includes("View counts checked July 31, 2026"),
+        visibleText.includes("92.8k") &&
+        normalizedVisibleText.includes("View counts checked September 9, 2026"),
       "en: series and film views must be current and dated",
     );
     expect(
@@ -882,10 +882,8 @@ expect(
     /\.bike-calendar__segment--finish\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/s.test(
       css,
     ) &&
-    /\.bike-calendar__details\s*\{[^}]*border-top:\s*1px solid var\(--line-dark\)[^}]*border-bottom:\s*1px solid var\(--line-dark\)/s.test(
-      css,
-    ) &&
-    /\.bike-calendar__details-body\s*\{[^}]*display:\s*grid[^}]*border-top:\s*1px solid var\(--line-dark\)/s.test(
+    /\.bike-calendar__details\s*>\s*summary\s*\{[^}]*background:\s*var\(--text-editorial\)[^}]*color:\s*var\(--surface-editorial\)/s.test(css) &&
+    /\.bike-calendar__details-body\s*\{[^}]*display:\s*grid/s.test(
       css,
     ) &&
     /@media \(max-width:\s*820px\)[\s\S]*?\.bike-calendar__sequence\s*\{[^}]*grid-template-columns:\s*1fr[^}]*width:\s*100%[^}]*min-width:\s*0/s.test(
@@ -911,7 +909,7 @@ expect(
     /:root\.text-enlarged \.site-footer__nav\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)[^}]*grid-template-rows:\s*none[^}]*grid-auto-flow:\s*row/s.test(
       sourceStyleBundle,
     ),
-  "css: навигация футера должна читаться 01–04 и 05–07 по колонкам, а при 200% — линейно",
+  "css: навигация футера должна читаться 01–04 и 05–08 по колонкам, а при 200% — линейно",
 );
 expect(
   css.includes(".site-footer__cta:hover") &&
@@ -928,7 +926,7 @@ expect(
     css.includes(".diary-archive__link") &&
     css.includes(".proof-sources__grid") &&
     css.includes(".interview-card--index .interview-card__media") &&
-    css.includes(".partner-process__list") &&
+    css.includes(".partners__process") &&
     css.includes("overscroll-behavior-x: contain") &&
     css.includes("scroll-snap-stop: always") &&
     css.includes("touch-action: pan-x") &&
@@ -989,7 +987,7 @@ expect(
     generatedHtml.includes("audio-scene-05.m4a") &&
     !generatedHtml.includes("audio-scene-02.m4a") &&
     !generatedHtml.includes("audio-scene-03.m4a") &&
-    /padding-top:\s*clamp\(/.test(
+    /padding-top:\s*var\(--section-space\)/.test(
       diaryRule,
     ) &&
     mobileNavLinkRules.some((rule) => /border:\s*0/.test(rule)) &&

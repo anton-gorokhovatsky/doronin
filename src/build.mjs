@@ -144,15 +144,16 @@ const locales = {
     menuClose: "Закрыть меню",
     navLiveKicker: "Сейчас",
     navLiveLabel: "Дневник",
-    navRouteKicker: "Маршрут · 07 глав",
+    navRouteKicker: "Разделы",
     navDiaryLabel: "Дневник пути к старту",
     navDiaryNote: "Оставшиеся дни, тренировки и решения Виктора",
     nav: [
-      ["#about", "Проект"],
+      ["#top", "Проект"],
       ["#distance", "Календарь"],
-      ["#viktor", "О герое"],
+      ["#diary", "Дневник"],
+      ["#viktor", "О Викторе"],
       ["#proof", "Фильм «1111»"],
-      ["#adventures", "Приключения"],
+      ["#adventures", "Испытания"],
       ["#interviews", "Интервью"],
       ["#partners", "Партнёрам"],
     ],
@@ -185,16 +186,16 @@ const locales = {
     },
     diary: createDiaryContent("ru"),
     manifesto: {
-      eyebrow: "Одна большая цель",
-      title: "Между вершинами — базовый ритм",
+      eyebrow: "Цель проекта",
+      title: "Показать, что человек может больше, чем думает",
       text:
-        "После каждого специального этапа Виктор возвращается к дневной дистанции проекта. Самые длинные этапы проходят как отдельные непрерывные заезды без деления на суточные части.",
+        "11 111 км — не авантюра, а новый масштаб уже работающей формулы: предельная дистанция, честный герой и история, за которой хочется следить до конца.",
     },
     distance: {
       eyebrow: "Декабрь 2026 · 31 день",
-      title: "Календарь с нарастающей нагрузкой",
+      title: "Каждый этап длиннее",
       intro:
-        "Разверните календарь, чтобы увидеть даты, дистанции и накопленный километраж каждого блока.",
+        "Между специальными этапами Виктор продолжает базовые дневные заезды. Три самых длинных этапа — отдельные непрерывные заезды без ночного сна и деления на суточные части.",
       totalLabel: "Общая дистанция",
       totalValue: "11 111",
       totalUnit: "км",
@@ -268,8 +269,8 @@ const locales = {
     viktor: {
       eyebrow: "О герое",
       title: "Виктор Доронин",
-      lead: "47 лет. Не создаёт образ — живёт в нём.",
-      body: `Идеолог сообществ <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">«Пыльные гантели»</a> и&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">«Гастродинамика»</a>, друг, мотиватор и&nbsp;спортсмен-любитель с опытом больших дистанций.`,
+      lead: "47 лет. Спортсмен-любитель с опытом больших дистанций.",
+      body: `Идеолог сообществ <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">«Пыльные гантели»</a> и&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">«Гастродинамика»</a>.`,
       imageAlt: "Виктор Доронин на дистанции в пустыне",
       achievements: [
         ["4×", "участник чемпионата мира WC Ironman Kona"],
@@ -277,7 +278,6 @@ const locales = {
         ["17 696 м", "двойной Everesting за один заезд"],
         ["58 часов", "ультратриатлон 1111 км без сна"],
       ],
-      quote: "История — не выдумка.<br>Это его жизнь.",
     },
     story: {
       label: "Тренировки, усилие и люди рядом",
@@ -354,7 +354,7 @@ const locales = {
       filmCta: "Смотреть фильм о проекте «1111»",
       externalLabel: "Откроется ВКонтакте в новой вкладке",
       sourcesTitle: "Факты и источники",
-      sourcesUpdated: "Просмотры проверены 31 июля 2026",
+      sourcesUpdated: "Просмотры проверены 9 сентября 2026",
       sourceLabel: "Источники",
       sources: [
         {
@@ -366,7 +366,7 @@ const locales = {
         {
           title: "≈1,3 млн просмотров",
           body:
-            "Пять серий — 233, 239, 231, 231 и 273 тыс.; фильм — 92,1 тыс. Суммарно — около 1,299 млн просмотров.",
+            "Пять серий — 233, 239, 231, 231 и 273 тыс.; фильм — 92,8 тыс. Сумма округлённых счётчиков VK Видео — около 1,3 млн просмотров.",
           links: [
             ["Серия 1", shared.serialHrefs[0]],
             ["Серия 2", shared.serialHrefs[1]],
@@ -502,21 +502,7 @@ const locales = {
           "Вместе фиксируем реальный ход проекта и превращаем его в последовательную медийную историю.",
         ],
       ],
-      processLabel: "Как начинается работа",
-      process: [
-        [
-          "Сверяем задачу",
-          "Определяем, что партнёр хочет изменить и где это честно встречается с проектом.",
-        ],
-        [
-          "Собираем роль",
-          "Фиксируем формат, ресурсы, контент и измеримый результат.",
-        ],
-        [
-          "Проходим путь",
-          "Ведём работу от первого решения до итогового результата.",
-        ],
-      ],
+      processText: "Обсудим задачу партнёра и согласуем формат участия, ресурсы, контент и критерии результата.",
       proofLabel: "Опыт уже подтверждён",
       proofCta: "Смотреть результаты прошлого проекта",
       cta: "Обсудить участие",
@@ -578,15 +564,16 @@ const locales = {
     menuClose: "Close menu",
     navLiveKicker: "Now",
     navLiveLabel: "Diary",
-    navRouteKicker: "Route · 07 chapters",
+    navRouteKicker: "Sections",
     navDiaryLabel: "Road-to-start diary",
     navDiaryNote: "The remaining days, Viktor’s training and decisions",
     nav: [
-      ["#about", "Project"],
+      ["#top", "Project"],
       ["#distance", "Calendar"],
-      ["#viktor", "Protagonist"],
+      ["#diary", "Diary"],
+      ["#viktor", "About Viktor"],
       ["#proof", "Film “1111”"],
-      ["#adventures", "Adventures"],
+      ["#adventures", "Challenges"],
       ["#interviews", "Interviews"],
       ["#partners", "Partners"],
     ],
@@ -618,16 +605,16 @@ const locales = {
     },
     diary: createDiaryContent("en"),
     manifesto: {
-      eyebrow: "One defining goal",
-      title: "A base rhythm between the peaks",
+      eyebrow: "Project goal",
+      title: "To show that a person can go further than they think",
       text:
-        "After every special stage, Viktor returns to the project’s daily distance. The longest stages are separate continuous rides, not divided into daily legs.",
+        "11,111 km is not a stunt. It is the next scale of a model that already works: an extreme distance, an honest protagonist, and a story worth following to the end.",
     },
     distance: {
       eyebrow: "December 2026 · 31 days",
-      title: "A calendar built to escalate",
+      title: "Each stage is longer",
       intro:
-        "Open the full calendar for each block’s dates, distance and running total.",
+        "Between special stages, Viktor continues his daily base rides. The three longest stages are separate continuous rides, without overnight sleep or division into daily legs.",
       totalLabel: "Total distance",
       totalValue: "11,111",
       totalUnit: "km",
@@ -699,8 +686,8 @@ const locales = {
     viktor: {
       eyebrow: "About Viktor",
       title: "Viktor Doronin",
-      lead: "47. He does not build an image&nbsp;—<br>he lives it.",
-      body: `A driving force behind the <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">Dusty Dumbbells</a> and&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">Gastrodinamika</a> communities, a friend, a motivator, and an amateur athlete experienced in extreme endurance.`,
+      lead: "47. An amateur athlete experienced in extreme endurance.",
+      body: `A driving force behind the <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">Dusty Dumbbells</a> and&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">Gastrodinamika</a> communities.`,
       imageAlt: "Viktor Doronin racing through the desert",
       achievements: [
         ["4×", "Ironman World Championship Kona participant"],
@@ -708,7 +695,6 @@ const locales = {
         ["17,696 m", "Double Everesting elevation gain in one ride"],
         ["58 hours", "1111 km ultra-triathlon without sleep"],
       ],
-      quote: "He does not sell a story.<br>He lives it.",
     },
     story: {
       label: "Training, effort and the people around him",
@@ -785,7 +771,7 @@ const locales = {
       filmCta: "Watch the film about Project “1111”",
       externalLabel: "Opens VK in a new tab",
       sourcesTitle: "Facts and sources",
-      sourcesUpdated: "View counts checked July 31, 2026",
+      sourcesUpdated: "View counts checked September 9, 2026",
       sourceLabel: "Sources",
       sources: [
         {
@@ -797,7 +783,7 @@ const locales = {
         {
           title: "≈1.3M views",
           body:
-            "The five episodes have 233k, 239k, 231k, 231k and 273k views; the film has 92.1k. Combined total: approximately 1.299M views.",
+            "The five episodes have 233k, 239k, 231k, 231k and 273k views; the film has 92.8k. VK Video’s rounded counters add up to approximately 1.3M views.",
           links: [
             ["Episode 1", shared.serialHrefs[0]],
             ["Episode 2", shared.serialHrefs[1]],
@@ -933,21 +919,7 @@ const locales = {
           "Together, we document the project as it unfolds and shape it into one coherent media story.",
         ],
       ],
-      processLabel: "How the work begins",
-      process: [
-        [
-          "Align the objective",
-          "Define what the partner wants to change and where that meets the project honestly.",
-        ],
-        [
-          "Build the role",
-          "Set the format, resources, content and a measurable outcome.",
-        ],
-        [
-          "Share the journey",
-          "Work from the first decision to the final result.",
-        ],
-      ],
+      processText: "We’ll discuss your goals and agree on the format, resources, content and how to measure the outcome.",
       proofLabel: "Proven experience",
       proofCta: "See the previous project’s results",
       cta: "Discuss a partnership",
@@ -995,20 +967,30 @@ const locales = {
 
 // Menu-only film stills come from the project folder supplied by the client;
 // section media below keeps its own editorial crop and loading contract.
-const navigationPreviews = [
-  { file: "hero.jpg", position: "50% 50%" },
-  { file: "nav-adventures-film.jpg", position: "57% 50%" },
-  { file: "portrait.jpg", position: "62% 50%" },
-  { file: "nav-film-detail.jpg", position: "50% 50%" },
-  { file: "nav-adventures-aerial-straight.jpg", position: "50% 50%" },
-  { file: "nav-interview-studio.jpg", position: "58% 50%" },
-  { file: "partner-community-motion.jpg", position: "50% 50%" },
-];
+const navigationPreviews = {
+  "#top": { file: "hero.jpg", position: "50% 50%" },
+  "#diary": { file: "diary-2026-03-10.jpg", position: "50% 100%", mobilePosition: "50% 70%" },
+  "#distance": { file: "nav-adventures-film.jpg", position: "57% 50%" },
+  "#viktor": { file: "portrait.jpg", position: "62% 50%" },
+  "#proof": { file: "nav-film-detail.jpg", position: "50% 50%" },
+  "#adventures": { file: "nav-adventures-aerial-straight.jpg", position: "50% 50%" },
+  "#interviews": { file: "nav-interview-studio.jpg", position: "58% 50%" },
+  "#partners": { file: "partner-community-motion.jpg", position: "50% 50%" },
+};
+
+function renderChapterLabel(l, href, label, light = false) {
+  const index = l.nav.findIndex(([target]) => target === href);
+  if (index < 0) throw new Error(`Chapter ${href} is missing from ${l.lang} navigation`);
+  return `<div class="section-label${light ? " section-label--dark" : ""}" data-chapter-label="${href}">
+    <span>${String(index + 1).padStart(2, "0")}</span>
+    <p>${label}</p>
+  </div>`;
+}
 
 function renderNav(items, { track = false, assetBase = "" } = {}) {
   return items
     .map(([href, label], index) => {
-      const analyticsGoal = ["#about", "#distance"].includes(href)
+      const analyticsGoal = ["#top", "#distance"].includes(href)
         ? "project_explore"
         : href === "#partners"
           ? "partner_interest"
@@ -1017,7 +999,7 @@ function renderNav(items, { track = false, assetBase = "" } = {}) {
         ? ` data-analytics-goal="${analyticsGoal}"`
         : "";
       const trackingAttributes = track
-        ? ` data-nav-track data-nav-title="${label}" data-nav-index="${String(index + 1).padStart(2, "0")}" data-nav-image="${assetBase}assets/${navigationPreviews[index].file}" data-nav-position="${navigationPreviews[index].position}"`
+        ? ` data-nav-track data-nav-title="${label}" data-nav-index="${String(index + 1).padStart(2, "0")}" data-nav-image="${assetBase}assets/${navigationPreviews[href].file}" data-nav-position="${navigationPreviews[href].position}" data-nav-mobile-position="${navigationPreviews[href].mobilePosition || navigationPreviews[href].position}"`
         : "";
 
       return `<a class="site-nav__link" href="${href}"${analyticsAttribute}${trackingAttributes}>${label}</a>`;
@@ -1278,11 +1260,12 @@ function renderDiaryText(text, className) {
     .join("");
 }
 
-function renderDiaryLinks(entries) {
+function renderDiaryLinks(entries, l) {
   return entries
     .map((entry) => {
       const title = entry.tabLabel.replaceAll("\n", " ");
-      const lastAtomStart = title.search(/(?:\d+(?:[.,]\d+)?\s+)?\S+$/u);
+      const preview = entry.media.find((media) => media.kind === "image") || entry.media[entry.featuredMedia];
+      const previewSrc = preview.kind === "image" ? preview.src : preview.poster || entry.image;
       return `
         <a
           class="diary-archive__link"
@@ -1290,8 +1273,12 @@ function renderDiaryLinks(entries) {
           data-diary-story-link
           data-analytics-goal="diary_explore"
         >
+          <span class="diary-archive__preview" aria-hidden="true"${entry.archiveImagePosition ? ` style="--diary-preview-position:${entry.archiveImagePosition}"` : ""}>
+            <img src="${l.assetBase}assets/${previewSrc}" alt="" width="${preview.width}" height="${preview.height}" loading="lazy" decoding="async">
+          </span>
           <time datetime="${entry.date}">${entry.dateLabel}</time>
-          <span class="diary-archive__entry"><span class="diary-archive__name">${title.slice(0, lastAtomStart)}<span class="diary-archive__tail">${title.slice(lastAtomStart)}${icons.up}</span></span></span>
+          <strong class="diary-archive__name">${title}</strong>
+          ${icons.up}
         </a>`;
     })
     .join("");
@@ -1513,19 +1500,6 @@ function renderPartnerFormats(partners) {
     .map(
       ([title, body], index) => `
         <li class="partner-format">
-          <span>${String(index + 1).padStart(2, "0")}</span>
-          <strong>${title}</strong>
-          <p>${body}</p>
-        </li>`,
-    )
-    .join("");
-}
-
-function renderPartnerProcess(partners) {
-  return partners.process
-    .map(
-      ([title, body], index) => `
-        <li class="partner-process__step">
           <span>${String(index + 1).padStart(2, "0")}</span>
           <strong>${title}</strong>
           <p>${body}</p>
@@ -2033,15 +2007,15 @@ function renderPage(l) {
           <div class="site-nav__preview" aria-hidden="true">
             <figure class="site-nav__preview-media">
               <img
-                src="${l.assetBase}assets/${navigationPreviews[0].file}"
+                src="${l.assetBase}assets/${navigationPreviews[l.nav[0][0]].file}"
                 alt=""
                 width="1600"
                 height="900"
-                style="object-position: ${navigationPreviews[0].position}"
+                style="--menu-preview-position: ${navigationPreviews[l.nav[0][0]].position}; --menu-preview-mobile-position: ${navigationPreviews[l.nav[0][0]].mobilePosition || navigationPreviews[l.nav[0][0]].position}"
                 data-menu-preview-image
               >
             </figure>
-            <span class="site-nav__preview-kicker">${l.navRouteKicker}</span>
+            <span class="site-nav__preview-kicker">${l.navRouteKicker} · ${String(l.nav.length).padStart(2, "0")}</span>
             <strong class="site-nav__preview-index" data-menu-preview-index>01</strong>
             <span class="site-nav__preview-title" data-menu-preview-title>${l.nav[0][1]}</span>
           </div>
@@ -2051,20 +2025,6 @@ function renderPage(l) {
         </div>
         <div class="site-nav__utility" aria-label="${l.footer.settingsLabel}">
           <div class="site-nav__journey">
-            <a
-              class="site-nav__diary"
-              href="#diary"
-              data-nav-track
-              data-nav-title="${l.navLiveLabel}"
-            >
-              <span class="site-nav__diary-copy">
-                <span class="site-nav__diary-title">
-                  <strong>${l.navDiaryLabel}</strong>
-                  ${icons.down}
-                </span>
-                <small>${l.navDiaryNote}</small>
-              </span>
-            </a>
             <div class="site-nav__status" data-menu-status>
               <span class="site-nav__status-meta">${l.hero.statusMeta}</span>
               <div class="site-nav__status-reading">
@@ -2185,46 +2145,8 @@ function renderPage(l) {
       </div>
     </section>
 
-    <section class="diary section section--light" id="diary" aria-labelledby="diary-title">
-      <header class="diary-live" data-diary-live>
-        <div class="diary-live__copy">
-          <h2
-            id="diary-title"
-            data-phase-copy
-            data-before="${escapeAttribute(l.diary.liveTitleBefore)}"
-            data-active="${escapeAttribute(l.diary.liveTitleActive)}"
-            data-finished="${escapeAttribute(l.diary.liveTitleFinished)}"
-          >${l.diary.liveTitleBefore}</h2>
-        </div>
-        <a
-          class="text-link text-link--dark diary-live__follow"
-          href="${shared.viktorTelegramHref}"
-          data-analytics-goal="diary_follow"
-          target="_blank"
-          rel="noopener noreferrer"
-        ><span class="text-link__label">${l.diary.telegramCta}</span>${icons.external}</a>
-      </header>
-      <div class="diary-stories" data-diary-stories>
-        <div class="diary-stories__panels">
-          ${renderDiaryEntries(l.diary.entries, l)}
-        </div>
-        <nav class="diary-archive" id="diary-archive" aria-labelledby="diary-archive-title">
-          <h3 class="diary-archive__title" id="diary-archive-title">${l.diary.archiveLabel}</h3>
-          <div class="diary-archive__links">
-            ${renderDiaryLinks(l.diary.entries)}
-          </div>
-        </nav>
-      </div>
-      <ol class="project-phases" aria-label="${l.diary.phasesLabel}">
-        ${renderProjectPhases(l.diary)}
-      </ol>
-    </section>
-
     <section class="manifesto section" id="about" aria-labelledby="manifesto-title">
-      <div class="section-label">
-        <span>01</span>
-        <p>${l.manifesto.eyebrow}</p>
-      </div>
+      ${renderChapterLabel(l, "#top", l.manifesto.eyebrow)}
       <div class="manifesto__copy">
         <h2 id="manifesto-title">${l.manifesto.title}</h2>
         <p>${l.manifesto.text}</p>
@@ -2234,10 +2156,7 @@ function renderPage(l) {
 
     <section class="distance section section--light" id="distance" aria-labelledby="distance-title">
       <div class="section-heading">
-        <div class="section-label section-label--dark">
-          <span>02</span>
-          <p>${l.distance.eyebrow}</p>
-        </div>
+        ${renderChapterLabel(l, "#distance", l.distance.eyebrow, true)}
         <div>
           <h2 id="distance-title">${l.distance.title}</h2>
           <p>${l.distance.intro}</p>
@@ -2307,19 +2226,57 @@ function renderPage(l) {
 
     ${renderPresence(l.presence, l)}
 
+    <section class="diary section section--light" id="diary" aria-labelledby="diary-title">
+      <header class="diary-live section-heading" data-diary-live>
+        ${renderChapterLabel(l, "#diary", l.diary.eyebrow, true)}
+        <div class="diary-live__copy">
+          <h2
+            id="diary-title"
+            data-phase-copy
+            data-before="${escapeAttribute(l.diary.liveTitleBefore)}"
+            data-active="${escapeAttribute(l.diary.liveTitleActive)}"
+            data-finished="${escapeAttribute(l.diary.liveTitleFinished)}"
+          >${l.diary.liveTitleBefore}</h2>
+        <a
+          class="text-link text-link--dark diary-live__follow"
+          href="${shared.viktorTelegramHref}"
+          data-analytics-goal="diary_follow"
+          target="_blank"
+          rel="noopener noreferrer"
+        ><span class="text-link__label">${l.diary.telegramCta}</span>${icons.external}</a>
+        </div>
+      </header>
+      <div class="diary-stories" data-diary-stories>
+        <div class="diary-stories__panels">
+          ${renderDiaryEntries(l.diary.entries, l)}
+        </div>
+        <nav class="diary-archive" id="diary-archive" aria-labelledby="diary-archive-title">
+          <div class="diary-archive__heading">
+            <h3 class="diary-archive__title" id="diary-archive-title">${l.diary.archiveLabel}</h3>
+            <div class="diary-archive__controls" hidden data-diary-archive-controls>
+              <button type="button" aria-label="${l.diary.archiveNewerLabel}" aria-controls="diary-archive-rail" data-diary-archive-newer disabled>${icons.newer}</button>
+              <button type="button" aria-label="${l.diary.archiveEarlierLabel}" aria-controls="diary-archive-rail" data-diary-archive-earlier>${icons.earlier}</button>
+            </div>
+          </div>
+          <div class="diary-archive__links" id="diary-archive-rail" data-diary-archive-rail>
+            ${renderDiaryLinks(l.diary.entries, l)}
+          </div>
+        </nav>
+      </div>
+      <ol class="project-phases" aria-label="${l.diary.phasesLabel}">
+        ${renderProjectPhases(l.diary)}
+      </ol>
+    </section>
+
     <section class="athlete section" id="viktor" aria-labelledby="viktor-title">
       <div class="athlete__media">
         <img src="${l.assetBase}assets/portrait.jpg" alt="${l.viktor.imageAlt}" width="1680" height="2102" loading="lazy">
       </div>
       <div class="athlete__copy">
-        <div class="section-label">
-          <span>03</span>
-          <p>${l.viktor.eyebrow}</p>
-        </div>
+        ${renderChapterLabel(l, "#viktor", l.viktor.eyebrow)}
         <h2 id="viktor-title">${l.viktor.title}</h2>
         <p class="athlete__lead">${l.viktor.lead}</p>
         <p class="athlete__body">${l.viktor.body}</p>
-        <p class="athlete__quote">${l.viktor.quote}</p>
         <div class="achievement-grid">
           ${renderMetrics(l.viktor.achievements, "achievement")}
         </div>
@@ -2341,10 +2298,7 @@ function renderPage(l) {
     <section class="proof section" id="proof" aria-labelledby="proof-title">
       <div class="project-mark proof__mark" aria-hidden="true"></div>
       <div class="proof__heading">
-        <div class="section-label">
-          <span>04</span>
-          <p>${l.proof.eyebrow}</p>
-        </div>
+        ${renderChapterLabel(l, "#proof", l.proof.eyebrow)}
         <h2 id="proof-title">${l.proof.title}</h2>
         <p>${l.proof.body}</p>
         <a class="text-link" href="${shared.filmHref}" data-analytics-goal="film_open" target="_blank" rel="noopener noreferrer">
@@ -2372,10 +2326,7 @@ function renderPage(l) {
 
     <section class="adventures section section--light" id="adventures" aria-labelledby="adventures-title">
       <div class="section-heading section-heading--compact">
-        <div class="section-label section-label--dark">
-          <span>05</span>
-          <p>${l.adventures.eyebrow}</p>
-        </div>
+        ${renderChapterLabel(l, "#adventures", l.adventures.eyebrow, true)}
         <h2 id="adventures-title">${l.adventures.title}</h2>
       </div>
       <div class="adventure-grid">
@@ -2385,10 +2336,7 @@ function renderPage(l) {
 
     <section class="interviews section" id="interviews" aria-labelledby="interviews-title">
       <div class="interviews__heading">
-        <div class="section-label">
-          <span>06</span>
-          <p>${l.interviews.eyebrow}</p>
-        </div>
+        ${renderChapterLabel(l, "#interviews", l.interviews.eyebrow)}
         <h2 id="interviews-title">${l.interviews.title}</h2>
         <p class="interviews__intro">${l.interviews.intro}</p>
       </div>
@@ -2421,10 +2369,7 @@ function renderPage(l) {
           >
         </figure>
         <div class="partners__intro">
-          <div class="section-label">
-            <span>07</span>
-            <p>${l.partners.eyebrow}</p>
-          </div>
+          ${renderChapterLabel(l, "#partners", l.partners.eyebrow)}
           <p class="partners__countdown" data-partner-countdown aria-live="polite">${l.hero.statusFallback}</p>
           <h2 id="partners-title">${l.partners.title}</h2>
         </div>
@@ -2441,22 +2386,12 @@ function renderPage(l) {
           </ol>
         </div>
       </div>
-      <div class="partner-process">
-        <p class="partner-process__label">${l.partners.processLabel}</p>
-        <ol class="partner-process__list">
-          ${renderPartnerProcess(l.partners)}
-        </ol>
-      </div>
       <div class="partners__closing" id="partner-contact">
-        <div class="partner-proof partner-proof--reference">
-          <a class="partner-proof__link" href="#proof">
-            <span class="partner-proof__label">${l.partners.proofLabel}</span>
-            <strong>${l.partners.proofCta}</strong>
-            ${icons.up}
-          </a>
-        </div>
         <div class="partners__contact">
-          <h3 class="partners__cta">${l.partners.cta}</h3>
+          <div class="partners__contact-intro">
+            <h3 class="partners__cta">${l.partners.cta}</h3>
+            <p class="partners__process">${l.partners.processText}</p>
+          </div>
           <div class="partners__contact-module">
             <p class="partners__person">
               <span>${l.partners.contacts}</span>
@@ -2471,6 +2406,13 @@ function renderPage(l) {
               </a>
             </div>
           </div>
+        </div>
+        <div class="partner-proof partner-proof--reference">
+          <a class="partner-proof__link" href="#proof">
+            <span class="partner-proof__label">${l.partners.proofLabel}</span>
+            <strong>${l.partners.proofCta}</strong>
+            ${icons.up}
+          </a>
         </div>
       </div>
     </section>

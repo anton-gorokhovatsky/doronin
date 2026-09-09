@@ -1,6 +1,6 @@
 @media (max-width: 960px) {
   .diary-archive__links {
-    grid-template-columns: minmax(0, 1fr);
+    grid-auto-columns: calc((100% - 1.5rem) / 2.15);
   }
 
   .diary__gallery {
@@ -55,16 +55,6 @@
     grid-column: 1;
   }
 
-  .diary-live {
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-
-  .diary-live__copy h2 {
-    max-width: 100%;
-    font-size: var(--type-chapter-compact);
-  }
-
   .diary-story {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;
@@ -75,8 +65,18 @@
     grid-row: auto;
   }
 
+  .diary-archive__links {
+    grid-auto-columns: 88%;
+  }
+
   .diary-archive__link {
-    grid-template-columns: minmax(0, 1fr);
+    padding: 1.25rem;
+    min-height: 10.5rem;
+  }
+
+  .diary-archive__link > .icon {
+    top: 1.25rem;
+    right: 1.25rem;
   }
 
   .diary__media {
@@ -109,7 +109,7 @@
 
   .diary-story__heading h3 {
     max-width: 100%;
-    font-size: var(--type-narrow-section);
+    font-size: var(--type-narrow-lead);
   }
 
   .diary__facts {
@@ -125,4 +125,44 @@
     padding-top: 1.25rem;
     border-top: 1px solid var(--line-dark);
   }
+}
+
+:root.text-enlarged .diary-archive__links {
+  grid-auto-columns: min(100%, 30rem);
+}
+
+@media (max-width: 640px) {
+  :root.text-enlarged .diary-archive__heading {
+    flex-wrap: wrap;
+  }
+
+  :root.text-enlarged .diary-archive__title {
+    flex: 1 0 100%;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  :root.text-enlarged .diary-archive__link {
+    padding-inline: 0.5rem;
+  }
+
+  :root.text-enlarged .diary-archive__name {
+    font-size: min(var(--type-display-tag), var(--type-narrow-lead));
+  }
+}
+
+:root.text-enlarged .diary-story {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: none;
+}
+
+:root.text-enlarged .diary-story__heading,
+:root.text-enlarged .diary-story > .diary__gallery,
+:root.text-enlarged .diary-story > .diary__copy {
+  grid-column: 1;
+  grid-row: auto;
+}
+
+:root.text-enlarged .diary-story > .diary__gallery {
+  width: min(100%, 36rem);
 }

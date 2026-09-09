@@ -1327,11 +1327,24 @@ if (eventStatus) {
     };
     let calendarOpenTracked = false;
 
-    calendarDetails.querySelector("summary")?.addEventListener("click", () => {
-      if (!calendarDetails.open && !calendarOpenTracked) {
+    const calendarSummary = calendarDetails.querySelector("summary");
+    calendarSummary?.addEventListener("click", () => {
+      if (calendarDetails.open) return;
+      if (!calendarOpenTracked) {
         reachGoal("calendar_open", { phase: calendarPhase });
         calendarOpenTracked = true;
       }
+      // Wait for the native disclosure to open. Automatic phase changes do not scroll.
+      requestAnimationFrame(() => {
+        if (!calendarDetails.open) return;
+        const headerClearance = Number.parseFloat(
+          getComputedStyle(document.documentElement).scrollPaddingTop,
+        ) || 0;
+        window.scrollTo({
+          top: calendarSummary.getBoundingClientRect().top + window.scrollY - headerClearance,
+          behavior: reducedMotion.matches ? "instant" : "smooth",
+        });
+      });
     });
     window.addEventListener("hashchange", revealCalendarTarget);
     revealCalendarTarget();
@@ -1353,6 +1366,37 @@ const diaryStories = document.querySelector("[data-diary-stories]");
 if (diaryStories) {
   const diaryLinks = [...diaryStories.querySelectorAll("[data-diary-story-link]")];
   const diaryPanels = [...diaryStories.querySelectorAll("[data-diary-story-panel]")];
+  const archiveRail = diaryStories.querySelector("[data-diary-archive-rail]");
+  const archiveControls = diaryStories.querySelector("[data-diary-archive-controls]");
+  const archiveNewer = diaryStories.querySelector("[data-diary-archive-newer]");
+  const archiveEarlier = diaryStories.querySelector("[data-diary-archive-earlier]");
+
+  const syncArchiveControls = () => {
+    if (!archiveRail || !archiveControls) return;
+    const lastPosition = archiveRail.scrollWidth - archiveRail.clientWidth;
+    archiveControls.hidden = lastPosition <= 2;
+    archiveNewer.disabled = archiveRail.scrollLeft <= 2;
+    archiveEarlier.disabled = archiveRail.scrollLeft >= lastPosition - 2;
+  };
+
+  const browseArchive = (direction) => {
+    const card = diaryLinks.find((link) => !link.hidden);
+    if (!archiveRail || !card) return;
+    const step = card.getBoundingClientRect().width + parseFloat(getComputedStyle(archiveRail).columnGap);
+    const visibleCards = Math.max(1, Math.floor((archiveRail.clientWidth + 1) / step));
+    archiveRail.scrollBy({
+      left: direction * step * visibleCards,
+      behavior: reducedMotion.matches ? "instant" : "smooth",
+    });
+  };
+
+  archiveNewer?.addEventListener("click", () => browseArchive(-1));
+  archiveEarlier?.addEventListener("click", () => browseArchive(1));
+  archiveRail?.addEventListener("scroll", syncArchiveControls, { passive: true });
+  if (archiveRail && "ResizeObserver" in window) {
+    new ResizeObserver(syncArchiveControls).observe(archiveRail);
+  }
+  window.addEventListener("resize", syncArchiveControls);
 
   const showDiaryEntry = (id, { navigate = false } = {}) => {
     const selected = diaryPanels.find((panel) => panel.id === id);
@@ -1365,6 +1409,8 @@ if (diaryStories) {
       }
     }
     for (const link of diaryLinks) link.hidden = link.hash === `#${id}`;
+    archiveRail?.scrollTo({ left: 0, behavior: "instant" });
+    syncArchiveControls();
 
     if (navigate) {
       selected.focus({ preventScroll: true });
@@ -1699,8 +1745,18 @@ for (const navigation of document.querySelectorAll(".nav-shell")) {
   });
 
   navigation.addEventListener("click", (event) => {
-    if (event.target.closest("a")) {
-      navigation.removeAttribute("open");
+    const link = event.target.closest("a");
+    if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    navigation.removeAttribute("open");
+    syncMenuIsolation(navigation);
+    if (link.getAttribute("href")?.startsWith("#")) {
+      const target = document.getElementById(link.hash.slice(1));
+      if (!target) return;
+      // Let the native link update the URL and scroll; place keyboard focus at its destination.
+      requestAnimationFrame(() => {
+        if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+        target.focus({ preventScroll: true });
+      });
     }
   });
 
@@ -1765,6 +1821,32 @@ for (const languageSwitch of document.querySelectorAll("[data-language-switch]")
 
 const siteHeader = document.querySelector(".site-header");
 const heroSection = document.querySelector(".hero");
+
+if (heroSection) {
+  const heroContent = heroSection.querySelector(".hero__content");
+  const heroProfile = heroSection.querySelector(".hero__foot");
+  let heroFitFrame = 0;
+  const syncHeroProfileFit = () => {
+    heroFitFrame = 0;
+    const profileStyle = getComputedStyle(heroProfile);
+    if (profileStyle.display === "none") {
+      heroSection.classList.remove("is-profile-hidden");
+      return;
+    }
+    // The absolute profile keeps its measurable size while hidden.
+    const reservedHeight = Number.parseFloat(profileStyle.minHeight) || 0;
+    const fullHeight = heroContent.getBoundingClientRect().height +
+      (heroSection.classList.contains("is-profile-hidden") ? reservedHeight : 0);
+    heroSection.classList.toggle("is-profile-hidden", fullHeight > window.innerHeight + 1);
+  };
+  const requestHeroProfileFit = () => {
+    if (!heroFitFrame) heroFitFrame = requestAnimationFrame(syncHeroProfileFit);
+  };
+  if ("ResizeObserver" in window) new ResizeObserver(requestHeroProfileFit).observe(heroContent);
+  window.addEventListener("resize", requestHeroProfileFit, { passive: true });
+  document.fonts?.ready.then(requestHeroProfileFit);
+  syncHeroProfileFit();
+}
 
 if (siteHeader && heroSection) {
   const heroHeaderTrigger = heroSection.querySelector(".hero__kicker");
@@ -1831,8 +1913,12 @@ function syncMenuPreview(link) {
   );
 
   if (menuPreviewImage) {
-    menuPreviewImage.style.objectPosition =
-      link.dataset.navPosition || "50% 50%";
+    const position = link.dataset.navPosition || "50% 50%";
+    menuPreviewImage.style.setProperty("--menu-preview-position", position);
+    menuPreviewImage.style.setProperty(
+      "--menu-preview-mobile-position",
+      link.dataset.navMobilePosition || position,
+    );
   }
 
   if (
@@ -1899,15 +1985,15 @@ if (siteHeader && headerNavigationTargets.length) {
       scrollRange > 0 ? Math.max(0.025, window.scrollY / scrollRange) : 0.025;
     const readingLine = window.scrollY + window.innerHeight * 0.38;
     let activeItem =
-      headerNavigationTargets.find(({ link }) => link.hash === "#about") ||
+      headerNavigationTargets.find(({ link }) => link.hash === "#top") ||
       headerNavigationTargets[0];
 
     const orderedTargets = [...headerNavigationTargets].sort(
-      (first, second) => first.target.offsetTop - second.target.offsetTop,
+      (first, second) => first.target.getBoundingClientRect().top - second.target.getBoundingClientRect().top,
     );
 
     for (const item of orderedTargets) {
-      if (item.target.offsetTop <= readingLine) {
+      if (item.target.getBoundingClientRect().top + window.scrollY <= readingLine) {
         activeItem = item;
       }
     }

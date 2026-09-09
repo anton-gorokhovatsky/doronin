@@ -22,6 +22,7 @@ const entries = [
 
 const localeCopy = {
   ru: {
+    eyebrow: "Записи Виктора",
     phaseBefore: "Дневник пути к старту",
     phaseActive: "Дневник дистанции",
     phaseFinished: "Архив истории",
@@ -36,7 +37,9 @@ const localeCopy = {
       "Записи подготовки и прохождения дистанции остаются хронологией проекта — от первых решений до зафиксированного результата.",
     latestLabel: "Последняя запись",
     telegramCta: "Дневник в Telegram",
-    archiveLabel: "Другие записи",
+    archiveLabel: "Архив дневника",
+    archiveNewerLabel: "Показать более новые записи",
+    archiveEarlierLabel: "Показать более ранние записи",
     timelineArchiveStart: "10 марта",
     timelineNow: "Сейчас",
     timelineStart: "1 декабря",
@@ -61,6 +64,7 @@ const localeCopy = {
     ],
   },
   en: {
+    eyebrow: "Viktor’s updates",
     phaseBefore: "Road-to-start diary",
     phaseActive: "Distance diary",
     phaseFinished: "Story archive",
@@ -75,7 +79,9 @@ const localeCopy = {
       "The preparation and distance updates remain as the project’s chronology — from the first decisions to the recorded result.",
     latestLabel: "Latest entry",
     telegramCta: "Diary on Telegram",
-    archiveLabel: "Other entries",
+    archiveLabel: "Diary archive",
+    archiveNewerLabel: "Show newer entries",
+    archiveEarlierLabel: "Show earlier entries",
     timelineArchiveStart: "March 10",
     timelineNow: "Now",
     timelineStart: "December 1",
@@ -336,6 +342,7 @@ export function createDiaryContent(lang) {
         date: entry.date,
         href: entry.href,
         image: entry.image,
+        archiveImagePosition: entry.archiveImagePosition,
         video: entry.video,
         videoDuration: entry.videoDuration,
         videoDurationIso: entry.videoDurationIso,

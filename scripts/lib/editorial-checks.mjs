@@ -130,6 +130,14 @@ export async function selectDiaryEntry(page, index) {
 }
 
 export async function checkDiaryReadingRoute(page, total) {
+  const chapterIndices = await page.evaluate(() => {
+    const navigation = [...document.querySelectorAll('.site-nav__primary a')];
+    const chapters = [...document.querySelectorAll('[data-chapter-label]')];
+    return chapters.length === navigation.length && chapters.every((chapter, index) =>
+      chapter.dataset.chapterLabel === navigation[index].hash &&
+      chapter.querySelector('span').textContent === navigation[index].dataset.navIndex);
+  });
+  assert(chapterIndices, "Chapter labels and menu entries must share their order and indices");
   const panels = page.locator("[data-diary-story-panel]");
   const archive = page.locator(".diary-archive");
   await panels.first().scrollIntoViewIfNeeded();
@@ -153,35 +161,26 @@ export async function checkDiaryReadingRoute(page, total) {
   assert.equal(await page.locator("[data-diary-story-panel]:visible").count(), 1);
   const visibleLinks = page.locator("[data-diary-story-link]:not([hidden])");
   assert.equal(await visibleLinks.count(), total - 1);
-  assert.equal(await archive.locator("summary, button").count(), 0);
+  assert.equal(await archive.locator("summary").count(), 0);
+  const rail = archive.locator("[data-diary-archive-rail]");
   const archiveLayout = await visibleLinks.evaluateAll(links => links.map(link => {
     const box = link.getBoundingClientRect();
-    const name = link.querySelector(".diary-archive__name");
-    const titleRange = document.createRange();
-    titleRange.selectNodeContents(link.querySelector(".diary-archive__tail").firstChild);
-    const titleBox = [...titleRange.getClientRects()].at(-1);
-    const iconBox = link.querySelector(".icon").getBoundingClientRect();
+    const title = link.querySelector(".diary-archive__name");
+    const range = document.createRange(); range.selectNodeContents(title);
     return {
       x: box.x, y: box.y, width: box.width, height: box.height,
-      underlined: getComputedStyle(name).textDecorationLine.includes("underline"),
-      iconGap: iconBox.left - titleBox.right,
-      copySize: parseFloat(getComputedStyle(name).fontSize),
+      titleFits: [...range.getClientRects()].every(r => r.left >= box.left - 1 && r.right <= box.right + 1),
     };
   }));
-  assert(archiveLayout.every(link => link.height >= 44 && link.underlined &&
-    link.iconGap >= 0 && link.iconGap <= link.copySize),
-  "Archive links need a visible affordance, a touch target and an adjacent icon");
-  if (page.viewportSize().width > 960) {
-    assert(Math.abs(archiveLayout[0].y - archiveLayout[1].y) < 1 &&
-      archiveLayout[1].x > archiveLayout[0].x + archiveLayout[0].width &&
-      archiveLayout[2].y > archiveLayout[0].y &&
-      Math.abs(archiveLayout[2].x - archiveLayout[0].x) < 1,
-    "Desktop archive must read left to right across two columns");
-  } else {
-    assert(archiveLayout.every((link, index) => index === 0 ||
-      (link.y > archiveLayout[index - 1].y && Math.abs(link.x - archiveLayout[0].x) < 1)),
-    "Narrow archive must read down one column");
-  }
+  assert(archiveLayout.every((card, index) => card.height >= 44 && card.titleFits &&
+    Math.abs(card.y - archiveLayout[0].y) <= 1 &&
+    (index === 0 || card.x > archiveLayout[index - 1].x + archiveLayout[index - 1].width)),
+  "Diary cards must form one readable horizontal row");
+  const selectedBefore = await page.locator("[data-diary-story-panel]:visible").getAttribute("id");
+  await archive.locator("[data-diary-archive-earlier]").click();
+  await page.waitForFunction(() => document.querySelector("[data-diary-archive-rail]").scrollLeft > 2);
+  assert.equal(await page.locator("[data-diary-story-panel]:visible").getAttribute("id"), selectedBefore,
+    "Browsing the archive must not silently select another entry");
   await selectDiaryEntry(page, total - 1);
   const olderId = await panels.last().getAttribute("id");
   assert.equal(new URL(page.url()).hash, `#${olderId}`);

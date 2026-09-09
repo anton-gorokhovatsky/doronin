@@ -3,6 +3,7 @@ export default {
   date: "2026-08-31",
   href: "https://t.me/doroninvdele/1068",
   image: "diary-2026-08-31.jpg",
+  archiveImagePosition: "50% 18%",
   mediaWidth: 639,
   mediaHeight: 800,
   mediaAspect: "639 / 800",

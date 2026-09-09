@@ -680,11 +680,6 @@
     border-left: 0;
   }
 
-  .partner-process {
-    grid-column: 1;
-    margin-top: clamp(3rem, 7vw, 5rem);
-  }
-
   .partners__closing {
     grid-column: 1;
     grid-template-columns: minmax(0, 1fr);
@@ -701,7 +696,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .partners__cta,
+  .partners__contact-intro,
   .partners__contact-module,
   .partners__channels,
   .partners__person {
@@ -1008,14 +1003,13 @@
   .project-phases {
     grid-column: 1;
     grid-template-columns: minmax(0, 1fr);
-    margin-top: 0.5rem;
+    row-gap: 1.5rem;
   }
 
   .project-phases li,
   .project-phases li + li {
-    padding: 1rem 0;
+    padding: 0;
     border-left: 0;
-    border-bottom: 1px solid var(--line-dark);
   }
 
   .story-frame figcaption {
@@ -1120,7 +1114,7 @@
   .hero__foot {
     position: relative;
     inset: auto;
-    display: grid;
+    display: none;
     grid-template-columns: minmax(0, 1fr);
     min-height: 0;
     gap: 1.15rem;
@@ -1448,7 +1442,7 @@
   }
 
   .distance {
-    padding-bottom: 0;
+    padding-bottom: 2.5rem;
   }
 
   .athlete {
@@ -1698,7 +1692,7 @@
   }
 
   .manifesto h2 {
-    font-size: var(--type-narrow-statement);
+    font-size: var(--type-narrow-section);
   }
 
   .section-heading h2,
@@ -1777,21 +1771,6 @@
   .partner-format p {
     grid-column: 2;
     max-width: 40ch;
-  }
-
-  .partner-process__list {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .partner-process__step,
-  .partner-process__step + .partner-process__step {
-    padding: 1.1rem 0;
-    border-left: 0;
-    border-bottom: 1px solid var(--partners-line);
-  }
-
-  .partner-process__step:last-child {
-    border-bottom: 0;
   }
 
   .partners__closing {
@@ -2110,7 +2089,6 @@
   }
 
   .athlete__body,
-  .athlete__quote,
   .partners__body {
     overflow-wrap: anywhere;
   }

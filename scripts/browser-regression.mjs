@@ -138,7 +138,8 @@ async function auditPage(browser, browserName, origin, testCase) {
       const bounds = element.getBoundingClientRect();
       return {
         ariaLabel: element.getAttribute("aria-label"),
-        bounds: { left: bounds.left, right: bounds.right, height: bounds.height },
+        visible: element.checkVisibility({ visibilityProperty: true }),
+        bounds: { left: bounds.left, right: bounds.right, height: bounds.height, bottom: bounds.bottom },
         labels,
       };
     });
@@ -155,15 +156,15 @@ async function auditPage(browser, browserName, origin, testCase) {
           JSON.stringify(expectedPeakDates) &&
         JSON.stringify(heroPeaks.labels.map((label) => label.text)) ===
           JSON.stringify(["333", "555", "777", "999", "1111"]) &&
-        heroPeaks.labels.every(
+        (!heroPeaks.visible || heroPeaks.labels.every(
           (label, index, labels) =>
             label.left >= heroPeaks.bounds.left - 1 &&
             label.right <= heroPeaks.bounds.right + 1 &&
             (index === 0 ||
               (label.left > labels[index - 1].left &&
                 label.top < labels[index - 1].top)),
-        ) &&
-        (testCase.viewport.width > 390 || heroPeaks.bounds.height >= 112),
+        )) &&
+        (!heroPeaks.visible || heroPeaks.bounds.bottom <= testCase.viewport.height + 1),
       `${prefix}: five-peak calendar profile regressed (${JSON.stringify(heroPeaks)})`,
     );
 
@@ -523,7 +524,7 @@ async function auditPage(browser, browserName, origin, testCase) {
         return range.getBoundingClientRect().left;
       };
       const settings = [...element.querySelectorAll(".site-nav__setting")];
-      const diary = element.querySelector(".site-nav__diary");
+      const diary = element.querySelector('.site-nav__primary a[href="#diary"]');
       const cta = element.querySelector(".site-nav__cta").getBoundingClientRect();
       const navBox = element.getBoundingClientRect();
       const status = element.querySelector(".site-nav__status").getBoundingClientRect();
@@ -546,7 +547,6 @@ async function auditPage(browser, browserName, origin, testCase) {
           "[data-motion-option], [data-analytics-option], .site-nav__settings summary",
         ).length,
         diaryHref: diary?.getAttribute("href") || "",
-        diaryDescription: diary?.querySelector("small")?.textContent.trim() || "",
         ctaLeftDelta: Math.abs(cta.left),
         ctaRightDelta: Math.abs(innerWidth - cta.right),
         routeSettingValueDelta: Math.abs(
@@ -561,8 +561,7 @@ async function auditPage(browser, browserName, origin, testCase) {
     expect(
       menuComposition.settings.length === 2 &&
         menuComposition.forbiddenControls === 0 &&
-        menuComposition.diaryHref.length > 0 &&
-        menuComposition.diaryDescription.length > 0,
+        menuComposition.diaryHref === "#diary",
       `${prefix}: menu utility composition regressed (${JSON.stringify(menuComposition)})`,
     );
     if (testCase.viewport.width > 960) {
@@ -591,10 +590,7 @@ async function auditPage(browser, browserName, origin, testCase) {
         range.selectNodeContents(node);
         return range.getBoundingClientRect();
       };
-      const diaryTitle = rect(".site-nav__diary-title strong");
-      const diaryArrow = rect(".site-nav__diary-title .icon");
-      const diaryDescription = rect(".site-nav__diary small");
-      const diary = rect(".site-nav__diary");
+      const diary = rect('.site-nav__primary a[href="#diary"]');
       const status = rect(".site-nav__status");
       const firstRoute = rect(".site-nav__primary > .site-nav__link");
       const lastRoute = rect(".site-nav__primary > .site-nav__link:last-child");
@@ -615,20 +611,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       ].filter(Number.isFinite);
 
       return {
-        diaryArrowGap:
-          diaryTitle && diaryArrow ? diaryArrow.left - diaryTitle.right : null,
-        diaryDescriptionGap:
-          diaryTitle && diaryDescription
-            ? diaryDescription.top - diaryTitle.bottom
-            : null,
-        diaryStatusCenterDelta:
-          diary && status
-            ? Math.abs(
-                diary.top + diary.height / 2 - (status.top + status.height / 2),
-              )
-            : null,
-        diaryStatusGap:
-          diary && status ? status.top - diary.bottom : null,
+        routeStatusGap: lastRoute && status ? status.top - lastRoute.bottom : null,
         routeSettingsDelta:
           firstRoute && firstSettingLabel
             ? Math.abs(firstRoute.left - firstSettingLabel.left)
@@ -653,28 +636,18 @@ async function auditPage(browser, browserName, origin, testCase) {
             : null,
       };
     });
-    expect(
-      proximity.diaryArrowGap >= 0 &&
-        proximity.diaryArrowGap <= 12 &&
-        proximity.diaryDescriptionGap >= 0 &&
-        proximity.diaryDescriptionGap <= 8,
-      `${prefix}: diary title, arrow, and description violate proximity (${JSON.stringify(proximity)})`,
-    );
     if (testCase.viewport.width <= 960) {
       expect(
         proximity.settingLabelsDelta <= 1 &&
           proximity.mobileLeftAxisDelta <= 1 &&
-          proximity.routeDiaryGap >= 28 &&
-          proximity.diaryStatusGap >= 28 &&
-          proximity.diaryStatusGap <= 40,
-        `${prefix}: mobile menu axes or route-to-diary grouping regressed (${JSON.stringify(proximity)})`,
+          proximity.routeStatusGap >= 16,
+        `${prefix}: mobile menu axes or route-to-status grouping regressed (${JSON.stringify(proximity)})`,
       );
     }
     if (testCase.viewport.width > 960) {
       expect(
         proximity.routeSettingsDelta <= 1 &&
           proximity.previewLogoDelta <= 1 &&
-          proximity.diaryStatusCenterDelta <= 4 &&
           proximity.previewIndexShare <= 0.48 &&
           proximity.previewTypeRatio <= 3.25,
         `${prefix}: desktop menu axes or preview hierarchy regressed (${JSON.stringify(proximity)})`,
@@ -1446,7 +1419,7 @@ async function auditPage(browser, browserName, origin, testCase) {
 
     await menuToggle.click();
     await page.evaluate(() => {
-      const chapter = document.querySelector('.site-nav a[href="#about"]');
+      const chapter = document.querySelector('.site-nav a[href="#top"]');
       chapter.addEventListener("click", (event) => event.preventDefault(), {
         once: true,
       });
