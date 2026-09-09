@@ -128,6 +128,7 @@
   --type-display-lead: clamp(1.35rem, calc(1rem + 1.15vw), 2.6rem);
   --type-display-statement: clamp(2.6rem, calc(1.25rem + 3vw), 5.2rem);
   --type-display-feature: clamp(2.8rem, calc(1rem + 4.75vw), 7rem);
+  --type-display-footer: clamp(2.8rem, calc(1rem + 4.2vw), 7rem);
   --type-display-hero: clamp(2.9rem, calc(1.15rem + 4.95vw), 6.25rem);
   --type-number-context: clamp(1.55rem, calc(0.75rem + 1.55vw), 3rem);
   --type-number-proof: clamp(1.7rem, calc(0.9rem + 1.48vw), 3.2rem);
@@ -144,6 +145,7 @@
   --type-chapter-compact: clamp(1.55rem, calc(1.15rem + 1.18vw), 3.1rem);
 
   /* 03 — leads and reading copy. */
+  --type-copy-title: clamp(1.5rem, calc(1.15rem + 1.18vw), 3.1rem);
   --type-copy: clamp(1rem, calc(0.93rem + 0.28vw), 1.2rem);
   --type-copy-lead: clamp(1.1rem, calc(1rem + 0.5vw), 1.45rem);
 

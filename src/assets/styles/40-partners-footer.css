@@ -631,6 +631,23 @@
   border-top: 1px solid var(--line-light);
 }
 
+@media (min-width: 961px) {
+  .site-footer__intro,
+  .site-footer__directory {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--layout-column-gap);
+  }
+
+  .site-footer__intro > h2 {
+    grid-column: 1 / span 8;
+    font-size: var(--type-display-footer);
+  }
+
+  .site-footer__cta {
+    grid-column: 9 / -1;
+  }
+}
+
 .site-footer__contacts,
 .site-footer__utility {
   display: grid;

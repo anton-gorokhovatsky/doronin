@@ -495,9 +495,10 @@ for (const [lang, path] of pages) {
           normalizedVisibleText.includes("3:33/km")),
     `${lang}: запись ББК должна сохранять результат и авторский рассказ о прогнозе 10:40`,
   );
+  const diaryHeadingTags = [...html.matchAll(/<h3\b[^>]*\bid="diary-entry-title-[^"]+"[^>]*>/gu)];
   expect(
-    /<h3 id="diary-entry-title-[^"]+" data-optical-start data-optical-scope="first-line">/u.test(html),
-    `${lang}: заголовки дневника должны компенсировать первый глиф только на первой строке`,
+    diaryHeadingTags.length > 0 && diaryHeadingTags.every(([tag]) => !tag.includes("data-optical-start")),
+    `${lang}: текстовые заголовки записей не должны наследовать оптическую компенсацию Micra`,
   );
   expect(
     html.includes('class="proof-sources"') &&

@@ -530,6 +530,10 @@
   }
 }
 
+.hero__main {
+  display: contents;
+}
+
 .hero__content {
   width: min(78rem, 100%);
   max-width: 100%;
@@ -831,11 +835,11 @@
   --hero-foot-height: 0px;
 }
 
-:root.text-enlarged .hero__foot {
-  display: none;
-}
-
 @media (min-width: 641px) {
+  :root.text-enlarged .hero__foot {
+    display: none;
+  }
+
   :root.text-enlarged .hero {
     display: block;
   }

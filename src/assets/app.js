@@ -1829,7 +1829,8 @@ if (heroSection) {
   const syncHeroProfileFit = () => {
     heroFitFrame = 0;
     const profileStyle = getComputedStyle(heroProfile);
-    if (profileStyle.display === "none") {
+    // In the mobile flow the complete profile follows the first viewport.
+    if (profileStyle.display === "none" || profileStyle.position !== "absolute") {
       heroSection.classList.remove("is-profile-hidden");
       return;
     }

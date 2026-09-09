@@ -136,10 +136,17 @@ async function auditPage(browser, browserName, origin, testCase) {
         };
       });
       const bounds = element.getBoundingClientRect();
+      const heroBounds = element.closest(".hero").getBoundingClientRect();
+      const mainBounds = element.closest(".hero").querySelector(".hero__main").getBoundingClientRect();
       return {
         ariaLabel: element.getAttribute("aria-label"),
         visible: element.checkVisibility({ visibilityProperty: true }),
         bounds: { left: bounds.left, right: bounds.right, height: bounds.height, bottom: bounds.bottom },
+        inMobileFlow: getComputedStyle(element.parentElement).position !== "absolute",
+        mainBottom: mainBounds.bottom,
+        heroBottom: heroBounds.bottom,
+        heroLeft: heroBounds.left,
+        heroRight: heroBounds.right,
         labels,
       };
     });
@@ -158,13 +165,17 @@ async function auditPage(browser, browserName, origin, testCase) {
           JSON.stringify(["333", "555", "777", "999", "1111"]) &&
         (!heroPeaks.visible || heroPeaks.labels.every(
           (label, index, labels) =>
-            label.left >= heroPeaks.bounds.left - 1 &&
-            label.right <= heroPeaks.bounds.right + 1 &&
+            label.left >= heroPeaks.heroLeft - 1 &&
+            label.right <= heroPeaks.heroRight + 1 &&
             (index === 0 ||
               (label.left > labels[index - 1].left &&
                 label.top < labels[index - 1].top)),
         )) &&
-        (!heroPeaks.visible || heroPeaks.bounds.bottom <= testCase.viewport.height + 1),
+        (heroPeaks.inMobileFlow
+          ? heroPeaks.visible &&
+            heroPeaks.bounds.bottom <= heroPeaks.heroBottom + 1 &&
+            heroPeaks.mainBottom >= testCase.viewport.height - 1
+          : !heroPeaks.visible || heroPeaks.bounds.bottom <= testCase.viewport.height + 1),
       `${prefix}: five-peak calendar profile regressed (${JSON.stringify(heroPeaks)})`,
     );
 
@@ -213,6 +224,7 @@ async function auditPage(browser, browserName, origin, testCase) {
     if (testCase.viewport.width <= 390) {
       const firstScreen = await page.evaluate(() => {
         const heroContent = document.querySelector(".hero__content").getBoundingClientRect();
+        const heroMain = document.querySelector(".hero__main").getBoundingClientRect();
         const introStyle = getComputedStyle(document.querySelector(".hero__intro"));
         const heroText = [".hero__kicker", ".hero__intro"].map((selector) => {
           const element = document.querySelector(selector);
@@ -233,7 +245,8 @@ async function auditPage(browser, browserName, origin, testCase) {
         const statusLabel = document.querySelector(".event-status__label").getBoundingClientRect();
         const secondary = getComputedStyle(document.querySelector(".button--ghost"));
         return {
-          heroHeight: heroContent.height,
+          heroHeight: heroMain.height,
+          mainBottom: heroMain.bottom,
           heroText,
           heroColor: getComputedStyle(document.querySelector(".hero")).color,
           introColor: introStyle.color,
@@ -241,6 +254,7 @@ async function auditPage(browser, browserName, origin, testCase) {
           introWeight: introStyle.fontWeight,
           innerHeight,
           statusTop: status.top,
+          statusBottom: status.bottom,
           heroBottom: heroContent.bottom,
           statusBottomDelta: Math.abs(statusValue.bottom - statusLabel.bottom),
           secondaryDisplay: secondary.display,
@@ -249,6 +263,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       expect(
         near(firstScreen.heroHeight, firstScreen.innerHeight, 1) &&
           firstScreen.statusTop >= firstScreen.heroBottom - 1 &&
+          firstScreen.statusBottom <= firstScreen.mainBottom + 1 &&
           firstScreen.secondaryDisplay === "none" &&
           firstScreen.introColor !== firstScreen.heroColor &&
           firstScreen.introSize >= 16 &&

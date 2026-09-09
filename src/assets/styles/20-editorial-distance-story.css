@@ -224,12 +224,17 @@
   align-items: start;
 }
 
+.diary-live__meta,
 .diary-live__copy {
   min-width: 0;
 }
 
+.diary-live__meta {
+  grid-column: 1 / span 4;
+}
+
 .diary-live .diary-live__follow {
-  margin: 1.5rem 0 0;
+  margin: 0.75rem 0 0;
   min-height: 2.75rem;
   color: var(--text-editorial-muted);
 }
@@ -244,7 +249,7 @@
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-rows: min-content 1fr;
   align-items: start;
-  column-gap: clamp(2rem, 4vw, 4.5rem);
+  column-gap: var(--layout-column-gap);
   row-gap: 1.5rem;
   scroll-margin-top: 6rem;
 }
@@ -255,7 +260,7 @@
 }
 
 .diary-story__heading {
-  grid-column: 6 / -1;
+  grid-column: 5 / -1;
 }
 
 .diary-story__date {
@@ -795,7 +800,7 @@
 }
 
 .diary__copy {
-  grid-column: 6 / -1;
+  grid-column: 5 / -1;
   align-self: start;
 }
 
@@ -804,14 +809,15 @@
 }
 
 .diary-story__heading h3 {
-  max-width: 22ch;
+  max-width: var(--measure-lead);
   margin: 0;
-  font-family: var(--display);
-  font-size: var(--type-chapter-compact);
-  line-height: var(--leading-chapter);
+  font-family: var(--body);
+  font-size: var(--type-copy-title);
+  font-weight: 600;
+  line-height: 1.2;
   overflow-wrap: normal;
   text-wrap: balance;
-  text-transform: uppercase;
+  text-transform: none;
   word-break: normal;
 }
 

@@ -109,7 +109,7 @@
 
   .diary-story__heading h3 {
     max-width: 100%;
-    font-size: var(--type-narrow-lead);
+    font-size: var(--type-copy-title);
   }
 
   .diary__facts {

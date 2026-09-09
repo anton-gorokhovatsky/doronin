@@ -1469,7 +1469,7 @@ function renderDiaryEntries(entries, l) {
         >
           <header class="diary-story__heading">
             <time class="diary-story__date" datetime="${entry.date}">${entry.fullDateLabel}</time>
-            <h3 id="diary-entry-title-${entry.date}" data-optical-start data-optical-scope="first-line">${entry.title}</h3>
+            <h3 id="diary-entry-title-${entry.date}">${entry.title}</h3>
           </header>
           ${renderDiaryGallery(entry, index, l)}
           <div class="diary__copy">
@@ -2078,65 +2078,68 @@ function renderPage(l) {
         </button>
       </div>
 
-      <div class="hero__content">
-        <p class="hero__kicker"><time datetime="${shared.startDate}">${l.hero.kicker}</time></p>
-        <h1 id="hero-title" class="hero__title">
-          ${renderHeroLine(l.hero.lineOne)}
-          ${renderHeroLine(l.hero.lineTwo)}
-          <em data-optical-start>${l.hero.accent}</em>
-        </h1>
-        <div class="hero__evidence">
-          <p class="hero__intro">${l.hero.intro}</p>
-          <a class="text-link hero__evidence-link" href="${shared.project1111InterviewHref}" target="_blank" rel="noopener noreferrer" data-analytics-goal="proof_open">
-            <span class="text-link__label">${l.hero.evidenceCta}</span>${icons.external}
-          </a>
+      <div class="hero__main">
+        <div class="hero__content">
+          <p class="hero__kicker"><time datetime="${shared.startDate}">${l.hero.kicker}</time></p>
+          <h1 id="hero-title" class="hero__title">
+            ${renderHeroLine(l.hero.lineOne)}
+            ${renderHeroLine(l.hero.lineTwo)}
+            <em data-optical-start>${l.hero.accent}</em>
+          </h1>
+          <div class="hero__evidence">
+            <p class="hero__intro">${l.hero.intro}</p>
+            <a class="text-link hero__evidence-link" href="${shared.project1111InterviewHref}" target="_blank" rel="noopener noreferrer" data-analytics-goal="proof_open">
+              <span class="text-link__label">${l.hero.evidenceCta}</span>${icons.external}
+            </a>
+          </div>
+          <div class="hero__actions">
+            <a class="button button--primary action-primary" href="#partner-formats" data-analytics-goal="partner_interest">${l.hero.primaryCta}${icons.down}</a>
+            <a class="button button--ghost" href="#diary" data-analytics-goal="diary_explore">${l.hero.secondaryCta}</a>
+          </div>
         </div>
-        <div class="hero__actions">
-          <a class="button button--primary action-primary" href="#partner-formats" data-analytics-goal="partner_interest">${l.hero.primaryCta}${icons.down}</a>
-          <a class="button button--ghost" href="#diary" data-analytics-goal="diary_explore">${l.hero.secondaryCta}</a>
-        </div>
-      </div>
 
-      <div
-        class="event-status"
-        data-event-status
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        data-lang="${l.lang}"
-        data-start="${shared.startDate}T00:00:00+03:00"
-        data-end="2027-01-01T00:00:00+03:00"
-        data-before-one="${statusForms[0]}"
-        data-before-few="${statusForms[1]}"
-        data-before-many="${statusForms[2]}"
-        data-active="${l.hero.activeLabel}"
-        data-finished="${l.hero.finishedLabel}"
-        data-latest-update="${l.hero.latestUpdate}"
-        data-status-pending="${l.hero.statusPending}"
-        data-live-verified="${String(hasVerifiedProjectStatus)}"
-        data-live-updated="${liveStatus.updatedAt}"
-        data-live-distance="${liveStatus.distanceKm}"
-        data-live-unit="${l.distance.totalUnit}"
-        data-live-discipline="${liveStatus.discipline}"
-        data-live-note="${liveStatus.note}"
-        data-source-label="${l.hero.sourceLabel}"
-        data-live-source-label="${liveStatus.sourceLabel}"
-        data-live-source-url="${liveStatus.sourceUrl}"
-      >
-        <span class="event-status__meta">${l.hero.statusMeta}</span>
-        <span class="event-status__rail" aria-hidden="true">
-          ${Array.from(
-            { length: 31 },
-            (_, index) =>
-              `<span data-status-day="${index + 1}" style="--status-step:${index};--status-heat:${Math.max(8, 80 - index * 6.55).toFixed(2)};--status-rise:${(0.12 + index * 0.006).toFixed(3)}rem"></span>`,
-          ).join("")}
-        </span>
-        <span class="event-status__value" data-status-value data-optical-start>01.12</span>
-        <span class="event-status__label" data-status-label>${l.hero.statusFallback}</span>
-        <span class="event-status__update" data-status-update hidden>
-          <span data-status-update-text></span>
-          <a data-status-source hidden target="_blank" rel="noopener noreferrer"></a>
-        </span>
+        <div
+          class="event-status"
+          data-event-status
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          data-lang="${l.lang}"
+          data-start="${shared.startDate}T00:00:00+03:00"
+          data-end="2027-01-01T00:00:00+03:00"
+          data-before-one="${statusForms[0]}"
+          data-before-few="${statusForms[1]}"
+          data-before-many="${statusForms[2]}"
+          data-active="${l.hero.activeLabel}"
+          data-finished="${l.hero.finishedLabel}"
+          data-latest-update="${l.hero.latestUpdate}"
+          data-status-pending="${l.hero.statusPending}"
+          data-live-verified="${String(hasVerifiedProjectStatus)}"
+          data-live-updated="${liveStatus.updatedAt}"
+          data-live-distance="${liveStatus.distanceKm}"
+          data-live-unit="${l.distance.totalUnit}"
+          data-live-discipline="${liveStatus.discipline}"
+          data-live-note="${liveStatus.note}"
+          data-source-label="${l.hero.sourceLabel}"
+          data-live-source-label="${liveStatus.sourceLabel}"
+          data-live-source-url="${liveStatus.sourceUrl}"
+        >
+          <span class="event-status__meta">${l.hero.statusMeta}</span>
+          <span class="event-status__rail" aria-hidden="true">
+            ${Array.from(
+              { length: 31 },
+              (_, index) =>
+                `<span data-status-day="${index + 1}" style="--status-step:${index};--status-heat:${Math.max(8, 80 - index * 6.55).toFixed(2)};--status-rise:${(0.12 + index * 0.006).toFixed(3)}rem"></span>`,
+            ).join("")}
+          </span>
+          <span class="event-status__value" data-status-value data-optical-start>01.12</span>
+          <span class="event-status__label" data-status-label>${l.hero.statusFallback}</span>
+          <span class="event-status__update" data-status-update hidden>
+            <span data-status-update-text></span>
+            <a data-status-source hidden target="_blank" rel="noopener noreferrer"></a>
+          </span>
+        </div>
+
       </div>
 
       <div class="hero__foot">
@@ -2228,7 +2231,16 @@ function renderPage(l) {
 
     <section class="diary section section--light" id="diary" aria-labelledby="diary-title">
       <header class="diary-live section-heading" data-diary-live>
-        ${renderChapterLabel(l, "#diary", l.diary.eyebrow, true)}
+        <div class="diary-live__meta">
+          ${renderChapterLabel(l, "#diary", l.diary.eyebrow, true)}
+          <a
+            class="text-link text-link--dark diary-live__follow"
+            href="${shared.viktorTelegramHref}"
+            data-analytics-goal="diary_follow"
+            target="_blank"
+            rel="noopener noreferrer"
+          ><span class="text-link__label">${l.diary.telegramCta}</span>${icons.external}</a>
+        </div>
         <div class="diary-live__copy">
           <h2
             id="diary-title"
@@ -2237,13 +2249,6 @@ function renderPage(l) {
             data-active="${escapeAttribute(l.diary.liveTitleActive)}"
             data-finished="${escapeAttribute(l.diary.liveTitleFinished)}"
           >${l.diary.liveTitleBefore}</h2>
-        <a
-          class="text-link text-link--dark diary-live__follow"
-          href="${shared.viktorTelegramHref}"
-          data-analytics-goal="diary_follow"
-          target="_blank"
-          rel="noopener noreferrer"
-        ><span class="text-link__label">${l.diary.telegramCta}</span>${icons.external}</a>
         </div>
       </header>
       <div class="diary-stories" data-diary-stories>
