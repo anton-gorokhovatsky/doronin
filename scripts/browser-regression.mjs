@@ -1404,9 +1404,11 @@ async function auditPage(browser, browserName, origin, testCase) {
     });
     expect(
       partnerHover &&
-        partnerHover.backgroundColor === "rgba(0, 0, 0, 0)" &&
+        (testCase.viewport.width <= 640
+          ? partnerHover.backgroundColor !== "rgba(0, 0, 0, 0)"
+          : partnerHover.backgroundColor === "rgba(0, 0, 0, 0)") &&
         partnerHover.textDecorationColor !== "rgba(0, 0, 0, 0)",
-      `${prefix}: partner CTA hover creates a false card or loses its cue (${JSON.stringify(partnerHover)})`,
+      `${prefix}: contact action loses its mobile button surface or hover cue (${JSON.stringify(partnerHover)})`,
     );
 
     if (testCase.viewport.width <= 390) {
