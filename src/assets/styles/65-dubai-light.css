@@ -440,6 +440,17 @@
   display: none;
 }
 
+.dubai-light__source a {
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-color 180ms var(--ease-move);
+}
+
+.dubai-light__source a:is(:hover, :focus-visible) {
+  text-decoration-color: var(--contact-underline-color);
+}
+
 :root.text-enlarged .dubai-light__time {
   grid-template-columns: minmax(0, 1fr);
 }
