@@ -1805,7 +1805,13 @@ function renderHeroPeaks(plan, l) {
   return `
     <div class="hero-peaks" role="img" aria-label="${escapeAttribute(l.hero.peaksLabel)}">
       <svg viewBox="0 0 600 88" aria-hidden="true" focusable="false" preserveAspectRatio="none">
-        <path class="hero-peaks__area" d="${areaPath}"></path>
+        <defs>
+          <linearGradient id="hero-peaks-fade" x1="0" y1="0" x2="0" y2="${baseline}" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-opacity="1"></stop>
+            <stop offset="1" stop-opacity="0"></stop>
+          </linearGradient>
+        </defs>
+        <path class="hero-peaks__area" d="${areaPath}" fill="url(#hero-peaks-fade)"></path>
         <path class="hero-peaks__route" d="${routePath}" pathLength="1"></path>
       </svg>
       <ol class="hero-peaks__labels" aria-hidden="true">${labelMarkup}</ol>
