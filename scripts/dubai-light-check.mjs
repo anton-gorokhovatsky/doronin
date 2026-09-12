@@ -55,6 +55,26 @@ const readControlGeometry = page => page.evaluate(() => {
   });
 });
 const settleLayout = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+const settleInitialLayout = page => page.evaluate(async () => {
+  await Promise.all([
+    document.fonts.load('700 32px Micra', 'ДA1'),
+    document.fonts.load('400 16px Commissioner', 'ЯA'),
+  ]);
+  await document.fonts.ready;
+  let previous = '';
+  let unchangedSince = performance.now();
+  const deadline = performance.now() + 5000;
+  while (performance.now() < deadline) {
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    const current = JSON.stringify(['.hero', '.dubai-light__modes', '#dubai-time', '.site-footer__wordmark'].map(selector => {
+      const r = document.querySelector(selector).getBoundingClientRect();
+      return [r.top + scrollY, r.width, r.height];
+    }));
+    if (current !== previous) { previous = current; unchangedSince = performance.now(); }
+    if (document.fonts.status === 'loaded' && performance.now() - unchangedSince >= 250) return;
+  }
+  throw new Error('The initial page layout did not settle before the mode comparison');
+});
 const assertStableControls = (before, after, label) => {
   before.forEach((first, index) => {
     for (const property of ['top', 'left', 'width']) {
@@ -93,7 +113,9 @@ try {
           const widget = page.locator('[data-dubai-controls]');
           await widget.waitFor({ state: 'visible' });
           const slider = page.locator('#dubai-time');
-          await settleLayout(page);
+          if (spec.text) await page.waitForFunction(() => document.documentElement.classList.contains('text-enlarged'));
+          await widget.scrollIntoViewIfNeeded();
+          await settleInitialLayout(page);
           const controlGeometry = await readControlGeometry(page);
           for (const [phase, minutes] of [['dawn', 420], ['day', 720], ['sunset', 1035], ['night', 1260]]) {
             await slider.evaluate((input, value) => { input.value = value; input.dispatchEvent(new Event('input', { bubbles: true })); }, minutes);
