@@ -17,13 +17,30 @@ assert.equal(solarPosition('2026-12-01', 420).phase, 'dawn');
 assert.equal(solarPosition('2026-12-01', 1035).phase, 'sunset');
 assert.equal(solarPosition('2026-12-01', 1260).phase, 'night');
 const now = Date.parse('2026-09-12T09:00:00Z');
-const fresh = { current: { time: now / 1000, cloud_cover: 80, visibility: 8000, wind_speed_10m: 4, wind_direction_10m: 270 } };
+const forecastAt = (time, details = {}) => ({
+  time: new Date(time).toISOString(),
+  data: { instant: { details: { cloud_area_fraction: 80, wind_speed: 4, wind_from_direction: 270, air_temperature: 42, ultraviolet_index_clear_sky: 6.3, ...details } } },
+});
+const fresh = { properties: {
+  meta: { updated_at: new Date(now - 3600000).toISOString() },
+  timeseries: [forecastAt(now), forecastAt(now + 3600000, { cloud_area_fraction: 10 })],
+} };
 assert(readWeather(fresh, now));
-assert.equal(readWeather(fresh, now + 91 * 60000), null);
-assert.equal(readWeather({ current: { ...fresh.current, cloud_cover: null } }, now), null);
-assert.equal(readWeather({ current: { ...fresh.current, time: now / 1000 + 3600 } }, now), null);
+assert.equal(readWeather(fresh, now + 151 * 60000), null);
+assert.equal(readWeather(fresh, now + 3600000).cloudCover, 10, 'Move to the forecast for the new hour');
+const withSeries = timeseries => ({ properties: { ...fresh.properties, timeseries } });
+assert.equal(readWeather(withSeries([forecastAt(now, { cloud_area_fraction: null })]), now), null);
+assert.equal(readWeather(withSeries([forecastAt(now + 3600000)]), now), null);
+assert.equal(readWeather(withSeries([null, {}]), now), null);
+assert.equal(readWeather({ properties: { ...fresh.properties, meta: { updated_at: new Date(now - 19 * 3600000).toISOString() } } }, now), null);
+assert.equal(readWeather({ properties: { ...fresh.properties, meta: { updated_at: new Date(now + 3600000).toISOString() } } }, now), null);
 const weather = readWeather(fresh, now);
 assert(lightPalette('2026-12-01', 720, weather).strength < lightPalette('2026-12-01', 720).strength);
+assert.equal(readWeather(withSeries([forecastAt(now, { ultraviolet_index_clear_sky: null })]), now).uvClearSky, null);
+assert.equal(readWeather(withSeries([forecastAt(now, { air_temperature: null })]), now).temperature, null);
+const clearHot = { ...weather, cloudCover: 0 };
+assert(lightPalette('2026-09-12', 720, clearHot).mediaSaturation < lightPalette('2026-09-12', 720).mediaSaturation);
+assert(lightPalette('2026-09-12', 720, { ...clearHot, windSpeed: 10 }).airDuration < lightPalette('2026-09-12', 720, { ...clearHot, windSpeed: 1 }).airDuration);
 
 const out = 'tmp/dubai-light-check';
 await mkdir(out, { recursive: true });
@@ -46,7 +63,14 @@ try {
           const errors = [];
           page.on('pageerror', error => errors.push(error.message));
           await page.route('https://mc.yandex.ru/**', route => route.abort());
-          await page.route('https://api.open-meteo.com/**', route => route.fulfill({ json: fresh }));
+          let weatherRequests = 0;
+          await page.route('https://api.met.no/**', route => {
+            weatherRequests++;
+            const url = new URL(route.request().url());
+            assert.equal(url.searchParams.get('lat'), '25.1654');
+            assert.equal(url.searchParams.get('lon'), '55.2851');
+            return route.fulfill({ json: fresh, headers: { Expires: new Date(now + 90 * 60000).toUTCString() } });
+          });
           await page.goto(`${server.origin}/${locale === 'en' ? 'en/' : ''}?theme=${spec.theme}${spec.text ? '&text=200' : ''}#dubai-light`);
           await page.evaluate(() => document.fonts.ready);
           const widget = page.locator('[data-dubai-controls]');
@@ -74,15 +98,51 @@ try {
           assert.equal(await slider.inputValue(), '0');
           await page.keyboard.press('ArrowRight');
           assert.equal(await slider.inputValue(), '1');
+          assert.equal(weatherRequests, 0, 'Future sunlight does not request a weather forecast');
           await page.locator('[data-dubai-mode="current"]').click();
           await page.waitForFunction(() => document.querySelector('[data-dubai-controls]').dataset.weather === 'fresh');
           assert(await slider.isDisabled());
           assert.equal(await page.locator('[data-dubai-clock]').textContent(), '13:00');
           assert(await page.locator('[data-dubai-source-link]').isVisible());
+          const visibleCopy = (await widget.locator('.dubai-light__intro, .dubai-light__mode, .dubai-light__time, .dubai-light__sun-times, .dubai-light__source').allInnerTexts()).join(' ');
+          assert.equal(visibleCopy.match(locale === 'ru' ? /Дуба/gu : /Dubai/gu)?.length, 1, 'The city is named only once in the visible widget');
+          assert((await page.locator('[data-dubai-mode-label]').innerText()).includes('2026'));
+          const source = await page.locator('[data-dubai-source]').boundingBox();
+          const link = await page.locator('[data-dubai-source-link]').boundingBox();
+          assert(link.x >= source.x + source.width + 15 || link.y >= source.y + source.height + 3, 'Forecast and credit remain separate readable items');
+          if (spec.name === 'mobile') await page.screenshot({ path: `${out}/${engineName}-${locale}-current-weather.png` });
+          // Reuse the forecast across reloads and pick the right hour before Expires.
+          if (locale === 'ru' && spec.name === 'desktop-light') {
+            await page.reload();
+            await page.waitForFunction(() => document.querySelector('[data-dubai-controls]').dataset.weather === 'fresh');
+            assert.equal(weatherRequests, 1, 'Reload reuses the unexpired forecast');
+            await page.clock.setFixedTime(new Date(now + 3600000));
+            await page.locator('[data-dubai-mode="preview"]').click();
+            await page.locator('[data-dubai-mode="current"]').click();
+            assert.equal(await page.locator('[data-dubai-clock]').textContent(), '14:00');
+            assert((await page.locator('[data-dubai-source]').innerText()).includes('14:00'));
+            assert.equal(weatherRequests, 1, 'No request before the provider expiry');
+          }
           await page.locator('[data-dubai-mode="preview"]').click();
           assert(await slider.isEnabled());
           assert.equal(await widget.getAttribute('data-weather'), 'preview');
           assert(await page.locator('[data-dubai-source-link]').isHidden());
+          await page.locator('.menu-toggle').click();
+          const menuWeather = page.locator('[data-menu-weather]');
+          await menuWeather.waitFor({ state: 'visible' });
+          assert.equal(await menuWeather.getAttribute('data-weather'), 'fresh');
+          assert.equal(await page.locator('[data-menu-weather-air]').innerText(), '+42°');
+          assert(await page.locator('[data-menu-weather-heat]').isVisible());
+          assert.equal(await page.locator('html').getAttribute('data-dubai-mode'), 'preview', 'Today’s menu forecast does not switch the December preview');
+          await menuWeather.scrollIntoViewIfNeeded();
+          assert(!(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)));
+          await page.screenshot({ path: `${out}/${engineName}-${locale}-${spec.name}-menu-weather.png` });
+          if (engineName === 'chromium') {
+            // Include the header's shared backdrop, not just the transparent forecast group.
+            const result = await new AxeBuilder({ page }).include('.site-header').analyze();
+            assert.equal(result.violations.length, 0, JSON.stringify(result.violations));
+          }
+          await page.locator('.menu-toggle').click();
           assert.deepEqual(errors, []);
           report.push({ engineName, locale, ...spec, result: 'PASS' });
           await context.close();
@@ -92,23 +152,27 @@ try {
         const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
         await page.clock.setFixedTime(new Date(now));
         if (failure === 'storage') await page.addInitScript(() => Object.defineProperty(window, 'sessionStorage', { get() { throw new Error('Storage disabled'); } }));
-        await page.route('https://api.open-meteo.com/**', route => failure === 'network' ? route.abort() : route.fulfill({ json: { current: { ...fresh.current, time: now / 1000 - 7200 } } }));
+        await page.route('https://api.met.no/**', route => failure === 'network' ? route.abort() : route.fulfill({ json: failure === 'storage' ? fresh : withSeries([forecastAt(now - 7200000)]) }));
         await page.goto(`${server.origin}/#dubai-light`);
         await page.locator('[data-dubai-controls]').waitFor({ state: 'visible' });
         await page.locator('[data-dubai-mode="current"]').click();
-        await page.waitForFunction(() => document.querySelector('[data-dubai-controls]').dataset.weather === 'unavailable');
+        await page.waitForFunction(expected => document.querySelector('[data-dubai-controls]').dataset.weather === expected, failure === 'storage' ? 'fresh' : 'unavailable');
         assert.equal(await page.locator('[data-dubai-clock]').textContent(), '13:00');
         assert(await page.locator('h1').isVisible());
-        assert(await page.locator('[data-dubai-source-link]').isHidden());
+        assert.equal(await page.locator('[data-dubai-source-link]').isVisible(), failure === 'storage');
+        await page.locator('.menu-toggle').click();
+        await page.locator('[data-menu-weather]').waitFor({ state: 'visible' });
+        assert.equal(await page.locator('[data-menu-weather-readings]').isVisible(), failure === 'storage');
         await page.close();
       }
       const noJs = await browser.newPage({ javaScriptEnabled: false });
       await noJs.goto(server.origin);
       assert(await noJs.locator('h1').isVisible());
       assert(await noJs.locator('[data-dubai-controls]').isHidden());
+      assert(await noJs.locator('[data-menu-weather]').isHidden());
       await noJs.close();
     } finally { await browser.close(); }
   }
 } finally { await server.close(); }
 await writeFile(`${out}/report.json`, JSON.stringify(report, null, 2));
-console.log('Dubai light: solar checkpoints, both locales/themes, keyboard, reflow, fresh/stale/offline weather, storage and no-JS PASS');
+console.log('Dubai light: solar checkpoints, track coordinates, both locales/themes, keyboard, reflow, weather expiry/cache, fresh/stale/offline data, copy grouping, storage and no-JS PASS');

@@ -41,6 +41,7 @@ async function auditPage(browser, browserName, origin, testCase) {
   page.on("request", (request) => requestedPaths.push(new URL(request.url()).pathname));
   page.on("pageerror", (error) => errors.push(error.message));
   await page.route("https://mc.yandex.ru/**", (route) => route.abort());
+  await page.route("https://api.met.no/**", (route) => route.abort());
   // The screenshot gate validates the actual imagery. This suite validates
   // layout and interaction, whose media boxes have explicit CSS geometry.
   // Avoid decoding the full 51 MB asset set again on the small CI runner: a

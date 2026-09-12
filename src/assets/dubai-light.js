@@ -1,6 +1,9 @@
-// Dubai's light is computed for the city, never presented as the rider's location.
+// Centre of the supplied Challenge_1111KM.gpx bounds, rounded to four decimals.
+// The user confirmed this venue for December 2026 on September 12; see docs/dubai-light.md.
+// This fixed light/weather anchor is never presented as the rider's live location.
 // Solar equations: https://gml.noaa.gov/grad/solcalc/solareqns.PDF
-const DUBAI = { latitude: 25.2048, longitude: 55.2708, offset: 4 };
+const DUBAI = { latitude: 25.1654, longitude: 55.2851, offset: 4 };
+const WEATHER_CACHE_KEY = `11111-weather-complete-${DUBAI.latitude}-${DUBAI.longitude}`;
 const RAD = Math.PI / 180;
 const clamp = (value, min = 0, max = 1) => Math.max(min, Math.min(max, value));
 const mix = (a, b, amount) => a + (b - a) * amount;
@@ -31,10 +34,10 @@ export function solarPosition(date, minutes) {
 
 // Palette is art direction. Astronomy positions it; a forecast is never invented.
 const PALETTES = {
-  night: { paper: [229, 234, 233], dark: [5, 21, 29], beam: [140, 180, 202], strength: 0.045 },
-  dawn: { paper: [240, 234, 223], dark: [13, 29, 30], beam: [240, 193, 147], strength: 0.17 },
-  day: { paper: [243, 239, 228], dark: [9, 29, 25], beam: [245, 225, 185], strength: 0.12 },
-  sunset: { paper: [239, 228, 213], dark: [27, 28, 24], beam: [237, 154, 101], strength: 0.24 },
+  night: { paper: [215, 228, 235], dark: [4, 17, 32], beam: [112, 163, 209], strength: 0.17 },
+  dawn: { paper: [242, 230, 211], dark: [13, 28, 30], beam: [255, 213, 164], strength: 0.48 },
+  day: { paper: [247, 243, 233], dark: [12, 28, 27], beam: [255, 244, 216], strength: 0.46 },
+  sunset: { paper: [239, 221, 191], dark: [12, 26, 29], beam: [255, 190, 103], strength: 0.65 },
 };
 
 export function lightPalette(date, minutes, weather = null) {
@@ -53,56 +56,89 @@ export function lightPalette(date, minutes, weather = null) {
   const to = PALETTES[toKey];
   const colors = Object.fromEntries(['paper', 'dark', 'beam'].map(key => [key, from[key].map((value, i) => Math.round(mix(value, to[key][i], amount)))]));
   const clouds = weather ? weather.cloudCover / 100 : 0;
-  const haze = weather ? 1 - clamp(weather.visibility / 20000) : 0;
-  const strength = mix(from.strength, to.strength, amount) * (1 - clouds * 0.62) * (1 - haze * 0.25);
+  const uv = clamp((weather?.uvClearSky ?? 0) / 11) * (1 - clouds * 0.8);
+  const heat = weather?.temperature == null ? 0 : clamp((weather.temperature - 35) / 10);
+  colors.beam = colors.beam.map(value => Math.round(mix(value, 255, uv * 0.25 + heat * 0.12)));
+  const strength = mix(from.strength, to.strength, amount) * (1 - clouds * 0.62) * (1 + uv * 0.14);
   const daylight = clamp((sun.altitude + 6) / 18);
-  const shadowLength = daylight * clamp(12 / Math.tan(Math.max(8, sun.altitude) * RAD), 8, 72);
+  const shadowLength = daylight * clamp(24 / Math.tan(Math.max(8, sun.altitude) * RAD), 14, 160);
   return {
     ...sun, ...colors, strength,
-    x: mix(18, 88, clamp((sun.azimuth - 90) / 180)),
-    y: mix(75, 15, clamp(sun.altitude / 60)),
+    x: mix(8, 94, clamp((sun.azimuth - 90) / 180)),
+    y: mix(78, 10, clamp(sun.altitude / 60)),
     shadowX: -Math.sin(sun.azimuth * RAD) * shadowLength,
-    shadowY: Math.max(5, Math.abs(Math.cos(sun.azimuth * RAD) * shadowLength)),
-    diffusion: 12 + clouds * 22 + haze * 14,
+    shadowY: daylight * Math.max(5, Math.abs(Math.cos(sun.azimuth * RAD) * shadowLength)),
+    diffusion: 3 + clouds * 24,
     windAngle: weather?.windDirection ?? 120,
     airOpacity: weather ? Math.min(0.06, weather.windSpeed / 160) * daylight : 0,
+    airDuration: mix(36, 10, clamp((weather?.windSpeed ?? 0) / 12)),
+    airX: weather ? -Math.sin(weather.windDirection * RAD) * 32 : 0,
+    airY: weather ? Math.cos(weather.windDirection * RAD) * 32 : 0,
+    mediaSaturation: 1 - heat * 0.15 - uv * 0.08,
+    mediaContrast: 1 + uv * 0.06,
   };
 }
 
 const WEATHER_AGE = 90 * 60000;
+const FORECAST_AGE = 18 * 3600000;
 export function readWeather(payload, now = Date.now()) {
-  const current = payload?.current;
-  if (!current || !Number.isFinite(current.time)) return null;
-  const timestamp = current.time * 1000;
-  if (now - timestamp > WEATHER_AGE || timestamp - now > 20 * 60000) return null;
+  const issuedAt = Date.parse(payload?.properties?.meta?.updated_at);
+  const series = payload?.properties?.timeseries;
+  if (!Number.isFinite(issuedAt) || now - issuedAt > FORECAST_AGE || issuedAt - now > 20 * 60000 || !Array.isArray(series)) return null;
+  const point = series.reduce((latest, item) => {
+    const timestamp = Date.parse(item?.time);
+    return Number.isFinite(timestamp) && timestamp <= now && (!latest || timestamp > Date.parse(latest.time)) ? item : latest;
+  }, null);
+  if (!point) return null;
+  const timestamp = Date.parse(point.time);
+  const current = point.data?.instant?.details;
+  if (!current || now - timestamp > WEATHER_AGE) return null;
   const valid = (key, minimum, maximum) => Number.isFinite(current[key]) && current[key] >= minimum && current[key] <= maximum;
-  if (!valid('cloud_cover', 0, 100) || !valid('visibility', 0, 200000) || !valid('wind_speed_10m', 0, 100) || !valid('wind_direction_10m', 0, 360)) return null;
-  return { timestamp, cloudCover: current.cloud_cover, visibility: current.visibility, windSpeed: current.wind_speed_10m, windDirection: current.wind_direction_10m };
+  if (!valid('cloud_area_fraction', 0, 100) || !valid('wind_speed', 0, 100) || !valid('wind_from_direction', 0, 360)) return null;
+  return {
+    timestamp, issuedAt, cloudCover: current.cloud_area_fraction,
+    windSpeed: current.wind_speed, windDirection: current.wind_from_direction,
+    temperature: valid('air_temperature', -90, 70) ? current.air_temperature : null,
+    uvClearSky: valid('ultraviolet_index_clear_sky', 0, 30) ? current.ultraviolet_index_clear_sky : null,
+  };
 }
 
 function initDubaiLight() {
   const widget = document.querySelector('[data-dubai-controls]');
   if (!widget) return;
   const root = document.documentElement;
+  const navigation = document.querySelector('.nav-shell');
+  const menuWeather = navigation?.querySelector('[data-menu-weather]');
+  const heroVideo = document.querySelector('[data-hero-video]');
+  const syncAirMotion = () => root.style.setProperty('--dubai-air-play', !document.hidden && heroVideo && !heroVideo.paused ? 'running' : 'paused');
+  heroVideo?.addEventListener('play', syncAirMotion);
+  heroVideo?.addEventListener('pause', syncAirMotion);
+  syncAirMotion();
   const lang = root.lang === 'en' ? 'en' : 'ru';
   const words = lang === 'ru' ? {
     dawn: 'Утро', day: 'День', sunset: 'Закат', night: 'Ночь', city: 'Дубай',
-    preview: 'Свет дня старта · 1 декабря 2026', current: 'Дубай сейчас',
     hint: 'Сдвиньте время — свет на странице пройдёт путь от рассвета к ночи.',
-    liveHint: 'Страница следует местному времени в Дубае.',
-    previewData: 'Положение солнца рассчитано для 1 декабря. Погода станет известна ближе к старту.',
+    liveHint: 'Свет меняется по местному времени.',
+    previewData: 'Положение солнца рассчитано для дня старта.',
     loading: 'Солнечный свет · уточняем погоду', fallback: 'Солнечный свет · погода недоступна',
-    weather: 'Погода по модели Open-Meteo ·', sunrise: 'Восход', sunsetLabel: 'Закат',
+    weather: 'Прогноз на', sunrise: 'Восход', sunsetLabel: 'Закат',
+    forecastLoading: 'Уточняем прогноз', forecastUnavailable: 'Прогноз недоступен', windUnit: 'м/с',
+    heat: 'Жара',
+    directions: ['С', 'СВ', 'В', 'ЮВ', 'Ю', 'ЮЗ', 'З', 'СЗ'],
   } : {
     dawn: 'Morning', day: 'Day', sunset: 'Sunset', night: 'Night', city: 'Dubai',
-    preview: 'Start-day light · December 1, 2026', current: 'Dubai now',
     hint: 'Move through the day to see the light on this page change from dawn to night.',
-    liveHint: 'The page follows the local time in Dubai.',
-    previewData: 'Sunlight is calculated for December 1. Weather will be known closer to the start.',
+    liveHint: 'The light follows local time.',
+    previewData: 'Sunlight is calculated for the start date.',
     loading: 'Sunlight · checking the weather', fallback: 'Sunlight · weather unavailable',
-    weather: 'Open-Meteo weather model ·', sunrise: 'Sunrise', sunsetLabel: 'Sunset',
+    weather: 'Forecast for', sunrise: 'Sunrise', sunsetLabel: 'Sunset',
+    forecastLoading: 'Checking the forecast', forecastUnavailable: 'Forecast unavailable', windUnit: 'm/s',
+    heat: 'Heat',
+    directions: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
   };
   const startDate = widget.dataset.startDate;
+  const dateFormat = new Intl.DateTimeFormat(lang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Dubai' });
+  const dateLabel = date => dateFormat.format(new Date(`${date}T12:00:00Z`)).replace(/ г\.$/, '').replace(/^(\d+) /, '$1\u00a0');
   const slider = widget.querySelector('input[type="range"]');
   const clockOutput = widget.querySelector('[data-dubai-clock]');
   const phaseOutput = widget.querySelector('[data-dubai-phase]');
@@ -116,7 +152,8 @@ function initDubaiLight() {
   let mode = dubaiClock().date < startDate ? 'preview' : 'current';
   let previewMinutes = dubaiClock().minutes;
   let weather = null;
-  let lastRequest = 0;
+  let nextRequest = 0;
+  let forecast = null;
   let requestInFlight = false;
   let timer;
   let disposed = false;
@@ -126,6 +163,14 @@ function initDubaiLight() {
       mode = saved.mode; previewMinutes = clamp(saved.minutes, 0, 1439);
     }
   } catch { /* The experience works without storage. */ }
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(WEATHER_CACHE_KEY));
+    if (Number.isFinite(saved?.nextRequest) && saved.nextRequest > Date.now() && saved.nextRequest < Date.now() + 6 * 3600000) {
+      forecast = saved.forecast;
+      weather = readWeather(forecast);
+      if (weather) nextRequest = saved.nextRequest;
+    }
+  } catch { /* Browser HTTP caching remains available. */ }
   const save = () => {
     try { sessionStorage.setItem('11111-dubai-light', JSON.stringify({ mode, minutes: previewMinutes })); } catch { /* Optional. */ }
   };
@@ -135,10 +180,15 @@ function initDubaiLight() {
     const current = dubaiClock();
     const minutes = mode === 'preview' ? previewMinutes : current.minutes;
     const date = mode === 'preview' ? startDate : current.date;
-    if (weather && Date.now() - weather.timestamp > WEATHER_AGE) weather = null;
+    weather = readWeather(forecast);
     const light = lightPalette(date, minutes, mode === 'current' ? weather : null);
+    const nowLight = mode === 'current' ? light : lightPalette(current.date, current.minutes, weather);
+    root.style.setProperty('--dubai-now-dark', nowLight.dark.join(' '));
+    root.style.setProperty('--dubai-now-beam', nowLight.beam.join(' '));
+    root.style.setProperty('--dubai-now-strength', String(nowLight.strength * 0.25));
+    root.style.setProperty('--dubai-now-x', `${nowLight.x}%`);
     for (const key of ['paper', 'dark', 'beam']) root.style.setProperty(`--dubai-${key}`, light[key].join(' '));
-    for (const [key, value] of Object.entries({ strength: light.strength, x: `${light.x}%`, y: `${light.y}%`, 'shadow-x': `${light.shadowX}px`, 'shadow-y': `${light.shadowY}px`, diffusion: `${light.diffusion}px`, 'wind-angle': `${light.windAngle}deg`, 'air-opacity': light.airOpacity })) {
+    for (const [key, value] of Object.entries({ strength: light.strength, x: `${light.x}%`, y: `${light.y}%`, 'shadow-x': `${light.shadowX}px`, 'shadow-y': `${light.shadowY}px`, diffusion: `${light.diffusion}px`, 'wind-angle': `${light.windAngle}deg`, 'air-opacity': light.airOpacity, 'air-duration': `${light.airDuration}s`, 'air-x': `${light.airX}px`, 'air-y': `${light.airY}px`, 'media-saturation': light.mediaSaturation, 'media-contrast': light.mediaContrast })) {
       root.style.setProperty(`--dubai-${key}`, String(value));
     }
     root.dataset.dubaiLight = light.phase;
@@ -150,13 +200,13 @@ function initDubaiLight() {
     clockOutput.textContent = clockFormat(minutes);
     clockOutput.dateTime = `${date}T${clockFormat(minutes)}:00+04:00`;
     phaseOutput.textContent = words[light.phase];
-    modeOutput.textContent = mode === 'preview' ? words.preview : words.current;
+    modeOutput.textContent = dateLabel(date);
     hintOutput.textContent = mode === 'preview' ? words.hint : words.liveHint;
     widget.querySelector('[data-dubai-sunrise]').textContent = `${words.sunrise} ${clockFormat(light.sunrise)}`;
     widget.querySelector('[data-dubai-sunset]').textContent = `${words.sunsetLabel} ${clockFormat(light.sunset)}`;
     slider.style.setProperty('--day-start', `${light.sunrise / 1440 * 100}%`);
     slider.style.setProperty('--day-end', `${light.sunset / 1440 * 100}%`);
-    sourceOutput.textContent = mode === 'preview' ? words.previewData : weather ? `${words.weather} ${clockFormat(dubaiClock(new Date(weather.timestamp)).minutes)}` : requestInFlight ? words.loading : words.fallback;
+    sourceOutput.textContent = mode === 'preview' ? words.previewData : weather ? `${words.weather} ${clockFormat(dubaiClock(new Date(weather.timestamp)).minutes)}` : requestInFlight ? words.loading : words.fallback;
     sourceLink.hidden = mode === 'preview' || !weather;
     buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.dubaiMode === mode)));
     if (heroOutput) {
@@ -166,28 +216,53 @@ function initDubaiLight() {
         : `${words.city} · ${clockFormat(minutes)}`;
     }
     widget.hidden = false;
+    if (menuWeather && navigation.open) {
+      const hasForecast = weather && weather.temperature !== null;
+      const forecastTime = hasForecast ? dubaiClock(new Date(weather.timestamp)).minutes : current.minutes;
+      menuWeather.querySelector('[data-menu-weather-time]').textContent = `${words.city} · ${clockFormat(forecastTime)}`;
+      menuWeather.querySelector('[data-menu-weather-readings]').hidden = !hasForecast;
+      menuWeather.querySelector('[data-menu-weather-source]').hidden = !hasForecast;
+      const state = menuWeather.querySelector('[data-menu-weather-state]');
+      state.hidden = Boolean(hasForecast);
+      state.textContent = requestInFlight ? words.forecastLoading : words.forecastUnavailable;
+      if (hasForecast) {
+        const temperature = Math.round(weather.temperature);
+        menuWeather.querySelector('[data-menu-weather-air]').textContent = `${temperature > 0 ? '+' : temperature < 0 ? '−' : ''}${Math.abs(temperature)}°`;
+        const heatLabel = menuWeather.querySelector('[data-menu-weather-heat]');
+        heatLabel.hidden = weather.temperature < 40;
+        heatLabel.textContent = words.heat;
+        const wind = new Intl.NumberFormat(lang === 'ru' ? 'ru-RU' : 'en-US', { maximumFractionDigits: 1 }).format(weather.windSpeed);
+        menuWeather.querySelector('[data-menu-weather-wind]').textContent = `${wind} ${words.windUnit}, ${words.directions[Math.round(weather.windDirection / 45) % 8]}`;
+        menuWeather.querySelector('[data-menu-weather-cloud]').textContent = `${Math.round(weather.cloudCover)}%`;
+      }
+      menuWeather.dataset.weather = hasForecast ? 'fresh' : requestInFlight ? 'loading' : 'unavailable';
+      menuWeather.hidden = false;
+    }
   }
 
   async function updateWeather() {
-    if (mode !== 'current' || document.hidden || disposed || requestInFlight || Date.now() - lastRequest < 30 * 60000) return;
-    // The free endpoint is for local evaluation. Public use needs an approved endpoint.
-    const local = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
-    const endpoint = widget.dataset.weatherEndpoint || (local ? 'https://api.open-meteo.com/v1/forecast?latitude=25.2048&longitude=55.2708&current=cloud_cover,visibility,wind_speed_10m,wind_direction_10m&wind_speed_unit=ms&timeformat=unixtime&timezone=Asia%2FDubai&forecast_days=1' : '');
-    if (!endpoint) return;
+    if ((mode !== 'current' && !navigation?.open) || document.hidden || disposed || requestInFlight || Date.now() < nextRequest) return;
+    // Simple CORS requests identify this site via Origin; native HTTP caching is preserved.
+    const endpoint = `https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=${DUBAI.latitude}&lon=${DUBAI.longitude}`;
     requestInFlight = true;
-    lastRequest = Date.now();
+    nextRequest = Date.now() + 30 * 60000;
     paint();
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 6500);
     try {
       const response = await fetch(endpoint, { signal: controller.signal, credentials: 'omit', referrerPolicy: 'no-referrer' });
       if (!response.ok) throw new Error('Weather unavailable');
-      weather = readWeather(await response.json());
-    } catch { weather = null; }
+      forecast = await response.json();
+      weather = readWeather(forecast);
+      const expires = Date.parse(response.headers.get('Expires'));
+      if (Number.isFinite(expires)) nextRequest = Math.max(nextRequest, expires);
+      try { sessionStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ forecast, nextRequest })); } catch { /* Optional cache. */ }
+    } catch { forecast = null; weather = null; }
     finally { clearTimeout(timeout); requestInFlight = false; paint(); }
   }
 
   function tick() { paint(); void updateWeather(); }
+  navigation?.addEventListener('toggle', () => { if (navigation.open) tick(); });
   buttons.forEach(button => button.addEventListener('click', () => {
     mode = button.dataset.dubaiMode;
     save(); tick();
@@ -196,6 +271,7 @@ function initDubaiLight() {
     previewMinutes = Number(slider.value); save(); paint();
   });
   document.addEventListener('visibilitychange', () => {
+    syncAirMotion();
     clearInterval(timer);
     if (!document.hidden) { tick(); timer = setInterval(tick, 60000); }
   });

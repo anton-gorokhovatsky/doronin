@@ -42,6 +42,7 @@ async function capture(browser, origin, spec) {
   }
   const page = await context.newPage();
   await page.route("https://mc.yandex.ru/**", (route) => route.abort());
+  await page.route("https://api.met.no/**", (route) => route.abort());
 
   try {
     await page.goto(`${origin}${spec.path}`, { waitUntil: "domcontentloaded" });
@@ -53,6 +54,11 @@ async function capture(browser, origin, spec) {
       !(await page.locator(".nav-shell").evaluate((element) => element.hasAttribute("open")))
     ) {
       await page.locator(".menu-toggle").click();
+    }
+    if (spec.menuOpen) {
+      // The blocked forecast settles asynchronously after the native details toggle.
+      // Measure the final menu contents before navigating to its bottom.
+      await page.locator('[data-menu-weather][data-weather="unavailable"]').waitFor({ state: "visible" });
     }
     if (spec.proofOpen) {
       const proof = page.locator(".proof-sources");

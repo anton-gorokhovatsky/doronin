@@ -35,6 +35,8 @@ export async function openPage(browser, origin, spec) {
   }
   const page = await context.newPage();
   await page.route("https://mc.yandex.ru/**", (route) => route.abort());
+  // Forecast variants are exercised in dubai-light-check; keep the general matrix offline.
+  await page.route("https://api.met.no/**", (route) => route.abort());
   await page.goto(`${origin}${spec.path}`, { waitUntil: "domcontentloaded" });
   await settle(page);
 

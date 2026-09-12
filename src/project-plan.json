@@ -122,7 +122,6 @@
     }
   ],
   "unconfirmedFacts": [
-    "location",
     "route-format",
     "technical-and-medical-stop-rules",
     "support-team",

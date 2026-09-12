@@ -2035,6 +2035,7 @@ function renderPage(l) {
                 <span data-menu-status-label>${l.hero.statusFallback}</span>
               </div>
             </div>
+            ${renderMenuWeather(l)}
           </div>
           <div class="site-nav__actions">
             ${renderMenuSettings(l)}
@@ -2488,13 +2489,33 @@ function renderPage(l) {
 `, l.lang);
 }
 
+function renderMenuWeather(l) {
+  const w = l.lang === "ru" ? {
+    label: "Прогноз для трассы в Дубае", air: "Воздух", wind: "Ветер", cloud: "Облачность", source: "MET Norway — источник прогноза",
+  } : {
+    label: "Forecast for the Dubai track", air: "Air", wind: "Wind", cloud: "Cloud cover", source: "MET Norway — forecast source",
+  };
+  return `<div class="menu-weather" data-menu-weather aria-label="${w.label}" hidden>
+    <div class="menu-weather__heading">
+      <span data-menu-weather-time></span>
+      <a href="https://api.met.no/doc/License" aria-label="${w.source}" data-menu-weather-source target="_blank" rel="noopener noreferrer" hidden>MET Norway${icons.external}</a>
+    </div>
+    <dl class="menu-weather__readings" data-menu-weather-readings hidden>
+      <div><dt>${w.air}</dt><dd><span data-menu-weather-air></span><small data-menu-weather-heat hidden></small></dd></div>
+      <div><dt>${w.wind}</dt><dd data-menu-weather-wind></dd></div>
+      <div><dt>${w.cloud}</dt><dd data-menu-weather-cloud></dd></div>
+    </dl>
+    <p class="menu-weather__state" data-menu-weather-state></p>
+  </div>`;
+}
+
 function renderDubaiLight(l) {
   const w = l.lang === "ru" ? {
     title: "День в Дубае", time: "Время в Дубае", mode: "Режим света",
-    preview: "День старта", current: "Сейчас", source: "Источник погоды",
+    preview: "День старта", current: "Сейчас", source: "MET Norway",
   } : {
     title: "A day in Dubai", time: "Time in Dubai", mode: "Light mode",
-    preview: "Start day", current: "Now", source: "Weather source",
+    preview: "Start day", current: "Now", source: "MET Norway",
   };
   return `<section class="dubai-light" id="dubai-light" data-dubai-controls data-start-date="${projectPlan.period.startDate}" aria-labelledby="dubai-light-title" hidden>
       <div class="dubai-light__intro">
@@ -2514,7 +2535,7 @@ function renderDubaiLight(l) {
         <label class="sr-only" for="dubai-time">${w.time}</label>
         <input id="dubai-time" type="range" min="0" max="1439" step="1" value="720" aria-describedby="dubai-mode-label dubai-hint">
         <div class="dubai-light__sun-times"><span data-dubai-sunrise></span><span data-dubai-sunset></span></div>
-        <p class="dubai-light__source"><span data-dubai-source></span> <a data-dubai-source-link href="https://open-meteo.com/en/docs" target="_blank" rel="noopener noreferrer" hidden>${w.source}${icons.external}</a></p>
+        <p class="dubai-light__source"><span data-dubai-source></span><a data-dubai-source-link href="https://api.met.no/doc/License" target="_blank" rel="noopener noreferrer" hidden>${w.source}${icons.external}</a></p>
       </div>
     </section>`;
 }

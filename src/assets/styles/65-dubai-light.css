@@ -1,10 +1,14 @@
 /* Time and weather affect illumination; editorial hierarchy keeps its own contrast. */
 :root[data-dubai-light] {
   --dubai-ambient: radial-gradient(
-    ellipse 70% 85% at var(--dubai-x) var(--dubai-y),
+    ellipse 85% 105% at var(--dubai-x) var(--dubai-y),
     rgb(var(--dubai-beam) / var(--dubai-strength)),
-    transparent 74%
+    transparent 78%
   );
+  --dubai-shaded-light: radial-gradient(ellipse 85% 105% at var(--dubai-x) var(--dubai-y), rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.6)), transparent 78%);
+  --dubai-menu-light: radial-gradient(ellipse 85% 110% at var(--dubai-now-x) 35%, rgb(var(--dubai-now-beam) / var(--dubai-now-strength)), transparent 78%);
+  --dubai-track-night: #607179;
+  --dubai-track-day: #e2b47c;
 }
 
 :root[data-dubai-light]:not(.theme-dark) {
@@ -20,24 +24,36 @@
 }
 
 :root[data-dubai-light] .hero__veil {
-  background: var(--hero-veil), var(--dubai-ambient);
+  background: linear-gradient(90deg, rgb(2 22 15 / 0.35), transparent 62%), var(--dubai-ambient), var(--hero-veil);
+}
+
+:root[data-dubai-light] .hero__media video {
+  filter: var(--hero-media-grade) saturate(var(--dubai-media-saturation)) contrast(var(--dubai-media-contrast));
+}
+
+:root[data-dubai-light] .hero__veil::before {
+  position: absolute;
+  inset: -2rem;
+  content: "";
+  pointer-events: none;
+  opacity: var(--dubai-air-opacity);
+  background: repeating-linear-gradient(var(--dubai-wind-angle), transparent 0 17%, rgb(var(--dubai-beam) / 0.65) 28%, transparent 42%);
 }
 
 :root[data-dubai-light] .hero__veil::after {
   background:
-    linear-gradient(to bottom, transparent 58%, var(--ink) 100%),
-    radial-gradient(ellipse 60% 65% at var(--dubai-x) 100%, rgb(var(--dubai-beam) / var(--dubai-strength)), transparent 74%);
+    linear-gradient(to bottom, transparent 48%, rgb(var(--dubai-dark)) 100%);
 }
 
 :root[data-dubai-light] .hero__foot {
-  background: radial-gradient(ellipse 70% 180% at var(--dubai-x) 100%, rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.6)), transparent 72%);
+  background: radial-gradient(ellipse 85% 180% at var(--dubai-x) 100%, rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.6)), transparent 78%), rgb(var(--dubai-dark));
 }
 
 :root[data-dubai-light] .manifesto {
   background:
     linear-gradient(var(--dubai-wind-angle), transparent 25%, rgb(var(--dubai-beam) / var(--dubai-air-opacity)) 65%, transparent),
-    radial-gradient(ellipse 72% 100% at var(--dubai-x) 0%, rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.6)), transparent 75%),
-    var(--ink);
+    radial-gradient(ellipse 85% 100% at var(--dubai-x) 0%, rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.6)), transparent 78%),
+    rgb(var(--dubai-dark));
 }
 
 :root[data-dubai-light] .manifesto__mark {
@@ -45,11 +61,132 @@
 }
 
 :root[data-dubai-light] .site-footer {
-  background-image: var(--dubai-ambient), var(--footer-art);
+  background-image: linear-gradient(to bottom, var(--ink-deep), transparent 65%), var(--dubai-shaded-light), var(--footer-art);
+  background-color: rgb(var(--dubai-dark));
 }
 
 :root[data-dubai-light] .site-footer__wordmark img {
-  filter: drop-shadow(var(--dubai-shadow-x) var(--dubai-shadow-y) var(--dubai-diffusion) rgb(0 0 0 / 0.6));
+  filter: drop-shadow(var(--dubai-shadow-x) var(--dubai-shadow-y) var(--dubai-diffusion) rgb(0 0 0 / 0.78));
+}
+
+/* Menu data and illumination always describe today, independently of the preview. */
+:root[data-dubai-light] .site-header::before {
+  background: var(--dubai-menu-light), var(--glass-material);
+}
+
+@media (min-width: 961px) {
+  :root[data-dubai-light] .nav-shell[open] .site-nav {
+    background: var(--dubai-menu-light), var(--glass-material);
+  }
+}
+
+.menu-weather {
+  min-width: 0;
+  color: var(--paper-dim);
+  font-family: var(--body);
+  font-size: var(--type-service);
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.menu-weather[hidden],
+.menu-weather [hidden] {
+  display: none;
+}
+
+.menu-weather__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 0.9rem;
+}
+
+.menu-weather__heading a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2.75rem;
+  color: var(--paper-dim);
+  text-underline-offset: 0.2em;
+}
+
+.menu-weather__heading .icon {
+  width: 1em;
+  height: 1em;
+}
+
+.menu-weather__readings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.25rem;
+  margin: 0;
+}
+
+.menu-weather__readings dt,
+.menu-weather__readings dd {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  margin: 0;
+}
+
+.menu-weather__readings dd small {
+  color: var(--acid);
+  font-size: var(--type-service);
+  font-weight: 600;
+}
+
+.menu-weather__readings dd {
+  color: var(--paper);
+  font-size: var(--type-copy);
+  font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+  white-space: nowrap;
+}
+
+.menu-weather__state {
+  margin: 0.4rem 0 0;
+}
+
+@media (min-width: 1181px) {
+  :root:not(.text-enlarged) .site-nav__journey:has(.menu-weather:not([hidden])) {
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 961px) {
+  :root:not(.text-enlarged) .nav-shell[open]:has(.menu-weather:not([hidden])) .site-nav__utility {
+    grid-template-rows: minmax(8rem, auto);
+  }
+
+  :root:not(.text-enlarged) .nav-shell[open]:has(.menu-weather:not([hidden])) .site-nav__chapters {
+    padding-bottom: 8rem;
+  }
+}
+
+@media (min-width: 961px) and (max-width: 1180px) {
+  :root:not(.text-enlarged) .site-nav__journey:has(.menu-weather:not([hidden])) {
+    gap: 0;
+    padding-block: 0.6rem;
+  }
+
+  :root:not(.text-enlarged) .nav-shell[open]:has(.menu-weather:not([hidden])) .site-nav__utility {
+    grid-template-rows: minmax(11rem, auto);
+  }
+
+  :root:not(.text-enlarged) .nav-shell[open]:has(.menu-weather:not([hidden])) .site-nav__chapters {
+    padding-bottom: 11rem;
+  }
+}
+
+@media (max-width: 960px) {
+  :root .site-nav__journey .menu-weather {
+    grid-column: 1;
+    grid-row: 3;
+  }
 }
 
 .hero__light-caption {
@@ -182,12 +319,12 @@
 
 .dubai-light input::-webkit-slider-runnable-track {
   height: 3px;
-  background: linear-gradient(90deg, #607179 0%, #607179 var(--day-start), #e2b47c var(--day-start), #e2b47c var(--day-end), #607179 var(--day-end));
+  background: linear-gradient(90deg, var(--dubai-track-night) 0%, var(--dubai-track-night) var(--day-start), var(--dubai-track-day) var(--day-start), var(--dubai-track-day) var(--day-end), var(--dubai-track-night) var(--day-end));
 }
 
 .dubai-light input::-moz-range-track {
   height: 3px;
-  background: linear-gradient(90deg, #607179 0%, #607179 var(--day-start), #e2b47c var(--day-start), #e2b47c var(--day-end), #607179 var(--day-end));
+  background: linear-gradient(90deg, var(--dubai-track-night) 0%, var(--dubai-track-night) var(--day-start), var(--dubai-track-day) var(--day-start), var(--dubai-track-day) var(--day-end), var(--dubai-track-night) var(--day-end));
 }
 
 .dubai-light input::-webkit-slider-thumb {
@@ -229,7 +366,11 @@
   color: var(--paper-dim);
 }
 
-.dubai-light__source {
+.site-footer .dubai-light__source {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
   margin: 1rem 0 0;
   max-width: 60ch;
   color: var(--paper-dim);
@@ -263,8 +404,12 @@
 }
 
 @media (max-width: 640px) {
+  :root[data-dubai-light] .hero {
+    background-color: rgb(var(--dubai-dark));
+  }
+
   :root[data-dubai-light] .hero__veil {
-    background: var(--hero-veil-mobile), var(--dubai-ambient);
+    background: var(--dubai-shaded-light), var(--hero-veil-mobile);
   }
 }
 
@@ -278,9 +423,20 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  :root[data-dubai-mode="current"] .hero__veil::before {
+    animation: dubai-air var(--dubai-air-duration) linear infinite;
+    animation-play-state: var(--dubai-air-play, paused);
+  }
+
   :root[data-dubai-light] .site-footer__wordmark img {
     transition: filter 400ms var(--ease-move);
   }
+}
+
+@keyframes dubai-air {
+  from { opacity: 0; transform: translate(calc(-1 * var(--dubai-air-x)), calc(-1 * var(--dubai-air-y))); }
+  25%, 75% { opacity: var(--dubai-air-opacity); }
+  to { opacity: 0; transform: translate(var(--dubai-air-x), var(--dubai-air-y)); }
 }
 
 @media (forced-colors: active) {
