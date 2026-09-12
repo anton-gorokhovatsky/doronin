@@ -146,9 +146,33 @@ function initDubaiLight() {
   const hintOutput = widget.querySelector('[data-dubai-hint]');
   const sourceOutput = widget.querySelector('[data-dubai-source]');
   const sourceLink = widget.querySelector('[data-dubai-source-link]');
+  // Invisible alternatives share one grid cell with the visible text. Their
+  // natural height keeps controls in place across modes and translated wraps.
+  const reserveText = (output, alternatives) => {
+    const slot = document.createElement('span');
+    slot.className = 'dubai-light__text-slot';
+    output.before(slot);
+    slot.append(output);
+    return alternatives.map(text => {
+      const reserve = document.createElement('span');
+      reserve.className = 'dubai-light__text-reserve';
+      reserve.setAttribute('aria-hidden', 'true');
+      reserve.textContent = text;
+      slot.append(reserve);
+      return reserve;
+    });
+  };
+  reserveText(hintOutput, [words.hint, words.liveHint]);
+  reserveText(sourceOutput, [words.previewData, words.loading, words.fallback]);
+  reserveText(widget.querySelector('[data-dubai-phase]'), [words.dawn, words.day, words.sunset, words.night]);
+  const dateReserves = reserveText(modeOutput, [dateLabel(startDate), dateLabel(dubaiClock().date)]);
   const heroOutput = document.querySelector('[data-dubai-caption]');
   const buttons = [...widget.querySelectorAll('[data-dubai-mode]')];
   const clockFormat = value => `${String(Math.floor(clamp(Math.round(value), 0, 1439) / 60)).padStart(2, '0')}:${String(clamp(Math.round(value), 0, 1439) % 60).padStart(2, '0')}`;
+  const heroCaption = (mode, minutes) => mode === 'preview'
+    ? `${words.city} · ${lang === 'ru' ? 'свет 1 декабря' : 'December 1 light'} · ${clockFormat(minutes)}`
+    : `${words.city} · ${clockFormat(minutes)}`;
+  if (heroOutput) reserveText(heroOutput, [heroCaption('preview', 0), heroCaption('current', 0)]);
   let mode = dubaiClock().date < startDate ? 'preview' : 'current';
   let previewMinutes = dubaiClock().minutes;
   let weather = null;
@@ -176,6 +200,7 @@ function initDubaiLight() {
   };
 
   function paint() {
+    dateReserves[1].textContent = dateLabel(dubaiClock().date);
     if (disposed) return;
     const current = dubaiClock();
     const minutes = mode === 'preview' ? previewMinutes : current.minutes;
@@ -210,10 +235,8 @@ function initDubaiLight() {
     sourceLink.hidden = mode === 'preview' || !weather;
     buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.dubaiMode === mode)));
     if (heroOutput) {
-      heroOutput.hidden = false;
-      heroOutput.textContent = mode === 'preview'
-        ? `${words.city} · ${lang === 'ru' ? 'свет 1 декабря' : 'December 1 light'} · ${clockFormat(minutes)}`
-        : `${words.city} · ${clockFormat(minutes)}`;
+      heroOutput.closest('[data-dubai-caption-container]').hidden = false;
+      heroOutput.textContent = heroCaption(mode, minutes);
     }
     widget.hidden = false;
     if (menuWeather && navigation.open) {

@@ -2148,7 +2148,7 @@ function renderPage(l) {
       </div>
 
       <div class="hero__foot">
-        <span>${l.hero.footLabel}<small class="hero__light-caption" data-dubai-caption hidden></small></span>
+        <span>${l.hero.footLabel}<small class="hero__light-caption" data-dubai-caption-container hidden><span data-dubai-caption></span></small></span>
         ${renderHeroPeaks(projectPlan, l)}
       </div>
     </section>
@@ -2510,9 +2510,9 @@ function renderMenuWeather(l) {
       <a href="https://api.met.no/doc/License" aria-label="${w.source}" data-menu-weather-source target="_blank" rel="noopener noreferrer" hidden>MET Norway${icons.external}</a>
     </div>
     <dl class="menu-weather__readings" data-menu-weather-readings hidden>
-      <div><dt>${w.air}</dt><dd><span data-menu-weather-air></span><small data-menu-weather-heat hidden></small></dd></div>
-      <div><dt>${w.wind}</dt><dd data-menu-weather-wind></dd></div>
-      <div><dt>${w.cloud}</dt><dd data-menu-weather-cloud></dd></div>
+      <div class="menu-weather__primary"><dt class="sr-only">${w.air}</dt><dd><span data-menu-weather-air></span><small data-menu-weather-heat hidden></small></dd></div>
+      <div class="menu-weather__detail"><dt>${w.wind}</dt><dd data-menu-weather-wind></dd></div>
+      <div class="menu-weather__detail"><dt>${w.cloud}</dt><dd data-menu-weather-cloud></dd></div>
     </dl>
     <p class="menu-weather__state" data-menu-weather-state></p>
   </div>`;
@@ -2529,14 +2529,14 @@ function renderDubaiLight(l) {
   return `<section class="dubai-light" id="dubai-light" data-dubai-controls data-start-date="${projectPlan.period.startDate}" aria-labelledby="dubai-light-title" hidden>
       <div class="dubai-light__intro">
         <h3 id="dubai-light-title">${w.title}</h3>
-        <p id="dubai-hint" data-dubai-hint></p>
+        <p id="dubai-hint"><span data-dubai-hint></span></p>
         <div class="dubai-light__modes" role="group" aria-label="${w.mode}">
           <button type="button" data-dubai-mode="preview" aria-pressed="true">${w.preview}</button>
           <button type="button" data-dubai-mode="current" aria-pressed="false">${w.current}</button>
         </div>
       </div>
       <div class="dubai-light__controls">
-        <p class="dubai-light__mode" id="dubai-mode-label" data-dubai-mode-label></p>
+        <p class="dubai-light__mode" id="dubai-mode-label"><span data-dubai-mode-label></span></p>
         <div class="dubai-light__time">
           <time data-dubai-clock></time>
           <span data-dubai-phase></span>

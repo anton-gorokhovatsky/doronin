@@ -47,6 +47,22 @@ const out = 'tmp/dubai-light-check';
 await mkdir(out, { recursive: true });
 const server = await startSiteServer(process.argv[2] || 'preview');
 const report = [];
+const readControlGeometry = page => page.evaluate(() => {
+  const selectors = ['.dubai-light__modes', '#dubai-time', '.site-footer__wordmark'];
+  return selectors.map(selector => {
+    const rect = document.querySelector(selector).getBoundingClientRect();
+    return { selector, top: rect.top + scrollY, left: rect.left, width: rect.width };
+  });
+});
+const settleLayout = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+const assertStableControls = (before, after, label) => {
+  before.forEach((first, index) => {
+    for (const property of ['top', 'left', 'width']) {
+      assert(Math.abs(first[property] - after[index][property]) <= 1,
+        `${label}: ${first.selector} ${property} moved from ${first[property]} to ${after[index][property]}`);
+    }
+  });
+};
 try {
   for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
     const browser = await engine.launch();
@@ -77,8 +93,12 @@ try {
           const widget = page.locator('[data-dubai-controls]');
           await widget.waitFor({ state: 'visible' });
           const slider = page.locator('#dubai-time');
+          await settleLayout(page);
+          const controlGeometry = await readControlGeometry(page);
           for (const [phase, minutes] of [['dawn', 420], ['day', 720], ['sunset', 1035], ['night', 1260]]) {
             await slider.evaluate((input, value) => { input.value = value; input.dispatchEvent(new Event('input', { bubbles: true })); }, minutes);
+            await settleLayout(page);
+            assertStableControls(controlGeometry, await readControlGeometry(page), `${engineName}/${locale}/${spec.name}/${phase}`);
             assert.equal(await page.locator('html').getAttribute('data-dubai-light'), phase);
             assert.equal(await page.locator('html').getAttribute('data-dubai-mode'), 'preview');
             assert.equal(await widget.getAttribute('data-weather'), 'preview');
@@ -102,9 +122,11 @@ try {
           assert.equal(weatherRequests, 0, 'Future sunlight does not request a weather forecast');
           await page.locator('[data-dubai-mode="current"]').click();
           await page.waitForFunction(() => document.querySelector('[data-dubai-controls]').dataset.weather === 'fresh');
+          await settleLayout(page);
+          assertStableControls(controlGeometry, await readControlGeometry(page), `${engineName}/${locale}/${spec.name}/current`);
           assert(await slider.isDisabled());
           assert.equal(await page.locator('[data-dubai-clock]').textContent(), '13:00');
-          assert(await page.locator('[data-dubai-source-link]').isVisible());
+          assert(await page.locator('[data-dubai-source-link]').isVisible(), `${engineName}/${locale}/${spec.name}: current forecast source is not visible`);
           const visibleCopy = (await widget.locator('.dubai-light__intro, .dubai-light__mode, .dubai-light__time, .dubai-light__sun-times, .dubai-light__source').allInnerTexts()).join(' ');
           assert.equal(visibleCopy.match(locale === 'ru' ? /Дуба/gu : /Dubai/gu)?.length, 1, 'The city is named only once in the visible widget');
           assert((await page.locator('[data-dubai-mode-label]').innerText()).includes('2026'));
@@ -125,6 +147,8 @@ try {
             assert.equal(weatherRequests, 1, 'No request before the provider expiry');
           }
           await page.locator('[data-dubai-mode="preview"]').click();
+          await settleLayout(page);
+          assertStableControls(controlGeometry, await readControlGeometry(page), `${engineName}/${locale}/${spec.name}/return-preview`);
           assert(await slider.isEnabled());
           assert.equal(await widget.getAttribute('data-weather'), 'preview');
           assert(await page.locator('[data-dubai-source-link]').isHidden());
@@ -137,6 +161,19 @@ try {
           assert.equal(await page.locator('html').getAttribute('data-dubai-mode'), 'preview', 'Today’s menu forecast does not switch the December preview');
           await menuWeather.scrollIntoViewIfNeeded();
           assert(!(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)));
+          if (spec.width <= 960) {
+            const underlay = await page.evaluate(() => {
+              const root = document.documentElement;
+              const header = document.querySelector('.site-header');
+              const phase = root.dataset.dubaiLight;
+              const illuminated = getComputedStyle(header, '::before').backgroundColor;
+              delete root.dataset.dubaiLight;
+              const original = getComputedStyle(header, '::before').backgroundColor;
+              root.dataset.dubaiLight = phase;
+              return { illuminated, original };
+            });
+            assert.equal(underlay.illuminated, underlay.original, 'Sunlight must preserve the mobile menu base underlay');
+          }
           await page.screenshot({ path: `${out}/${engineName}-${locale}-${spec.name}-menu-weather.png` });
           if (engineName === 'chromium') {
             const audit = new AxeBuilder({ page }).include('.menu-weather');
