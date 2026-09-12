@@ -126,7 +126,9 @@ try {
           assertStableControls(controlGeometry, await readControlGeometry(page), `${engineName}/${locale}/${spec.name}/current`);
           assert(await slider.isDisabled());
           assert.equal(await page.locator('[data-dubai-clock]').textContent(), '13:00');
-          assert(await page.locator('[data-dubai-source-link]').isVisible(), `${engineName}/${locale}/${spec.name}: current forecast source is not visible`);
+          const forecastSource = page.locator('[data-dubai-source-link]');
+          assert.equal(await forecastSource.getAttribute('hidden'), null, `${engineName}/${locale}/${spec.name}: current forecast source stays hidden`);
+          await forecastSource.waitFor({ state: 'visible', timeout: 1000 });
           const visibleCopy = (await widget.locator('.dubai-light__intro, .dubai-light__mode, .dubai-light__time, .dubai-light__sun-times, .dubai-light__source').allInnerTexts()).join(' ');
           assert.equal(visibleCopy.match(locale === 'ru' ? /Дуба/gu : /Dubai/gu)?.length, 1, 'The city is named only once in the visible widget');
           assert((await page.locator('[data-dubai-mode-label]').innerText()).includes('2026'));
@@ -151,7 +153,8 @@ try {
           assertStableControls(controlGeometry, await readControlGeometry(page), `${engineName}/${locale}/${spec.name}/return-preview`);
           assert(await slider.isEnabled());
           assert.equal(await widget.getAttribute('data-weather'), 'preview');
-          assert(await page.locator('[data-dubai-source-link]').isHidden());
+          assert.equal(await forecastSource.getAttribute('hidden'), '', `${engineName}/${locale}/${spec.name}: preview keeps the forecast source enabled`);
+          await forecastSource.waitFor({ state: 'hidden', timeout: 1000 });
           await page.locator('.menu-toggle').click();
           const menuWeather = page.locator('[data-menu-weather]');
           await menuWeather.waitFor({ state: 'visible' });
