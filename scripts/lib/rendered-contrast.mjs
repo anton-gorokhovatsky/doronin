@@ -27,7 +27,7 @@ export async function checkRenderedTextContrast(page, selector) {
     return runs;
   });
   assert(text.length > 0, `No visible text to check in ${selector}`);
-  const override = await page.addStyleTag({ content: `${selector}, ${selector} * { color: transparent !important; -webkit-text-fill-color: transparent !important; text-shadow: none !important; }` });
+  const override = await page.addStyleTag({ content: `${selector}, ${selector} * { transition: none !important; animation: none !important; color: transparent !important; -webkit-text-fill-color: transparent !important; text-shadow: none !important; }` });
   let background;
   try {
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
