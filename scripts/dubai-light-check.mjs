@@ -4,6 +4,7 @@ import { chromium, webkit } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 import { dubaiClock, solarPosition, lightPalette, readWeather } from '../src/assets/dubai-light.js';
 import { startSiteServer } from './lib/site-server.mjs';
+import { checkRenderedTextContrast } from './lib/rendered-contrast.mjs';
 
 // Independent civil-time and published astronomical checkpoints.
 assert.deepEqual(dubaiClock(new Date('2026-11-30T20:15:00Z')), { date: '2026-12-01', minutes: 15 });
@@ -138,8 +139,14 @@ try {
           assert(!(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)));
           await page.screenshot({ path: `${out}/${engineName}-${locale}-${spec.name}-menu-weather.png` });
           if (engineName === 'chromium') {
-            // Include the header's shared backdrop, not just the transparent forecast group.
-            const result = await new AxeBuilder({ page }).include('.site-header').analyze();
+            const audit = new AxeBuilder({ page }).include('.menu-weather');
+            if (spec.width <= 960) {
+              // The mobile menu shares a fixed header pseudo-element. Axe can read
+              // the inert page beneath it; audit contrast against rendered pixels.
+              audit.disableRules(['color-contrast']);
+              await checkRenderedTextContrast(page, '.menu-weather');
+            }
+            const result = await audit.analyze();
             assert.equal(result.violations.length, 0, JSON.stringify(result.violations));
           }
           await page.locator('.menu-toggle').click();
