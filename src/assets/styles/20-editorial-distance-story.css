@@ -234,8 +234,15 @@
   grid-column: 1 / span 4;
 }
 
-.diary-live .diary-live__follow {
-  margin: 0.75rem 0 0;
+.diary-live__channels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  margin-top: 0.75rem;
+}
+
+.diary-live__channels .text-link {
+  margin: 0;
   min-height: 2.75rem;
   color: var(--text-editorial-muted);
 }

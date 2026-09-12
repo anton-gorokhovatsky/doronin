@@ -96,6 +96,7 @@ const shared = {
   email: "anesterova88@gmail.com",
   telegramHref: "https://t.me/alraunean",
   viktorTelegramHref: "https://t.me/doroninvdele",
+  viktorStravaHref: "https://www.strava.com/athletes/786744",
   viktorInstagramHref: "https://www.instagram.com/victordoronin/",
   filmHref: "https://vkvideo.ru/video-224465212_456239107",
   project1111InterviewHref: "https://youtu.be/4H2fddBQ6VQ",
@@ -2237,13 +2238,21 @@ function renderPage(l) {
       <header class="diary-live section-heading" data-diary-live>
         <div class="diary-live__meta">
           ${renderChapterLabel(l, "#diary", l.diary.eyebrow, true)}
-          <a
-            class="text-link text-link--dark diary-live__follow"
-            href="${shared.viktorTelegramHref}"
-            data-analytics-goal="diary_follow"
-            target="_blank"
-            rel="noopener noreferrer"
-          ><span class="text-link__label">${l.diary.telegramCta}</span>${icons.external}</a>
+          <div class="diary-live__channels">
+            <a
+              class="text-link text-link--dark diary-live__follow"
+              href="${shared.viktorTelegramHref}"
+              data-analytics-goal="diary_follow"
+              target="_blank"
+              rel="noopener noreferrer"
+            ><span class="text-link__label">${l.diary.telegramCta}</span>${icons.external}</a>
+            <a
+              class="text-link text-link--dark"
+              href="${shared.viktorStravaHref}"
+              target="_blank"
+              rel="noopener noreferrer"
+            ><span class="text-link__label">${l.diary.stravaCta}</span>${icons.external}</a>
+          </div>
         </div>
         <div class="diary-live__copy">
           <h2
