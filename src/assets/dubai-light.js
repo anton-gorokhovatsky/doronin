@@ -157,13 +157,30 @@ function initDubaiLight() {
       const reserve = document.createElement('span');
       reserve.className = 'dubai-light__text-reserve';
       reserve.setAttribute('aria-hidden', 'true');
-      reserve.textContent = text;
+      if (typeof text === 'string') reserve.textContent = text;
+      else reserve.append(text);
       slot.append(reserve);
       return reserve;
     });
   };
   reserveText(hintOutput, [words.hint, words.liveHint]);
-  reserveText(sourceOutput, [words.previewData, words.loading, words.fallback]);
+  // Reserve complete attribution rows, so the credit can stay next to the
+  // visible forecast time instead of after the longest invisible fallback.
+  const sourceRows = [words.previewData, words.loading, words.fallback, `${words.weather} 00:00`].map((text, index) => {
+    const row = document.createElement('span');
+    row.className = 'dubai-light__source-line';
+    const label = document.createElement('span');
+    label.textContent = text;
+    row.append(label);
+    if (index === 3) {
+      const credit = document.createElement('span');
+      credit.className = 'dubai-light__source-credit';
+      credit.innerHTML = sourceLink.innerHTML;
+      row.append(credit);
+    }
+    return row;
+  });
+  reserveText(sourceOutput.parentElement, sourceRows);
   reserveText(widget.querySelector('[data-dubai-phase]'), [words.dawn, words.day, words.sunset, words.night]);
   const dateReserves = reserveText(modeOutput, [dateLabel(startDate), dateLabel(dubaiClock().date)]);
   const heroOutput = document.querySelector('[data-dubai-caption]');

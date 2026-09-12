@@ -2510,7 +2510,7 @@ function renderMenuWeather(l) {
       <a href="https://api.met.no/doc/License" aria-label="${w.source}" data-menu-weather-source target="_blank" rel="noopener noreferrer" hidden>MET Norway${icons.external}</a>
     </div>
     <dl class="menu-weather__readings" data-menu-weather-readings hidden>
-      <div class="menu-weather__primary"><dt class="sr-only">${w.air}</dt><dd><span data-menu-weather-air></span><small data-menu-weather-heat hidden></small></dd></div>
+      <div class="menu-weather__primary"><dt>${w.air}</dt><dd><span data-menu-weather-air></span><small data-menu-weather-heat hidden></small></dd></div>
       <div class="menu-weather__detail"><dt>${w.wind}</dt><dd data-menu-weather-wind></dd></div>
       <div class="menu-weather__detail"><dt>${w.cloud}</dt><dd data-menu-weather-cloud></dd></div>
     </dl>
@@ -2544,7 +2544,7 @@ function renderDubaiLight(l) {
         <label class="sr-only" for="dubai-time">${w.time}</label>
         <input id="dubai-time" type="range" min="0" max="1439" step="1" value="720" aria-describedby="dubai-mode-label dubai-hint">
         <div class="dubai-light__sun-times"><span data-dubai-sunrise></span><span data-dubai-sunset></span></div>
-        <p class="dubai-light__source"><span data-dubai-source></span><a data-dubai-source-link href="https://api.met.no/doc/License" target="_blank" rel="noopener noreferrer" hidden>${w.source}${icons.external}</a></p>
+        <p class="dubai-light__source"><span class="dubai-light__source-line"><span data-dubai-source></span><a data-dubai-source-link href="https://api.met.no/doc/License" target="_blank" rel="noopener noreferrer" hidden>${w.source}${icons.external}</a></span></p>
       </div>
     </section>`;
 }
