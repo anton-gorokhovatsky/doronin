@@ -2585,7 +2585,7 @@ function renderDistanceHistory(l) {
   const date = iso => new Intl.DateTimeFormat(ru ? 'ru-RU' : 'en-GB', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Dubai' }).format(new Date(iso));
   return `<aside class="distance-history" id="distance-history" aria-labelledby="distance-history-title">
     <h3 id="distance-history-title">${ru ? 'След дистанции' : 'The distance so far'}</h3>
-    <p class="distance-history__reading"><strong data-optical-start>${formatProjectNumber(projectStatus.distanceKm, l.lang)} ${km}</strong><span>${ru ? 'подтверждено' : 'confirmed'}</span></p>
+    <p class="distance-history__reading"><strong><span data-optical-start>${formatProjectNumber(projectStatus.distanceKm, l.lang)}</span> <span class="distance-history__unit">${km}</span></strong><span>${ru ? 'подтверждено' : 'confirmed'}</span></p>
     <div class="distance-history__track" role="meter" aria-label="${ru ? 'Подтверждённая дистанция' : 'Confirmed distance'}" aria-valuemin="0" aria-valuemax="${projectPlan.targetDistanceKm}" aria-valuenow="${projectStatus.distanceKm}"><span style="width:${projectStatus.distanceKm / projectPlan.targetDistanceKm * 100}%"></span></div>
     <p class="distance-history__stamp"><time datetime="${projectStatus.updatedAt}">${date(projectStatus.updatedAt)}</time> · ${ru ? 'местное время' : 'local time'}</p>
     <details><summary>${ru ? 'Подтверждённые отметки' : 'Confirmed updates'} · ${projectHistory.entries.length}</summary>
