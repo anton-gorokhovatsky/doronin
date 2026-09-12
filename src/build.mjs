@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { createDiaryContent } from "./content/diary/index.mjs";
 import { validateProjectPlan } from "./project-plan-validation.mjs";
 import { validateProjectStatus, currentProjectStatus } from "./project-status-validation.mjs";
+import { dubaiClock, lightPalette } from "./assets/dubai-light.js";
 
 const outputName = process.argv[2] || "preview";
 const allowedOutputRoots = new Set([resolve("preview"), resolve("site")]);
@@ -2559,23 +2560,45 @@ function renderMenuWeather(l) {
 function renderRideReplay(l) {
   if (!rideRecord) return '';
   const ru = l.lang === 'ru';
-  return `<details class="ride-replay" id="ride-2024" data-ride-replay data-replay-url="${l.assetBase}assets/ride-2024.json?v=${assetVersion}" data-replay-module="${l.assetBase}assets/ride-replay.js?v=${assetVersion}">
-    <summary><span>${ru ? 'На этой трассе · заезд 2024 года' : 'On this course · the 2024 ride'}</span>${icons.disclosure}</summary>
-    <div class="ride-replay__body">
-      <div class="ride-replay__intro"><h3>${ru ? 'Круг за кругом' : 'Lap after lap'}</h3><p>${ru ? 'В декабре Виктор вернётся на ту же трассу. Посмотрите, как здесь проходил его заезд в рамках «1111».' : 'Viktor returns to this course in December. Follow his ride here during the “1111” project.'}</p></div>
-      <div class="ride-replay__scene" data-replay-scene hidden>
-        <svg data-replay-diagram viewBox="0 0 600 410" role="img" aria-label="${ru ? 'Трасса из записи GPX 2024 года' : 'Course from the 2024 GPX recording'}"><polyline data-replay-route></polyline><polyline data-replay-trail></polyline><circle r="5" cx="0" cy="0"></circle></svg>
-        <div class="ride-replay__reading"><span data-replay-clock></span><span data-replay-phase></span><strong data-replay-distance></strong><span data-replay-meta></span></div>
+  const start = new Date(rideRecord.start);
+  const local = dubaiClock(start);
+  const light = lightPalette(local.date, local.minutes);
+  const phase = (ru ? {night:'Ночь',dawn:'Утро',day:'День',sunset:'Закат'} : {night:'Night',dawn:'Morning',day:'Day',sunset:'Sunset'})[light.phase];
+  const clock = new Intl.DateTimeFormat(ru ? 'ru-RU' : 'en-GB', {timeZone:'Asia/Dubai',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}).format(start);
+  const elapsed = rideRecord.points.at(-1)[0];
+  const totalTime = `${Math.floor(elapsed/3600)}:${String(Math.floor(elapsed/60)%60).padStart(2,'0')}`;
+  const first = rideRecord.points[0];
+  const route = rideRecord.points.map(point => `${point[2]},${point[3]}`).join(' ');
+  return `<article class="ride-replay" id="ride-2024" aria-labelledby="ride-replay-title" data-ride-replay data-replay-url="${l.assetBase}assets/ride-2024.json?v=${assetVersion}" data-replay-module="${l.assetBase}assets/ride-replay.js?v=${assetVersion}" style="--replay-dark:${light.dark.join(' ')};--replay-beam:${light.beam.join(' ')};--replay-strength:${light.strength};--replay-x:${light.x}%">
+      <header class="ride-replay__intro">
+        <p class="ride-replay__eyebrow">${ru ? 'Дубай · запись 2024 года' : 'Dubai · recorded in 2024'}</p>
+        <h3 id="ride-replay-title"><span class="ride-replay__title-distance" data-optical-start>${formatProjectNumber(rideRecord.distanceKm,l.lang)} <span class="ride-replay__title-unit">${ru ? 'км' : 'km'}</span></span><span>${ru ? 'по кругу' : 'lap by lap'}</span></h3>
+        <p>${ru ? 'Здесь прошёл велосипедный этап «1111». В декабре Виктор вернётся на эту трассу.' : 'This course hosted the cycling leg of “1111”. Viktor returns here in December.'}</p>
+      </header>
+      <div class="ride-replay__scene" data-replay-scene>
+        <svg data-replay-diagram viewBox="0 0 600 410" role="img" aria-label="${ru ? 'Трасса из записи GPX 2024 года' : 'Course from the 2024 GPX recording'}"><polyline data-replay-route points="${route}"></polyline><polyline data-replay-trail></polyline><circle r="5" cx="${first[2]}" cy="${first[3]}"></circle></svg>
       </div>
-      <div class="ride-replay__controls" data-replay-controls hidden>
-        <button type="button" data-replay-play>${ru ? 'Воспроизвести' : 'Play'}</button>
-        <label class="sr-only" for="ride-time">${ru ? 'Момент заезда' : 'Ride time'}</label>
-        <input type="range" id="ride-time" data-replay-time min="0" max="1" value="0" step="1">
+      <div class="ride-replay__console">
+        <div class="ride-replay__reading">
+          <p class="ride-replay__clock"><span data-replay-clock>≈ ${clock}</span><span data-replay-phase>${phase}</span></p>
+          <strong data-replay-distance>0 ${ru ? 'км' : 'km'}</strong>
+          <span data-replay-meta>${ru ? 'С начала записи 0:00' : 'Elapsed 0:00'}</span>
+        </div>
+        <div class="ride-replay__controls" data-replay-controls hidden>
+          <button type="button" data-replay-play data-playing="false"><span data-replay-play-label>${ru ? 'Смотреть заезд' : 'Watch the ride'}</span>${mediaIcons.toggle}</button>
+          <div class="ride-replay__timeline">
+            <label class="sr-only" for="ride-time">${ru ? 'Момент заезда' : 'Ride time'}</label>
+            <input type="range" id="ride-time" data-replay-time min="0" max="1000" value="0" step="1" aria-describedby="ride-replay-status">
+            <div class="ride-replay__ends" aria-hidden="true"><span>0:00</span><span>${totalTime}</span></div>
+          </div>
+        </div>
+        <p class="ride-replay__error" data-replay-error role="status" hidden></p>
       </div>
-      <p class="ride-replay__status" data-replay-status>${ru ? 'Запись заезда откроется здесь.' : 'The ride recording will open here.'}</p>
-      <p class="ride-replay__source">${rideRecord.timing ? ru ? 'Трасса — из GPX, время и итоговая дистанция — из Strava.' : 'Course from GPX; timing and total distance from Strava.' : ru ? 'Дистанция рассчитана по GPX.' : 'Distance calculated from GPX.'} <a href="${rideRecord.source}" target="_blank" rel="noopener noreferrer">${ru ? 'Оригинал в Strava' : 'Original on Strava'}${icons.external}</a></p>
-    </div>
-  </details>`;
+      <footer class="ride-replay__footer">
+        <p class="ride-replay__status" id="ride-replay-status" data-replay-status>${ru ? 'Время восстановлено по 203 отрезкам Strava. Положение внутри отрезка приблизительное. 1 секунда = 20 минут заезда.' : 'Time reconstructed from 203 Strava splits. Position within each split is approximate. 1 second = 20 minutes of the ride.'}</p>
+        <a class="ride-replay__source" href="${rideRecord.source}" target="_blank" rel="noopener noreferrer">${ru ? 'Оригинал в Strava' : 'Original on Strava'}${icons.external}</a>
+      </footer>
+  </article>`;
 }
 
 function renderDistanceHistory(l) {

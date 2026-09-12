@@ -29,7 +29,8 @@ export function initRideReplay(lightPalette, dubaiClock) {
   const ru = document.documentElement.lang === 'ru';
   const play = panel.querySelector('[data-replay-play]');
   const slider = panel.querySelector('[data-replay-time]');
-  const output = panel.querySelector('[data-replay-status]');
+  const errorOutput = panel.querySelector('[data-replay-error]');
+  const playLabel = play.querySelector('[data-replay-play-label]');
   const diagram = panel.querySelector('[data-replay-diagram]');
   let data, loading = false, playing = false, seconds = 0, frame, lastFrame, paintedIndex = -1;
   const end = () => data.points.at(-1)[0];
@@ -62,7 +63,8 @@ export function initRideReplay(lightPalette, dubaiClock) {
     panel.querySelector('[data-replay-meta]').textContent = timed ? `${ru ? 'С начала записи' : 'Elapsed'} ${elapsed}` : `${ru ? 'из' : 'of'} ${number(data.distanceKm)} ${ru ? 'км' : 'km'}`;
     slider.value = String(Math.round(seconds / end() * 1000));
     slider.setAttribute('aria-valuetext', timed ? `${clockFormat.format(stamp)} · ${km}` : km);
-    play.textContent = playing ? ru ? 'Пауза' : 'Pause' : seconds >= end() ? ru ? 'Сначала' : 'Replay' : ru ? 'Воспроизвести' : 'Play';
+    playLabel.textContent = playing ? ru ? 'Пауза' : 'Pause' : seconds >= end() ? ru ? 'Сначала' : 'Replay' : ru ? 'Смотреть заезд' : 'Watch the ride';
+    play.dataset.playing = String(playing);
   }
   const stop = () => { playing = false; cancelAnimationFrame(frame); if (data) paint(); };
   function tick(now) {
@@ -74,9 +76,9 @@ export function initRideReplay(lightPalette, dubaiClock) {
     if (playing) frame = requestAnimationFrame(tick);
   }
   async function load() {
-    if (data || loading || !panel.open) return;
+    if (data || loading) return;
     loading = true;
-    output.textContent = ru ? 'Загружаем запись заезда…' : 'Loading the ride…';
+    errorOutput.hidden = true;
     try {
       const response = await fetch(panel.dataset.replayUrl, { signal: AbortSignal.timeout(10000) });
       if (!response.ok) throw new Error('Unavailable');
@@ -87,13 +89,8 @@ export function initRideReplay(lightPalette, dubaiClock) {
       slider.step = '1';
       diagram.querySelector('[data-replay-route]').setAttribute('points', data.points.map(p => `${p[2]},${p[3]}`).join(' '));
       panel.querySelector('[data-replay-controls]').hidden = false;
-      panel.querySelector('[data-replay-scene]').hidden = false;
-      output.textContent = data.mode === 'distance'
-        ? ru ? 'Воспроизведение по дистанции: в GPX нет временных отметок.' : 'Distance replay: this GPX has no timestamps.'
-        : data.timing ? ru ? 'Время восстановлено по 203 отрезкам Strava. Положение внутри отрезка приблизительное. 1 секунда = 20 минут заезда.' : 'Time reconstructed from 203 Strava splits. Position within each split is approximate. 1 second = 20 minutes of the ride.'
-        : ru ? '1 секунда = 20 минут заезда. Свет соответствует времени записи.' : '1 second = 20 minutes of the ride. The light follows the recorded time.';
       paint();
-    } catch { output.textContent = ru ? 'Запись не загрузилась. Можно открыть оригинал в Strava.' : 'The replay could not load. Open the original on Strava.'; }
+    } catch { errorOutput.textContent = ru ? 'Воспроизведение недоступно. Оригинал заезда можно открыть в Strava.' : 'Playback is unavailable. Open the original ride on Strava.'; errorOutput.hidden = false; }
     finally { loading = false; }
   }
   play.addEventListener('click', () => {
@@ -103,9 +100,9 @@ export function initRideReplay(lightPalette, dubaiClock) {
     playing = true; lastFrame = performance.now(); paint(); frame = requestAnimationFrame(tick);
   });
   slider.addEventListener('input', () => { const requested = Number(slider.value) / 1000 * end(); stop(); seconds = requested; paint(); });
-  panel.addEventListener('toggle', () => { if (panel.open) void load(); else stop(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); });
   window.addEventListener('pagehide', stop);
-  if ('IntersectionObserver' in window) new IntersectionObserver(entries => { if (!entries[0].isIntersecting) stop(); }).observe(panel);
-  if (panel.open) void load();
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(entries => { if (entries[0].isIntersecting) void load(); else stop(); }).observe(panel);
+  } else void load();
 }
