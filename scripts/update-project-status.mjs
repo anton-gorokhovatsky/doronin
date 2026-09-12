@@ -5,8 +5,10 @@ import { validateProjectStatus } from "../src/project-status-validation.mjs";
 
 const target = resolve("src/project-status.json");
 const flags = new Map();
-for (let index = 2; index < process.argv.length; index += 2) {
-  flags.set(process.argv[index], process.argv[index + 1]);
+for (let index = 2; index < process.argv.length; index += 1) {
+  const name = process.argv[index];
+  if (['--reset', '--dry-run'].includes(name)) flags.set(name, true);
+  else flags.set(name, process.argv[++index]);
 }
 
 const reset = process.argv.includes("--reset");
@@ -47,13 +49,16 @@ if (reset) {
   };
 }
 
-const errors = validateProjectStatus(status);
+const log = JSON.parse(await readFile(target, 'utf8'));
+if (validateProjectStatus(log).length) throw new Error('Existing history is invalid; correct it before appending.');
+const next = { version: 2, entries: reset ? [] : [...log.entries, status] };
+const errors = validateProjectStatus(next);
 if (errors.length) {
   console.error(errors.map((error) => `- ${error}`).join("\n"));
   process.exit(1);
 }
 
-const serialized = `${JSON.stringify(status, null, 2)}\n`;
+const serialized = `${JSON.stringify(next, null, 2)}\n`;
 if (dryRun) {
   process.stdout.write(serialized);
 } else {

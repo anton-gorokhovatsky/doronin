@@ -107,22 +107,25 @@
   flex-direction: row;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.2rem 0.3em;
+  gap: 0.4rem 0.65rem;
 }
+
+:root .site-nav__journey { row-gap: 0.8rem; }
 
 :root .site-nav__journey .site-nav__status-reading strong {
   font-family: var(--body);
-  font-size: var(--type-copy);
-  font-weight: 500;
+  font-size: clamp(1.875rem, calc(1.75rem + 0.3vw), 2rem);
+  font-weight: 600;
+  color: var(--acid);
   font-variant-numeric: lining-nums tabular-nums;
-  line-height: 1.3;
+  line-height: 1.15;
 }
 
 :root .site-nav__journey .site-nav__status-reading span {
   max-width: none;
   padding: 0;
   color: var(--paper-dim);
-  font-size: var(--type-copy);
+  font-size: var(--type-service);
   font-weight: 400;
   letter-spacing: 0;
   line-height: 1.4;
@@ -518,3 +521,23 @@
     outline-offset: -3px;
   }
 }
+
+:root[data-dubai-light] .hero__veil {
+  box-shadow: inset 0 0 0 100vmax rgb(220 190 144 / var(--dubai-dust-opacity, 0));
+}
+.dubai-light__dust {
+  display: grid;
+  min-height: 3.1em;
+  margin: 0.5rem 0 0;
+  font-size: var(--type-service);
+  line-height: 1.5;
+  color: var(--paper-dim);
+}
+.dubai-light__dust a { display: inline-flex; align-items: center; gap: 0.4em; color: inherit; white-space: nowrap; text-decoration: underline; text-underline-offset: 0.2em; text-decoration-color: transparent; transition: text-decoration-color 150ms; }
+.dubai-light__dust a:hover { text-decoration-color: currentColor; }
+.dubai-light__dust a svg { width: 0.8em; height: 0.8em; }
+.dubai-light__dust a[hidden] { display: none; }
+
+.dubai-light__dust-row { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; align-items: baseline; grid-area: 1 / 1; }
+.dubai-light__dust-reserve { visibility: hidden; }
+.dubai-light__dust-reserve svg { width: 0.8em; height: 0.8em; }

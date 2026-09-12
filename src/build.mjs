@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import { createDiaryContent } from "./content/diary/index.mjs";
 import { validateProjectPlan } from "./project-plan-validation.mjs";
-import { validateProjectStatus } from "./project-status-validation.mjs";
+import { validateProjectStatus, currentProjectStatus } from "./project-status-validation.mjs";
 
 const outputName = process.argv[2] || "preview";
 const allowedOutputRoots = new Set([resolve("preview"), resolve("site")]);
@@ -41,15 +41,19 @@ const styleModuleNames = [
   "55-editorial-menu.css",
   "60-themes-accessibility.css",
   "65-dubai-light.css",
+  "70-journey.css",
 ];
 const styleBundle = (
   await Promise.all(
     styleModuleNames.map((file) => readFile(resolve(styleModulesRoot, file), "utf8")),
   )
 ).join("");
-const projectStatus = JSON.parse(
+const projectHistory = JSON.parse(
   await readFile(resolve("src/project-status.json"), "utf8"),
 );
+let rideRecord = null;
+try { rideRecord = JSON.parse(await readFile(resolve('src/assets/ride-2024.json'), 'utf8')); }
+catch (error) { if (error.code !== 'ENOENT') throw error; }
 const projectPlan = JSON.parse(
   await readFile(resolve("src/project-plan.json"), "utf8"),
 );
@@ -59,12 +63,13 @@ if (projectPlanErrors.length) {
     `Invalid project plan:\n${projectPlanErrors.map((error) => `- ${error}`).join("\n")}`,
   );
 }
-const projectStatusErrors = validateProjectStatus(projectStatus);
+const projectStatusErrors = validateProjectStatus(projectHistory);
 if (projectStatusErrors.length) {
   throw new Error(
     `Invalid project status:\n${projectStatusErrors.map((error) => `- ${error}`).join("\n")}`,
   );
 }
+const projectStatus = currentProjectStatus(projectHistory);
 const analyticsRegistry = JSON.parse(
   await readFile(resolve("src/analytics-goals.json"), "utf8"),
 );
@@ -78,6 +83,9 @@ const assetVersion = createHash("sha256")
   .update(await readFile(resolve(assetSource, "app.js")))
   .update(await readFile(resolve(assetSource, "theme-init.js")))
   .update(await readFile(resolve(assetSource, "dubai-light.js")))
+  .update(await readFile(resolve(assetSource, "journey.js")))
+  .update(await readFile(resolve(assetSource, "ride-replay.js")))
+  .update(JSON.stringify(rideRecord))
   .digest("hex")
   .slice(0, 10);
 const heroVideoVersion = createHash("sha256")
@@ -1792,6 +1800,19 @@ function renderHeroPeaks(plan, l) {
     })
     .join(" ");
   const areaPath = `${routePath} L600 ${baseline} L0 ${baseline} Z`;
+  let cumulative = 0;
+  const checkpoints = [{ distance: 0, x: 0 }];
+  for (const segment of plan.segments) {
+    cumulative += segment.totalDistanceKm;
+    if (segment.kind === 'special') checkpoints.push({ distance: cumulative, x: peakPoints.find(point => point.date === segment.startDate).x });
+  }
+  const confirmed = projectStatus.distanceKm || 0;
+  const next = checkpoints.findIndex(point => point.distance >= confirmed);
+  const before = checkpoints[Math.max(0, next - 1)];
+  const after = checkpoints[Math.max(0, next)];
+  const confirmedX = confirmed >= plan.targetDistanceKm ? 600 : before.x + (after.x - before.x) * (confirmed - before.distance) / Math.max(1, after.distance - before.distance);
+  const confirmedLabel = projectStatus.verified ? `${l.lang === 'ru' ? 'Подтверждено' : 'Confirmed'}: ${formatProjectNumber(confirmed, l.lang)} ${l.lang === 'ru' ? 'км' : 'km'}` : '';
+
 
   const labelMarkup = peakPoints
     .map(
@@ -1803,9 +1824,10 @@ function renderHeroPeaks(plan, l) {
     .join("");
 
   return `
-    <div class="hero-peaks" role="img" aria-label="${escapeAttribute(l.hero.peaksLabel)}">
+    <div class="hero-peaks${projectStatus.verified ? ' has-confirmed-distance' : ''}" role="img" aria-label="${escapeAttribute(l.hero.peaksLabel + (confirmedLabel ? `. ${confirmedLabel}` : ''))}">
       <svg viewBox="0 0 600 88" aria-hidden="true" focusable="false" preserveAspectRatio="none">
         <defs>
+          <clipPath id="hero-peaks-confirmed"><rect width="${confirmedX}" height="88"></rect></clipPath>
           <linearGradient id="hero-peaks-fade" x1="0" y1="0" x2="0" y2="${baseline}" gradientUnits="userSpaceOnUse">
             <stop offset="0" stop-opacity="1"></stop>
             <stop offset="1" stop-opacity="0"></stop>
@@ -1813,6 +1835,7 @@ function renderHeroPeaks(plan, l) {
         </defs>
         <path class="hero-peaks__area" d="${areaPath}" fill="url(#hero-peaks-fade)"></path>
         <path class="hero-peaks__route" d="${routePath}" pathLength="1"></path>
+        ${projectStatus.verified ? `<path class="hero-peaks__confirmed" d="${routePath}" clip-path="url(#hero-peaks-confirmed)"></path>` : ''}
       </svg>
       <ol class="hero-peaks__labels" aria-hidden="true">${labelMarkup}</ol>
     </div>`;
@@ -1977,6 +2000,7 @@ function renderPage(l) {
   <link rel="stylesheet" href="${l.assetBase}assets/styles.css?v=${assetVersion}">
   <script src="${l.assetBase}assets/app.js?v=${assetVersion}" defer></script>
   <script src="${l.assetBase}assets/dubai-light.js?v=${assetVersion}" type="module"></script>
+  <script src="${l.assetBase}assets/journey.js?v=${assetVersion}" type="module"></script>
 </head>
 <body data-project-phase="before">
   <script type="application/json" id="analytics-goal-registry">${analyticsRegistryJson}</script>
@@ -2159,6 +2183,15 @@ function renderPage(l) {
       </div>
     </section>
 
+    <aside class="return-update" data-return-update hidden aria-label="${l.lang === 'ru' ? 'Изменения с прошлого посещения' : 'Updates since your last visit'}">
+      <p>${l.lang === 'ru' ? 'С прошлого посещения' : 'Since your last visit'}</p>
+      <div class="return-update__links" data-return-links></div>
+    </aside>
+    <script type="application/json" id="project-updates-data">${JSON.stringify([
+      ...l.diary.entries.map(entry => ({ id: `diary:${entry.date}`, kind: 'diary', href: `#diary-entry-${entry.date}` })).reverse(),
+      ...projectHistory.entries.map(entry => ({ id: `distance:${entry.updatedAt}`, kind: 'distance', href: '#distance-history', label: `${formatProjectNumber(entry.distanceKm, l.lang)} ${l.lang === 'ru' ? 'км' : 'km'}` })),
+    ]).replaceAll('<', '\\u003c')}</script>
+
     <section class="manifesto section" id="about" aria-labelledby="manifesto-title">
       ${renderChapterLabel(l, "#top", l.manifesto.eyebrow)}
       <div class="manifesto__copy">
@@ -2236,6 +2269,8 @@ function renderPage(l) {
           </div>
         </details>
       </div>
+      ${renderDistanceHistory(l)}
+      ${renderRideReplay(l)}
     </section>
 
     ${renderPresence(l.presence, l)}
@@ -2521,6 +2556,44 @@ function renderMenuWeather(l) {
   </div>`;
 }
 
+function renderRideReplay(l) {
+  if (!rideRecord) return '';
+  const ru = l.lang === 'ru';
+  return `<details class="ride-replay" id="ride-2024" data-ride-replay data-replay-url="${l.assetBase}assets/ride-2024.json?v=${assetVersion}" data-replay-module="${l.assetBase}assets/ride-replay.js?v=${assetVersion}">
+    <summary><span>${ru ? 'На этой трассе · заезд 2024 года' : 'On this course · the 2024 ride'}</span>${icons.disclosure}</summary>
+    <div class="ride-replay__body">
+      <div class="ride-replay__intro"><h3>${ru ? 'Круг за кругом' : 'Lap after lap'}</h3><p>${ru ? 'В декабре Виктор вернётся на ту же трассу. Посмотрите, как здесь проходил его заезд в рамках «1111».' : 'Viktor returns to this course in December. Follow his ride here during the “1111” project.'}</p></div>
+      <div class="ride-replay__scene" data-replay-scene hidden>
+        <svg data-replay-diagram viewBox="0 0 600 410" role="img" aria-label="${ru ? 'Трасса из записи GPX 2024 года' : 'Course from the 2024 GPX recording'}"><polyline data-replay-route></polyline><polyline data-replay-trail></polyline><circle r="5" cx="0" cy="0"></circle></svg>
+        <div class="ride-replay__reading"><span data-replay-clock></span><span data-replay-phase></span><strong data-replay-distance></strong><span data-replay-meta></span></div>
+      </div>
+      <div class="ride-replay__controls" data-replay-controls hidden>
+        <button type="button" data-replay-play>${ru ? 'Воспроизвести' : 'Play'}</button>
+        <label class="sr-only" for="ride-time">${ru ? 'Момент заезда' : 'Ride time'}</label>
+        <input type="range" id="ride-time" data-replay-time min="0" max="1" value="0" step="1">
+      </div>
+      <p class="ride-replay__status" data-replay-status>${ru ? 'Запись заезда откроется здесь.' : 'The ride recording will open here.'}</p>
+      <p class="ride-replay__source">${rideRecord.timing ? ru ? 'Трасса — из GPX, время и итоговая дистанция — из Strava.' : 'Course from GPX; timing and total distance from Strava.' : ru ? 'Дистанция рассчитана по GPX.' : 'Distance calculated from GPX.'} <a href="${rideRecord.source}" target="_blank" rel="noopener noreferrer">${ru ? 'Оригинал в Strava' : 'Original on Strava'}${icons.external}</a></p>
+    </div>
+  </details>`;
+}
+
+function renderDistanceHistory(l) {
+  if (!projectStatus.verified) return '';
+  const ru = l.lang === 'ru';
+  const km = ru ? 'км' : 'km';
+  const date = iso => new Intl.DateTimeFormat(ru ? 'ru-RU' : 'en-GB', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Dubai' }).format(new Date(iso));
+  return `<aside class="distance-history" id="distance-history" aria-labelledby="distance-history-title">
+    <h3 id="distance-history-title">${ru ? 'След дистанции' : 'The distance so far'}</h3>
+    <p class="distance-history__reading"><strong data-optical-start>${formatProjectNumber(projectStatus.distanceKm, l.lang)} ${km}</strong><span>${ru ? 'подтверждено' : 'confirmed'}</span></p>
+    <div class="distance-history__track" role="meter" aria-label="${ru ? 'Подтверждённая дистанция' : 'Confirmed distance'}" aria-valuemin="0" aria-valuemax="${projectPlan.targetDistanceKm}" aria-valuenow="${projectStatus.distanceKm}"><span style="width:${projectStatus.distanceKm / projectPlan.targetDistanceKm * 100}%"></span></div>
+    <p class="distance-history__stamp"><time datetime="${projectStatus.updatedAt}">${date(projectStatus.updatedAt)}</time> · ${ru ? 'местное время' : 'local time'}</p>
+    <details><summary>${ru ? 'Подтверждённые отметки' : 'Confirmed updates'} · ${projectHistory.entries.length}</summary>
+      <ol>${[...projectHistory.entries].reverse().map(entry => `<li><time datetime="${entry.updatedAt}">${date(entry.updatedAt)}</time><strong>${formatProjectNumber(entry.distanceKm, l.lang)} ${km}</strong>${entry.note[l.lang] ? `<p>${escapeAttribute(entry.note[l.lang])}</p>` : ''}<a href="${escapeAttribute(entry.source.url)}" target="_blank" rel="noopener noreferrer">${escapeAttribute(entry.source.label[l.lang])}${icons.external}</a></li>`).join('')}</ol>
+    </details>
+  </aside>`;
+}
+
 function renderDubaiLight(l) {
   const w = l.lang === "ru" ? {
     title: "День в Дубае", time: "Время в Дубае", mode: "Режим света",
@@ -2529,7 +2602,7 @@ function renderDubaiLight(l) {
     title: "A day in Dubai", time: "Time in Dubai", mode: "Light mode",
     preview: "Start day", current: "Now", source: "MET Norway",
   };
-  return `<section class="dubai-light" id="dubai-light" data-dubai-controls data-start-date="${projectPlan.period.startDate}" aria-labelledby="dubai-light-title" hidden>
+  return `<section class="dubai-light" id="dubai-light" data-dubai-controls data-dust-url="${l.assetBase}assets/dubai-dust.json" data-start-date="${projectPlan.period.startDate}" aria-labelledby="dubai-light-title" hidden>
       <div class="dubai-light__intro">
         <h3 id="dubai-light-title">${w.title}</h3>
         <p id="dubai-hint"><span data-dubai-hint></span></p>
@@ -2548,6 +2621,7 @@ function renderDubaiLight(l) {
         <input id="dubai-time" type="range" min="0" max="1439" step="1" value="720" aria-describedby="dubai-mode-label dubai-hint">
         <div class="dubai-light__sun-times"><span data-dubai-sunrise></span><span data-dubai-sunset></span></div>
         <p class="dubai-light__source"><span class="dubai-light__source-line"><span data-dubai-source></span><a data-dubai-source-link href="https://api.met.no/doc/License" target="_blank" rel="noopener noreferrer" hidden>${w.source}${icons.external}</a></span></p>
+        <p class="dubai-light__dust" data-dubai-dust><span class="dubai-light__dust-row"><span data-dubai-dust-value></span><a href="https://gmao.gsfc.nasa.gov/gmao-products/geos-fp/" target="_blank" rel="noopener noreferrer" hidden>NASA GEOS-FP${icons.external}</a></span><span class="dubai-light__dust-row dubai-light__dust-reserve" aria-hidden="true"><span>${l.lang === 'ru' ? 'Пыль по модели · 100000 мкг/м³ · 23:59' : 'Modelled dust · 100000 µg/m³ · 23:59'}</span><span>NASA GEOS-FP${icons.external}</span></span></p>
       </div>
     </section>`;
 }

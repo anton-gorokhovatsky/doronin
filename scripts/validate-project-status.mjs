@@ -13,8 +13,8 @@ if (errors.length) {
   process.exitCode = 1;
 } else {
   console.log(
-    status.verified
-      ? `Verified project status: ${status.updatedAt} · ${status.distanceKm} km`
-      : "Project status is valid and intentionally unverified.",
+    status.entries.length
+      ? `${status.entries.length} confirmed updates; latest ${status.entries.at(-1).distanceKm} km`
+      : "Project history is valid and intentionally empty.",
   );
 }

@@ -40,7 +40,7 @@ const PALETTES = {
   sunset: { paper: [239, 221, 191], dark: [12, 26, 29], beam: [255, 190, 103], strength: 0.65 },
 };
 
-export function lightPalette(date, minutes, weather = null) {
+export function lightPalette(date, minutes, weather = null, dust = null) {
   const sun = solarPosition(date, minutes);
   const anchors = [
     [0, 'night'], [sun.sunrise - 45, 'night'], [sun.sunrise + 25, 'dawn'],
@@ -58,6 +58,7 @@ export function lightPalette(date, minutes, weather = null) {
   const clouds = weather ? weather.cloudCover / 100 : 0;
   const uv = clamp((weather?.uvClearSky ?? 0) / 11) * (1 - clouds * 0.8);
   const heat = weather?.temperature == null ? 0 : clamp((weather.temperature - 35) / 10);
+  const haze = dust ? clamp((dust.opticalDepth - 0.05) / 0.75) : 0;
   colors.beam = colors.beam.map(value => Math.round(mix(value, 255, uv * 0.25 + heat * 0.12)));
   const strength = mix(from.strength, to.strength, amount) * (1 - clouds * 0.62) * (1 + uv * 0.14);
   const daylight = clamp((sun.altitude + 6) / 18);
@@ -74,9 +75,28 @@ export function lightPalette(date, minutes, weather = null) {
     airDuration: mix(36, 10, clamp((weather?.windSpeed ?? 0) / 12)),
     airX: weather ? -Math.sin(weather.windDirection * RAD) * 32 : 0,
     airY: weather ? Math.cos(weather.windDirection * RAD) * 32 : 0,
-    mediaSaturation: 1 - heat * 0.15 - uv * 0.08,
-    mediaContrast: 1 + uv * 0.06,
+    mediaSaturation: 1 - heat * 0.15 - uv * 0.08 - haze * 0.12,
+    mediaContrast: 1 + uv * 0.06 - haze * 0.08,
+    dustOpacity: haze * 0.2 * daylight,
   };
+}
+
+export function readDust(payload, now = Date.now()) {
+  const issuedAt = Date.parse(payload?.issuedAt);
+  if (payload?.version !== 1 || payload.source !== 'NASA GEOS-FP' || payload.intervalMinutes !== 180
+    || payload.grid?.latitude !== 25.25 || payload.grid?.longitude !== 55.3125
+    || !Number.isFinite(issuedAt) || issuedAt > now || now - issuedAt > 72 * 3600000
+    || !Array.isArray(payload.points) || payload.points.length > 64) return null;
+  const points = payload.points;
+  let lastTime = -Infinity;
+  for (const point of points) {
+    const time = Date.parse(point?.time);
+    if (!Number.isFinite(time) || time <= lastTime || !Number.isFinite(point.dustUgM3) || point.dustUgM3 < 0 || point.dustUgM3 > 100000
+      || !Number.isFinite(point.opticalDepth) || point.opticalDepth < 0 || point.opticalDepth > 20) return null;
+    lastTime = time;
+  }
+  const point = [...points].reverse().find(point => Date.parse(point.time) <= now);
+  return point && now - Date.parse(point.time) < 180 * 60000 ? { ...point, issuedAt } : null;
 }
 
 const WEATHER_AGE = 90 * 60000;
@@ -188,6 +208,9 @@ function initDubaiLight() {
   let mode = dubaiClock().date < startDate ? 'preview' : 'current';
   let previewMinutes = dubaiClock().minutes;
   let weather = null;
+  let dustForecast = null;
+  let nextDustRequest = 0;
+  let dustRequestInFlight = false;
   let nextRequest = 0;
   let forecast = null;
   let requestInFlight = false;
@@ -218,7 +241,8 @@ function initDubaiLight() {
     const minutes = mode === 'preview' ? previewMinutes : current.minutes;
     const date = mode === 'preview' ? startDate : current.date;
     weather = readWeather(forecast);
-    const light = lightPalette(date, minutes, mode === 'current' ? weather : null);
+    const dust = readDust(dustForecast);
+    const light = lightPalette(date, minutes, mode === 'current' ? weather : null, mode === 'current' ? dust : null);
     const nowLight = mode === 'current' ? light : lightPalette(current.date, current.minutes, weather);
     root.style.setProperty('--dubai-now-dark', nowLight.dark.join(' '));
     root.style.setProperty('--dubai-now-beam', nowLight.beam.join(' '));
@@ -230,6 +254,19 @@ function initDubaiLight() {
     }
     root.dataset.dubaiLight = light.phase;
     root.dataset.dubaiMode = mode;
+    root.style.setProperty('--dubai-dust-opacity', String(light.dustOpacity));
+    const dustRow = widget.querySelector('[data-dubai-dust]');
+    if (dustRow) {
+      dustRow.style.visibility = mode === 'current' ? 'visible' : 'hidden';
+      dustRow.setAttribute('aria-hidden', String(mode !== 'current'));
+      const label = dustRow.querySelector('[data-dubai-dust-value]');
+      label.textContent = dust
+        ? lang === 'ru'
+          ? `Пыль по модели · ${Math.round(dust.dustUgM3)} мкг/м³ · ${clockFormat(dubaiClock(new Date(dust.time)).minutes)}`
+          : `Modelled dust · ${Math.round(dust.dustUgM3)} µg/m³ · ${clockFormat(dubaiClock(new Date(dust.time)).minutes)}`
+        : lang === 'ru' ? 'Прогноз пыли недоступен' : 'Dust forecast unavailable';
+      dustRow.querySelector('a').hidden = !dust;
+    }
     widget.dataset.weather = mode === 'preview' ? 'preview' : weather ? 'fresh' : requestInFlight ? 'loading' : 'unavailable';
     slider.value = String(minutes);
     slider.disabled = mode === 'current';
@@ -292,7 +329,19 @@ function initDubaiLight() {
     finally { clearTimeout(timeout); requestInFlight = false; paint(); }
   }
 
-  function tick() { paint(); void updateWeather(); }
+  async function updateDust() {
+    if (mode !== 'current' || document.hidden || disposed || dustRequestInFlight || Date.now() < nextDustRequest) return;
+    dustRequestInFlight = true;
+    nextDustRequest = Date.now() + 30 * 60000;
+    try {
+      const response = await fetch(widget.dataset.dustUrl, { credentials: 'omit', signal: AbortSignal.timeout(6500) });
+      if (!response.ok) throw new Error('Dust unavailable');
+      const payload = await response.json();
+      dustForecast = readDust(payload) ? payload : null;
+    } catch { dustForecast = null; }
+    finally { dustRequestInFlight = false; paint(); }
+  }
+  function tick() { paint(); void updateWeather(); void updateDust(); }
   navigation?.addEventListener('toggle', () => { if (navigation.open) tick(); });
   buttons.forEach(button => button.addEventListener('click', () => {
     mode = button.dataset.dubaiMode;
@@ -314,4 +363,8 @@ function initDubaiLight() {
   if (!document.hidden) timer = setInterval(tick, 60000);
 }
 
-if (typeof document !== 'undefined') initDubaiLight();
+if (typeof document !== 'undefined') {
+  initDubaiLight();
+  const replay = document.querySelector('[data-ride-replay]');
+  if (replay) import(new URL(replay.dataset.replayModule, document.baseURI)).then(module => module.initRideReplay(lightPalette, dubaiClock)).catch(() => {});
+}

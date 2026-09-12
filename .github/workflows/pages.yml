@@ -5,6 +5,8 @@ on:
     branches:
       - main
   workflow_dispatch:
+  schedule:
+    - cron: "23 1,7,13,19 * * *"
 
 permissions:
   contents: read
@@ -38,6 +40,10 @@ jobs:
 
       - name: Install browser engines
         run: pnpm exec playwright install --with-deps chromium webkit
+
+      - name: Refresh dust forecast
+        run: node scripts/update-dust.mjs
+        continue-on-error: true
 
       - name: Run release gate
         run: pnpm gate

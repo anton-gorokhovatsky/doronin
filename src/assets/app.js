@@ -1146,13 +1146,18 @@ if (eventStatus) {
     const menuValue = menuStatus.querySelector("[data-menu-status-value]");
     const menuLabel = menuStatus.querySelector("[data-menu-status-label]");
 
+    const compactJourney = menuStatus.closest(".site-nav__journey");
     if (menuValue) {
-      menuValue.textContent = value.textContent;
+      menuValue.textContent = projectPhase === "before" && compactJourney
+        ? `${footerCountValue}\u00a0${footerCountLabel}`
+        : value.textContent;
       syncOpticalStart(menuValue);
     }
 
     if (menuLabel) {
-      menuLabel.textContent = label.textContent;
+      menuLabel.textContent = projectPhase === "before" && compactJourney
+        ? eventStatus.dataset.lang === "ru" ? "до старта" : "to start"
+        : label.textContent;
     }
 
     menuStatus.setAttribute(

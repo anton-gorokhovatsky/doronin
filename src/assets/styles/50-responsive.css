@@ -1136,6 +1136,8 @@
   :root.text-enlarged .hero-peaks {
     width: calc(100% - 2rem);
     margin-inline: 1rem;
+    /* Give the closest summit labels room to grow with the reader's text size. */
+    height: 15rem;
   }
 
   .manifesto {

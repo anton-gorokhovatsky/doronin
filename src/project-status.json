@@ -1,21 +1,4 @@
 {
-  "version": 1,
-  "verified": false,
-  "updatedAt": null,
-  "distanceKm": null,
-  "discipline": {
-    "ru": null,
-    "en": null
-  },
-  "note": {
-    "ru": null,
-    "en": null
-  },
-  "source": {
-    "label": {
-      "ru": null,
-      "en": null
-    },
-    "url": null
-  }
+  "version": 2,
+  "entries": []
 }
