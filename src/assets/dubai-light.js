@@ -183,13 +183,8 @@ function initDubaiLight() {
   reserveText(sourceOutput.parentElement, sourceRows);
   reserveText(widget.querySelector('[data-dubai-phase]'), [words.dawn, words.day, words.sunset, words.night]);
   const dateReserves = reserveText(modeOutput, [dateLabel(startDate), dateLabel(dubaiClock().date)]);
-  const heroOutput = document.querySelector('[data-dubai-caption]');
   const buttons = [...widget.querySelectorAll('[data-dubai-mode]')];
   const clockFormat = value => `${String(Math.floor(clamp(Math.round(value), 0, 1439) / 60)).padStart(2, '0')}:${String(clamp(Math.round(value), 0, 1439) % 60).padStart(2, '0')}`;
-  const heroCaption = (mode, minutes) => mode === 'preview'
-    ? `${words.city} · ${lang === 'ru' ? 'свет 1 декабря' : 'December 1 light'} · ${clockFormat(minutes)}`
-    : `${words.city} · ${clockFormat(minutes)}`;
-  if (heroOutput) reserveText(heroOutput, [heroCaption('preview', 0), heroCaption('current', 0)]);
   let mode = dubaiClock().date < startDate ? 'preview' : 'current';
   let previewMinutes = dubaiClock().minutes;
   let weather = null;
@@ -251,17 +246,13 @@ function initDubaiLight() {
     sourceOutput.textContent = mode === 'preview' ? words.previewData : weather ? `${words.weather} ${clockFormat(dubaiClock(new Date(weather.timestamp)).minutes)}` : requestInFlight ? words.loading : words.fallback;
     sourceLink.hidden = mode === 'preview' || !weather;
     buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.dubaiMode === mode)));
-    if (heroOutput) {
-      heroOutput.closest('[data-dubai-caption-container]').hidden = false;
-      heroOutput.textContent = heroCaption(mode, minutes);
-    }
     widget.hidden = false;
     if (menuWeather && navigation.open) {
       const hasForecast = weather && weather.temperature !== null;
-      const forecastTime = hasForecast ? dubaiClock(new Date(weather.timestamp)).minutes : current.minutes;
-      menuWeather.querySelector('[data-menu-weather-time]').textContent = `${words.city} · ${clockFormat(forecastTime)}`;
+      menuWeather.querySelector('[data-menu-weather-time]').textContent = hasForecast
+        ? `${words.city} · ${words.weather.toLowerCase()} ${clockFormat(dubaiClock(new Date(weather.timestamp)).minutes)}`
+        : words.city;
       menuWeather.querySelector('[data-menu-weather-readings]').hidden = !hasForecast;
-      menuWeather.querySelector('[data-menu-weather-source]').hidden = !hasForecast;
       const state = menuWeather.querySelector('[data-menu-weather-state]');
       state.hidden = Boolean(hasForecast);
       state.textContent = requestInFlight ? words.forecastLoading : words.forecastUnavailable;

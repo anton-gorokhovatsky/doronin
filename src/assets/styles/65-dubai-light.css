@@ -129,20 +129,6 @@
   text-transform: none;
 }
 
-.menu-weather__source {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  min-height: 2.75rem;
-  color: var(--paper-dim);
-  text-underline-offset: 0.2em;
-}
-
-.menu-weather__source .icon {
-  width: 1em;
-  height: 1em;
-}
-
 .menu-weather__readings {
   display: contents;
   margin: 0;
@@ -243,18 +229,6 @@
   }
 }
 
-.hero__light-caption {
-  display: block;
-  margin-top: 0.6rem;
-  font-size: var(--type-service);
-  font-weight: 450;
-  letter-spacing: 0;
-  line-height: 1.5;
-  text-transform: none;
-  color: var(--paper-dim);
-}
-
-.hero__light-caption[hidden],
 .dubai-light[hidden],
 .dubai-light [hidden] {
   display: none;

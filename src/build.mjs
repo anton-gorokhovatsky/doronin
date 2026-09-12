@@ -2148,7 +2148,7 @@ function renderPage(l) {
       </div>
 
       <div class="hero__foot">
-        <span>${l.hero.footLabel}<small class="hero__light-caption" data-dubai-caption-container hidden><span data-dubai-caption></span></small></span>
+        <span>${l.hero.footLabel}</span>
         ${renderHeroPeaks(projectPlan, l)}
       </div>
     </section>
@@ -2500,9 +2500,9 @@ function renderPage(l) {
 
 function renderMenuWeather(l) {
   const w = l.lang === "ru" ? {
-    label: "Прогноз для трассы в Дубае", air: "Воздух", wind: "ветер", cloud: "облачность", source: "MET Norway — источник прогноза",
+    label: "Прогноз для трассы в Дубае", air: "Воздух", wind: "ветер", cloud: "облачность",
   } : {
-    label: "Forecast for the Dubai track", air: "Air", wind: "wind", cloud: "cloud cover", source: "MET Norway — forecast source",
+    label: "Forecast for the Dubai track", air: "Air", wind: "wind", cloud: "cloud cover",
   };
   return `<div class="menu-weather" data-menu-weather aria-label="${w.label}" hidden>
     <span data-menu-weather-time></span>
@@ -2511,7 +2511,6 @@ function renderMenuWeather(l) {
       <div class="menu-weather__detail"><dt>${w.wind}</dt><dd data-menu-weather-wind></dd></div>
       <div class="menu-weather__detail"><dt>${w.cloud}</dt><dd data-menu-weather-cloud></dd></div>
     </dl>
-    <a class="menu-weather__source" href="https://api.met.no/doc/License" aria-label="${w.source}" data-menu-weather-source target="_blank" rel="noopener noreferrer" hidden>MET Norway${icons.external}</a>
     <p class="menu-weather__state" data-menu-weather-state></p>
   </div>`;
 }
