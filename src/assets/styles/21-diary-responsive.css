@@ -1,3 +1,11 @@
+@media (min-width: 961px) {
+  .diary-live.section-heading > .diary-live__copy,
+  .diary-story__heading,
+  .diary__copy {
+    grid-column: 6 / -1;
+  }
+}
+
 @media (max-width: 960px) {
   .diary-archive__links {
     grid-auto-columns: calc((100% - 1.5rem) / 2.15);
@@ -129,6 +137,15 @@
 
 :root.text-enlarged .diary-archive__links {
   grid-auto-columns: min(100%, 30rem);
+}
+
+:root.text-enlarged .diary__play {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+}
+
+:root.text-enlarged .diary__play-meta {
+  justify-self: end;
 }
 
 @media (max-width: 640px) {
