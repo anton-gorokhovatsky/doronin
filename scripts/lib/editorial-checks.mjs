@@ -203,4 +203,37 @@ export async function checkDiaryReadingRoute(page, total) {
   await page.goForward();
   const firstId = await panels.first().getAttribute("id");
   await page.waitForFunction(id => !document.getElementById(id).hidden, firstId);
+  const sticky = await panels.first().evaluate(async (story) => {
+    const gallery = story.querySelector('.diary__gallery');
+    if (!gallery) return { skipped: true };
+    const style = getComputedStyle(gallery);
+    if (innerWidth <= 960 || document.documentElement.classList.contains('text-enlarged')) {
+      return { staticLayout: style.position !== 'sticky' };
+    }
+    const frame = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const storyBox = story.getBoundingClientRect();
+    const height = gallery.getBoundingClientRect().height;
+    const top = parseFloat(style.top);
+    const travel = storyBox.height - height;
+    if (travel < 120) return { skipped: true };
+    const scrollStart = scrollY + storyBox.top - top;
+    const previousBehavior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'auto';
+    scrollTo({ top: scrollStart + 20, behavior: 'instant' });
+    await frame();
+    const first = gallery.getBoundingClientRect();
+    scrollTo({ top: scrollStart + 100, behavior: 'instant' });
+    await frame();
+    const second = gallery.getBoundingClientRect();
+    scrollTo({ top: scrollStart + travel + 80, behavior: 'instant' });
+    await frame();
+    const end = gallery.getBoundingClientRect();
+    const boundary = story.getBoundingClientRect();
+    document.documentElement.style.scrollBehavior = previousBehavior;
+    return { follows: Math.abs(first.top - second.top) < 1,
+      controlsReachable: second.bottom <= innerHeight - 16,
+      leavesWithArticle: end.top < second.top - 30 && end.bottom <= boundary.bottom + 1 };
+  });
+  assert(sticky.skipped || sticky.staticLayout || (sticky.follows && sticky.controlsReachable && sticky.leavesWithArticle),
+    `Media should follow a long article without a separate text scroller: ${JSON.stringify(sticky)}`);
 }

@@ -1580,6 +1580,22 @@ for (const gallery of diaryMediaGalleries) {
   gallery.classList.add("has-media-gallery");
 }
 
+// A tall gallery scrolls into view before its bottom edge follows the article.
+// Measure the whole group so controls and thumbnails remain reachable as it changes.
+if ("ResizeObserver" in window) {
+  const diaryGallerySize = new ResizeObserver((entries) => {
+    for (const { target } of entries) {
+      const height = target.getBoundingClientRect().height;
+      if (height <= 0) continue;
+      target.style.setProperty("--diary-gallery-height", `${height}px`);
+      target.dataset.diaryStickyReady = "";
+    }
+  });
+  document.querySelectorAll(".diary-story > .diary__gallery").forEach((gallery) => {
+    diaryGallerySize.observe(gallery);
+  });
+}
+
 const diaryVideos = [...document.querySelectorAll("[data-diary-video]")];
 
 for (const diaryVideo of diaryVideos) {

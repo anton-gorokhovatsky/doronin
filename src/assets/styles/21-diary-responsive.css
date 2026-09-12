@@ -1,4 +1,10 @@
 @media (min-width: 961px) {
+  :root:not(.text-enlarged) .diary-story > .diary__gallery[data-diary-sticky-ready] {
+    position: sticky;
+    top: min(6rem, calc(100svh - var(--diary-gallery-height) - 1.5rem));
+    align-self: start;
+  }
+
   .diary-live.section-heading > .diary-live__copy,
   .diary-story__heading,
   .diary__copy {
