@@ -719,6 +719,7 @@ const styleModuleNames = [
   "50-responsive.css",
   "55-editorial-menu.css",
   "60-themes-accessibility.css",
+  "65-dubai-light.css",
 ];
 const sourceStyleManifest = await readFile(resolve("src/assets/styles.css"), "utf8");
 const sourceStyleBundle = (

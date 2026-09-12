@@ -11,6 +11,7 @@ const steps = [
   ["Static contract", process.execPath, ["src/check.mjs", "site"]],
   ["Accessibility matrix", process.execPath, ["scripts/accessibility-gate.mjs"]],
   ["Chromium/WebKit regression", process.execPath, ["scripts/browser-regression.mjs"]],
+  ["Dubai light and data fallbacks", process.execPath, ["scripts/dubai-light-check.mjs", "site"]],
   ["Screenshot gate", process.execPath, ["scripts/screenshot-gate.mjs"]],
   ["Whitespace/errors", "git", ["diff", "--check"]],
 ].filter(

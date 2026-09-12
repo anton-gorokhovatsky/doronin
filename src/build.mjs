@@ -40,6 +40,7 @@ const styleModuleNames = [
   "50-responsive.css",
   "55-editorial-menu.css",
   "60-themes-accessibility.css",
+  "65-dubai-light.css",
 ];
 const styleBundle = (
   await Promise.all(
@@ -76,6 +77,7 @@ const assetVersion = createHash("sha256")
   .update(morphiconsPackage.version)
   .update(await readFile(resolve(assetSource, "app.js")))
   .update(await readFile(resolve(assetSource, "theme-init.js")))
+  .update(await readFile(resolve(assetSource, "dubai-light.js")))
   .digest("hex")
   .slice(0, 10);
 const heroVideoVersion = createHash("sha256")
@@ -1967,6 +1969,7 @@ function renderPage(l) {
   <script src="${l.assetBase}assets/theme-init.js?v=${assetVersion}"></script>
   <link rel="stylesheet" href="${l.assetBase}assets/styles.css?v=${assetVersion}">
   <script src="${l.assetBase}assets/app.js?v=${assetVersion}" defer></script>
+  <script src="${l.assetBase}assets/dubai-light.js?v=${assetVersion}" type="module"></script>
 </head>
 <body data-project-phase="before">
   <script type="application/json" id="analytics-goal-registry">${analyticsRegistryJson}</script>
@@ -2143,7 +2146,7 @@ function renderPage(l) {
       </div>
 
       <div class="hero__foot">
-        <span>${l.hero.footLabel}</span>
+        <span>${l.hero.footLabel}<small class="hero__light-caption" data-dubai-caption hidden></small></span>
         ${renderHeroPeaks(projectPlan, l)}
       </div>
     </section>
@@ -2455,6 +2458,8 @@ function renderPage(l) {
       </div>
     </div>
 
+    ${renderDubaiLight(l)}
+
     <div class="site-footer__wordmark" aria-hidden="true">
       <img src="${l.assetBase}assets/logo.svg" alt="" width="512" height="231">
     </div>
@@ -2481,6 +2486,37 @@ function renderPage(l) {
 </body>
 </html>
 `, l.lang);
+}
+
+function renderDubaiLight(l) {
+  const w = l.lang === "ru" ? {
+    title: "День в Дубае", time: "Время в Дубае", mode: "Режим света",
+    preview: "День старта", current: "Сейчас", source: "Источник погоды",
+  } : {
+    title: "A day in Dubai", time: "Time in Dubai", mode: "Light mode",
+    preview: "Start day", current: "Now", source: "Weather source",
+  };
+  return `<section class="dubai-light" id="dubai-light" data-dubai-controls data-start-date="${projectPlan.period.startDate}" aria-labelledby="dubai-light-title" hidden>
+      <div class="dubai-light__intro">
+        <h3 id="dubai-light-title">${w.title}</h3>
+        <p id="dubai-hint" data-dubai-hint></p>
+        <div class="dubai-light__modes" role="group" aria-label="${w.mode}">
+          <button type="button" data-dubai-mode="preview" aria-pressed="true">${w.preview}</button>
+          <button type="button" data-dubai-mode="current" aria-pressed="false">${w.current}</button>
+        </div>
+      </div>
+      <div class="dubai-light__controls">
+        <p class="dubai-light__mode" id="dubai-mode-label" data-dubai-mode-label></p>
+        <div class="dubai-light__time">
+          <time data-dubai-clock></time>
+          <span data-dubai-phase></span>
+        </div>
+        <label class="sr-only" for="dubai-time">${w.time}</label>
+        <input id="dubai-time" type="range" min="0" max="1439" step="1" value="720" aria-describedby="dubai-mode-label dubai-hint">
+        <div class="dubai-light__sun-times"><span data-dubai-sunrise></span><span data-dubai-sunset></span></div>
+        <p class="dubai-light__source"><span data-dubai-source></span> <a data-dubai-source-link href="https://open-meteo.com/en/docs" target="_blank" rel="noopener noreferrer" hidden>${w.source}${icons.external}</a></p>
+      </div>
+    </section>`;
 }
 
 const renderedPages = Object.values(locales).map((locale) => [

@@ -13,6 +13,7 @@
     "status:update": "node scripts/update-project-status.mjs",
     "test:a11y": "node scripts/accessibility-gate.mjs",
     "test:browser": "node scripts/browser-regression.mjs",
+    "test:light": "node scripts/dubai-light-check.mjs",
     "gate:screenshots": "node scripts/screenshot-gate.mjs",
     "gate": "node scripts/release-gate.mjs"
   },

@@ -1,0 +1,296 @@
+/* Time and weather affect illumination; editorial hierarchy keeps its own contrast. */
+:root[data-dubai-light] {
+  --dubai-ambient: radial-gradient(
+    ellipse 70% 85% at var(--dubai-x) var(--dubai-y),
+    rgb(var(--dubai-beam) / var(--dubai-strength)),
+    transparent 74%
+  );
+}
+
+:root[data-dubai-light]:not(.theme-dark) {
+  --surface-editorial: rgb(var(--dubai-paper));
+}
+
+:root[data-dubai-light].theme-dark {
+  --surface-editorial: rgb(var(--dubai-dark));
+}
+
+:root[data-dubai-light] .section--light {
+  background-image: var(--dubai-ambient), var(--editorial-art);
+}
+
+:root[data-dubai-light] .hero__veil {
+  background: var(--hero-veil), var(--dubai-ambient);
+}
+
+:root[data-dubai-light] .hero__veil::after {
+  background:
+    linear-gradient(to bottom, transparent 58%, var(--ink) 100%),
+    radial-gradient(ellipse 60% 65% at var(--dubai-x) 100%, rgb(var(--dubai-beam) / var(--dubai-strength)), transparent 74%);
+}
+
+:root[data-dubai-light] .hero__foot {
+  background: radial-gradient(ellipse 70% 180% at var(--dubai-x) 100%, rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.6)), transparent 72%);
+}
+
+:root[data-dubai-light] .manifesto {
+  background:
+    linear-gradient(var(--dubai-wind-angle), transparent 25%, rgb(var(--dubai-beam) / var(--dubai-air-opacity)) 65%, transparent),
+    radial-gradient(ellipse 72% 100% at var(--dubai-x) 0%, rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.6)), transparent 75%),
+    var(--ink);
+}
+
+:root[data-dubai-light] .manifesto__mark {
+  background: linear-gradient(120deg, rgb(var(--dubai-beam)), var(--acid));
+}
+
+:root[data-dubai-light] .site-footer {
+  background-image: var(--dubai-ambient), var(--footer-art);
+}
+
+:root[data-dubai-light] .site-footer__wordmark img {
+  filter: drop-shadow(var(--dubai-shadow-x) var(--dubai-shadow-y) var(--dubai-diffusion) rgb(0 0 0 / 0.6));
+}
+
+.hero__light-caption {
+  display: block;
+  margin-top: 0.6rem;
+  font-size: var(--type-service);
+  font-weight: 450;
+  letter-spacing: 0;
+  line-height: 1.5;
+  text-transform: none;
+  color: var(--paper-dim);
+}
+
+.hero__light-caption[hidden],
+.dubai-light[hidden],
+.dubai-light [hidden] {
+  display: none;
+}
+
+.dubai-light {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 2rem var(--layout-column-gap);
+  margin: clamp(3rem, 5vw, 5rem) 0;
+  scroll-margin-top: 6rem;
+}
+
+.dubai-light__intro {
+  grid-column: 1 / span 4;
+}
+
+.dubai-light__intro h3 {
+  margin: 0;
+  font-family: var(--body);
+  font-size: var(--type-copy-title);
+  font-weight: 600;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.dubai-light__intro p {
+  max-width: 36ch;
+  margin: 0.8rem 0 0;
+  font-size: var(--type-copy);
+  line-height: var(--leading-copy);
+  color: var(--paper-dim);
+}
+
+.dubai-light__modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.dubai-light__modes button {
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--line-light);
+  border-radius: 0;
+  background: transparent;
+  color: var(--paper);
+  font: inherit;
+  font-size: var(--type-service-strong);
+  font-weight: 650;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.dubai-light__modes button[aria-pressed="true"] {
+  border-color: var(--acid);
+  background: var(--acid);
+  color: var(--ink);
+}
+
+.dubai-light__modes button:hover,
+.dubai-light__modes button:focus-visible {
+  border-color: var(--paper);
+}
+
+.dubai-light__controls {
+  grid-column: 6 / -1;
+  align-self: center;
+  width: min(100%, 40rem);
+  min-width: 0;
+}
+
+.dubai-light__mode {
+  margin: 0 0 0.5rem;
+  font-size: var(--type-service-strong);
+  line-height: 1.4;
+  color: var(--paper-dim);
+}
+
+.dubai-light__time {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.dubai-light__time time {
+  font-family: var(--body);
+  font-size: var(--type-copy-title);
+  font-weight: 500;
+  line-height: 1.2;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.dubai-light__time span {
+  font-size: var(--type-copy);
+  color: var(--paper-dim);
+}
+
+.dubai-light input[type="range"] {
+  display: block;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  min-width: 0;
+  height: 2.75rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  background: transparent;
+  accent-color: var(--acid);
+  cursor: ew-resize;
+}
+
+.dubai-light input::-webkit-slider-runnable-track {
+  height: 3px;
+  background: linear-gradient(90deg, #607179 0%, #607179 var(--day-start), #e2b47c var(--day-start), #e2b47c var(--day-end), #607179 var(--day-end));
+}
+
+.dubai-light input::-moz-range-track {
+  height: 3px;
+  background: linear-gradient(90deg, #607179 0%, #607179 var(--day-start), #e2b47c var(--day-start), #e2b47c var(--day-end), #607179 var(--day-end));
+}
+
+.dubai-light input::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: calc(1.5px - 0.625rem);
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--acid);
+  box-shadow: 0 0 0 1px var(--paper);
+}
+
+.dubai-light input::-moz-range-thumb {
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--acid);
+  box-shadow: 0 0 0 1px var(--paper);
+}
+
+.dubai-light input:disabled {
+  cursor: default;
+}
+
+.dubai-light input:disabled::-webkit-slider-thumb {
+  background: var(--paper);
+}
+
+.dubai-light__sun-times {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  font-size: var(--type-service-strong);
+  line-height: var(--leading-copy);
+  color: var(--paper-dim);
+}
+
+.dubai-light__source {
+  margin: 1rem 0 0;
+  max-width: 60ch;
+  color: var(--paper-dim);
+  font-size: var(--type-service);
+  line-height: var(--leading-copy);
+}
+
+.dubai-light__source a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.75rem;
+  color: var(--paper);
+  text-underline-offset: 0.2em;
+}
+
+.dubai-light__source a .icon {
+  width: 1em;
+  height: 1em;
+}
+
+@media (max-width: 960px) {
+  .dubai-light {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dubai-light__intro,
+  .dubai-light__controls {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  :root[data-dubai-light] .hero__veil {
+    background: var(--hero-veil-mobile), var(--dubai-ambient);
+  }
+}
+
+:root.text-enlarged .dubai-light {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+:root.text-enlarged .dubai-light__intro,
+:root.text-enlarged .dubai-light__controls {
+  grid-column: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-dubai-light] .site-footer__wordmark img {
+    transition: filter 400ms var(--ease-move);
+  }
+}
+
+@media (forced-colors: active) {
+  .dubai-light input[type="range"] {
+    appearance: auto;
+    -webkit-appearance: auto;
+  }
+
+  .dubai-light__modes button[aria-pressed="true"] {
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+  }
+}
