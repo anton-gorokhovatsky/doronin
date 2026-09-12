@@ -219,7 +219,12 @@
 
 @media (max-width: 960px) {
   :root .site-nav__journey:has(.menu-weather:not([hidden])) {
-    gap: 0.5rem;
+    gap: 1.5rem;
+    padding-block: 1.75rem;
+  }
+
+  :root .site-nav__journey .site-nav__status-reading strong {
+    font-size: clamp(2.5rem, calc(2.25rem + 1.1vw), 2.875rem);
   }
 
   :root .site-nav__journey .site-nav__status {
@@ -229,6 +234,7 @@
   :root .site-nav__journey .menu-weather {
     grid-column: 1;
     grid-row: 2;
+    font-size: 0.875rem;
   }
 }
 
