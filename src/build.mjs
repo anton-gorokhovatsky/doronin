@@ -2032,7 +2032,7 @@ function renderPage(l) {
             <div class="site-nav__status" data-menu-status>
               <span class="site-nav__status-meta">${l.hero.statusMeta}</span>
               <div class="site-nav__status-reading">
-                <strong data-menu-status-value data-optical-start>…</strong>
+                <strong data-menu-status-value>…</strong>
                 <span data-menu-status-label>${l.hero.statusFallback}</span>
               </div>
             </div>
@@ -2500,20 +2500,18 @@ function renderPage(l) {
 
 function renderMenuWeather(l) {
   const w = l.lang === "ru" ? {
-    label: "Прогноз для трассы в Дубае", air: "Воздух", wind: "Ветер", cloud: "Облачность", source: "MET Norway — источник прогноза",
+    label: "Прогноз для трассы в Дубае", air: "Воздух", wind: "ветер", cloud: "облачность", source: "MET Norway — источник прогноза",
   } : {
-    label: "Forecast for the Dubai track", air: "Air", wind: "Wind", cloud: "Cloud cover", source: "MET Norway — forecast source",
+    label: "Forecast for the Dubai track", air: "Air", wind: "wind", cloud: "cloud cover", source: "MET Norway — forecast source",
   };
   return `<div class="menu-weather" data-menu-weather aria-label="${w.label}" hidden>
-    <div class="menu-weather__heading">
-      <span data-menu-weather-time></span>
-      <a href="https://api.met.no/doc/License" aria-label="${w.source}" data-menu-weather-source target="_blank" rel="noopener noreferrer" hidden>MET Norway${icons.external}</a>
-    </div>
+    <span data-menu-weather-time></span>
     <dl class="menu-weather__readings" data-menu-weather-readings hidden>
-      <div class="menu-weather__primary"><dt>${w.air}</dt><dd><span data-menu-weather-air></span><small data-menu-weather-heat hidden></small></dd></div>
+      <div class="menu-weather__primary"><dt class="sr-only">${w.air}</dt><dd><span data-menu-weather-air></span><small data-menu-weather-heat hidden></small></dd></div>
       <div class="menu-weather__detail"><dt>${w.wind}</dt><dd data-menu-weather-wind></dd></div>
       <div class="menu-weather__detail"><dt>${w.cloud}</dt><dd data-menu-weather-cloud></dd></div>
     </dl>
+    <a class="menu-weather__source" href="https://api.met.no/doc/License" aria-label="${w.source}" data-menu-weather-source target="_blank" rel="noopener noreferrer" hidden>MET Norway${icons.external}</a>
     <p class="menu-weather__state" data-menu-weather-state></p>
   </div>`;
 }

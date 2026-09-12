@@ -203,7 +203,16 @@ export async function checkDiaryReadingRoute(page, total) {
   await page.goForward();
   const firstId = await panels.first().getAttribute("id");
   await page.waitForFunction(id => !document.getElementById(id).hidden, firstId);
-  const sticky = await panels.first().evaluate(async (story) => {
+  // These two real posts exercise distinct reading lengths: the concise totals
+  // must scroll with their photo, while the long training reflection keeps media nearby.
+  const shortId = 'diary-entry-2026-09-12';
+  if (await page.locator(`#${shortId}`).isHidden()) await page.locator(`[data-diary-story-link][href="#${shortId}"]`).click();
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  assert.notEqual(await page.locator(`#${shortId} .diary__gallery`).evaluate(el => getComputedStyle(el).position), 'sticky', 'The short training summary must scroll with its photo');
+  const longId = 'diary-entry-2026-09-09';
+  await page.locator(`[data-diary-story-link][href="#${longId}"]`).click();
+  const sticky = await page.locator(`#${longId}`).evaluate(async (story) => {
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     const gallery = story.querySelector('.diary__gallery');
     if (!gallery) return { skipped: true };
     const style = getComputedStyle(gallery);
@@ -236,4 +245,5 @@ export async function checkDiaryReadingRoute(page, total) {
   });
   assert(sticky.skipped || sticky.staticLayout || (sticky.follows && sticky.controlsReachable && sticky.leavesWithArticle),
     `Media should follow a long article without a separate text scroller: ${JSON.stringify(sticky)}`);
+  await page.locator(`[data-diary-story-link][href="#${firstId}"]`).click();
 }

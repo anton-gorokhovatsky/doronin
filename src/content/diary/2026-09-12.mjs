@@ -24,9 +24,9 @@ export default {
 
 <strong>Итого за тренировочный день:</strong>
 
-• ⏱️ <strong>5 часов 23 минуты</strong>
-• 🚴 <strong>180 км</strong>
-• ⛰️ <strong>1217 м набора высоты</strong>`,
+• <strong>5 часов 23 минуты</strong>
+• <strong>180 км</strong>
+• <strong>1217 м набора высоты</strong>`,
       externalLabel:
         "Откроется запись дневника Виктора от 12 сентября в Telegram",
     },
@@ -45,9 +45,9 @@ After the main block, I added another <strong>1 hour 23 minutes</strong> of easy
 
 <strong>Total for the training day:</strong>
 
-• ⏱️ <strong>5 hours 23 minutes</strong>
-• 🚴 <strong>180 km</strong>
-• ⛰️ <strong>1217 m of elevation gain</strong>`,
+• <strong>5 hours 23 minutes</strong>
+• <strong>180 km</strong>
+• <strong>1217 m of elevation gain</strong>`,
       externalLabel:
         "Opens Viktor’s September 12 training diary entry on Telegram",
     },

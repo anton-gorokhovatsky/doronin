@@ -1580,20 +1580,25 @@ for (const gallery of diaryMediaGalleries) {
   gallery.classList.add("has-media-gallery");
 }
 
-// A tall gallery scrolls into view before its bottom edge follows the article.
-// Measure the whole group so controls and thumbnails remain reachable as it changes.
+// Only hold media when at least half a screen of reading continues beyond it.
+// Short entries scroll as one composition; gallery controls stay in the measured group.
 if ("ResizeObserver" in window) {
+  const galleries = [...document.querySelectorAll(".diary-story > .diary__gallery")];
+  const syncDiaryGallery = (gallery) => {
+    const height = gallery.getBoundingClientRect().height;
+    const storyHeight = gallery.parentElement.getBoundingClientRect().height;
+    gallery.toggleAttribute("data-diary-sticky-ready", height > 0 && storyHeight - height > window.innerHeight / 2);
+    if (height > 0) gallery.style.setProperty("--diary-gallery-height", `${height}px`);
+  };
   const diaryGallerySize = new ResizeObserver((entries) => {
-    for (const { target } of entries) {
-      const height = target.getBoundingClientRect().height;
-      if (height <= 0) continue;
-      target.style.setProperty("--diary-gallery-height", `${height}px`);
-      target.dataset.diaryStickyReady = "";
-    }
+    const changed = new Set(entries.map(({ target }) => target.matches(".diary__gallery") ? target : target.querySelector(".diary__gallery")));
+    changed.forEach(syncDiaryGallery);
   });
-  document.querySelectorAll(".diary-story > .diary__gallery").forEach((gallery) => {
+  galleries.forEach((gallery) => {
     diaryGallerySize.observe(gallery);
+    diaryGallerySize.observe(gallery.parentElement);
   });
+  window.addEventListener("resize", () => galleries.forEach(syncDiaryGallery), { passive: true });
 }
 
 const diaryVideos = [...document.querySelectorAll("[data-diary-video]")];
