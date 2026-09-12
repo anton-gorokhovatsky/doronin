@@ -150,8 +150,9 @@
   --type-copy-lead: clamp(1.1rem, calc(1rem + 0.5vw), 1.45rem);
 
   /* 04 — service labels and actions. */
-  --type-service: clamp(0.72rem, calc(0.68rem + 0.14vw), 0.82rem);
-  --type-service-strong: clamp(0.8rem, calc(0.76rem + 0.15vw), 0.9rem);
+  --type-service-index: clamp(0.75rem, calc(0.7rem + 0.14vw), 0.82rem);
+  --type-service: clamp(0.875rem, calc(0.85rem + 0.1vw), 0.9375rem);
+  --type-service-strong: clamp(0.9375rem, calc(0.9rem + 0.15vw), 1rem);
 
   --leading-display: 0.94;
   --leading-number: 0.9;
@@ -168,6 +169,18 @@
   --page-gutter: clamp(1rem, 3.4vw, 4rem);
   --layout-column-gap: clamp(1.5rem, 3vw, 3.5rem);
   --section-space: clamp(5rem, 10vw, 10rem);
+  /* Proximity: label/value → one group → neighbouring groups → chapter. */
+  --space-pair: clamp(0.5rem, calc(0.45rem + 0.2vw), 0.75rem);
+  --space-stack: clamp(1rem, calc(0.85rem + 0.75vw), 1.5rem);
+  --space-group: clamp(2rem, calc(1.65rem + 1.5vw), 3rem);
+  --space-heading: clamp(3rem, 7vw, 6rem);
+  /* Shared twelve-column patterns: chapter heading and editorial media/copy. */
+  --layout-columns: repeat(12, minmax(0, 1fr));
+  --layout-chapter-meta: 1 / span 4;
+  --layout-chapter-copy: 5 / -1;
+  --layout-editorial-media: 1 / span 4;
+  --layout-editorial-portrait: 1 / span 5;
+  --layout-editorial-copy: 6 / -1;
   --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
   --ease-move: cubic-bezier(0.65, 0, 0.35, 1);

@@ -234,7 +234,7 @@
   :root .site-nav__journey .menu-weather {
     grid-column: 1;
     grid-row: 2;
-    font-size: 0.875rem;
+    font-size: var(--type-service);
   }
 }
 

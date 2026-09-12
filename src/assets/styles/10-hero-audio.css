@@ -596,7 +596,7 @@
   max-width: 100%;
   min-height: 2.75rem;
   margin-top: 0.35rem;
-  font-size: var(--type-service);
+  font-size: var(--type-service-strong);
 }
 
 .hero__actions {

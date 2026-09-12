@@ -812,7 +812,8 @@
 
 @media (max-width: 960px) {
   .site-header:has(.nav-shell[open])::before {
-    background-color: rgba(2, 30, 21, 0.58);
+    /* A full-screen reading surface stays opaque if WebKit drops backdrop blur. */
+    background-color: var(--ink-deep);
   }
 
   .site-header {
@@ -1212,7 +1213,7 @@
 
   .site-nav__diary,
   .site-nav__setting-options :where(button, a, span) {
-    font-size: 0.65rem;
+    font-size: var(--type-service-strong);
   }
 }
 

@@ -530,7 +530,12 @@
   }
 
   .athlete {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .athlete__media,
+  .athlete__copy {
+    grid-column: 1;
   }
 
   .achievement-grid {

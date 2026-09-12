@@ -8,7 +8,7 @@
   .diary-live.section-heading > .diary-live__copy,
   .diary-story__heading,
   .diary__copy {
-    grid-column: 6 / -1;
+    grid-column: var(--layout-editorial-copy);
   }
 }
 
@@ -23,7 +23,7 @@
 
   .diary__copy,
   .diary-story__heading {
-    grid-column: 6 / -1;
+    grid-column: var(--layout-editorial-copy);
   }
 
   .diary__facts {
