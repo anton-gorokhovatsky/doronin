@@ -185,16 +185,11 @@
 }
 
 :root .site-nav__primary > .site-nav__link:focus-visible {
-  background-color: color-mix(in srgb, var(--paper) 6%, transparent);
   outline: 2px solid var(--paper);
   outline-offset: 3px;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  :root .site-nav__primary > .site-nav__link:hover {
-    background-color: color-mix(in srgb, var(--paper) 6%, transparent);
-  }
-
   :root .site-nav__primary > .site-nav__link:not([aria-current="location"]):hover,
   :root .site-nav__primary > .site-nav__link:not([aria-current="location"]):hover::before {
     color: var(--paper);
@@ -609,9 +604,7 @@
     line-height: 1.04;
     text-transform: uppercase;
     white-space: normal;
-    transition:
-      color 160ms var(--ease-move),
-      background-color 160ms var(--ease-move);
+    transition: color 160ms var(--ease-move);
   }
 
   .site-nav__primary > .site-nav__link:first-child {
