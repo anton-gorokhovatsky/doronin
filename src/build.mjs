@@ -114,6 +114,13 @@ const shared = {
     ride: "https://www.strava.com/activities/13190277378",
     run: "https://www.strava.com/activities/13193011479",
   },
+  raceResults: {
+    mds2024: "https://utmb.world/utmb-index/races/192.le38ememarathondessableslemds.2024?page=4",
+    kona2016: "https://www.btu-info.de/images/stories/2016/Ergebnisse/Ergebnis_2016_10_08_Ironman_Hawaii.pdf#page=23",
+    kona2017: "https://www.endurance-data.com/en/result/90/1685-victor-doronin/",
+    kona2018: "https://www.btu-info.de/images/stories/2018/Ergebnisse/Ergebnis_2018_10_13_Ironman_Hawaii.pdf#page=12",
+    kona2024: "https://btu-info.de/images/stories/2024/Ergebnisse/Ergebnis_2024_10_26_Ironman_Kona_Hawaii.pdf#page=14",
+  },
   serialHrefs: [
     "https://vkvideo.ru/video-224465212_456239087",
     "https://vkvideo.ru/video-224465212_456239090",
@@ -400,10 +407,25 @@ const locales = {
           ],
         },
         {
-          title: "Спортивная история Виктора",
+          title: "Marathon des Sables · 2024",
           body:
-            "Участие в чемпионатах мира Ironman и Marathon des Sables подтверждены описанием документального проекта.",
-          links: [["Описание фильма", shared.filmHref]],
+            "Виктор завершил 38-й Marathon des Sables: 252,8 км за 34:07:29, 81-е место в общем зачёте. В таблице UTMB Index — Victor Doronin.",
+          linkLabel: "Результат гонки",
+          stackLinks: true,
+          links: [["MDS 2024 · UTMB Index", shared.raceResults.mds2024]],
+        },
+        {
+          title: "IRONMAN · Кона",
+          body:
+            "Виктор финишировал на чемпионате мира в Коне в 2016, 2017, 2018 и 2024 годах. Во всех четырёх таблицах результатов он указан как Victor Doronin.",
+          linkLabel: "Архивы результатов",
+          stackLinks: true,
+          links: [
+            ["2016 · BTU (PDF)", shared.raceResults.kona2016],
+            ["2017 · Endurance Data", shared.raceResults.kona2017],
+            ["2018 · BTU (PDF)", shared.raceResults.kona2018],
+            ["2024 · BTU (PDF)", shared.raceResults.kona2024],
+          ],
         },
         {
           title: "+310% и 25+ СМИ",
@@ -823,10 +845,25 @@ const locales = {
           ],
         },
         {
-          title: "Viktor’s sporting record",
+          title: "Marathon des Sables · 2024",
           body:
-            "Ironman World Championship participation and Marathon des Sables are documented in the film description.",
-          links: [["Film description", shared.filmHref]],
+            "Viktor completed the 38th Marathon des Sables: 252.8 km in 34:07:29, placing 81st overall. UTMB Index lists him as Victor Doronin.",
+          linkLabel: "Race result",
+          stackLinks: true,
+          links: [["MDS 2024 · UTMB Index", shared.raceResults.mds2024]],
+        },
+        {
+          title: "IRONMAN · Kona",
+          body:
+            "Viktor finished the World Championship in Kona in 2016, 2017, 2018 and 2024. All four results tables list him as Victor Doronin.",
+          linkLabel: "Results archives",
+          stackLinks: true,
+          links: [
+            ["2016 · BTU (PDF)", shared.raceResults.kona2016],
+            ["2017 · Endurance Data", shared.raceResults.kona2017],
+            ["2018 · BTU (PDF)", shared.raceResults.kona2018],
+            ["2024 · BTU (PDF)", shared.raceResults.kona2024],
+          ],
         },
         {
           title: "+310% and 25+ media outlets",
@@ -1553,7 +1590,7 @@ function renderProofSources(proof) {
           <p>${source.body}</p>
           ${
             source.links.length
-              ? `<div class="proof-source__links${source.contextLink ? " proof-source__links--records" : ""}">
+              ? `<div class="proof-source__links${source.contextLink || source.stackLinks ? " proof-source__links--records" : ""}">
                   <span>${source.linkLabel || proof.sourceLabel}</span>
                   <div>
                     ${source.links
@@ -2078,11 +2115,14 @@ function renderPage(l) {
             <strong class="site-nav__preview-index" data-menu-preview-index>01</strong>
             <span class="site-nav__preview-title" data-menu-preview-title>${l.nav[0][1]}</span>
           </div>
-          <div class="site-nav__primary">
-            ${renderNav(l.nav, { track: true, assetBase: l.assetBase })}
+          <div class="site-nav__navigation">
+            <div class="site-nav__primary">
+              ${renderNav(l.nav, { track: true, assetBase: l.assetBase })}
+            </div>
+            ${renderMenuSettings(l)}
           </div>
         </div>
-        <div class="site-nav__utility" aria-label="${l.footer.settingsLabel}">
+        <div class="site-nav__utility">
           <div class="site-nav__journey">
             <div class="site-nav__status" data-menu-status>
               <span class="site-nav__status-meta">${l.hero.statusMeta}</span>
@@ -2094,7 +2134,6 @@ function renderPage(l) {
             ${renderMenuWeather(l)}
           </div>
           <div class="site-nav__actions">
-            ${renderMenuSettings(l)}
             <a class="site-nav__cta action-primary" href="#partner-contact" data-analytics-goal="partner_interest"><span>${l.footer.partnerCta}</span>${icons.down}</a>
           </div>
         </div>

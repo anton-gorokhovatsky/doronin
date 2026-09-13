@@ -427,7 +427,7 @@
     inset: 0;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
     width: 100vw;
     height: 100svh;
     max-height: 100svh;
@@ -449,7 +449,7 @@
     grid-template-rows: minmax(0, 1fr);
     min-width: 0;
     min-height: 0;
-    padding: 0 0 6.5rem;
+    padding: 0;
     transition:
       opacity 140ms var(--ease-move),
       visibility 140ms var(--ease-move);
@@ -543,8 +543,23 @@
     text-transform: uppercase;
   }
 
-  .site-nav__primary {
+  .site-nav__navigation {
     grid-column: 2;
+    grid-row: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 8rem;
+    align-content: start;
+    gap: var(--space-group);
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    padding: clamp(5rem, 7vh, 6rem) var(--menu-route-inset)
+      clamp(1.15rem, 2vh, 1.75rem);
+    background: rgba(2, 16, 12, 0.32);
+  }
+
+  .site-nav__primary {
+    grid-column: 1;
     grid-row: 1;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -555,11 +570,10 @@
     gap: 0.2rem;
     min-width: 0;
     min-height: 0;
-    overflow-y: auto;
-    padding: clamp(5rem, 7vh, 6rem) var(--menu-route-inset)
-      clamp(1.15rem, 2vh, 1.75rem);
+    overflow: visible;
+    padding: 0;
     counter-reset: none;
-    background: rgba(2, 16, 12, 0.32);
+    background: transparent;
   }
 
   .site-nav__primary > .site-nav__link {
@@ -613,16 +627,16 @@
   }
 
   .site-nav__utility {
-    position: absolute;
+    position: relative;
     z-index: 3;
     right: 0;
     bottom: 0;
     left: 0;
     display: grid;
     grid-column: 1;
-    grid-row: 1;
-    grid-template-columns: minmax(22rem, 0.42fr) minmax(31rem, 0.58fr);
-    grid-template-rows: 6.5rem;
+    grid-row: 2;
+    grid-template-columns: minmax(0, 1fr) clamp(18rem, 24vw, 24rem);
+    grid-template-rows: minmax(8rem, auto);
     gap: 0;
     min-width: 0;
     padding: 0;
@@ -636,18 +650,18 @@
     display: grid;
     grid-column: 1;
     grid-row: 1;
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: max-content minmax(0, 1fr);
     align-items: center;
     gap: clamp(2.5rem, 4vw, 5rem);
     min-width: 0;
-    padding: 0 var(--menu-preview-inset);
+    padding: 1.5rem var(--menu-preview-inset);
   }
 
   .site-nav__actions {
     display: grid;
     grid-column: 2;
     grid-row: 1;
-    grid-template-columns: minmax(24rem, 1.22fr) minmax(19rem, 0.82fr);
+    grid-template-columns: minmax(0, 1fr);
     min-width: 0;
   }
 
@@ -720,13 +734,13 @@
 
   .site-nav__settings {
     display: grid;
-    grid-template-columns: max-content max-content;
-    align-items: center;
+    grid-template-columns: minmax(0, 1fr);
+    align-self: start;
+    align-items: start;
     justify-content: start;
-    gap: clamp(2.25rem, 3.5vw, 4rem);
+    gap: var(--space-group);
     min-width: 0;
-    padding: 0 clamp(1.25rem, 2vw, 2.25rem) 0
-      var(--menu-route-inset);
+    padding: 1.5rem 0 0;
     border: 0;
   }
 
@@ -742,8 +756,9 @@
 
   .site-nav__settings .site-nav__setting-options {
     display: flex;
-    align-items: center;
-    gap: clamp(0.8rem, 1.25vw, 1.25rem);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
   }
 
   .site-nav__settings .site-nav__setting-options :where(button, a, span) {
@@ -751,6 +766,7 @@
     align-items: center;
     justify-content: flex-start;
     min-width: max-content;
+    min-height: 2.75rem;
     padding-inline: 0;
     text-align: left;
   }
@@ -776,8 +792,7 @@
     padding-left: var(--page-gutter);
   }
 
-  .site-nav__chapters,
-  .site-nav__utility {
+  .site-nav__chapters {
     grid-template-columns: minmax(19rem, 0.36fr) minmax(30rem, 0.64fr);
   }
 
@@ -787,22 +802,8 @@
   }
 
   .site-nav__journey {
-    gap: 1rem;
-  }
-
-  .site-nav__actions {
-    grid-template-columns: minmax(17rem, 1fr) minmax(16rem, 0.8fr);
-  }
-
-  .site-nav__settings {
     grid-template-columns: minmax(0, 1fr);
-    align-content: center;
-    gap: 0.15rem;
-  }
-
-  .site-nav__setting {
-    grid-template-columns: 4.25rem minmax(0, 1fr);
-    align-items: center;
+    gap: 1rem;
   }
 
   .site-nav__diary small {
@@ -1219,6 +1220,9 @@
 
 /* Mobile route: one cinematic chapter, one route, then utility actions. */
 @media (max-width: 960px) {
+  .site-nav__navigation {
+    display: contents;
+  }
   :root .nav-shell[open] .site-nav {
     --menu-mobile-rail: 3.25rem;
     --menu-mobile-column-gap: 0.75rem;
@@ -1456,19 +1460,21 @@
   }
 
   :root .site-nav__settings {
-    gap: 1rem;
+    grid-area: 3 / 1;
+    gap: var(--space-stack);
+    margin-top: var(--space-group);
     padding: 0;
   }
 
   :root .site-nav__setting {
-    grid-template-columns: var(--menu-mobile-rail) minmax(0, 1fr);
-    gap: var(--menu-mobile-column-gap);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
   }
 
   :root .site-nav__setting-options :where(button, a) {
     display: inline-flex;
     align-items: center;
-    min-height: 2rem;
+    min-height: 2.75rem;
     padding-block: 0.25rem;
   }
 
@@ -1486,6 +1492,11 @@
 
   :root.text-enlarged .nav-shell[open] .site-nav {
     padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  :root.text-enlarged .site-nav__utility {
+    padding: 0;
+    border: 0;
   }
 
   :root.text-enlarged .site-nav__cta {
@@ -1536,11 +1547,11 @@
 
   :root .site-nav__setting-options :where(button, a, span) {
     min-height: 2.75rem;
-    padding: 0.45rem 0.4rem;
+    padding: 0.45rem 0;
   }
 
   :root .site-nav__setting-options > :first-child {
-    margin-inline-start: -0.4rem;
+    margin-inline-start: 0;
   }
 }
 

@@ -210,36 +210,14 @@
 
 @media (min-width: 961px) {
   :root:not(.text-enlarged) .site-nav__journey:has(.menu-weather:not([hidden])) {
-    grid-template-columns: minmax(0, 1fr);
-    align-content: center;
-    align-items: start;
-    gap: 0.35rem;
-    padding-block: 1rem;
-  }
-}
-
-@media (min-width: 961px) {
-  :root:not(.text-enlarged) .nav-shell[open]:has(.menu-weather:not([hidden])) .site-nav__utility {
-    grid-template-rows: minmax(8rem, auto);
-  }
-
-  :root:not(.text-enlarged) .nav-shell[open]:has(.menu-weather:not([hidden])) .site-nav__chapters {
-    padding-bottom: 8rem;
+    align-items: center;
+    gap: var(--space-group);
   }
 }
 
 @media (min-width: 961px) and (max-width: 1180px) {
   :root:not(.text-enlarged) .site-nav__journey:has(.menu-weather:not([hidden])) {
-    gap: 0;
-    padding-block: 0.6rem;
-  }
-
-  :root:not(.text-enlarged) .nav-shell[open]:has(.menu-weather:not([hidden])) .site-nav__utility {
-    grid-template-rows: minmax(11rem, auto);
-  }
-
-  :root:not(.text-enlarged) .nav-shell[open]:has(.menu-weather:not([hidden])) .site-nav__chapters {
-    padding-bottom: 11rem;
+    gap: var(--space-stack);
   }
 }
 

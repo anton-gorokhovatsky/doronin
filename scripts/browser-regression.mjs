@@ -544,9 +544,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       const cta = element.querySelector(".site-nav__cta").getBoundingClientRect();
       const navBox = element.getBoundingClientRect();
       const status = element.querySelector(".site-nav__status").getBoundingClientRect();
-      const firstRoute = element.querySelector(
-        ".site-nav__primary > .site-nav__link",
-      );
+      const firstSettingLabel = element.querySelector(".site-nav__setting-label");
       const firstSettingValue = element.querySelector(
         ".site-nav__setting-options > :first-child",
       );
@@ -565,8 +563,8 @@ async function auditPage(browser, browserName, origin, testCase) {
         diaryHref: diary?.getAttribute("href") || "",
         ctaLeftDelta: Math.abs(cta.left),
         ctaRightDelta: Math.abs(innerWidth - cta.right),
-        routeSettingValueDelta: Math.abs(
-          textLeft(firstRoute) - textLeft(firstSettingValue),
+        settingValueLabelDelta: Math.abs(
+          textLeft(firstSettingLabel) - textLeft(firstSettingValue),
         ),
         statusRightOverflow: Math.max(0, status.right - navBox.right),
         settingTargetMinHeight: Math.min(
@@ -589,7 +587,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       expect(
         menuComposition.ctaLeftDelta <= 1 &&
           menuComposition.ctaRightDelta <= 1 &&
-          menuComposition.routeSettingValueDelta <= 3 &&
+          menuComposition.settingValueLabelDelta <= 3 &&
           menuComposition.statusRightOverflow <= 1 &&
           menuComposition.settingTargetMinHeight >= 44,
         `${prefix}: mobile CTA, content axis, status, or settings targets regressed (${JSON.stringify(menuComposition)})`,
@@ -628,9 +626,9 @@ async function auditPage(browser, browserName, origin, testCase) {
 
       return {
         routeStatusGap: lastRoute && status ? status.top - lastRoute.bottom : null,
-        routeSettingsDelta:
-          firstRoute && firstSettingLabel
-            ? Math.abs(firstRoute.left - firstSettingLabel.left)
+        routeSettingsGap:
+          firstSettingLabel
+            ? firstSettingLabel.left - rect(".site-nav__primary").right
             : null,
         settingLabelsDelta:
           settingLabels.length > 1
@@ -662,7 +660,7 @@ async function auditPage(browser, browserName, origin, testCase) {
     }
     if (testCase.viewport.width > 960) {
       expect(
-        proximity.routeSettingsDelta <= 1 &&
+        proximity.routeSettingsGap >= 24 &&
           proximity.previewLogoDelta <= 1 &&
           proximity.previewIndexShare <= 0.48 &&
           proximity.previewTypeRatio <= 3.25,
