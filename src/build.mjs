@@ -1272,6 +1272,12 @@ function renderDiaryText(text, className) {
     .join("");
 }
 
+function renderDiaryFollowLabel(label) {
+  const tail = label.match(/\S+\s+\S+$/u)?.[0] || label;
+  const lead = label.slice(0, label.length - tail.length);
+  return `<span class="diary-follow__text"><span class="text-link__label">${lead}</span><span class="diary-follow__tail"><span class="text-link__label">${tail}</span>${icons.external}</span></span>`;
+}
+
 function renderDiaryLinks(entries, l) {
   return entries
     .map((entry) => {
@@ -2280,21 +2286,6 @@ function renderPage(l) {
       <header class="diary-live section-heading" data-diary-live>
         <div class="diary-live__meta">
           ${renderChapterLabel(l, "#diary", l.diary.eyebrow, true)}
-          <div class="diary-live__channels">
-            <a
-              class="text-link text-link--dark diary-live__follow"
-              href="${shared.viktorTelegramHref}"
-              data-analytics-goal="diary_follow"
-              target="_blank"
-              rel="noopener noreferrer"
-            ><span class="text-link__label">${l.diary.telegramCta}</span>${icons.external}</a>
-            <a
-              class="text-link text-link--dark"
-              href="${shared.viktorStravaHref}"
-              target="_blank"
-              rel="noopener noreferrer"
-            ><span class="text-link__label">${l.diary.stravaCta}</span>${icons.external}</a>
-          </div>
         </div>
         <div class="diary-live__copy">
           <h2
@@ -2322,6 +2313,24 @@ function renderPage(l) {
             ${renderDiaryLinks(l.diary.entries, l)}
           </div>
         </nav>
+        <div class="diary-follow" role="group" aria-labelledby="diary-follow-label">
+          <p class="diary-follow__label" id="diary-follow-label">${l.diary.followLabel}</p>
+          <div class="diary-follow__links">
+            <a
+              class="text-link text-link--dark diary-follow__telegram"
+              href="${shared.viktorTelegramHref}"
+              data-analytics-goal="diary_follow"
+              target="_blank"
+              rel="noopener noreferrer"
+            >${renderDiaryFollowLabel(l.diary.telegramCta)}</a>
+            <a
+              class="text-link text-link--dark"
+              href="${shared.viktorStravaHref}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >${renderDiaryFollowLabel(l.diary.stravaCta)}</a>
+          </div>
+        </div>
       </div>
       <ol class="project-phases" aria-label="${l.diary.phasesLabel}">
         ${renderProjectPhases(l.diary)}

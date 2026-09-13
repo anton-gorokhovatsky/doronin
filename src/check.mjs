@@ -276,7 +276,7 @@ for (const [lang, path] of pages) {
   const heroDiaryAction = findAnchorByClass(html, "button--ghost");
   const diaryTelegramAction = findAnchorByClass(
     html,
-    "diary-live__follow",
+    "diary-follow__telegram",
   );
   const heroEvidenceLink = findAnchorByClass(html, "hero__evidence-link");
   expect(

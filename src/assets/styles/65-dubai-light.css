@@ -81,11 +81,13 @@
 }
 
 .menu-weather {
+  --weather-column-gap: 1.5rem;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.25rem 0.65rem;
+  gap: 0.4rem var(--weather-column-gap);
   min-width: 0;
+  overflow: clip;
   color: var(--paper-dim);
   font-family: var(--body);
   font-size: var(--type-service);
@@ -138,6 +140,7 @@
 }
 
 .menu-weather__readings > div {
+  position: relative;
   display: inline-flex;
   align-items: baseline;
   gap: 0.3em;
@@ -145,8 +148,13 @@
 }
 
 .menu-weather__readings > div::before {
+  /* Keep the separator in the gap; the row's leading one falls outside the clip. */
+  position: absolute;
+  inset-inline-start: calc(var(--weather-column-gap) / -2 - 0.15em);
+  inset-block-start: 0;
+  width: 0.3em;
   content: "·";
-  margin-right: 0.35em;
+  text-align: center;
 }
 
 .menu-weather__readings dt,

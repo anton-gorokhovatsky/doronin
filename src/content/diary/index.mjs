@@ -40,6 +40,7 @@ const localeCopy = {
     liveBodyFinished:
       "Записи подготовки и прохождения дистанции остаются хронологией проекта — от первых решений до зафиксированного результата.",
     latestLabel: "Последняя запись",
+    followLabel: "Следить за Виктором",
     telegramCta: "Дневник в Telegram",
     stravaCta: "Заезды в Strava",
     archiveLabel: "Архив дневника",
@@ -83,6 +84,7 @@ const localeCopy = {
     liveBodyFinished:
       "The preparation and distance updates remain as the project’s chronology — from the first decisions to the recorded result.",
     latestLabel: "Latest entry",
+    followLabel: "Follow Viktor",
     telegramCta: "Diary on Telegram",
     stravaCta: "Rides on Strava",
     archiveLabel: "Diary archive",
