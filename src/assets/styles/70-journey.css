@@ -45,7 +45,6 @@
   content: "";
   pointer-events: none;
   background:
-    linear-gradient(to bottom, transparent calc(100% - var(--replay-edge)), var(--ink-deep)),
     radial-gradient(ellipse at var(--replay-x, 30%) 0%, rgb(var(--replay-beam, 255 213 164) / calc(var(--replay-strength, 0.2) * 0.45)), transparent 80%),
     rgb(var(--replay-dark, 4 17 32));
 }
