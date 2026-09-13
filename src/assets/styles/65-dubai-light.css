@@ -84,7 +84,7 @@
   --weather-column-gap: 1.5rem;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: baseline;
   gap: 0.4rem var(--weather-column-gap);
   min-width: 0;
   overflow: clip;
@@ -108,6 +108,10 @@
   max-width: 100%;
   color: inherit;
   text-decoration: none;
+}
+
+.menu-weather__forecast-link > .icon {
+  align-self: center;
 }
 
 .menu-weather__forecast-link:is(:hover, :focus-visible) > span {
@@ -210,7 +214,7 @@
 
 @media (min-width: 961px) {
   :root:not(.text-enlarged) .site-nav__journey:has(.menu-weather:not([hidden])) {
-    align-items: center;
+    align-items: first baseline;
     gap: var(--space-group);
   }
 }

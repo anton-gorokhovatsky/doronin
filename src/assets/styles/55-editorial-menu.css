@@ -651,7 +651,8 @@
     grid-column: 1;
     grid-row: 1;
     grid-template-columns: max-content minmax(0, 1fr);
-    align-items: center;
+    align-content: center;
+    align-items: first baseline;
     gap: clamp(2.5rem, 4vw, 5rem);
     min-width: 0;
     padding: 1.5rem var(--menu-preview-inset);

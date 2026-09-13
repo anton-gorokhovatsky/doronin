@@ -409,7 +409,7 @@ const locales = {
         {
           title: "Marathon des Sables · 2024",
           body:
-            "Виктор завершил 38-й Marathon des Sables: 252,8 км за 34:07:29, 81-е место в общем зачёте. В таблице UTMB Index — Victor Doronin.",
+            "Виктор завершил 38-й Marathon des Sables: 252,8 км за 34:07:29, 81-е место в общем зачёте.",
           linkLabel: "Результат гонки",
           stackLinks: true,
           links: [["MDS 2024 · UTMB Index", shared.raceResults.mds2024]],
@@ -417,7 +417,7 @@ const locales = {
         {
           title: "IRONMAN · Кона",
           body:
-            "Виктор финишировал на чемпионате мира в Коне в 2016, 2017, 2018 и 2024 годах. Во всех четырёх таблицах результатов он указан как Victor Doronin.",
+            "Виктор четырежды финишировал на чемпионате мира IRONMAN в Коне: в 2016, 2017, 2018 и 2024 годах.",
           linkLabel: "Архивы результатов",
           stackLinks: true,
           links: [
@@ -847,7 +847,7 @@ const locales = {
         {
           title: "Marathon des Sables · 2024",
           body:
-            "Viktor completed the 38th Marathon des Sables: 252.8 km in 34:07:29, placing 81st overall. UTMB Index lists him as Victor Doronin.",
+            "Viktor completed the 38th Marathon des Sables: 252.8 km in 34:07:29, placing 81st overall.",
           linkLabel: "Race result",
           stackLinks: true,
           links: [["MDS 2024 · UTMB Index", shared.raceResults.mds2024]],
@@ -855,7 +855,7 @@ const locales = {
         {
           title: "IRONMAN · Kona",
           body:
-            "Viktor finished the World Championship in Kona in 2016, 2017, 2018 and 2024. All four results tables list him as Victor Doronin.",
+            "Viktor has crossed the finish line at the IRONMAN World Championship in Kona four times: in 2016, 2017, 2018 and 2024.",
           linkLabel: "Results archives",
           stackLinks: true,
           links: [

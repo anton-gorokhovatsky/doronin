@@ -247,6 +247,12 @@
   border-top: 1px solid var(--line-dark);
 }
 
+@media (min-width: 961px) {
+  :root:not(.text-enlarged) .proof-source {
+    align-items: first baseline;
+  }
+}
+
 .proof-source__index {
   color: var(--text-proof-muted);
   font-size: var(--type-service-index);
