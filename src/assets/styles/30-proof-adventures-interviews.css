@@ -305,6 +305,26 @@
   height: var(--icon-source-size);
 }
 
+.proof-source__links--records > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-pair);
+}
+
+.proof-source__links--records a {
+  width: fit-content;
+  max-width: 100%;
+  min-height: 2rem;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.proof-source__links--records .proof-source__context {
+  margin-top: var(--space-stack);
+  color: var(--text-proof-muted);
+}
+
 .adventure-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));

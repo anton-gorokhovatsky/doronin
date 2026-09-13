@@ -109,6 +109,11 @@ const shared = {
   viktorInstagramHref: "https://www.instagram.com/victordoronin/",
   filmHref: "https://vkvideo.ru/video-224465212_456239107",
   project1111InterviewHref: "https://youtu.be/4H2fddBQ6VQ",
+  project1111Activities: {
+    swim: "https://www.strava.com/activities/13181645645",
+    ride: "https://www.strava.com/activities/13190277378",
+    run: "https://www.strava.com/activities/13193011479",
+  },
   serialHrefs: [
     "https://vkvideo.ru/video-224465212_456239087",
     "https://vkvideo.ru/video-224465212_456239090",
@@ -372,8 +377,14 @@ const locales = {
         {
           title: "1111 км без сна · декабрь 2024",
           body:
-            "В описании интервью SPORTFERMA указан результат Виктора 24 декабря 2024 года: 1111 км в трёх дисциплинах без сна.",
-          links: [["Интервью SPORTFERMA · 18 января 2025", shared.project1111InterviewHref]],
+            "Записи Виктора в Strava за 24–26 декабря 2024 года подтверждают дистанции трёх этапов. История прохождения без сна — в фильме «1111».",
+          linkLabel: "Записи в Strava",
+          links: [
+            ["Плавание · 10 км", shared.project1111Activities.swim],
+            ["Велосипед · 1001 км", shared.project1111Activities.ride],
+            ["Бег · 100,01 км", shared.project1111Activities.run],
+          ],
+          contextLink: ["Фильм «1111»", shared.filmHref],
         },
         {
           title: "≈1,3 млн просмотров",
@@ -789,8 +800,14 @@ const locales = {
         {
           title: "1111 km without sleep · December 2024",
           body:
-            "The SPORTFERMA interview description records Viktor’s December 24, 2024 result: 1111 km across three disciplines without sleep.",
-          links: [["SPORTFERMA interview · January 18, 2025", shared.project1111InterviewHref]],
+            "Viktor’s Strava records from December 24–26, 2024 document the distances of all three legs. The film “1111” tells the story of completing them without sleep.",
+          linkLabel: "Strava records",
+          links: [
+            ["Swim · 10 km", shared.project1111Activities.swim],
+            ["Ride · 1001 km", shared.project1111Activities.ride],
+            ["Run · 100.01 km", shared.project1111Activities.run],
+          ],
+          contextLink: ["Film “1111”", shared.filmHref],
         },
         {
           title: "≈1.3M views",
@@ -1536,16 +1553,17 @@ function renderProofSources(proof) {
           <p>${source.body}</p>
           ${
             source.links.length
-              ? `<div class="proof-source__links">
-                  <span>${proof.sourceLabel}</span>
+              ? `<div class="proof-source__links${source.contextLink ? " proof-source__links--records" : ""}">
+                  <span>${source.linkLabel || proof.sourceLabel}</span>
                   <div>
                     ${source.links
                       .map(
                         ([label, href]) =>
-                          `<a href="${href}" target="_blank" rel="noopener noreferrer">${label}${icons.external}</a>`,
+                          `<a href="${href}" target="_blank" rel="noopener noreferrer"><span>${label}</span>${icons.external}</a>`,
                       )
                       .join("")}
                   </div>
+                  ${source.contextLink ? `<a class="proof-source__context" href="${source.contextLink[1]}" target="_blank" rel="noopener noreferrer"><span>${source.contextLink[0]}</span>${icons.external}</a>` : ""}
                 </div>`
               : ""
           }

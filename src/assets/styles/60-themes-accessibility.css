@@ -469,6 +469,23 @@ html[data-text-fixture="200"] {
   );
 }
 
+@media (max-width: 640px) {
+  :root.text-enlarged .proof-source,
+  :root.text-enlarged .proof-source:nth-child(even) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  :root.text-enlarged .proof-source h3,
+  :root.text-enlarged .proof-source p,
+  :root.text-enlarged .proof-source__links {
+    grid-column: 1;
+  }
+
+  :root.text-enlarged .proof-source h3 {
+    font-size: 1rem;
+  }
+}
+
 :root.text-enlarged .site-footer__directory {
   grid-template-columns: minmax(0, 1fr);
   gap: 2rem;
