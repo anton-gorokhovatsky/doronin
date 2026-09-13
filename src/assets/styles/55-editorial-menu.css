@@ -178,10 +178,27 @@
   --menu-chapter-delay: 384ms;
 }
 
-.site-nav__primary > .site-nav__link[aria-current="location"] {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.3em;
+:root .site-nav__primary > .site-nav__link[aria-current="location"],
+:root .site-nav__primary > .site-nav__link[aria-current="location"]::before {
+  color: var(--acid);
+  text-decoration: none;
+}
+
+:root .site-nav__primary > .site-nav__link:focus-visible {
+  background-color: color-mix(in srgb, var(--paper) 6%, transparent);
+  outline: 2px solid var(--paper);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :root .site-nav__primary > .site-nav__link:hover {
+    background-color: color-mix(in srgb, var(--paper) 6%, transparent);
+  }
+
+  :root .site-nav__primary > .site-nav__link:not([aria-current="location"]):hover,
+  :root .site-nav__primary > .site-nav__link:not([aria-current="location"]):hover::before {
+    color: var(--paper);
+  }
 }
 
 @media (min-width: 961px) {
@@ -592,7 +609,9 @@
     line-height: 1.04;
     text-transform: uppercase;
     white-space: normal;
-    transition: color 160ms var(--ease-move);
+    transition:
+      color 160ms var(--ease-move),
+      background-color 160ms var(--ease-move);
   }
 
   .site-nav__primary > .site-nav__link:first-child {
@@ -610,20 +629,21 @@
   }
 
   .site-nav__primary > .site-nav__link::after {
-    display: none;
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: calc(var(--menu-index-width) - 0.75rem);
+    display: block;
+    width: 0.75rem;
+    height: 2px;
+    background: var(--acid);
+    opacity: 0;
+    transform: translateY(-50%) skewX(-24deg);
+    transition: opacity 160ms var(--ease-move);
   }
 
-  .site-nav__primary > .site-nav__link[aria-current="location"] {
-    color: var(--paper);
-  }
-
-  .site-nav__primary > .site-nav__link[aria-current="location"]::before {
-    color: var(--paper);
-  }
-
-  .site-nav__primary > .site-nav__link:is(:hover, :focus-visible),
-  .site-nav__primary > .site-nav__link:is(:hover, :focus-visible)::before {
-    color: var(--acid);
+  .site-nav__primary > .site-nav__link[aria-current="location"]::after {
+    opacity: 1;
   }
 
   .site-nav__utility {
@@ -979,11 +999,6 @@
     font-family: var(--display);
     font-size: clamp(0.84rem, calc(0.74rem + 0.75vw), 1.05rem);
     letter-spacing: 0;
-  }
-
-  .site-nav__primary > .site-nav__link[aria-current="location"],
-  .site-nav__primary > .site-nav__link[aria-current="location"]::before {
-    color: var(--acid);
   }
 
   .site-nav__utility {
@@ -1377,15 +1392,6 @@
     transition:
       width 180ms var(--ease-move),
       background-color 180ms var(--ease-move);
-  }
-
-  :root
-    .site-nav__primary
-    > .site-nav__link[aria-current="location"],
-  :root
-    .site-nav__primary
-    > .site-nav__link[aria-current="location"]::before {
-    color: var(--acid);
   }
 
   :root
