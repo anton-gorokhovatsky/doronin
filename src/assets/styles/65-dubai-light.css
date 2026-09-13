@@ -101,6 +101,24 @@
   display: none;
 }
 
+.menu-weather__forecast-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45em;
+  max-width: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.menu-weather__forecast-link:is(:hover, :focus-visible) > span {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.menu-weather__forecast-link:focus-visible {
+  outline-offset: -2px;
+}
+
 :root .site-nav__status {
   padding-block: 0;
 }
@@ -321,6 +339,163 @@
   min-width: 0;
 }
 
+.dubai-forecast {
+  grid-column: 1 / -1;
+  min-width: 0;
+  margin-top: var(--space-stack);
+  padding-top: var(--space-group);
+  border-top: 1px solid var(--line-light);
+  scroll-margin-top: 6rem;
+}
+
+.dubai-forecast__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-pair) var(--space-stack);
+  margin-bottom: var(--space-stack);
+}
+
+.dubai-forecast__heading h4 {
+  margin: 0;
+  font-size: var(--type-copy);
+  font-weight: 600;
+  line-height: var(--leading-copy);
+}
+
+.dubai-forecast__heading p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+
+.dubai-forecast__heading p,
+.dubai-forecast__source,
+.dubai-forecast__state {
+  margin: 0;
+  color: var(--paper-dim);
+  font-size: var(--type-service);
+  line-height: 1.5;
+}
+
+.dubai-forecast__body {
+  display: grid;
+}
+
+.dubai-forecast__list,
+.dubai-forecast__state {
+  grid-area: 1 / 1;
+}
+
+.dubai-forecast__list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-group);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dubai-forecast__period {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: var(--space-stack);
+  min-width: 0;
+  font-size: var(--type-service-strong);
+  font-variant-numeric: lining-nums tabular-nums;
+  line-height: 1.5;
+}
+
+.dubai-forecast__reading {
+  display: grid;
+  justify-items: start;
+  align-content: start;
+}
+
+.dubai-forecast__reading time {
+  font-size: var(--type-copy);
+  font-weight: 600;
+}
+
+.dubai-forecast__day {
+  color: var(--paper-dim);
+  font-size: var(--type-service);
+}
+
+.dubai-forecast__temperature {
+  margin-top: var(--space-pair);
+}
+
+.dubai-forecast__temperature strong {
+  font-size: var(--type-copy-title);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.dubai-forecast__metrics {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.dubai-forecast__metrics > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.75rem;
+}
+
+.dubai-forecast__metrics dt {
+  color: var(--paper-dim);
+}
+
+.dubai-forecast__metrics dd {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+}
+
+.dubai-forecast__metrics dd > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+.dubai-forecast__reserve {
+  visibility: hidden;
+}
+
+.site-footer .dubai-forecast__source {
+  display: grid;
+  margin-top: var(--space-group);
+  font-variant-numeric: tabular-nums;
+}
+
+.dubai-forecast__source-row {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-pair) var(--space-stack);
+  min-height: 2.75rem;
+}
+
+@media (max-width: 960px) {
+  .dubai-forecast__list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dubai-forecast__period {
+    grid-template-columns: minmax(5rem, 0.55fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  :root.text-enlarged .dubai-forecast__period {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .dubai-light__mode {
   margin: 0 0 0.5rem;
   font-size: var(--type-service-strong);
@@ -444,6 +619,8 @@
 }
 
 .dubai-light__source a,
+.dubai-forecast__source a,
+.dubai-forecast__credit-reserve,
 .dubai-light__source-credit {
   display: inline-flex;
   align-items: center;
@@ -453,18 +630,21 @@
   text-underline-offset: 0.2em;
 }
 
-.dubai-light__source a[hidden] {
+.dubai-light__source a[hidden],
+.dubai-forecast__source a[hidden] {
   display: none;
 }
 
-.dubai-light__source a {
+.dubai-light__source a,
+.dubai-forecast__source a {
   text-decoration-line: underline;
   text-decoration-color: transparent;
   text-decoration-thickness: 1px;
   transition: text-decoration-color 180ms var(--ease-move);
 }
 
-.dubai-light__source a:is(:hover, :focus-visible) {
+.dubai-light__source a:is(:hover, :focus-visible),
+.dubai-forecast__source a:is(:hover, :focus-visible) {
   text-decoration-color: var(--contact-underline-color);
 }
 
@@ -472,7 +652,8 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
-.dubai-light__source :is(a, .dubai-light__source-credit) .icon {
+.dubai-light__source :is(a, .dubai-light__source-credit) .icon,
+.dubai-forecast__source .icon {
   width: 1em;
   height: 1em;
 }

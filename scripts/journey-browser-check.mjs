@@ -37,7 +37,7 @@ try {
         await page.locator('.site-nav__utility').scrollIntoViewIfNeeded();
         await page.locator('.site-nav__utility').screenshot({path:`${out}/${name}-${lang}-${width}-menu.png`});
         await page.locator('.menu-toggle').click();
-        await page.locator('[data-dubai-mode="current"]').click();
+        await page.locator('button[data-dubai-mode="current"]').click();
         if(text) await page.evaluate(()=>window.dispatchEvent(new Event('resize')));
         await page.waitForFunction(()=>document.querySelector('[data-dubai-dust-value]').textContent.includes('300'));
         await page.locator('.dubai-light').screenshot({path:`${out}/${name}-${lang}-${width}-light.png`});

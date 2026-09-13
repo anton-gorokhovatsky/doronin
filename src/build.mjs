@@ -2556,9 +2556,10 @@ function renderMenuWeather(l) {
     label: "Forecast for the Dubai track", air: "Air", wind: "wind", cloud: "cloud cover",
   };
   return `<div class="menu-weather" data-menu-weather aria-label="${w.label}" hidden>
-    <span data-menu-weather-time></span>
+    <a class="menu-weather__forecast-link" href="#dubai-forecast"><span data-menu-weather-time></span>${icons.down}</a>
     <dl class="menu-weather__readings" data-menu-weather-readings hidden>
       <div class="menu-weather__primary"><dt class="sr-only">${w.air}</dt><dd><span data-menu-weather-air></span><small data-menu-weather-heat hidden></small></dd></div>
+      <div class="menu-weather__detail" data-menu-weather-feels hidden><dt>${l.lang === 'ru' ? 'ощущается' : 'feels like'}</dt><dd data-menu-weather-feels-value></dd></div>
       <div class="menu-weather__detail"><dt>${w.wind}</dt><dd data-menu-weather-wind></dd></div>
       <div class="menu-weather__detail"><dt>${w.cloud}</dt><dd data-menu-weather-cloud></dd></div>
     </dl>
@@ -2629,18 +2630,18 @@ function renderDistanceHistory(l) {
 function renderDubaiLight(l) {
   const w = l.lang === "ru" ? {
     title: "День в Дубае", time: "Время в Дубае", mode: "Режим света",
-    preview: "День старта", current: "Сейчас", source: "MET Norway",
+    preview: "День старта", current: "Сейчас",
   } : {
     title: "A day in Dubai", time: "Time in Dubai", mode: "Light mode",
-    preview: "Start day", current: "Now", source: "MET Norway",
+    preview: "Start day", current: "Now",
   };
   return `<section class="dubai-light" id="dubai-light" data-dubai-controls data-dust-url="${l.assetBase}assets/dubai-dust.json" data-start-date="${projectPlan.period.startDate}" aria-labelledby="dubai-light-title" hidden>
       <div class="dubai-light__intro">
         <h3 id="dubai-light-title">${w.title}</h3>
         <p id="dubai-hint"><span data-dubai-hint></span></p>
         <div class="dubai-light__modes" role="group" aria-label="${w.mode}">
-          <button type="button" data-dubai-mode="preview" aria-pressed="true">${w.preview}</button>
-          <button type="button" data-dubai-mode="current" aria-pressed="false">${w.current}</button>
+          <button type="button" data-dubai-mode="current" aria-pressed="true">${w.current}</button>
+          <button type="button" data-dubai-mode="preview" aria-pressed="false">${w.preview}</button>
         </div>
       </div>
       <div class="dubai-light__controls">
@@ -2652,10 +2653,40 @@ function renderDubaiLight(l) {
         <label class="sr-only" for="dubai-time">${w.time}</label>
         <input id="dubai-time" type="range" min="0" max="1439" step="1" value="720" aria-describedby="dubai-mode-label dubai-hint">
         <div class="dubai-light__sun-times"><span data-dubai-sunrise></span><span data-dubai-sunset></span></div>
-        <p class="dubai-light__source"><span class="dubai-light__source-line"><span data-dubai-source></span><a data-dubai-source-link href="https://api.met.no/doc/License" target="_blank" rel="noopener noreferrer" hidden>${w.source}${icons.external}</a></span></p>
+        <p class="dubai-light__source"><span class="dubai-light__source-line"><span data-dubai-source></span></span></p>
         <p class="dubai-light__dust" data-dubai-dust><span class="dubai-light__dust-row"><span data-dubai-dust-value></span><a href="https://gmao.gsfc.nasa.gov/gmao-products/geos-fp/" target="_blank" rel="noopener noreferrer" hidden>NASA GEOS-FP${icons.external}</a></span><span class="dubai-light__dust-row dubai-light__dust-reserve" aria-hidden="true"><span>${l.lang === 'ru' ? 'Пыль по модели · 100000 мкг/м³ · 23:59' : 'Modelled dust · 100000 µg/m³ · 23:59'}</span><span>NASA GEOS-FP${icons.external}</span></span></p>
       </div>
+      ${renderWeatherOutlook(l)}
     </section>`;
+}
+
+function renderWeatherOutlook(l) {
+  const ru = l.lang === 'ru';
+  const labels = ru
+    ? { title: 'Ближайшие 6 часов', air: 'Температура воздуха', feels: 'Ощущается', wind: 'Ветер', humidity: 'Влажность', loading: 'Уточняем прогноз на ближайшие часы' }
+    : { title: 'The next 6 hours', air: 'Air temperature', feels: 'Feels like', wind: 'Wind', humidity: 'Humidity', loading: 'Checking the next few hours' };
+  return `<section class="dubai-forecast" id="dubai-forecast" aria-labelledby="dubai-forecast-title">
+    <header class="dubai-forecast__heading">
+      <h4 id="dubai-forecast-title">${labels.title}</h4>
+      <p><span data-outlook-date></span> <span>${ru ? 'Местное время' : 'Local time'}</span></p>
+    </header>
+    <div class="dubai-forecast__body">
+      <ol class="dubai-forecast__list" data-outlook-list aria-hidden="true" style="opacity:0">
+        ${[0, 1, 2].map(index => `<li class="dubai-forecast__period" data-outlook-period="${index}">
+          <div class="dubai-forecast__reading">
+            <time data-outlook-time>00:00</time>
+            <span class="dubai-forecast__day" data-outlook-day>${ru ? 'Сегодня' : 'Today'}</span>
+            <span class="dubai-forecast__temperature"><span class="sr-only">${labels.air}</span><strong data-outlook-air>…</strong></span>
+          </div>
+          <dl class="dubai-forecast__metrics">
+            ${['feels', 'wind', 'humidity'].map(key => `<div><dt>${labels[key]}</dt><dd><span data-outlook-${key}>…</span><span class="dubai-forecast__reserve" aria-hidden="true">${key === 'wind' ? (ru ? '100 м/с, СЗ' : '100 m/s, NW') : key === 'humidity' ? '100%' : '−99°'}</span></dd></div>`).join('')}
+          </dl>
+        </li>`).join('')}
+      </ol>
+      <p class="dubai-forecast__state" data-outlook-state>${labels.loading}</p>
+    </div>
+    <p class="dubai-forecast__source"><span class="dubai-forecast__source-row"><span data-outlook-issued></span><a data-dubai-source-link href="https://api.met.no/doc/License" target="_blank" rel="noopener noreferrer" hidden>MET Norway${icons.external}</a></span><span class="dubai-forecast__source-row dubai-forecast__reserve" aria-hidden="true"><span>${ru ? 'Обновлён 30 сентября в 23:59' : 'Updated September 30 at 23:59'}</span><span class="dubai-forecast__credit-reserve">MET Norway${icons.external}</span></span></p>
+  </section>`;
 }
 
 const renderedPages = Object.values(locales).map((locale) => [

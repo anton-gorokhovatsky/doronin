@@ -58,9 +58,11 @@ export function lightPalette(date, minutes, weather = null, dust = null) {
   const clouds = weather ? weather.cloudCover / 100 : 0;
   const uv = clamp((weather?.uvClearSky ?? 0) / 11) * (1 - clouds * 0.8);
   const heat = weather?.temperature == null ? 0 : clamp((weather.temperature - 35) / 10);
+  // A restrained art-direction adjustment, not a visibility or fog estimate.
+  const moisture = weather?.humidity == null ? 0 : clamp((weather.humidity - 55) / 35);
   const haze = dust ? clamp((dust.opticalDepth - 0.05) / 0.75) : 0;
   colors.beam = colors.beam.map(value => Math.round(mix(value, 255, uv * 0.25 + heat * 0.12)));
-  const strength = mix(from.strength, to.strength, amount) * (1 - clouds * 0.62) * (1 + uv * 0.14);
+  const strength = mix(from.strength, to.strength, amount) * (1 - clouds * 0.62) * (1 + uv * 0.14) * (1 - moisture * 0.06);
   const daylight = clamp((sun.altitude + 6) / 18);
   const shadowLength = daylight * clamp(24 / Math.tan(Math.max(8, sun.altitude) * RAD), 14, 160);
   return {
@@ -69,14 +71,14 @@ export function lightPalette(date, minutes, weather = null, dust = null) {
     y: mix(78, 10, clamp(sun.altitude / 60)),
     shadowX: -Math.sin(sun.azimuth * RAD) * shadowLength,
     shadowY: daylight * Math.max(5, Math.abs(Math.cos(sun.azimuth * RAD) * shadowLength)),
-    diffusion: 3 + clouds * 24,
+    diffusion: 3 + clouds * 24 + moisture * 6,
     windAngle: weather?.windDirection ?? 120,
     airOpacity: weather ? Math.min(0.06, weather.windSpeed / 160) * daylight : 0,
     airDuration: mix(36, 10, clamp((weather?.windSpeed ?? 0) / 12)),
     airX: weather ? -Math.sin(weather.windDirection * RAD) * 32 : 0,
     airY: weather ? Math.cos(weather.windDirection * RAD) * 32 : 0,
     mediaSaturation: 1 - heat * 0.15 - uv * 0.08 - haze * 0.12,
-    mediaContrast: 1 + uv * 0.06 - haze * 0.08,
+    mediaContrast: 1 + uv * 0.06 - haze * 0.08 - moisture * 0.03,
     dustOpacity: haze * 0.2 * daylight,
   };
 }
@@ -101,26 +103,54 @@ export function readDust(payload, now = Date.now()) {
 
 const WEATHER_AGE = 90 * 60000;
 const FORECAST_AGE = 18 * 3600000;
-export function readWeather(payload, now = Date.now()) {
+function forecastSeries(payload, now) {
   const issuedAt = Date.parse(payload?.properties?.meta?.updated_at);
   const series = payload?.properties?.timeseries;
   if (!Number.isFinite(issuedAt) || now - issuedAt > FORECAST_AGE || issuedAt - now > 20 * 60000 || !Array.isArray(series)) return null;
+  return { issuedAt, series };
+}
+
+function weatherPoint(point, issuedAt) {
+  const timestamp = Date.parse(point?.time);
+  const current = point?.data?.instant?.details;
+  if (!Number.isFinite(timestamp) || !current) return null;
+  const value = (key, minimum, maximum) => Number.isFinite(current[key]) && current[key] >= minimum && current[key] <= maximum ? current[key] : null;
+  return {
+    timestamp, issuedAt,
+    cloudCover: value('cloud_area_fraction', 0, 100),
+    windSpeed: value('wind_speed', 0, 100),
+    windDirection: value('wind_from_direction', 0, 360),
+    temperature: value('air_temperature', -90, 70),
+    feelsLike: value('apparent_air_temperature', -100, 90),
+    humidity: value('relative_humidity', 0, 100),
+    uvClearSky: value('ultraviolet_index_clear_sky', 0, 30),
+  };
+}
+
+export function readWeather(payload, now = Date.now()) {
+  const forecast = forecastSeries(payload, now);
+  if (!forecast) return null;
+  const { issuedAt, series } = forecast;
   const point = series.reduce((latest, item) => {
     const timestamp = Date.parse(item?.time);
     return Number.isFinite(timestamp) && timestamp <= now && (!latest || timestamp > Date.parse(latest.time)) ? item : latest;
   }, null);
   if (!point) return null;
   const timestamp = Date.parse(point.time);
-  const current = point.data?.instant?.details;
-  if (!current || now - timestamp > WEATHER_AGE) return null;
-  const valid = (key, minimum, maximum) => Number.isFinite(current[key]) && current[key] >= minimum && current[key] <= maximum;
-  if (!valid('cloud_area_fraction', 0, 100) || !valid('wind_speed', 0, 100) || !valid('wind_from_direction', 0, 360)) return null;
-  return {
-    timestamp, issuedAt, cloudCover: current.cloud_area_fraction,
-    windSpeed: current.wind_speed, windDirection: current.wind_from_direction,
-    temperature: valid('air_temperature', -90, 70) ? current.air_temperature : null,
-    uvClearSky: valid('ultraviolet_index_clear_sky', 0, 30) ? current.ultraviolet_index_clear_sky : null,
-  };
+  const weather = weatherPoint(point, issuedAt);
+  return now - timestamp <= WEATHER_AGE && weather && ['cloudCover', 'windSpeed', 'windDirection'].every(key => weather[key] !== null) ? weather : null;
+}
+
+export function readOutlook(payload, now = Date.now()) {
+  const forecast = forecastSeries(payload, now);
+  const hour = Math.floor(now / 3600000) * 3600000;
+  // Fixed civil hours: no interpolation across gaps in the provider's forecast.
+  return [2, 4, 6].map(offset => {
+    const timestamp = hour + offset * 3600000;
+    const matches = forecast?.series.filter(point => Date.parse(point?.time) === timestamp) || [];
+    const reading = matches.length === 1 ? weatherPoint(matches[0], forecast.issuedAt) : null;
+    return { timestamp, reading: reading && reading.temperature !== null ? reading : null };
+  });
 }
 
 function initDubaiLight() {
@@ -144,6 +174,9 @@ function initDubaiLight() {
     weather: 'Прогноз на', sunrise: 'Восход', sunsetLabel: 'Закат',
     forecastLoading: 'Уточняем прогноз', forecastUnavailable: 'Прогноз недоступен', windUnit: 'м/с',
     heat: 'Жара',
+    today: 'Сегодня', tomorrow: 'Завтра', updated: 'Обновлён',
+    outlookMissing: 'Нет прогноза', outlookLoading: 'Уточняем прогноз на ближайшие часы',
+    outlookUnavailable: 'Прогноз на ближайшие часы недоступен',
     directions: ['С', 'СВ', 'В', 'ЮВ', 'Ю', 'ЮЗ', 'З', 'СЗ'],
   } : {
     dawn: 'Morning', day: 'Day', sunset: 'Sunset', night: 'Night', city: 'Dubai',
@@ -154,6 +187,9 @@ function initDubaiLight() {
     weather: 'Forecast for', sunrise: 'Sunrise', sunsetLabel: 'Sunset',
     forecastLoading: 'Checking the forecast', forecastUnavailable: 'Forecast unavailable', windUnit: 'm/s',
     heat: 'Heat',
+    today: 'Today', tomorrow: 'Tomorrow', updated: 'Updated',
+    outlookMissing: 'Unavailable', outlookLoading: 'Checking the next few hours',
+    outlookUnavailable: 'The forecast for the next few hours is unavailable',
     directions: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
   };
   const startDate = widget.dataset.startDate;
@@ -184,20 +220,12 @@ function initDubaiLight() {
     });
   };
   reserveText(hintOutput, [words.hint, words.liveHint]);
-  // Reserve complete attribution rows, so the credit can stay next to the
-  // visible forecast time instead of after the longest invisible fallback.
-  const sourceRows = [words.previewData, words.loading, words.fallback, `${words.weather} 00:00`].map((text, index) => {
+  const sourceRows = [words.previewData, words.loading, words.fallback, `${words.weather} 00:00`].map(text => {
     const row = document.createElement('span');
     row.className = 'dubai-light__source-line';
     const label = document.createElement('span');
     label.textContent = text;
     row.append(label);
-    if (index === 3) {
-      const credit = document.createElement('span');
-      credit.className = 'dubai-light__source-credit';
-      credit.innerHTML = sourceLink.innerHTML;
-      row.append(credit);
-    }
     return row;
   });
   reserveText(sourceOutput.parentElement, sourceRows);
@@ -205,7 +233,15 @@ function initDubaiLight() {
   const dateReserves = reserveText(modeOutput, [dateLabel(startDate), dateLabel(dubaiClock().date)]);
   const buttons = [...widget.querySelectorAll('[data-dubai-mode]')];
   const clockFormat = value => `${String(Math.floor(clamp(Math.round(value), 0, 1439) / 60)).padStart(2, '0')}:${String(clamp(Math.round(value), 0, 1439) % 60).padStart(2, '0')}`;
-  let mode = dubaiClock().date < startDate ? 'preview' : 'current';
+  const temperatureFormat = value => {
+    if (value === null || value === undefined) return '—';
+    const temperature = Math.round(value);
+    return `${temperature > 0 ? '+' : temperature < 0 ? '−' : ''}${Math.abs(temperature)}°`;
+  };
+  const windFormat = reading => reading?.windSpeed == null || reading?.windDirection == null ? '—'
+    : `${new Intl.NumberFormat(lang === 'ru' ? 'ru-RU' : 'en-US', { maximumFractionDigits: 1 }).format(reading.windSpeed)} ${words.windUnit}, ${words.directions[Math.round(reading.windDirection / 45) % 8]}`;
+  const issuedFormat = new Intl.DateTimeFormat(lang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'Asia/Dubai' });
+  let mode = 'current';
   let previewMinutes = dubaiClock().minutes;
   let weather = null;
   let dustForecast = null;
@@ -233,6 +269,36 @@ function initDubaiLight() {
   const save = () => {
     try { sessionStorage.setItem('11111-dubai-light', JSON.stringify({ mode, minutes: previewMinutes })); } catch { /* Optional. */ }
   };
+
+  function paintOutlook(current) {
+    const periods = readOutlook(forecast);
+    const available = periods.some(period => period.reading);
+    widget.querySelector('[data-outlook-date]').textContent = dateLabel(current.date);
+    const list = widget.querySelector('[data-outlook-list]');
+    // Opacity preserves layout without WebKit's stale inherited visibility in nested grids.
+    list.style.opacity = available ? '1' : '0';
+    list.setAttribute('aria-hidden', String(!available));
+    list.setAttribute('aria-busy', String(requestInFlight));
+    const state = widget.querySelector('[data-outlook-state]');
+    state.hidden = available;
+    state.textContent = requestInFlight ? words.outlookLoading : words.outlookUnavailable;
+    periods.forEach(({ timestamp, reading }, index) => {
+      const period = list.children[index];
+      const local = dubaiClock(new Date(timestamp));
+      const time = period.querySelector('[data-outlook-time]');
+      time.dateTime = new Date(timestamp).toISOString();
+      time.textContent = clockFormat(local.minutes);
+      period.querySelector('[data-outlook-day]').textContent = local.date === current.date ? words.today : words.tomorrow;
+      period.querySelector('[data-outlook-air]').textContent = temperatureFormat(reading?.temperature);
+      period.querySelector('[data-outlook-air]').setAttribute('aria-label', reading ? temperatureFormat(reading.temperature) : words.outlookMissing);
+      period.querySelector('[data-outlook-feels]').textContent = temperatureFormat(reading?.feelsLike);
+      period.querySelector('[data-outlook-wind]').textContent = windFormat(reading);
+      period.querySelector('[data-outlook-humidity]').textContent = reading?.humidity == null ? '—' : `${Math.round(reading.humidity)}%`;
+    });
+    const issuedAt = forecastSeries(forecast, Date.now())?.issuedAt;
+    widget.querySelector('[data-outlook-issued]').textContent = issuedAt && (available || weather) ? `${words.updated} ${issuedFormat.format(new Date(issuedAt))}` : '';
+    sourceLink.hidden = !available && !weather;
+  }
 
   function paint() {
     dateReserves[1].textContent = dateLabel(dubaiClock().date);
@@ -281,7 +347,7 @@ function initDubaiLight() {
     slider.style.setProperty('--day-start', `${light.sunrise / 1440 * 100}%`);
     slider.style.setProperty('--day-end', `${light.sunset / 1440 * 100}%`);
     sourceOutput.textContent = mode === 'preview' ? words.previewData : weather ? `${words.weather} ${clockFormat(dubaiClock(new Date(weather.timestamp)).minutes)}` : requestInFlight ? words.loading : words.fallback;
-    sourceLink.hidden = mode === 'preview' || !weather;
+    paintOutlook(current);
     buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.dubaiMode === mode)));
     widget.hidden = false;
     if (menuWeather && navigation.open) {
@@ -294,13 +360,14 @@ function initDubaiLight() {
       state.hidden = Boolean(hasForecast);
       state.textContent = requestInFlight ? words.forecastLoading : words.forecastUnavailable;
       if (hasForecast) {
-        const temperature = Math.round(weather.temperature);
-        menuWeather.querySelector('[data-menu-weather-air]').textContent = `${temperature > 0 ? '+' : temperature < 0 ? '−' : ''}${Math.abs(temperature)}°`;
+        menuWeather.querySelector('[data-menu-weather-air]').textContent = temperatureFormat(weather.temperature);
         const heatLabel = menuWeather.querySelector('[data-menu-weather-heat]');
         heatLabel.hidden = weather.temperature < 40;
         heatLabel.textContent = words.heat;
-        const wind = new Intl.NumberFormat(lang === 'ru' ? 'ru-RU' : 'en-US', { maximumFractionDigits: 1 }).format(weather.windSpeed);
-        menuWeather.querySelector('[data-menu-weather-wind]').textContent = `${wind} ${words.windUnit}, ${words.directions[Math.round(weather.windDirection / 45) % 8]}`;
+        const feels = menuWeather.querySelector('[data-menu-weather-feels]');
+        feels.hidden = weather.feelsLike == null || Math.abs(Math.round(weather.feelsLike) - Math.round(weather.temperature)) < 2;
+        menuWeather.querySelector('[data-menu-weather-feels-value]').textContent = temperatureFormat(weather.feelsLike);
+        menuWeather.querySelector('[data-menu-weather-wind]').textContent = windFormat(weather);
         menuWeather.querySelector('[data-menu-weather-cloud]').textContent = `${Math.round(weather.cloudCover)}%`;
       }
       menuWeather.dataset.weather = hasForecast ? 'fresh' : requestInFlight ? 'loading' : 'unavailable';
@@ -309,7 +376,8 @@ function initDubaiLight() {
   }
 
   async function updateWeather() {
-    if ((mode !== 'current' && !navigation?.open) || document.hidden || disposed || requestInFlight || Date.now() < nextRequest) return;
+    // Today's outlook stays factual when the scene previews December's sunlight.
+    if (document.hidden || disposed || requestInFlight || Date.now() < nextRequest) return;
     // Simple CORS requests identify this site via Origin; native HTTP caching is preserved.
     const endpoint = `https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=${DUBAI.latitude}&lon=${DUBAI.longitude}`;
     requestInFlight = true;
