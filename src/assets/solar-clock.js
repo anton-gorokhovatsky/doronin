@@ -31,5 +31,7 @@ export function solarPosition(date, minutes) {
 
 export function solarTheme(date, minutes) {
   const sun = solarPosition(date, minutes);
-  return minutes >= sun.sunrise && minutes < sun.sunset ? 'light' : 'dark';
+  // Sunset is not yet darkness: use the same civil-twilight boundary as the
+  // scene palette, in both directions. Manual theme choices remain independent.
+  return sun.phase === 'night' ? 'dark' : 'light';
 }

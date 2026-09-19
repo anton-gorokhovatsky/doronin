@@ -9,6 +9,7 @@ try {
     try {
       for (const [clock, expected, device] of [
         ['2026-09-19T08:00:00Z', 'light', 'dark'],
+        ['2026-09-19T14:25:00Z', 'light', 'dark'],
         ['2026-09-19T19:00:00Z', 'dark', 'light'],
       ]) {
         const page = await browser.newPage({ colorScheme: device, reducedMotion: 'reduce' });

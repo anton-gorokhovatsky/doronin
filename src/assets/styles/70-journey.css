@@ -157,7 +157,6 @@
   .ride-replay .audio-story__storyline button { min-height: 7.25rem; padding: 1.1rem 1rem .9rem; }
   .ride-replay .audio-story__contexts p { grid-template-columns: minmax(0, 1fr); gap: var(--space-pair); }
   .ride-replay .audio-story__contexts::before { left: 0; width: 82%; }
-  .ride-replay .audio-story__wave { display: none; }
 }
 
 .theme-switcher__hint,

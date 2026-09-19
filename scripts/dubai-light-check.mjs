@@ -3,6 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { chromium, webkit } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 import { dubaiClock, solarPosition, lightPalette, readWeather, readOutlook } from '../src/assets/dubai-light.js';
+import { solarTheme } from '../src/assets/solar-clock.js';
 import { startSiteServer } from './lib/site-server.mjs';
 import { checkRenderedTextContrast } from './lib/rendered-contrast.mjs';
 
@@ -17,6 +18,13 @@ assert.equal(solarPosition('2026-12-01', 420).sunset, december.sunset);
 assert.equal(solarPosition('2026-12-01', 420).phase, 'dawn');
 assert.equal(solarPosition('2026-12-01', 1035).phase, 'sunset');
 assert.equal(solarPosition('2026-12-01', 1260).phase, 'night');
+assert.equal(solarTheme('2026-09-19', 18 * 60 + 25), 'light', 'Evening civil twilight is not yet the night theme');
+assert.equal(solarTheme('2026-09-19', 18 * 60 + 45), 'dark', 'Night begins after civil twilight');
+for (const date of ['2026-09-19', '2026-12-01', '2026-12-31']) {
+  for (let minute = 0; minute < 1440; minute++) {
+    assert.equal(solarTheme(date, minute) === 'dark', solarPosition(date, minute).phase === 'night', 'Theme and sunlight share dawn and dusk boundaries');
+  }
+}
 const now = Date.parse('2026-09-12T09:00:00Z');
 const forecastAt = (time, details = {}) => ({
   time: new Date(time).toISOString(),
