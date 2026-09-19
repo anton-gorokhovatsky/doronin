@@ -51,7 +51,6 @@
 
 :root[data-dubai-light] .manifesto {
   background:
-    linear-gradient(var(--dubai-wind-angle), transparent 25%, rgb(var(--dubai-beam) / var(--dubai-air-opacity)) 65%, transparent),
     radial-gradient(ellipse 85% 100% at var(--dubai-x) 0%, rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.6)), transparent 78%),
     rgb(var(--dubai-dark));
 }

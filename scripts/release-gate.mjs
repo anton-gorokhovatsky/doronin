@@ -12,6 +12,7 @@ const steps = [
   ["Static contract", process.execPath, ["src/check.mjs", "site"]],
   ["Accessibility matrix", process.execPath, ["scripts/accessibility-gate.mjs"]],
   ["Chromium/WebKit regression", process.execPath, ["scripts/browser-regression.mjs"]],
+  ["Automatic appearance", process.execPath, ["scripts/appearance-check.mjs", "site"]],
   ["Dubai light and data fallbacks", process.execPath, ["scripts/dubai-light-check.mjs", "site"]],
   ["Journey interactions and reflow", process.execPath, ["scripts/journey-browser-check.mjs"]],
   ["Screenshot gate", process.execPath, ["scripts/screenshot-gate.mjs"]],

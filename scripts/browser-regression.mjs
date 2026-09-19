@@ -724,7 +724,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       `${prefix}: dark theme did not activate`,
     );
 
-    await nav.locator('[data-theme-option="system"]').click();
+    await nav.locator('[data-theme-option="auto"]').click();
     await menuToggle.click();
     await page.waitForFunction(
       () => document.querySelector(".nav-shell")?.open === false,

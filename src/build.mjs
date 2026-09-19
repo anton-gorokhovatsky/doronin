@@ -83,6 +83,7 @@ const assetVersion = createHash("sha256")
   .update(morphiconsPackage.version)
   .update(await readFile(resolve(assetSource, "app.js")))
   .update(await readFile(resolve(assetSource, "theme-init.js")))
+  .update(await readFile(resolve(assetSource, "solar-clock.js")))
   .update(await readFile(resolve(assetSource, "dubai-light.js")))
   .update(await readFile(resolve(assetSource, "journey.js")))
   .update(await readFile(resolve(assetSource, "ride-replay.js")))
@@ -256,8 +257,8 @@ const locales = {
       formulaResult: "11 111",
     },
     presence: {
-      eyebrow: "Звуковой архив фильма «1111»",
-      title: "Присутствие",
+      eyebrow: "Из фильма «1111»",
+      title: "Звуки дистанции",
       description:
         "Три короткие сцены возвращают физическое ощущение дистанции: дыхание, ритм и скорость.",
       hint: "Выберите сцену, чтобы включить звук.",
@@ -572,7 +573,8 @@ const locales = {
       languageCurrent: "Русский",
       languageAlternate: "English",
       themeLabel: "Тема",
-      themeSystem: "Система",
+      themeSystem: "Авто",
+      themeAutoHint: "По времени в Дубае",
       themeLight: "Светлая",
       themeDark: "Тёмная",
       settingsLabel: "Настройки",
@@ -695,8 +697,8 @@ const locales = {
       formulaResult: "11,111",
     },
     presence: {
-      eyebrow: "Sound archive from the film “1111”",
-      title: "Presence",
+      eyebrow: "From the film “1111”",
+      title: "Sounds of the ride",
       description:
         "Three short scenes bring back the physical feeling of the distance: breath, rhythm and speed.",
       hint: "Choose a scene to play the audio.",
@@ -1010,7 +1012,8 @@ const locales = {
       languageCurrent: "English",
       languageAlternate: "Русский",
       themeLabel: "Theme",
-      themeSystem: "System",
+      themeSystem: "Auto",
+      themeAutoHint: "Following Dubai time",
       themeLight: "Light",
       themeDark: "Dark",
       settingsLabel: "Settings",
@@ -1078,10 +1081,11 @@ function renderThemeSwitcher(l) {
     <div class="theme-switcher" role="group" aria-label="${l.footer.themeLabel}">
       <span class="theme-switcher__label">${l.footer.themeLabel}</span>
       <div class="theme-switcher__options">
-        <button type="button" data-theme-option="system" aria-pressed="true">${l.footer.themeSystem}</button>
+        <button type="button" data-theme-option="auto" aria-pressed="true" aria-describedby="theme-auto-hint">${l.footer.themeSystem}</button>
         <button type="button" data-theme-option="light" aria-pressed="false">${l.footer.themeLight}</button>
         <button type="button" data-theme-option="dark" aria-pressed="false">${l.footer.themeDark}</button>
       </div>
+      <p class="theme-switcher__hint" id="theme-auto-hint">${l.footer.themeSystem} — ${l.footer.themeAutoHint.replace(/^./u, (letter) => letter.toLocaleLowerCase(l.lang))}</p>
     </div>`;
 }
 
@@ -1098,7 +1102,7 @@ function renderMenuSettings(l) {
       <div class="site-nav__setting" role="group" aria-label="${l.footer.themeLabel}">
         <span class="site-nav__setting-label">${l.footer.themeLabel}</span>
         <div class="site-nav__setting-options site-nav__setting-options--theme">
-          <button type="button" data-theme-option="system" aria-pressed="true">${l.footer.themeSystem}</button>
+          <button type="button" data-theme-option="auto" aria-pressed="true"><span>${l.footer.themeSystem}</span><small>${l.footer.themeAutoHint}</small></button>
           <button type="button" data-theme-option="light" aria-pressed="false">${l.footer.themeLight}</button>
           <button type="button" data-theme-option="dark" aria-pressed="false">${l.footer.themeDark}</button>
         </div>
@@ -1541,7 +1545,7 @@ function renderDiaryEntries(entries, l) {
         >
           <header class="diary-story__heading">
             <time class="diary-story__date" datetime="${entry.date}">${entry.fullDateLabel}</time>
-            <h3 id="diary-entry-title-${entry.date}">${entry.title}</h3>
+            <h3 id="diary-entry-title-${entry.date}" data-author-copy>${entry.title}</h3>
           </header>
           ${renderDiaryGallery(entry, index, l)}
           <div class="diary__copy">
@@ -1649,7 +1653,7 @@ function renderPresence(presence, l) {
           <p>${presence.eyebrow}</p>
         </div>
         <div class="audio-story__copy">
-          <h2 id="presence-title">${presence.title}</h2>
+          <h4 id="presence-title">${presence.title}</h4>
           <p>${presence.description}</p>
         </div>
       </div>
@@ -1914,19 +1918,12 @@ const units = {
 };
 
 function typographText(value, lang, authorCopy = false) {
-  let text = value.replace(/\.{3}/g, "…");
+  let text = authorCopy ? value : value.replace(/\.{3}/g, "…");
   if (authorCopy) {
-    // Keep the author's words and paragraphs; normalize typographic signs.
-    text = text
-      .replace(/(?<![\p{L}\d:-])(\d+(?:[,.]\d+)?)[ \t\u00A0\u202F]*[-–][ \t\u00A0\u202F]*(\d+(?:[,.]\d+)?)(?![\p{L}\d:-])/gu, "$1–$2")
-      .replace(/\s+[-–]\s+/gu, "\u00A0— ")
-      .replace(/(?<![\p{L}\p{N}])\d{5,}(?![\p{L}\p{N}])/gu,
-        (number) => formatProjectNumber(Number(number), lang));
-    if (lang === "ru") {
-      text = text.replaceAll("“", "«").replaceAll("”", "»")
-        .replace(/(^|[\s([—–])"(?=\S)/gu, "$1«")
-        .replace(/"(?=$|[\s.,!?:;)\]])/gu, "»");
-    }
+    // Authorial punctuation is retained; only number grouping and nonbreaking
+    // connections follow the site's typesetting rules.
+    text = text.replace(/(?<![\p{L}\p{N}])\d{5,}(?![\p{L}\p{N}])/gu,
+      (number) => formatProjectNumber(Number(number), lang));
   }
   text = text
     .replace(/\s+—\s+/g, "\u00A0— ")
@@ -1970,8 +1967,8 @@ function typographHtml(html, lang) {
     .split(/(<[^>]+>)/g)
     .map((part) => {
       if (!part.startsWith("<")) return typographText(part, lang, authorCopy);
-      if (/^<(?:p|li)\b[^>]*\bdata-author-copy\b/.test(part)) authorCopy = true;
-      if (/^<\/(?:p|li)>/.test(part)) authorCopy = false;
+      if (/^<(?:p|li|h3)\b[^>]*\bdata-author-copy\b/.test(part)) authorCopy = true;
+      if (/^<\/(?:p|li|h3)>/.test(part)) authorCopy = false;
       return part;
     })
     .join("");
@@ -2019,7 +2016,7 @@ function renderPage(l) {
       };
 
   return typographHtml(`<!doctype html>
-<html lang="${l.lang}">
+<html lang="${l.lang}" data-project-start="${projectPlan.period.startDate}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -2336,8 +2333,6 @@ function renderPage(l) {
       ${renderDistanceHistory(l)}
       ${renderRideReplay(l)}
     </section>
-
-    ${renderPresence(l.presence, l)}
 
     <section class="diary section section--light" id="diary" aria-labelledby="diary-title">
       <header class="diary-live section-heading" data-diary-live>
@@ -2661,6 +2656,7 @@ function renderRideReplay(l) {
         </div>
         <p class="ride-replay__error" data-replay-error role="status" hidden></p>
       </div>
+      ${renderPresence(l.presence, l)}
       <footer class="ride-replay__footer">
         <p class="ride-replay__status" id="ride-replay-status" data-replay-status>${ru ? 'Время восстановлено по 203 отрезкам Strava. Положение внутри отрезка приблизительное. 1 секунда = 20 минут заезда.' : 'Time reconstructed from 203 Strava splits. Position within each split is approximate. 1 second = 20 minutes of the ride.'}</p>
         <a class="ride-replay__source" href="${rideRecord.source}" target="_blank" rel="noopener noreferrer">${ru ? 'Оригинал в Strava' : 'Original on Strava'}${icons.external}</a>
@@ -2751,6 +2747,7 @@ const renderedPages = Object.values(locales).map((locale) => [
   renderPage(locale),
 ]);
 const productionAssetNames = new Set([
+  [null, "solar-clock.js"],
   ...`${styleBundle}\n${renderedPages.map(([, html]) => html).join("\n")}`.matchAll(
     /\bassets\/([a-z0-9][a-z0-9._/-]*)/giu,
   ),
@@ -2780,6 +2777,16 @@ await cp(assetSource, assetOutput, {
   },
 });
 await writeFile(resolve(assetOutput, "styles.css"), styleBundle, "utf8");
+// The head bootstrap and the runtime import the same solar equations. Inline
+// only this dependency into a classic script so the first paint has the right contrast.
+const solarSource = (await readFile(resolve(assetSource, "solar-clock.js"), "utf8"))
+  .replace(/^export /gm, "");
+const themeSource = (await readFile(resolve(assetSource, "theme-init.js"), "utf8"))
+  .replace(/^import[^\n]+\n/, "");
+await writeFile(resolve(assetOutput, "theme-init.js"), `(() => {\n${solarSource}\n${themeSource}\n})();\n`);
+const lightSource = (await readFile(resolve(assetSource, "dubai-light.js"), "utf8"))
+  .replaceAll("'./solar-clock.js'", `'./solar-clock.js?v=${assetVersion}'`);
+await writeFile(resolve(assetOutput, "dubai-light.js"), lightSource);
 const morphiconsOutput = resolve(assetOutput, morphiconsAssetPath);
 await mkdir(morphiconsOutput, { recursive: true });
 for (const file of morphiconsFiles) {

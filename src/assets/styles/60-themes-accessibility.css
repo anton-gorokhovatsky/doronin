@@ -522,3 +522,11 @@ html[data-text-fixture="200"] {
   overflow: visible;
   overflow-wrap: anywhere;
 }
+
+@media (max-width: 640px) {
+  :root.theme-dark :is(.section, .site-footer) .section-label > span {
+    color: inherit;
+    border: 0;
+    box-shadow: none;
+  }
+}

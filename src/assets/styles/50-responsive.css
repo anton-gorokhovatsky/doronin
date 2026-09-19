@@ -2004,6 +2004,43 @@
   }
 }
 
+/* One reading rhythm for the single-column layout. Photo openings and the
+   partner cover retain their own composition; recurring chapter heads share spacing. */
+@media (max-width: 640px) {
+  :root {
+    --space-pair: .5rem;
+    --space-stack: 1.25rem;
+    --space-group: 2rem;
+    --space-heading: 3rem;
+  }
+  .section-label { align-items: baseline; gap: .75rem; }
+  .section-label::after { display: none; }
+  .section-label > span {
+    display: block;
+    flex: 0 0 auto;
+    width: auto;
+    height: auto;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .manifesto { min-height: 0; align-content: start; row-gap: var(--space-group); }
+  .manifesto__copy { align-self: start; }
+  .manifesto__copy > p { margin-top: var(--space-stack); }
+  .section-heading { row-gap: var(--space-group); margin-bottom: var(--space-heading); }
+  .interviews__heading { row-gap: 0; margin-bottom: var(--space-heading); }
+  .interviews__heading h2 { margin: var(--space-group) 0 var(--space-stack); }
+  .proof h2 { margin-top: var(--space-group); font-size: var(--type-narrow-section); }
+  .proof__heading > p { margin: var(--space-stack) 0 0; }
+  .athlete__copy h2 { margin-top: var(--space-group); }
+  .athlete__lead { margin-top: var(--space-stack); }
+  .athlete__body { margin-block: var(--space-stack); }
+  .diary-story__heading { gap: var(--space-pair); }
+  .diary__copy > p + p { margin-top: var(--space-stack); }
+  .story-frame figcaption { margin-top: var(--space-stack); }
+  .adventure-card__action { margin-top: var(--space-stack); }
+}
+
 @media (max-width: 360px) {
   :root {
     --type-chapter: 1.45rem;

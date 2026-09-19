@@ -39,90 +39,46 @@ function syncTextEnlargement() {
 syncTextEnlargement();
 window.addEventListener("resize", syncTextEnlargement, { passive: true });
 
-const supportedThemes = new Set(["system", "light", "dark"]);
-const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+const supportedThemes = new Set(["auto", "light", "dark"]);
 const storedTheme = document.documentElement.dataset.theme;
 let activeTheme = supportedThemes.has(requestedTheme)
   ? requestedTheme
-  : supportedThemes.has(storedTheme)
-    ? storedTheme
-    : "system";
+  : supportedThemes.has(storedTheme) ? storedTheme : "auto";
 
 function syncResolvedTheme() {
-  const resolvedTheme =
-    activeTheme === "system"
-      ? systemThemeQuery.matches
-        ? "dark"
-        : "light"
-      : activeTheme;
-
-  document.documentElement.classList.toggle(
+  const root = document.documentElement;
+  const resolvedTheme = activeTheme === "auto"
+    ? root.dataset.solarTheme || "light" : activeTheme;
+  root.classList.toggle(
     "theme-dark",
     resolvedTheme === "dark",
   );
-  document.documentElement.classList.toggle(
-    "theme-light",
-    resolvedTheme === "light",
-  );
+  root.classList.toggle("theme-light", resolvedTheme === "light");
+  const favicon = document.querySelector("[data-favicon]");
+  if (favicon) favicon.href = resolvedTheme === "dark"
+    ? favicon.dataset.darkHref : favicon.dataset.lightHref;
+  for (const meta of document.querySelectorAll("[data-theme-color]")) {
+    meta.media = meta.dataset.themeColor === resolvedTheme ? "all" : "not all";
+  }
 }
 
 function applyTheme(theme, persist = true) {
-  activeTheme = supportedThemes.has(theme) ? theme : "system";
-
-  if (activeTheme === "system") {
-    delete document.documentElement.dataset.theme;
-  } else {
-    document.documentElement.dataset.theme = activeTheme;
-  }
-
+  activeTheme = supportedThemes.has(theme) ? theme : "auto";
+  document.documentElement.dataset.theme = activeTheme;
   syncResolvedTheme();
-
   for (const button of document.querySelectorAll("[data-theme-option]")) {
-    button.setAttribute(
-      "aria-pressed",
-      String(button.dataset.themeOption === activeTheme),
-    );
+    button.setAttribute("aria-pressed", String(button.dataset.themeOption === activeTheme));
   }
-
-  const favicon = document.querySelector("[data-favicon]");
-
-  if (favicon) {
-    favicon.href =
-      activeTheme === "light"
-        ? favicon.dataset.lightHref
-        : activeTheme === "dark"
-          ? favicon.dataset.darkHref
-          : favicon.dataset.systemHref;
-  }
-
-  for (const meta of document.querySelectorAll("[data-theme-color]")) {
-    const colorTheme = meta.dataset.themeColor;
-    meta.media =
-      activeTheme === "system"
-        ? `(prefers-color-scheme: ${colorTheme})`
-        : colorTheme === activeTheme
-          ? "all"
-          : "not all";
-  }
-
   if (persist) {
     try {
-      if (activeTheme === "system") {
-        localStorage.removeItem("theme");
-      } else {
-        localStorage.setItem("theme", activeTheme);
-      }
-    } catch {}
+      if (activeTheme === "auto") localStorage.removeItem("theme");
+      else localStorage.setItem("theme", activeTheme);
+    } catch { /* The controls still work without persistence. */ }
   }
 }
 
 applyTheme(activeTheme, false);
-
-systemThemeQuery.addEventListener("change", () => {
-  if (activeTheme === "system") {
-    syncResolvedTheme();
-  }
-});
+document.addEventListener("dubai-light-change", syncResolvedTheme);
 
 const supportedMotionPreferences = new Set(["system", "reduced"]);
 const systemReducedMotionQuery = window.matchMedia(

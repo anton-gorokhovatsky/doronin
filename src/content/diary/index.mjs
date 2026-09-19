@@ -9,6 +9,8 @@ import august31 from "./2026-08-31.mjs";
 import september05 from "./2026-09-05.mjs";
 import september09 from "./2026-09-09.mjs";
 import september12 from "./2026-09-12.mjs";
+import september13 from "./2026-09-13.mjs";
+import september14 from "./2026-09-14.mjs";
 
 const entries = [
   march10,
@@ -22,6 +24,8 @@ const entries = [
   september05,
   september09,
   september12,
+  september13,
+  september14,
 ].sort((first, second) => second.date.localeCompare(first.date));
 
 const localeCopy = {

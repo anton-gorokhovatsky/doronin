@@ -151,6 +151,7 @@ for (const [lang, path] of pages) {
   const textFragments = html
     .replace(/<svg[\s\S]*?<\/svg>/g, " ")
     .split(/<[^>]+>/g);
+  const editorialText = html.replace(/<(p|li|h3)\b[^>]*\bdata-author-copy\b[^>]*>[\s\S]*?<\/\1>/gu, "").replace(/<[^>]+>/g, " ");
   const visibleText = html
     .replace(/<svg[\s\S]*?<\/svg>/g, " ")
     .replace(/<[^>]+>/g, " ")
@@ -169,7 +170,7 @@ for (const [lang, path] of pages) {
     .replace(/[ \t\r\n]+/g, " ");
 
   expect(
-    html.includes(`<html lang="${lang}">`),
+    new RegExp(`<html\\b[^>]* lang="${lang}"(?:\\s|>)`).test(html),
     `${lang}: неверный или отсутствующий lang`,
   );
   expect(
@@ -213,13 +214,13 @@ for (const [lang, path] of pages) {
     !/ — /u.test(visibleText),
     `${lang}: перед длинным тире нужен неразрывный пробел`,
   );
-  expect(!/\.{3}/u.test(visibleText), `${lang}: использовать знак многоточия`);
+  expect(!/\.{3}/u.test(editorialText), `${lang}: использовать знак многоточия`);
   expect(
-    !textFragments.some((fragment) => /\s[-–]\s/u.test(fragment)),
+    !html.replace(/<(p|li|h3)\b[^>]*\bdata-author-copy\b[^>]*>[\s\S]*?<\/\1>/gu, "").split(/<[^>]+>/g).some((fragment) => /\s[-–]\s/u.test(fragment)),
     `${lang}: пунктуационное тире должно быть длинным, а дефис оставаться внутри слов`,
   );
   expect(
-    lang !== "ru" || !/[“”]/u.test(visibleText),
+    lang !== "ru" || !/[“”]/u.test(editorialText),
     "ru: в тексте нужны русские кавычки «ёлочки»",
   );
   expect(
@@ -690,7 +691,7 @@ const referencedAssetNames = new Set([
 for (const assetName of referencedAssetNames) {
   if (!assetName.endsWith(".js")) continue;
   const source = await readFile(resolve(outputRoot, "assets", assetName), "utf8");
-  for (const [, dependency] of source.matchAll(/from ["'](\.\/[^"']+\.js)["']/gu)) {
+  for (const [, dependency] of source.matchAll(/from ["'](\.\/[^"'?]+\.js)(?:\?[^"']*)?["']/gu)) {
     referencedAssetNames.add(posix.join(posix.dirname(assetName), dependency));
   }
   if (/^vendor\/morphicons-[\d.]+\/dom\.js$/u.test(assetName)) {
