@@ -1517,7 +1517,7 @@ async function auditPage(browser, browserName, origin, testCase) {
               name: phaseName,
               open: details?.open ?? false,
               projectPhase: document.body.dataset.projectPhase,
-              title: details?.querySelector("summary strong")?.textContent.trim(),
+              title: details?.querySelector("[data-calendar-phase-copy]")?.textContent.trim(),
             };
           }, name),
         );
