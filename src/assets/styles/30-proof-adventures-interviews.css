@@ -200,6 +200,7 @@
   align-items: center;
   gap: 1rem;
   min-height: 5rem;
+  padding-block: 1rem;
   cursor: pointer;
   font-size: var(--type-service-strong);
   font-weight: 800;
@@ -215,7 +216,10 @@
 .proof-sources summary small {
   color: var(--text-proof-muted);
   font-size: var(--type-service);
-  font-weight: 700;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .proof-sources summary .icon {
@@ -497,6 +501,7 @@
   align-items: center;
   gap: 1rem;
   min-height: 5.5rem;
+  padding-block: 1rem;
   cursor: pointer;
   font-size: var(--type-service-strong);
   font-weight: 800;
@@ -512,7 +517,10 @@
 .interviews__archive summary small {
   color: rgba(241, 245, 237, 0.58);
   font-size: var(--type-service);
-  font-weight: 700;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .interviews__archive summary .icon {

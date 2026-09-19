@@ -166,6 +166,13 @@ function initDubaiLight() {
     outlookUnavailable: 'The forecast for the next few hours is unavailable',
     directions: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
   };
+  // These messages are written after the build-time typesetting pass.
+  const shortWord = lang === 'ru'
+    ? /(?<![\p{L}\p{N}])(а|без|в|во|для|до|за|и|из|к|ко|на|над|не|о|об|от|по|под|при|с|со|у)\s+(?=[\p{L}\p{N}«@])/giu
+    : /\b(a|an|and|at|by|for|in|of|on|or|the|to)\s+(?=[A-Za-z0-9“@])/giu;
+  for (const key of Object.keys(words)) {
+    if (typeof words[key] === 'string') words[key] = words[key].replace(shortWord, '$1\u00a0');
+  }
   const startDate = widget.dataset.startDate;
   const dateFormat = new Intl.DateTimeFormat(lang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Dubai' });
   const dateLabel = date => dateFormat.format(new Date(`${date}T12:00:00Z`)).replace(/ г\.$/, '').replace(/^(\d+) /, '$1\u00a0');

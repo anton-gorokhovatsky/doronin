@@ -158,6 +158,9 @@ function validateEntries() {
     if (!Array.isArray(entry.facts)) {
       throw new Error(`Diary entry ${entry.date} facts must be an array.`);
     }
+    if (entry.factsPlacement !== undefined && !["before-note", "after-note"].includes(entry.factsPlacement)) {
+      throw new Error(`Diary entry ${entry.date} has an invalid facts placement.`);
+    }
 
     if (entry.media !== undefined) {
       if (!Array.isArray(entry.media) || entry.media.length < 2) {
@@ -369,6 +372,7 @@ export function createDiaryContent(lang) {
         videoPlayCta: copy.videoPlayCta,
         cta: copy.cta,
         facts: entry.facts.map((fact) => [fact.value[lang], fact[lang]]),
+        factsPlacement: entry.factsPlacement,
         ...entry.content[lang],
       };
     }),

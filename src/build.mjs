@@ -1000,7 +1000,7 @@ const locales = {
       person: "Anna Nesterova",
     },
     footer: {
-      titleLineOne: "The story begins in",
+      titleLineOne: "The story begins in",
       titleFallback: "Project start",
       titleActive: "The story is unfolding",
       titleFinished: "The story continues",
@@ -1102,10 +1102,11 @@ function renderMenuSettings(l) {
       <div class="site-nav__setting" role="group" aria-label="${l.footer.themeLabel}">
         <span class="site-nav__setting-label">${l.footer.themeLabel}</span>
         <div class="site-nav__setting-options site-nav__setting-options--theme">
-          <button type="button" data-theme-option="auto" aria-pressed="true"><span>${l.footer.themeSystem}</span><small>${l.footer.themeAutoHint}</small></button>
+          <button type="button" data-theme-option="auto" aria-pressed="true" aria-describedby="menu-theme-auto-hint">${l.footer.themeSystem}</button>
           <button type="button" data-theme-option="light" aria-pressed="false">${l.footer.themeLight}</button>
           <button type="button" data-theme-option="dark" aria-pressed="false">${l.footer.themeDark}</button>
         </div>
+        <p class="site-nav__setting-hint" id="menu-theme-auto-hint">${l.footer.themeSystem} — ${l.footer.themeAutoHint.replace(/^./u, (letter) => letter.toLocaleLowerCase(l.lang))}</p>
       </div>
     </div>`;
 }
@@ -1305,6 +1306,7 @@ function renderMetrics(items, className) {
 
 function renderDiaryText(text, className) {
   return text
+    .replace(/<\/?(?:strong|b)\b[^>]*>/giu, "")
     .split(/\n{2,}/u)
     .map((group) => group.trim())
     .filter(Boolean)
@@ -1535,6 +1537,9 @@ function renderDiaryGallery(entry, entryIndex, l) {
 function renderDiaryEntries(entries, l) {
   return entries
     .map((entry, index) => {
+      const facts = entry.facts.length ? `<div class="diary__facts${entry.factsPlacement === "after-note" ? " diary__facts--summary" : ""}">
+        ${renderMetrics(entry.facts, "diary__fact")}
+      </div>` : "";
       return `
         <article
           class="diary-story"
@@ -1550,19 +1555,17 @@ function renderDiaryEntries(entries, l) {
           ${renderDiaryGallery(entry, index, l)}
           <div class="diary__copy">
             ${entry.lead ? renderDiaryText(entry.lead, "diary__lead") : ""}
-            ${entry.facts.length ? `<div class="diary__facts">
-              ${renderMetrics(entry.facts, "diary__fact")}
-            </div>` : ""}
+            ${entry.factsPlacement !== "after-note" ? facts : ""}
             ${renderDiaryText(entry.note, "diary__note")}
+            ${entry.factsPlacement === "after-note" ? facts : ""}
             <a
-              class="text-link text-link--dark"
+              class="text-link text-link--dark diary__source"
               href="${entry.href}"
               data-analytics-goal="diary_open"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <span class="text-link__label">${entry.cta}</span>
-              ${icons.external}
+              ${renderDiaryFollowLabel(entry.cta)}
               <span class="sr-only">${entry.externalLabel}</span>
             </a>
           </div>
@@ -1908,20 +1911,25 @@ function renderHeroPeaks(plan, l) {
 }
 
 const shortWords = {
-  ru: /(?<![\p{L}\p{N}])(а|в|во|до|за|и|из|к|ко|на|не|о|об|от|по|с|со|у)\s+(?=[\p{L}\p{N}«])/giu,
-  en: /\b(a|an|and|at|by|for|in|of|on|or|the|to)\s+(?=[A-Za-z0-9“])/giu,
+  ru: /(?<![\p{L}\p{N}])(а|без|в|во|для|до|за|и|из|к|ко|на|над|не|о|об|от|по|под|при|с|со|у)\s+(?=[\p{L}\p{N}«@])/giu,
+  en: /\b(a|an|and|at|by|for|in|of|on|or|the|to)\s+(?=[A-Za-z0-9“@])/giu,
 };
 
 const units = {
-  ru: /(бассейнов|года|день|дня|дней|января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря|категориях|километров|километра|километр|км|кругов|лет|марафона|метров|минуты|минут|минута|мин|млн|м|переправы|просмотров|СМИ|часа|часов|час|Вт|г)/giu,
-  en: /(categories|crossings|days?|hours?|kilometres?|km|laps|lengths|marathons|metres?|minutes?|outlets|views|years?|W|g)/giu,
+  ru: /(бассейнов|годах|года|году|год|день|дня|дней|января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря|категориях|километров|километра|километре|километр|км|кругов|лет|марафона|метров|месяцев|месяца|месяц|минуты|минут|минута|мин|млн|м|отрезкам|отрезков|переправы|правила|правил|правило|просмотров|секунды|секунд|секунда|СМИ|человек|часа|часов|час|ч|этапов|этапа|этап|Вт|г)/giu,
+  en: /(categories|crossings|days?|hours?|kilometres?|km|laps|lengths|marathons|metres?|minutes?|months?|outlets|seconds?|segments?|splits?|stages?|views|years?|hr|W|g)/giu,
 };
 
 function typographText(value, lang, authorCopy = false) {
-  let text = authorCopy ? value : value.replace(/\.{3}/g, "…");
+  let text = value.replace(/\.{3}/g, "…");
   if (authorCopy) {
-    // Authorial punctuation is retained; only number grouping and nonbreaking
-    // connections follow the site's typesetting rules.
+    // Keep the author's wording and paragraph structure; punctuation glyphs,
+    // spacing and number grouping follow the site's editorial typography.
+    text = text.replace(/\s+[-–]\s+/gu, "\u00a0— ");
+    if (lang === "ru") {
+      text = text.replace(/“/gu, "«").replace(/”/gu, "»")
+        .replace(/"([^"\n]+)"/gu, "«$1»");
+    }
     text = text.replace(/(?<![\p{L}\p{N}])\d{5,}(?![\p{L}\p{N}])/gu,
       (number) => formatProjectNumber(Number(number), lang));
   }
@@ -1934,9 +1942,11 @@ function typographText(value, lang, authorCopy = false) {
     "giu",
   );
   text = text.replace(unitPattern, "$1\u00A0$2");
+  text = text.replace(/(\d)\s+(?=(?:базовых|специальных|base|special)(?!\p{L}))/gu, "$1\u00A0");
 
   if (lang === "ru") {
     text = text
+      .replace(/(\d+-(?:й|я|е|м|го|му))\s+(?=\p{L})/gu, "$1\u00A0")
       .replace(/(?<!\p{L})(ИП|ИНН)\s+(?=[А-ЯA-Z0-9])/gu, "$1\u00A0")
       .replace(/(?<!\p{L})([А-ЯЁ])\.\s+([А-ЯЁ])\./gu, "$1.\u00A0$2.");
   } else {
@@ -1973,7 +1983,17 @@ function typographHtml(html, lang) {
     })
     .join("");
 
-  return textNodes
+  // Inline emphasis must not break a semantic text connection. Block boundaries
+  // and explicit line breaks remain untouched.
+  const inlineTags = '(?:<\\/?(?:strong|em|b|i|a|span|time|small|mark)\\b[^>]*>)+';
+  const shortWordEnd = shortWords[lang].source.split('\\s+')[0];
+  const connected = textNodes
+    .replace(new RegExp(`${shortWordEnd}([ \\t]+)(${inlineTags})(?=[\\p{L}\\p{N}«“@])`, 'giu'), '$1\u00A0$3')
+    .replace(new RegExp(`${shortWordEnd}(${inlineTags})[ \\t]+(?=[\\p{L}\\p{N}«“@])`, 'giu'), '$1$2\u00A0')
+    .replace(new RegExp(`(\\d)(${inlineTags})[ \\t]+${units[lang].source}(?!\\p{L})`, 'giu'), '$1$2\u00A0$3')
+    .replace(new RegExp(`(\\d)[ \\t]+(${inlineTags})${units[lang].source}(?!\\p{L})`, 'giu'), '$1\u00A0$2$3');
+
+  return connected
     .replace(
       /\b(alt|aria-label|content|data-before(?:-one|-few|-many)?|data-active|data-finished|data-latest-update|data-status-pending|data-live-discipline|data-live-note)="([^"]*)"/g,
       (attribute, name, value) => `${name}="${typographText(value, lang)}"`,
@@ -2244,16 +2264,16 @@ function renderPage(l) {
       </div>
     </section>
 
-    <aside class="return-update" data-return-update hidden aria-label="${l.lang === 'ru' ? 'Изменения с прошлого посещения' : 'Updates since your last visit'}">
-      <p>${l.lang === 'ru' ? 'С прошлого посещения' : 'Since your last visit'}</p>
-      <div class="return-update__links" data-return-links></div>
-    </aside>
     <script type="application/json" id="project-updates-data">${JSON.stringify([
       ...l.diary.entries.map(entry => ({ id: `diary:${entry.date}`, kind: 'diary', href: `#diary-entry-${entry.date}` })).reverse(),
       ...projectHistory.entries.map(entry => ({ id: `distance:${entry.updatedAt}`, kind: 'distance', href: '#distance-history', label: `${formatProjectNumber(entry.distanceKm, l.lang)} ${l.lang === 'ru' ? 'км' : 'km'}` })),
     ]).replaceAll('<', '\\u003c')}</script>
 
     <section class="manifesto section" id="about" aria-labelledby="manifesto-title">
+      <aside class="return-update" data-return-update hidden aria-label="${l.lang === 'ru' ? 'Изменения с прошлого посещения' : 'Updates since your last visit'}">
+        <p>${l.lang === 'ru' ? 'С прошлого посещения' : 'Since your last visit'}</p>
+        <div class="return-update__links" data-return-links></div>
+      </aside>
       ${renderChapterLabel(l, "#top", l.manifesto.eyebrow)}
       <div class="manifesto__copy">
         <h2 id="manifesto-title">${l.manifesto.title}</h2>

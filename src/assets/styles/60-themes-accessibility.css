@@ -524,6 +524,38 @@ html[data-text-fixture="200"] {
 }
 
 @media (max-width: 640px) {
+  :root.text-enlarged .site-footer__nav .site-nav__link {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+    overflow-wrap: normal;
+  }
+
+  :root.text-enlarged .site-footer__nav .site-nav__link::before {
+    white-space: nowrap;
+  }
+
+  :root.text-enlarged .interview-card--index .interview-card__copy {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.5rem;
+  }
+
+  :root.text-enlarged .interview-card--index .interview-card__meta {
+    grid-column: 1;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  :root.text-enlarged .interview-card--index h3 {
+    grid-column: 1 / -1;
+    overflow-wrap: normal;
+    hyphens: none;
+  }
+
+  :root.text-enlarged .interview-card--index .interview-card__action {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
   :root.theme-dark :is(.section, .site-footer) .section-label > span {
     color: inherit;
     border: 0;

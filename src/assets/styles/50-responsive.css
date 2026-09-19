@@ -1614,19 +1614,18 @@
 
   .interviews__archive summary {
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.55rem 0.75rem;
+    gap: 0.4rem 0.75rem;
     min-height: 5rem;
   }
 
   .interviews__archive summary small {
     grid-column: 1;
     grid-row: 2;
-    padding-bottom: 0.75rem;
   }
 
   .interviews__archive summary .icon {
     grid-column: 2;
-    grid-row: 1 / span 2;
+    grid-row: 1;
   }
 
   .interview-grid--archive {
@@ -2041,6 +2040,21 @@
   .adventure-card__action { margin-top: var(--space-stack); }
 }
 
+@media (max-width: 480px) {
+  .site-footer__nav {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-auto-flow: row;
+  }
+
+  .site-footer__nav > p { grid-column: 1; }
+
+  .site-footer__nav .site-nav__link {
+    align-items: first baseline;
+    min-height: 2.65rem;
+  }
+}
+
 @media (max-width: 360px) {
   :root {
     --type-chapter: 1.45rem;
@@ -2080,20 +2094,6 @@
 
   .site-footer h2 {
     font-size: var(--type-narrow-feature);
-  }
-
-  .site-footer__nav {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: none;
-    grid-auto-flow: row;
-  }
-
-  .site-footer__nav > p {
-    grid-column: 1;
-  }
-
-  .site-footer__nav .site-nav__link {
-    min-height: 2.65rem;
   }
 
   html[lang="en"] .partners h2 {

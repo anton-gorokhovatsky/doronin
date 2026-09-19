@@ -46,6 +46,17 @@ try {
         await page.evaluate(() => document.fonts.ready);
         await page.locator('#presence').scrollIntoViewIfNeeded();
         await checkRenderedTextContrast(page, '#presence');
+        await page.setViewportSize({width:390,height:900});
+        await page.locator('.menu-toggle').click();
+        const options = page.locator('.site-nav__setting-options--theme');
+        await options.scrollIntoViewIfNeeded();
+        const rows = await options.locator('button').evaluateAll(buttons => buttons.map(button => {
+          const range = document.createRange();
+          range.selectNodeContents(button);
+          return range.getBoundingClientRect().top;
+        }));
+        assert(rows.every(top => Math.abs(top - rows[0]) < 1), 'Mobile appearance labels share one text line');
+        assert(await page.locator('#menu-theme-auto-hint').evaluate(el => el.getBoundingClientRect().top >= el.previousElementSibling.getBoundingClientRect().bottom), 'The explanation belongs below the whole row');
         await page.close();
       }
       // First paint must not need the deferred app, forecast, or browser storage.

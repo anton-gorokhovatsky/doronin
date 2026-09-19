@@ -1,4 +1,23 @@
+.diary__copy .diary__source {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.diary__source .text-link__label { overflow-wrap: normal; }
+
 @media (min-width: 961px) {
+  :root:not(.text-enlarged) .diary__facts--summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  :root:not(.text-enlarged) .diary__facts--summary .diary__fact strong {
+    font-size: clamp(1.75rem, calc(1.25rem + 1.4vw), 2.625rem);
+  }
+
   :root:not(.text-enlarged) .diary-story > .diary__gallery[data-diary-sticky-ready] {
     position: sticky;
     top: min(6rem, calc(100svh - var(--diary-gallery-height) - 1.5rem));
