@@ -713,6 +713,7 @@ const styleModuleNames = [
   "10-hero-audio.css",
   "20-editorial-distance-story.css",
   "21-diary-responsive.css",
+  "24-disclosures.css",
   "25-bike-calendar.css",
   "30-proof-adventures-interviews.css",
   "31-proof-responsive.css",
@@ -886,7 +887,6 @@ expect(
     /\.bike-calendar__segment--finish\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/s.test(
       css,
     ) &&
-    /\.bike-calendar__details\s*>\s*summary\s*\{[^}]*background:\s*var\(--text-editorial\)[^}]*color:\s*var\(--surface-editorial\)/s.test(css) &&
     /\.bike-calendar__details-body\s*\{[^}]*display:\s*grid/s.test(
       css,
     ) &&

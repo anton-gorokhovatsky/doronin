@@ -34,6 +34,7 @@ const styleModuleNames = [
   "10-hero-audio.css",
   "20-editorial-distance-story.css",
   "21-diary-responsive.css",
+  "24-disclosures.css",
   "25-bike-calendar.css",
   "30-proof-adventures-interviews.css",
   "31-proof-responsive.css",
@@ -294,7 +295,7 @@ const locales = {
     viktor: {
       eyebrow: "О герое",
       title: "Виктор Доронин",
-      lead: "47 лет. Спортсмен-любитель с опытом больших дистанций.",
+      lead: "47 лет. Не создаёт образ — живёт в нём.",
       body: `Идеолог сообществ <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">«Пыльные гантели»</a> и&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">«Гастродинамика»</a>.`,
       imageAlt: "Виктор Доронин на дистанции в пустыне",
       achievements: [
@@ -733,7 +734,7 @@ const locales = {
     viktor: {
       eyebrow: "About Viktor",
       title: "Viktor Doronin",
-      lead: "47. An amateur athlete experienced in extreme endurance.",
+      lead: "47. He doesn’t craft an image — he lives it.",
       body: `A driving force behind the <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">Dusty Dumbbells</a> and&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">Gastrodinamika</a> communities.`,
       imageAlt: "Viktor Doronin racing through the desert",
       achievements: [
@@ -2271,8 +2272,8 @@ function renderPage(l) {
 
     <section class="manifesto section" id="about" aria-labelledby="manifesto-title">
       <aside class="return-update" data-return-update hidden aria-label="${l.lang === 'ru' ? 'Изменения с прошлого посещения' : 'Updates since your last visit'}">
-        <p>${l.lang === 'ru' ? 'С прошлого посещения' : 'Since your last visit'}</p>
         <div class="return-update__links" data-return-links></div>
+        <template data-return-icon>${icons.down}</template>
       </aside>
       ${renderChapterLabel(l, "#top", l.manifesto.eyebrow)}
       <div class="manifesto__copy">
@@ -2310,22 +2311,20 @@ function renderPage(l) {
           data-calendar-near-days="${shared.calendarNearStartDays}"
         >
           <summary>
-            <span>
-              <strong
-                data-calendar-phase-copy
-                data-far="${escapeAttribute(l.distance.calendarFarTitle)}"
-                data-near="${escapeAttribute(l.distance.calendarNearTitle)}"
-                data-active="${escapeAttribute(l.distance.calendarActiveTitle)}"
-                data-finished="${escapeAttribute(l.distance.calendarFinishedTitle)}"
-              >${l.distance.calendarFarTitle}</strong>
-              <small
-                data-calendar-phase-copy
-                data-far="${escapeAttribute(l.distance.calendarFarMeta)}"
-                data-near="${escapeAttribute(l.distance.calendarNearMeta)}"
-                data-active="${escapeAttribute(l.distance.calendarActiveMeta)}"
-                data-finished="${escapeAttribute(l.distance.calendarFinishedMeta)}"
-              >${l.distance.calendarFarMeta}</small>
-            </span>
+            <span
+              data-calendar-phase-copy
+              data-far="${escapeAttribute(l.distance.calendarFarTitle)}"
+              data-near="${escapeAttribute(l.distance.calendarNearTitle)}"
+              data-active="${escapeAttribute(l.distance.calendarActiveTitle)}"
+              data-finished="${escapeAttribute(l.distance.calendarFinishedTitle)}"
+            >${l.distance.calendarFarTitle}</span>
+            <small
+              data-calendar-phase-copy
+              data-far="${escapeAttribute(l.distance.calendarFarMeta)}"
+              data-near="${escapeAttribute(l.distance.calendarNearMeta)}"
+              data-active="${escapeAttribute(l.distance.calendarActiveMeta)}"
+              data-finished="${escapeAttribute(l.distance.calendarFinishedMeta)}"
+            >${l.distance.calendarFarMeta}</small>
             ${icons.disclosure}
           </summary>
           <div class="bike-calendar__details-body">

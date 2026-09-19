@@ -67,21 +67,6 @@
     border-left: 0;
   }
 
-  .proof-sources summary {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.4rem 0.75rem;
-  }
-
-  .proof-sources summary small {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
-  .proof-sources summary .icon {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
   .proof-sources__grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;

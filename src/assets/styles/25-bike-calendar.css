@@ -74,77 +74,11 @@
   height: 1.35rem;
 }
 
-.bike-calendar__details {
-  min-width: 0;
-}
-
-.bike-calendar__details > summary {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: clamp(1.5rem, 3vw, 3rem);
-  align-items: center;
-  min-height: clamp(5.5rem, 7vw, 7rem);
-  width: fit-content;
-  max-width: 100%;
-  padding: 1.2rem 1.5rem;
-  background: var(--text-editorial);
-  color: var(--surface-editorial);
-  cursor: pointer;
-  list-style: none;
-  transition: background-color 180ms var(--ease-move), color 180ms var(--ease-move);
-}
-
-.bike-calendar__details > summary:is(:hover, :focus-visible) {
-  background: var(--acid);
-  color: var(--ink);
-}
-
-.bike-calendar__details > summary::-webkit-details-marker {
-  display: none;
-}
-
-.bike-calendar__details > summary > span {
-  display: grid;
-  gap: 0.45rem;
-  min-width: 0;
-}
-
-.bike-calendar__details > summary strong {
-  font-size: clamp(1rem, calc(0.84rem + 0.45vw), 1.4rem);
-  font-weight: 800;
-  letter-spacing: 0.045em;
-  line-height: 1.15;
-  text-transform: uppercase;
-  text-wrap: balance;
-}
-
-.bike-calendar__details > summary small {
-  color: inherit;
-  font-size: clamp(0.78rem, 0.16vw + 0.73rem, 0.92rem);
-  font-weight: 650;
-  line-height: 1.35;
-}
-
-.bike-calendar__details > summary .icon {
-  width: 1.35rem;
-  height: 1.35rem;
-  transition: transform 180ms var(--ease-move);
-}
-
-.bike-calendar__details[open] > summary .icon {
-  transform: rotate(180deg);
-}
-
 .bike-calendar__details-body {
   display: grid;
   gap: clamp(3.5rem, 7vw, 7rem);
   min-width: 0;
   padding-block: clamp(2rem, 4vw, 3.5rem);
-}
-
-body[data-calendar-phase="near"] .bike-calendar__details > summary {
-  background: var(--acid);
-  color: var(--ink);
 }
 
 .bike-calendar__segment[aria-current="step"] {
@@ -563,10 +497,6 @@ body[data-calendar-phase="near"] .bike-calendar__details > summary {
 
   .bike-calendar__current .icon {
     grid-area: icon;
-  }
-
-  .bike-calendar__details > summary {
-    min-height: 5.5rem;
   }
 
   .bike-calendar__details-body {

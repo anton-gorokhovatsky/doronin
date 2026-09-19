@@ -4,6 +4,14 @@ export function unseenUpdates(items, saved) {
   return items.filter(item => !saved.ids.includes(item.id));
 }
 
+export function diaryUpdateLabel(count, lang) {
+  if (lang !== 'ru') return count === 1 ? 'New diary entry' : `${count}\u00a0new diary entries`;
+  if (count === 1) return 'Новая запись в\u00a0дневнике';
+  const form = new Intl.PluralRules('ru').select(count);
+  const phrase = form === 'one' ? 'новая запись' : form === 'few' ? 'новые записи' : 'новых записей';
+  return `${count}\u00a0${phrase} в\u00a0дневнике`;
+}
+
 function initUpdates() {
   const data = document.querySelector('#project-updates-data');
   const notice = document.querySelector('[data-return-update]');
@@ -25,9 +33,18 @@ function initUpdates() {
     const latest = updates.at(-1);
     const link = document.createElement('a');
     link.href = latest.href;
-    link.textContent = kind === 'diary'
-      ? lang === 'ru' ? `В дневнике: ${updates.length}` : `Diary updates: ${updates.length}`
+    const label = kind === 'diary'
+      ? diaryUpdateLabel(updates.length, lang)
       : lang === 'ru' ? `Подтверждено ${latest.label}` : `${latest.label} confirmed`;
+    const split = label.lastIndexOf(' ');
+    link.append(document.createTextNode(label.slice(0, split + 1)));
+    const tail = document.createElement('span');
+    tail.className = 'return-update__tail';
+    const tailLabel = document.createElement('span');
+    tailLabel.textContent = label.slice(split + 1);
+    tail.append(tailLabel);
+    tail.append(notice.querySelector('[data-return-icon]').content.cloneNode(true));
+    link.append(tail);
     links.append(link);
   }
   notice.hidden = false;

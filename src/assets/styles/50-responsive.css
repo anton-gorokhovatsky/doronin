@@ -1612,22 +1612,6 @@
     margin-top: 2.5rem;
   }
 
-  .interviews__archive summary {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.4rem 0.75rem;
-    min-height: 5rem;
-  }
-
-  .interviews__archive summary small {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
-  .interviews__archive summary .icon {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
   .interview-grid--archive {
     padding: 0;
     border-top: 0;
