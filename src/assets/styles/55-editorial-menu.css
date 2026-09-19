@@ -1164,6 +1164,7 @@
     .site-logo,
   :root.text-enlarged .site-header:has(.nav-shell[open]) .site-logo {
     width: 64px;
+    min-width: 64px;
     height: 48px;
     padding: 8px 0;
   }
@@ -1173,7 +1174,9 @@
     .site-logo
     img,
   :root.text-enlarged .site-header:has(.nav-shell[open]) .site-logo img {
+    flex-basis: 60px;
     width: 60px;
+    max-width: 60px;
   }
 
   :root.text-enlarged .nav-shell[open] .menu-toggle {
@@ -1490,7 +1493,40 @@
   }
 
   :root.text-enlarged .nav-shell[open] .site-nav {
+    --menu-mobile-rail: 52px;
+    --menu-mobile-column-gap: 8px;
+    --menu-mobile-marker-length: 12px;
+    --menu-mobile-marker-gap: 4px;
     padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  :root.text-enlarged .site-nav__preview {
+    height: auto;
+    min-height: 10.5rem;
+  }
+
+  :root.text-enlarged .site-nav__preview-title {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+
+  :root.text-enlarged .site-nav__preview-kicker::before {
+    width: 32px;
+    margin-right: 8px;
+  }
+
+  :root.text-enlarged .site-nav__primary > .site-nav__link::before {
+    white-space: nowrap;
+  }
+
+  :root.text-enlarged .site-nav__primary::before {
+    left: 4px;
+  }
+
+  :root.text-enlarged .site-nav__primary > .site-nav__link:not([aria-current="location"])::after {
+    width: 8px;
   }
 
   :root.text-enlarged .site-nav__utility {

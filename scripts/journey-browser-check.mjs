@@ -31,6 +31,21 @@ try {
         await page.evaluate(()=>document.fonts.ready);
         if(text) await page.evaluate(()=>{document.documentElement.style.fontSize='200%';window.dispatchEvent(new Event('resize'));});
         await page.locator('.menu-toggle').click();
+        if(text) {
+          const menuFit=await page.evaluate(()=>{
+            const preview=document.querySelector('.site-nav__preview').getBoundingClientRect();
+            const title=document.querySelector('.site-nav__preview-title');
+            const range=document.createRange();range.selectNodeContents(title);
+            const logo=document.querySelector('.site-logo img').getBoundingClientRect();
+            const header=document.querySelector('.site-header').getBoundingClientRect();
+            return {
+              titleFits:[...range.getClientRects()].every(rect=>rect.left>=preview.left && rect.right<=preview.right+1 && rect.bottom<=preview.bottom+1),
+              logoFits:logo.top>=header.top && logo.bottom<=header.bottom+1,
+            };
+          });
+          assert(menuFit.titleFits,'Enlarged menu preview title is not clipped');
+          assert(menuFit.logoFits,'Menu logo fits its header when text is enlarged');
+        }
         await page.locator('[data-menu-weather-readings]').waitFor({state:'visible'});
         const value=page.locator('.site-nav__journey [data-menu-status-value]');
         assert.match(await value.textContent(),lang==='ru'?/80\s+дней/:/80\s+days/);
