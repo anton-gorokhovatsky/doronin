@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { chromium, webkit } from 'playwright';
 import { startSiteServer } from './lib/site-server.mjs';
+import { checkRenderedTextContrast } from './lib/rendered-contrast.mjs';
 const server = await startSiteServer(process.argv[2] || 'preview');
 try {
   for (const [name, engine] of Object.entries({ chromium, webkit })) {
@@ -42,6 +43,9 @@ try {
         assert.equal(await page.locator('#ride-2024 #presence').count(), 1);
         assert.equal(await page.locator('#presence').evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)');
         assert(await page.locator('[data-presence-audio]').evaluate(el => el.paused), 'Sound starts only with a user gesture');
+        await page.evaluate(() => document.fonts.ready);
+        await page.locator('#presence').scrollIntoViewIfNeeded();
+        await checkRenderedTextContrast(page, '#presence');
         await page.close();
       }
       // First paint must not need the deferred app, forecast, or browser storage.

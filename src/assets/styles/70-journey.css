@@ -145,3 +145,10 @@
 }
 
 .theme-switcher__hint { margin: 0; color: var(--paper-dim); font: 400 var(--type-service)/1.4 var(--body); }
+/* The historical daylight is brighter than the former separate audio surface. */
+.ride-replay .audio-story__storyline button:not([aria-pressed="true"]),
+.ride-replay .audio-story__copy p,
+.ride-replay .audio-story__hint,
+.ride-replay .audio-story__contexts p {
+  color: var(--paper-dim);
+}
