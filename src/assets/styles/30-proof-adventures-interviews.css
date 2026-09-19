@@ -71,60 +71,10 @@
     .site-footer__credits a
   ) {
   transition:
-    color 180ms var(--ease-move),
-    border-color 180ms var(--ease-move),
-    opacity 180ms var(--ease-move),
-    text-decoration-color 180ms var(--ease-move),
-    translate 180ms var(--ease-move);
-}
-
-:where(
-    .text-link,
-    .contacts a,
-    .site-footer__cta,
-    .site-footer__contacts a,
-    .site-footer__utility a,
-    .site-footer__credits a
-  )
-  .icon {
-  transition: transform 180ms var(--ease-move);
-}
-
-@media (hover: hover) {
-  :where(
-      .text-link,
-      .contacts a,
-      .site-footer__cta,
-      .site-footer__contacts a,
-      .site-footer__utility a,
-      .site-footer__credits a
-    ):hover {
-    translate: 0 -0.08rem;
-  }
-
-  :where(
-      .text-link,
-      .contacts a,
-      .site-footer__cta,
-      .site-footer__contacts a,
-      .site-footer__utility a,
-      .site-footer__credits a
-    ):hover
-    .icon {
-    transform: var(--icon-motion-external);
-  }
-}
-
-:where(
-    .text-link,
-    .contacts a,
-    .site-footer__cta,
-    .site-footer__contacts a,
-    .site-footer__utility a,
-    .site-footer__credits a
-  ):focus-visible
-  .icon {
-  transform: var(--icon-motion-external);
+    color var(--duration-feedback) var(--ease-move),
+    border-color var(--duration-feedback) var(--ease-move),
+    opacity var(--duration-feedback) var(--ease-move),
+    text-decoration-color var(--duration-feedback) var(--ease-move);
 }
 
 .text-link {
@@ -405,7 +355,7 @@
   text-transform: uppercase;
   color: inherit;
   opacity: 0.78;
-  transition: color 180ms var(--ease-move), opacity 180ms var(--ease-move);
+  transition: color var(--duration-feedback) var(--ease-move), opacity var(--duration-feedback) var(--ease-move);
 }
 
 .interviews {
@@ -549,7 +499,7 @@
   font-size: var(--type-display-small);
   line-height: 1.15;
   text-transform: uppercase;
-  transition: color 180ms var(--ease-exit);
+  transition: color var(--duration-feedback) var(--ease-exit);
 }
 
 .interview-card--featured h3 {
@@ -564,40 +514,68 @@
 }
 
 :is(.adventure-card, .interview-card) h3 {
-  transition: color 180ms var(--ease-move);
+  transition: color var(--duration-feedback) var(--ease-move);
 }
 
-:is(.adventure-card__action, .interview-card__action) .icon {
-  transition: transform 180ms var(--ease-move);
-}
-
-.text-link:is(:hover, :focus-visible),
-:is(.adventure-card, .interview-card):is(:hover, :focus-visible)
+.text-link:focus-visible,
+:is(.adventure-card, .interview-card):focus-visible
   :is(.adventure-card__action, .interview-card__action) {
   color: var(--text-link-emphasis);
   opacity: 1;
 }
 
-.text-link:is(:hover, :focus-visible) .text-link__label,
-:is(.adventure-card, .interview-card):is(:hover, :focus-visible) .text-link__label {
+@media (hover: hover) and (pointer: fine) {
+  .text-link:hover,
+  :is(.adventure-card, .interview-card):hover
+    :is(.adventure-card__action, .interview-card__action) {
+    color: var(--text-link-emphasis);
+    opacity: 1;
+  }
+}
+
+.text-link:focus-visible .text-link__label,
+:is(.adventure-card, .interview-card):focus-visible .text-link__label {
   text-decoration-thickness: 2px;
 }
 
-:is(.adventure-card, .interview-card):is(:hover, :focus-visible) h3 {
+@media (hover: hover) and (pointer: fine) {
+  .text-link:hover .text-link__label,
+  :is(.adventure-card, .interview-card):hover .text-link__label {
+    text-decoration-thickness: 2px;
+  }
+}
+
+:is(.adventure-card, .interview-card):focus-visible h3 {
   color: var(--text-link-emphasis);
 }
 
-:is(.adventure-card, .interview-card):is(:hover, :focus-visible) .icon {
-  transform: var(--icon-motion-external);
+@media (hover: hover) and (pointer: fine) {
+  :is(.adventure-card, .interview-card):hover h3 {
+    color: var(--text-link-emphasis);
+  }
 }
 
-.text-link:is(:hover, :focus-visible) .icon--down {
-  transform: var(--icon-motion-down);
+/* Inline sources share a stationary underline; no arrow or label displacement. */
+:is(.diary, .bike-calendar, .proof, .adventures) {
+  --focus-ring: var(--text-editorial);
 }
 
-@media (hover: hover) {
-  :is(.adventure-card, .interview-card):hover img {
-    transform: scale(1.025);
-    transition-timing-function: var(--ease-enter);
+:is(.diary__note, .proof-source__links, .story-frame figcaption) a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: text-decoration-color var(--duration-feedback) var(--ease-move);
+}
+
+:is(.diary__note, .proof-source__links, .story-frame figcaption) a:focus-visible,
+:is(.diary__note, .proof-source__links, .story-frame figcaption) a:focus-visible > span {
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :is(.diary__note, .proof-source__links, .story-frame figcaption) a:hover,
+  :is(.diary__note, .proof-source__links, .story-frame figcaption) a:hover > span {
+    text-decoration-color: currentColor;
+    text-decoration-thickness: 2px;
   }
 }

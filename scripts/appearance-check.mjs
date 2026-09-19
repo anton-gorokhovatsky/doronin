@@ -29,8 +29,25 @@ try {
         };
         await preview(1260); assert.equal(await resolved(), 'dark');
         await preview(720); assert.equal(await resolved(), 'light');
+        const appearance = async () => {
+          const surfaces = await page.evaluate(() => Object.fromEntries(['.hero__foot', '.manifesto'].map(selector => {
+            const style = getComputedStyle(document.querySelector(selector));
+            return [selector, [style.backgroundColor, style.backgroundImage]];
+          })));
+          // Read the visible menu: WebKit may retain a closed details subtree's
+          // previous computed image filter until that subtree is rendered.
+          await page.locator('.menu-toggle').click();
+          surfaces['.site-nav__preview-media img'] = await page.locator('.site-nav__preview-media img').evaluate(el => getComputedStyle(el).filter);
+          await page.locator('.menu-toggle').click();
+          return surfaces;
+        };
+        const dayAppearance = await appearance();
         await page.locator('.site-footer [data-theme-option="dark"]').click();
         await preview(720); assert.equal(await resolved(), 'dark', 'Manual dark survives a daytime preview');
+        const nightAppearance = await appearance();
+        for (const selector of Object.keys(dayAppearance)) {
+          assert.notDeepEqual(nightAppearance[selector], dayAppearance[selector], `${selector} follows manual appearance even during Dubai daylight`);
+        }
         await page.reload(); assert.equal(await resolved(), 'dark', 'Manual dark persists');
         await page.locator('.site-footer [data-theme-option="light"]').click();
         await preview(1260); assert.equal(await resolved(), 'light', 'Manual light survives a night preview');

@@ -1,6 +1,7 @@
 import { chromium, webkit } from 'playwright';
 import { startSiteServer } from './lib/site-server.mjs';
 import { checkReplayReadingStability } from './lib/replay-motion-check.mjs';
+import { checkReplayAppearance } from './lib/replay-appearance-check.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 const root=process.cwd();
@@ -55,6 +56,7 @@ try {
         assert(await page.locator('[data-replay-diagram]').isVisible());
         await page.locator('[data-replay-controls]').waitFor({state:'visible'});
         await checkReplayReadingStability(page);
+        await checkReplayAppearance(page);
         const range=page.locator('[data-replay-time]');
         await range.scrollIntoViewIfNeeded();
         await range.focus();await range.press('End');

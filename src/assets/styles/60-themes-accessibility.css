@@ -192,6 +192,7 @@ html.motion-reduced *::after {
 
 :root.theme-dark {
   color-scheme: dark;
+  --environment-light-gain: 0.35;
   --editorial-color-scheme: dark;
   --ink: #02090d;
   --ink-deep: #010609;
@@ -267,6 +268,17 @@ html.motion-reduced *::after {
   --glass-border: rgba(217, 226, 217, 0.24);
   --glass-filter: blur(22px) saturate(1.16);
   --glass-shadow: 0 1.25rem 3.5rem rgba(0, 0, 0, 0.18);
+}
+
+/* The calendar's night surface continues through the replay and sound scenes. */
+:root.theme-dark .ride-replay {
+  --replay-surface: transparent;
+  --replay-light-shape: ellipse 85% 60%;
+  --replay-light-y: 50%;
+}
+
+:root.theme-dark .site-nav__preview-media img {
+  filter: var(--media-grade-action);
 }
 
 /*

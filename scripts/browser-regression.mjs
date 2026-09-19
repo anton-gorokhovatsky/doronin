@@ -1388,6 +1388,37 @@ async function auditPage(browser, browserName, origin, testCase) {
         `${prefix}: animated footer count separates from its day label (${JSON.stringify(footerCountGeometry)})`,
       );
     }
+    // Regression: a generic external-link transform used to move the upward
+    // footer arrow sideways and lift the entire action out of its alignment.
+    const footerAction = page.locator(".site-footer__cta");
+    await footerAction.scrollIntoViewIfNeeded();
+    await page.mouse.move(0, 0);
+    await page.waitForTimeout(240);
+    const actionGeometry = (element) => {
+      const rectangle = (node) => {
+        const r = node.getBoundingClientRect();
+        return [r.x, r.y + scrollY, r.width, r.height];
+      };
+      return [...rectangle(element), ...rectangle(element.querySelector(".icon"))];
+    };
+    const restingGeometry = await footerAction.evaluate(actionGeometry);
+    await footerAction.hover();
+    for (const delay of [60, 160]) {
+      await page.waitForTimeout(delay);
+      const hoveredGeometry = await footerAction.evaluate(actionGeometry);
+      expect(
+        hoveredGeometry.every((value, index) => Math.abs(value - restingGeometry[index]) < 0.75),
+        `${prefix}: footer action or upward arrow moves during hover`,
+      );
+    }
+    await page.mouse.move(0, 0);
+    await page.waitForTimeout(240);
+    const returnedGeometry = await footerAction.evaluate(actionGeometry);
+    expect(
+      returnedGeometry.every((value, index) => Math.abs(value - restingGeometry[index]) < 0.75),
+      `${prefix}: footer action does not return to its resting geometry`,
+    );
+
     const firstPartnerAction = page.locator(".partners__channels a").first();
     await firstPartnerAction.hover();
     await page.waitForTimeout(320);

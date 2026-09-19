@@ -296,7 +296,7 @@ const locales = {
       eyebrow: "О герое",
       title: "Виктор Доронин",
       lead: "47 лет. Не создаёт образ — живёт в нём.",
-      body: `Идеолог сообществ <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">«Пыльные гантели»</a> и&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">«Гастродинамика»</a>.`,
+      body: `Идеолог сообществ <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">«Пыльные гантели»</a> и&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">«Гастродинамика»</a>, друг, мотиватор и один из сильнейших любителей в триатлоне.`,
       imageAlt: "Виктор Доронин на дистанции в пустыне",
       achievements: [
         ["4×", "участник чемпионата мира WC Ironman Kona"],
@@ -735,7 +735,7 @@ const locales = {
       eyebrow: "About Viktor",
       title: "Viktor Doronin",
       lead: "47. He doesn’t craft an image — he lives it.",
-      body: `A driving force behind the <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">Dusty Dumbbells</a> and&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">Gastrodinamika</a> communities.`,
+      body: `A driving force behind the <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">Dusty Dumbbells</a> and&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">Gastrodinamika</a> communities, a friend, a source of motivation and one of the strongest amateur triathletes.`,
       imageAlt: "Viktor Doronin racing through the desert",
       achievements: [
         ["4×", "Ironman World Championship Kona participant"],
@@ -1131,11 +1131,11 @@ const icons = {
     </svg>`,
   newer: `
     <svg class="icon icon--newer" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-      <path d="m10.5 3-5 5 5 5"></path>
+      <path d="M13 8H3m3.5-3.5L3 8l3.5 3.5"></path>
     </svg>`,
   earlier: `
     <svg class="icon icon--earlier" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-      <path d="m5.5 3 5 5-5 5"></path>
+      <path d="M3 8h10m-3.5-3.5L13 8l-3.5 3.5"></path>
     </svg>`,
 };
 

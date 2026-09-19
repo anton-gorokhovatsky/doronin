@@ -30,10 +30,18 @@
   text-wrap: balance;
 }
 
-:is(.bike-calendar__details, .proof-sources, .interviews__archive) > summary:hover > span {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive) > summary:focus-visible > span {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :is(.bike-calendar__details, .proof-sources, .interviews__archive) > summary:hover > span {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
 }
 
 :is(.bike-calendar__details, .proof-sources, .interviews__archive) > summary > small {
@@ -46,7 +54,7 @@
 }
 
 :is(.bike-calendar__details, .proof-sources, .interviews__archive) > summary > .icon {
-  transition: transform 180ms var(--ease-move);
+  transition: transform var(--duration-feedback) var(--ease-move);
 }
 
 :is(.bike-calendar__details, .proof-sources, .interviews__archive)[open] > summary > .icon {

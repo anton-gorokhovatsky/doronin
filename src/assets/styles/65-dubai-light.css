@@ -1,12 +1,13 @@
 /* Time and weather affect illumination; editorial hierarchy keeps its own contrast. */
 :root[data-dubai-light] {
+  --dubai-cinematic-surface: rgb(var(--dubai-dark));
   --dubai-ambient: radial-gradient(
     ellipse 85% 105% at var(--dubai-x) var(--dubai-y),
-    rgb(var(--dubai-beam) / var(--dubai-strength)),
+    rgb(var(--dubai-beam) / calc(var(--dubai-strength) * var(--environment-light-gain))),
     transparent 78%
   );
-  --dubai-shaded-light: radial-gradient(ellipse 85% 105% at var(--dubai-x) var(--dubai-y), rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.6)), transparent 78%);
-  --dubai-menu-light: radial-gradient(ellipse 85% 110% at var(--dubai-now-x) 35%, rgb(var(--dubai-now-beam) / var(--dubai-now-strength)), transparent 78%);
+  --dubai-shaded-light: radial-gradient(ellipse 85% 105% at var(--dubai-x) var(--dubai-y), rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.6 * var(--environment-light-gain))), transparent 78%);
+  --dubai-menu-light: radial-gradient(ellipse 85% 110% at var(--dubai-now-x) 35%, rgb(var(--dubai-now-beam) / calc(var(--dubai-now-strength) * var(--environment-light-gain))), transparent 78%);
   --dubai-track-night: #607179;
   --dubai-track-day: #e2b47c;
 }
@@ -17,6 +18,7 @@
 
 :root[data-dubai-light].theme-dark {
   --surface-editorial: rgb(var(--dubai-dark));
+  --dubai-cinematic-surface: var(--ink-deep);
 }
 
 :root[data-dubai-light] .section--light {
@@ -42,17 +44,17 @@
 
 :root[data-dubai-light] .hero__veil::after {
   background:
-    linear-gradient(to bottom, transparent 48%, rgb(var(--dubai-dark)) 100%);
+    linear-gradient(to bottom, transparent 48%, var(--dubai-cinematic-surface) 100%);
 }
 
 :root[data-dubai-light] .hero__foot {
-  background: radial-gradient(ellipse 85% 180% at var(--dubai-x) 100%, rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.6)), transparent 78%), rgb(var(--dubai-dark));
+  background: radial-gradient(ellipse 85% 180% at var(--dubai-x) 100%, rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.6 * var(--environment-light-gain))), transparent 78%), var(--dubai-cinematic-surface);
 }
 
 :root[data-dubai-light] .manifesto {
   background:
-    radial-gradient(ellipse 85% 100% at var(--dubai-x) 0%, rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.6)), transparent 78%),
-    rgb(var(--dubai-dark));
+    radial-gradient(ellipse 85% 100% at var(--dubai-x) 0%, rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.6 * var(--environment-light-gain))), transparent 78%),
+    var(--dubai-cinematic-surface);
 }
 
 :root[data-dubai-light] .manifesto__mark {
@@ -113,9 +115,16 @@
   align-self: center;
 }
 
-.menu-weather__forecast-link:is(:hover, :focus-visible) > span {
+.menu-weather__forecast-link:focus-visible > span {
   text-decoration: underline;
   text-underline-offset: 0.2em;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .menu-weather__forecast-link:hover > span {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
 }
 
 .menu-weather__forecast-link:focus-visible {
@@ -308,9 +317,14 @@
   color: var(--ink);
 }
 
-.dubai-light__modes button:hover,
 .dubai-light__modes button:focus-visible {
   border-color: var(--paper);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dubai-light__modes button:hover {
+    border-color: var(--paper);
+  }
 }
 
 .dubai-light__controls {
@@ -621,12 +635,19 @@
   text-decoration-line: underline;
   text-decoration-color: transparent;
   text-decoration-thickness: 1px;
-  transition: text-decoration-color 180ms var(--ease-move);
+  transition: text-decoration-color var(--duration-feedback) var(--ease-move);
 }
 
-.dubai-light__source a:is(:hover, :focus-visible),
-.dubai-forecast__source a:is(:hover, :focus-visible) {
+.dubai-light__source a:focus-visible,
+.dubai-forecast__source a:focus-visible {
   text-decoration-color: var(--contact-underline-color);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dubai-light__source a:hover,
+  .dubai-forecast__source a:hover {
+    text-decoration-color: var(--contact-underline-color);
+  }
 }
 
 :root.text-enlarged .dubai-light__time {
@@ -652,7 +673,7 @@
 
 @media (max-width: 640px) {
   :root[data-dubai-light] .hero {
-    background-color: rgb(var(--dubai-dark));
+    background-color: var(--dubai-cinematic-surface);
   }
 
   :root[data-dubai-light] .hero__veil {
@@ -709,8 +730,12 @@
   line-height: 1.5;
   color: var(--paper-dim);
 }
-.dubai-light__dust a { display: inline-flex; align-items: center; gap: 0.4em; color: inherit; white-space: nowrap; text-decoration: underline; text-underline-offset: 0.2em; text-decoration-color: transparent; transition: text-decoration-color 150ms; }
-.dubai-light__dust a:hover { text-decoration-color: currentColor; }
+.dubai-light__dust a { display: inline-flex; align-items: center; gap: 0.4em; color: inherit; white-space: nowrap; text-decoration: underline; text-underline-offset: 0.2em; text-decoration-color: transparent; transition: text-decoration-color var(--duration-feedback) var(--ease-move); }
+.dubai-light__dust a:focus-visible { text-decoration-color: currentColor; }
+
+@media (hover: hover) and (pointer: fine) {
+  .dubai-light__dust a:hover { text-decoration-color: currentColor; }
+}
 .dubai-light__dust a svg { width: 0.8em; height: 0.8em; }
 .dubai-light__dust a[hidden] { display: none; }
 

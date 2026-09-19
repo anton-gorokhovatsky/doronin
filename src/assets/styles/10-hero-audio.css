@@ -75,21 +75,28 @@
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   transition:
-    background-color 180ms var(--ease-move),
-    border-color 180ms var(--ease-move),
-    color 180ms var(--ease-move),
-    visibility 180ms var(--ease-move);
+    background-color var(--duration-feedback) var(--ease-move),
+    border-color var(--duration-feedback) var(--ease-move),
+    color var(--duration-feedback) var(--ease-move),
+    visibility var(--duration-feedback) var(--ease-move);
 }
 
 .hero__media-toggle[hidden] {
   display: none;
 }
 
-.hero__media-toggle:hover,
 .hero__media-toggle:focus-visible {
   border-color: var(--acid);
   background: var(--acid);
   color: var(--ink);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hero__media-toggle:hover {
+    border-color: var(--acid);
+    background: var(--acid);
+    color: var(--ink);
+  }
 }
 
 .audio-story {
@@ -216,7 +223,7 @@
   flex: 0 0 auto;
   visibility: hidden;
   opacity: 0;
-  transition: opacity 180ms var(--ease-move);
+  transition: opacity var(--duration-feedback) var(--ease-move);
 }
 
 .audio-story__wave i {
@@ -275,8 +282,8 @@
   cursor: pointer;
   text-align: left;
   transition:
-    color 180ms var(--ease-move),
-    background-color 180ms var(--ease-move);
+    color var(--duration-feedback) var(--ease-move),
+    background-color var(--duration-feedback) var(--ease-move);
 }
 
 .audio-story__storyline button::after {
@@ -314,10 +321,16 @@
   animation-delay: 55ms;
 }
 
-.audio-story__storyline button:hover,
-.audio-story__storyline button:focus-visible {
-  background: transparent;
+.audio-story__storyline button:not([aria-pressed="true"]):focus-visible {
+  background: color-mix(in srgb, var(--paper) 7%, transparent);
   color: var(--paper);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .audio-story__storyline button:not([aria-pressed="true"]):hover {
+    background: color-mix(in srgb, var(--paper) 7%, transparent);
+    color: var(--paper);
+  }
 }
 
 .audio-story__storyline button[aria-pressed="true"] {
@@ -325,10 +338,16 @@
   color: var(--ink);
 }
 
-.audio-story__storyline button[aria-pressed="true"]:hover,
 .audio-story__storyline button[aria-pressed="true"]:focus-visible {
-  background: var(--paper);
+  background: var(--acid);
   color: var(--ink);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .audio-story__storyline button[aria-pressed="true"]:hover {
+    background: var(--acid);
+    color: var(--ink);
+  }
 }
 
 .audio-story__scene-line {
@@ -625,34 +644,13 @@
   text-transform: uppercase;
   overflow: hidden;
   transition:
-    background-color 180ms var(--ease-move),
-    color 180ms var(--ease-move),
-    border-color 180ms var(--ease-move),
-    transform 180ms var(--ease-move);
+    background-color var(--duration-feedback) var(--ease-move),
+    color var(--duration-feedback) var(--ease-move),
+    border-color var(--duration-feedback) var(--ease-move);
 }
 
 .button::before {
   display: none;
-}
-
-.button .icon {
-  transition: transform 180ms var(--ease-exit);
-}
-
-.button:hover {
-  transform: none;
-}
-
-.button:hover .icon--down,
-.button:focus-visible .icon--down {
-  transform: var(--icon-motion-down);
-  transition-timing-function: var(--ease-enter);
-}
-
-.button:hover .icon--external,
-.button:focus-visible .icon--external {
-  transform: var(--icon-motion-external);
-  transition-timing-function: var(--ease-enter);
 }
 
 .button--primary {
@@ -661,8 +659,14 @@
   color: var(--ink);
 }
 
-.button--primary:hover {
+.button--primary:focus-visible {
   background: var(--paper);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button--primary:hover {
+    background: var(--paper);
+  }
 }
 
 .button--ghost {
@@ -672,10 +676,18 @@
   backdrop-filter: var(--glass-filter);
 }
 
-.button--ghost:hover {
+.button--ghost:focus-visible {
   border-color: var(--paper);
   background: var(--paper);
   color: var(--ink);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button--ghost:hover {
+    border-color: var(--paper);
+    background: var(--paper);
+    color: var(--ink);
+  }
 }
 
 .event-status {

@@ -28,6 +28,7 @@
 }
 
 :root {
+  --environment-light-gain: 1;
   color-scheme: light;
   --ink: #041f15;
   --ink-deep: #02160f;
@@ -110,8 +111,7 @@
   --icon-inline-size: 0.82rem;
   --icon-source-size: 0.72rem;
   --icon-scene-size: 1.5rem;
-  --icon-motion-external: translate(0.12rem, -0.12rem);
-  --icon-motion-down: translateY(0.18rem);
+  --duration-feedback: 180ms;
   --media-toggle-icon-size: 1rem;
   --display: "Micra", "Arial Black", sans-serif;
   --body: "Commissioner", "Helvetica Neue", Arial, sans-serif;
@@ -340,7 +340,7 @@ a {
 }
 
 :focus-visible {
-  outline: 3px solid var(--acid);
+  outline: 3px solid var(--focus-ring, var(--acid));
   outline-offset: 4px;
 }
 
@@ -563,15 +563,22 @@ a {
   content: "";
   transform: scaleX(0);
   transform-origin: right;
-  transition: transform 180ms var(--ease-exit);
+  transition: transform var(--duration-feedback) var(--ease-exit);
 }
 
-.site-nav__link:hover::after,
 .site-nav__link:focus-visible::after,
 .site-nav__link[aria-current="location"]::after {
   transform: scaleX(1);
   transform-origin: left;
   transition-timing-function: var(--ease-enter);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .site-nav__link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+    transition-timing-function: var(--ease-enter);
+  }
 }
 
 .header-actions {
@@ -589,26 +596,36 @@ a {
   border-radius: 50%;
   background: transparent;
   transition:
-    color 160ms var(--ease-move),
-    background-color 160ms var(--ease-move);
+    color var(--duration-feedback) var(--ease-move),
+    background-color var(--duration-feedback) var(--ease-move);
 }
 
-.language-switch:hover {
+.language-switch:focus-visible {
   border-color: var(--acid);
   background: transparent;
   color: var(--acid);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .language-switch:hover {
+    border-color: var(--acid);
+    background: transparent;
+    color: var(--acid);
+  }
 }
 
 .header-cta {
   padding: 0.78rem 1rem;
   border: 1px solid var(--glass-border);
   background: transparent;
-  transition: border-color 160ms var(--ease-move);
+  transition: border-color var(--duration-feedback) var(--ease-move);
 }
 
-.header-cta:hover {
-  background: var(--acid);
-  color: var(--ink);
+@media (hover: hover) and (pointer: fine) {
+  .header-cta:hover {
+    background: var(--acid);
+    color: var(--ink);
+  }
 }
 
 @media (min-width: 961px) {
@@ -640,7 +657,7 @@ a {
     opacity: 1;
     -webkit-backdrop-filter: var(--glass-filter);
     backdrop-filter: var(--glass-filter);
-    transition: opacity 180ms var(--ease-move);
+    transition: opacity var(--duration-feedback) var(--ease-move);
   }
 
   .site-header.is-over-hero:not(:has(.nav-shell[open]))::before {
@@ -713,7 +730,7 @@ a {
     height: 1px;
     background: currentColor;
     content: "";
-    transition: transform 180ms var(--ease-move);
+    transition: transform var(--duration-feedback) var(--ease-move);
   }
 
   .menu-toggle__icon::before {
@@ -789,8 +806,8 @@ a {
     line-height: 1.2;
     white-space: normal;
     transition:
-      color 160ms var(--ease-move),
-      background-color 160ms var(--ease-move);
+      color var(--duration-feedback) var(--ease-move),
+      background-color var(--duration-feedback) var(--ease-move);
   }
 
   .site-nav__link::before {
@@ -799,7 +816,7 @@ a {
     font-family: var(--body);
     font-size: 0.68em;
     letter-spacing: 0.04em;
-    transition: color 160ms var(--ease-move);
+    transition: color var(--duration-feedback) var(--ease-move);
   }
 
   .site-nav__link::after {
@@ -811,16 +828,26 @@ a {
     background: var(--acid);
   }
 
-  .site-nav__link:hover,
   .site-nav__link:focus-visible {
     color: var(--acid);
   }
 
-  .site-nav__link:hover::before,
+  @media (hover: hover) and (pointer: fine) {
+    .site-nav__link:hover {
+      color: var(--acid);
+    }
+  }
+
   .site-nav__link:focus-visible::before,
   .site-nav__link[aria-current="location"],
   .site-nav__link[aria-current="location"]::before {
     color: var(--acid);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .site-nav__link:hover::before {
+      color: var(--acid);
+    }
   }
 
   .site-nav__live {
@@ -933,9 +960,18 @@ a {
     color: var(--paper);
   }
 
-  .site-nav__setting-options :where(button, a):hover,
   .site-nav__setting-options :where(button, a):focus-visible {
-    color: var(--acid);
+    color: var(--paper);
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .site-nav__setting-options :where(button, a):hover {
+      color: var(--paper);
+      text-decoration: underline;
+      text-underline-offset: 0.25em;
+    }
   }
 
   .site-nav__cta {
@@ -945,11 +981,17 @@ a {
     min-height: var(--action-min-height);
   }
 
-  .site-nav__live:hover,
   .site-nav__live:focus-visible,
   .site-nav__live[aria-current="location"] {
     border-color: var(--acid);
     color: var(--acid);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .site-nav__live:hover {
+      border-color: var(--acid);
+      color: var(--acid);
+    }
   }
 
   .header-actions {
@@ -975,11 +1017,18 @@ a {
     color: var(--paper);
   }
 
-  .header-cta:hover,
   .header-cta:focus-visible {
     border-color: var(--acid);
     background: var(--acid);
     color: var(--ink);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .header-cta:hover {
+      border-color: var(--acid);
+      background: var(--acid);
+      color: var(--ink);
+    }
   }
 }
 

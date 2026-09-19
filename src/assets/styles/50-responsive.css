@@ -103,7 +103,7 @@
     height: 1px;
     background: currentColor;
     content: "";
-    transition: transform 180ms var(--ease-move);
+    transition: transform var(--duration-feedback) var(--ease-move);
   }
 
   .menu-toggle__icon::before {
@@ -198,13 +198,18 @@
     display: none;
   }
 
-  .site-nav__link:hover,
   .site-nav__link:focus-visible,
   .site-nav__link[aria-current="location"],
-  .site-nav__link:hover::before,
   .site-nav__link:focus-visible::before,
   .site-nav__link[aria-current="location"]::before {
     color: var(--paper);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .site-nav__link:hover,
+    .site-nav__link:hover::before {
+      color: var(--paper);
+    }
   }
 
   .site-nav__utility {
@@ -308,9 +313,18 @@
     color: var(--paper);
   }
 
-  .site-nav__setting-options :where(button, a):hover,
   .site-nav__setting-options :where(button, a):focus-visible {
-    color: var(--acid);
+    color: var(--paper);
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .site-nav__setting-options :where(button, a):hover {
+      color: var(--paper);
+      text-decoration: underline;
+      text-underline-offset: 0.25em;
+    }
   }
 
   .site-nav__cta {
@@ -969,10 +983,16 @@
     padding: 1.1rem 1rem 0.9rem;
   }
 
-  .audio-story__storyline button[aria-pressed="true"]:hover,
   .audio-story__storyline button[aria-pressed="true"]:focus-visible {
     background: var(--acid);
     color: var(--ink);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .audio-story__storyline button[aria-pressed="true"]:hover {
+      background: var(--acid);
+      color: var(--ink);
+    }
   }
 
   .audio-story__scene-icon {
@@ -1841,10 +1861,16 @@
     line-height: var(--leading-service);
   }
 
-  .partners__channels a:hover,
   .partners__channels a:focus-visible {
     background: var(--paper);
     color: var(--ink);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .partners__channels a:hover {
+      background: var(--paper);
+      color: var(--ink);
+    }
   }
 
   .partners__closing a:focus-visible {

@@ -896,10 +896,10 @@ expect(
   "css: календарь должен иметь фазовое раскрытие, одну колонку на mobile, две пропорциональные строки этапов и полноширинный финиш на desktop",
 );
 expect(
-  css.includes(".button:hover .icon--down") &&
-    css.includes(".button:hover .icon--external") &&
-    !css.includes(".button:hover .icon {"),
-  "css: направление hover-анимации должно зависеть от смысла SVG-иконки",
+  !css.includes("--icon-motion-") &&
+    css.includes("--duration-feedback:") &&
+    css.includes("@media (hover: hover) and (pointer: fine)"),
+  "css: hover использует общую обратную связь без смещения стрелок и только для точного указателя",
 );
 expect(
   css.includes(".contacts a:hover") &&
@@ -918,7 +918,7 @@ expect(
 expect(
   css.includes(".site-footer__cta:hover") &&
     css.includes(".partners__channels a:hover") &&
-    css.includes(":is(.adventure-card, .interview-card):is(:hover, :focus-visible)"),
+    css.includes(":is(.adventure-card, .interview-card):hover"),
   "css: партнёрские и редакционные действия должны иметь ясное интерактивное состояние",
 );
 expect(
@@ -1023,7 +1023,7 @@ expect(
 );
 expect(
   css.includes(":focus-visible") &&
-    css.includes("outline: 3px solid var(--acid)"),
+    css.includes("outline: 3px solid var(--focus-ring, var(--acid))"),
   "css: клавиатурный фокус должен оставаться заметным",
 );
 expect(
