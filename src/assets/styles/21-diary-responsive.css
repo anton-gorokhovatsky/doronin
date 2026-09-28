@@ -193,6 +193,10 @@
   }
 }
 
+:root.text-enlarged .diary-story__heading h3 {
+  hyphens: auto;
+}
+
 :root.text-enlarged .diary-story {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: none;
