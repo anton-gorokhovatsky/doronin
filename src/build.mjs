@@ -1538,7 +1538,7 @@ function renderDiaryGallery(entry, entryIndex, l) {
 function renderDiaryEntries(entries, l) {
   return entries
     .map((entry, index) => {
-      const facts = entry.facts.length ? `<div class="diary__facts${entry.factsPlacement === "after-note" ? " diary__facts--summary" : ""}">
+      const facts = entry.facts.length ? `<div class="diary__facts${entry.facts.length === 3 || entry.factsPlacement === "after-note" ? " diary__facts--summary" : ""}">
         ${renderMetrics(entry.facts, "diary__fact")}
       </div>` : "";
       return `
