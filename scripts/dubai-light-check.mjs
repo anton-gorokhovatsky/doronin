@@ -75,6 +75,12 @@ const out = 'tmp/dubai-light-check';
 await mkdir(out, { recursive: true });
 const server = await startSiteServer(process.argv[2] || 'preview');
 const report = [];
+const createWeatherPage = async (owner, options) => {
+  const page = await owner.newPage(options);
+  // Forecast fixtures must not depend on the live analytics service.
+  await page.route('https://mc.yandex.ru/**', route => route.abort());
+  return page;
+};
 const readControlGeometry = page => page.evaluate(() => {
   const selectors = ['.dubai-light__modes', '#dubai-time', '.site-footer__wordmark'];
   return selectors.map(selector => {
@@ -123,11 +129,10 @@ try {
           { name: 'narrow-200', width: 320, height: 844, theme: 'dark', text: 200 },
         ]) {
           const context = await browser.newContext({ viewport: spec, reducedMotion: spec.text ? 'reduce' : 'no-preference' });
-          const page = await context.newPage();
+          const page = await createWeatherPage(context);
           await page.clock.setFixedTime(new Date(now));
           const errors = [];
           page.on('pageerror', error => errors.push(error.message));
-          await page.route('https://mc.yandex.ru/**', route => route.abort());
           let weatherRequests = 0;
           await page.route('https://api.met.no/**', route => {
             weatherRequests++;
@@ -136,7 +141,7 @@ try {
             assert.equal(url.searchParams.get('lon'), '55.2851');
             return route.fulfill({ json: outlook, headers: { Expires: new Date(now + 90 * 60000).toUTCString() } });
           });
-          await page.goto(`${server.origin}/${locale === 'en' ? 'en/' : ''}?theme=${spec.theme}${spec.text ? '&text=200' : ''}#dubai-light`);
+          await page.goto(`${server.origin}/${locale === 'en' ? 'en/' : ''}?theme=${spec.theme}${spec.text ? '&text=200' : ''}#dubai-light`, { waitUntil: 'domcontentloaded' });
           await page.evaluate(() => document.fonts.ready);
           const widget = page.locator('[data-dubai-controls]');
           await widget.waitFor({ state: 'visible' });
@@ -257,14 +262,23 @@ try {
         }
       }
       for (const failure of ['network', 'stale', 'storage']) {
-        const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+        console.log(`${engineName}: weather fallback (${failure})`);
+        const page = await createWeatherPage(browser, { viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
         await page.clock.setFixedTime(new Date(now));
         if (failure === 'storage') await page.addInitScript(() => Object.defineProperty(window, 'sessionStorage', { get() { throw new Error('Storage disabled'); } }));
         await page.route('https://api.met.no/**', route => failure === 'network' ? route.abort() : route.fulfill({ json: failure === 'storage' ? fresh : withSeries([forecastAt(now - 7200000)]) }));
-        await page.goto(`${server.origin}/#dubai-light`);
+        // Reproduce a stalled third-party script without contacting the network.
+        // Component readiness must not wait for this request or window.load.
+        const analyticsRequest = failure === 'network' ? page.waitForRequest('https://mc.yandex.ru/**') : null;
+        if (analyticsRequest) await page.route('https://mc.yandex.ru/**', () => {});
+        await page.goto(`${server.origin}/#dubai-light`, { waitUntil: 'domcontentloaded' });
         await page.locator('[data-dubai-controls]').waitFor({ state: 'visible' });
         await page.locator('button[data-dubai-mode="current"]').click();
         await page.waitForFunction(expected => document.querySelector('[data-dubai-controls]').dataset.weather === expected, failure === 'storage' ? 'fresh' : 'unavailable');
+        if (analyticsRequest) {
+          await analyticsRequest;
+          assert.notEqual(await page.evaluate(() => document.readyState), 'complete', 'Weather fallback is ready while analytics still blocks the load event');
+        }
         assert.equal(await page.locator('[data-dubai-clock]').textContent(), '13:00');
         assert(await page.locator('h1').isVisible());
         assert.equal(await page.locator('[data-dubai-source-link]').isVisible(), failure === 'storage');
@@ -275,7 +289,7 @@ try {
         await page.close();
       }
       // Loading, missing fields and the date boundary must not move the footer.
-      const delayed = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+      const delayed = await createWeatherPage(browser, { viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
       await delayed.clock.setFixedTime(new Date(midnight));
       let releaseForecast;
       const pending = new Promise(resolve => { releaseForecast = resolve; });
@@ -284,7 +298,7 @@ try {
         timeseries: [forecastAt(midnight - 45 * 60000), ...readOutlook(null, midnight).map(({ timestamp }, index) => forecastAt(timestamp, index === 1 ? { relative_humidity: null, apparent_air_temperature: null } : {}))],
       } };
       await delayed.route('https://api.met.no/**', async route => { await pending; return route.fulfill({ json: midnightForecast }); });
-      await delayed.goto(`${server.origin}/#dubai-forecast`);
+      await delayed.goto(`${server.origin}/#dubai-forecast`, { waitUntil: 'domcontentloaded' });
       await delayed.locator('[data-dubai-controls]').waitFor({ state: 'visible' });
       await settleInitialLayout(delayed);
       const loadingGeometry = await readControlGeometry(delayed);
@@ -298,8 +312,8 @@ try {
       assert.equal(await delayed.locator('[data-outlook-humidity]').nth(1).innerText(), '—');
       assert.equal(await delayed.locator('[data-outlook-feels]').nth(1).innerText(), '—');
       await delayed.close();
-      const noJs = await browser.newPage({ javaScriptEnabled: false });
-      await noJs.goto(server.origin);
+      const noJs = await createWeatherPage(browser, { javaScriptEnabled: false });
+      await noJs.goto(server.origin, { waitUntil: 'domcontentloaded' });
       assert(await noJs.locator('h1').isVisible());
       assert(await noJs.locator('[data-dubai-controls]').isHidden());
       assert(await noJs.locator('[data-menu-weather]').isHidden());
