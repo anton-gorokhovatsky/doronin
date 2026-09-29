@@ -183,11 +183,7 @@ html.motion-reduced *::after {
     radial-gradient(ellipse at 88% 78%, rgba(111, 215, 204, 0.08), transparent 28rem),
     var(--night-grid),
     linear-gradient(122deg, #02090e, #041711);
-  --night-footer-art:
-    radial-gradient(ellipse at 82% 14%, rgba(223, 255, 56, 0.07), transparent 28rem),
-    radial-gradient(ellipse at 12% 82%, rgba(111, 215, 204, 0.09), transparent 32rem),
-    var(--night-grid),
-    linear-gradient(138deg, #01070b, #031511 60%, #07110d);
+  --night-footer-art: var(--night-grid);
 }
 
 :root.theme-dark {

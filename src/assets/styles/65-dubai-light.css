@@ -62,7 +62,18 @@
 }
 
 :root[data-dubai-light] .site-footer {
-  background-image: linear-gradient(to bottom, var(--ink-deep), transparent 65%), var(--dubai-shaded-light), var(--footer-art);
+  /* Bound the light to the screen scale, not the length of the footer. */
+  --footer-light-radius-x: clamp(28rem, 68vw, 72rem);
+  --footer-light-radius-y: clamp(24rem, 48vw, 48rem);
+  background-image:
+    linear-gradient(to bottom, var(--ink-deep), transparent 24rem),
+    radial-gradient(
+      ellipse var(--footer-light-radius-x) var(--footer-light-radius-y) at var(--dubai-x) var(--dubai-y),
+      rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.42 * var(--environment-light-gain))),
+      rgb(var(--dubai-beam) / calc(var(--dubai-strength) * 0.18 * var(--environment-light-gain))) 42%,
+      transparent
+    ),
+    var(--footer-art);
   background-color: rgb(var(--dubai-dark));
 }
 
