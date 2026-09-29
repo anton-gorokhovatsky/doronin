@@ -267,6 +267,7 @@
 
 .audio-story__storyline button {
   --scene-progress: 0%;
+  --focus-ring: var(--paper);
   position: relative;
   isolation: isolate;
   display: grid;
@@ -278,7 +279,7 @@
   padding: 1.25rem 1rem 1rem;
   border: 0;
   background: transparent;
-  color: rgba(217, 226, 217, 0.5);
+  color: var(--paper-dim);
   cursor: pointer;
   text-align: left;
   transition:
@@ -322,18 +323,29 @@
 }
 
 .audio-story__storyline button:not([aria-pressed="true"]):focus-visible {
-  background: color-mix(in srgb, var(--paper) 7%, transparent);
   color: var(--paper);
+}
+
+.audio-story__storyline button:focus-visible {
+  outline-offset: -3px;
+}
+
+.audio-story__storyline button:not([aria-pressed="true"]):focus-visible .audio-story__scene-line {
+  background: var(--paper);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .audio-story__storyline button:not([aria-pressed="true"]):hover {
-    background: color-mix(in srgb, var(--paper) 7%, transparent);
     color: var(--paper);
+  }
+
+  .audio-story__storyline button:not([aria-pressed="true"]):hover .audio-story__scene-line {
+    background: var(--paper);
   }
 }
 
 .audio-story__storyline button[aria-pressed="true"] {
+  --focus-ring: var(--ink);
   background: var(--acid);
   color: var(--ink);
 }
@@ -356,6 +368,7 @@
   height: 3px;
   overflow: hidden;
   background: rgba(241, 245, 237, 0.14);
+  transition: background-color var(--duration-feedback) var(--ease-move);
 }
 
 .audio-story__scene-line i {
