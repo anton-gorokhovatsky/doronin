@@ -1,10 +1,21 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { detectReleaseScope } from "./release-scope.mjs";
 
 const execFileAsync = promisify(execFile);
 const browserRegressionRunsSeparately =
   process.env.CI_BROWSER_REGRESSION_JOB === "separate";
-const steps = [
+const linkOnly = process.env.RELEASE_SCOPE === "links";
+if (linkOnly && detectReleaseScope().scope !== "links") {
+  throw new Error("Short gate requested for a change that is not link-only");
+}
+const steps = linkOnly ? [
+  ["Production build", process.execPath, ["src/build.mjs", "site"]],
+  ["Static contract", process.execPath, ["src/check.mjs", "site"]],
+  ["Changed external links", process.execPath, ["scripts/link-check.mjs"]],
+  ["Whitespace/errors", "git", ["diff", "--check"]],
+] : [
+  ["Release scope rules", process.execPath, ["--test", "scripts/release-scope.test.mjs"]],
   ["Project plan", process.execPath, ["scripts/validate-project-plan.mjs"]],
   ["Status schema", process.execPath, ["scripts/validate-project-status.mjs"]],
   ["Journey and environmental data", process.execPath, ["scripts/journey-check.mjs"]],
@@ -37,7 +48,9 @@ for (const [label, executable, args] of steps) {
 }
 
 process.stdout.write(
-  browserRegressionRunsSeparately
+  linkOnly
+    ? "\nLink-only release gate passed.\n"
+    : browserRegressionRunsSeparately
     ? "\nCore release gate passed; browser regression runs in its own CI job.\n"
     : "\nRelease gate passed.\n",
 );

@@ -18,7 +18,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  scope:
+    runs-on: ubuntu-latest
+    outputs:
+      checks: ${{ steps.scope.outputs.scope }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Fetch previous revision
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        env:
+          BASE_SHA: ${{ github.event.before }}
+        run: git fetch --no-tags --depth=1 origin "$BASE_SHA"
+        continue-on-error: true
+      - name: Choose relevant checks
+        id: scope
+        run: node scripts/release-scope.mjs
+        env:
+          RELEASE_EVENT: ${{ github.event_name }}
+          RELEASE_BASE: ${{ github.event.before }}
+
   quality:
+    needs: scope
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -39,25 +59,33 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install browser engines
-        run: pnpm exec playwright install --with-deps chromium webkit
+        run: pnpm exec playwright install --with-deps ${{ needs.scope.outputs.checks == 'links' && 'chromium' || 'chromium webkit' }}
 
       - name: Refresh dust forecast
+        if: needs.scope.outputs.checks != 'links'
         run: node scripts/update-dust.mjs
         continue-on-error: true
+
+      - name: Fetch link comparison
+        if: needs.scope.outputs.checks == 'links'
+        env:
+          BASE_SHA: ${{ github.event.before }}
+        run: git fetch --no-tags --depth=1 origin "$BASE_SHA"
 
       - name: Run release gate
         run: pnpm gate
         env:
           CI_BROWSER_REGRESSION_JOB: separate
+          RELEASE_SCOPE: ${{ needs.scope.outputs.checks }}
+          RELEASE_EVENT: ${{ github.event_name }}
+          RELEASE_BASE: ${{ github.event.before }}
 
       - name: Upload gate screenshots
+        if: needs.scope.outputs.checks != 'links'
         uses: actions/upload-artifact@v7
         with:
           name: production-gate-screenshots
           path: artifacts/gate/automated
-
-      - name: Build deployable site
-        run: pnpm run build:site
 
       - name: Setup Pages
         uses: actions/configure-pages@v6
@@ -68,6 +96,8 @@ jobs:
           path: site
 
   browser-regression:
+    needs: scope
+    if: needs.scope.outputs.checks != 'links'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -96,6 +126,7 @@ jobs:
           BROWSER_REGRESSION_ENGINES: chromium
 
   deploy:
+    if: ${{ !cancelled() && needs.quality.result == 'success' && (needs.browser-regression.result == 'success' || needs.browser-regression.result == 'skipped') }}
     needs:
       - quality
       - browser-regression
