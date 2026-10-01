@@ -133,7 +133,7 @@ const shared = {
   dustyDumbbellsHref: "https://dustydumbbells.com/",
   gastrodinamikaHref: "https://www.instagram.com/gstrdnmc/",
   photoHref: "https://khanayphoto.ru/",
-  designHref: "https://anton-gorokhovatsky.github.io/design/",
+  designHref: "https://gorokhovatsky.tech/?point=eleven",
   startDate: "2026-12-01",
   endDate: "2026-12-31",
   calendarNearStartDays: 30,
