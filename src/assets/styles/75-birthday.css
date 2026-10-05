@@ -58,7 +58,7 @@ body:has(.nav-shell[open]) :is(.birthday-greeting,.birthday-confetti) {visibilit
 /* The archive adds navigation around the approved composition. */
 .birthday-archive-header {position:absolute;grid-template-columns:auto 1fr;}
 .birthday-archive-header::after {display:none;}
-.birthday-archive-header .birthday-home {grid-column:2;justify-self:end;width:auto;min-width:0;min-height:3rem;gap:.75rem;padding:.7rem 1rem;}
+.birthday-archive-header .birthday-home {pointer-events:auto;grid-column:2;justify-self:end;width:auto;min-width:0;min-height:3rem;gap:.75rem;padding:.7rem 1rem;}
 .birthday-archive-footer {display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:1rem var(--page-gutter);background:var(--surface-editorial);color:var(--text-editorial);font-size:.8rem;}
 .birthday-archive-footer a {display:inline-flex;align-items:center;min-height:2.75rem;color:inherit;text-underline-offset:.25em;}
 :root:not(.js)[data-birthday-archive] .hero__media-controls {display:none;}
