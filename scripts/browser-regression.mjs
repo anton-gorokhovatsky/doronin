@@ -119,7 +119,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       `${prefix}: icon aspect ratios diverged (${JSON.stringify(iconAudit.malformed)})`,
     );
     expect(
-      iconAudit.disclosureCount === 3 && iconAudit.mediaToggleCount === 3,
+      iconAudit.disclosureCount === 4 && iconAudit.mediaToggleCount === 3,
       `${prefix}: shared icon roles regressed (${JSON.stringify(iconAudit)})`,
     );
     expect(

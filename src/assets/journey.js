@@ -4,14 +4,6 @@ export function unseenUpdates(items, saved) {
   return items.filter(item => !saved.ids.includes(item.id));
 }
 
-export function diaryUpdateLabel(count, lang) {
-  if (lang !== 'ru') return count === 1 ? 'New diary entry' : `${count}\u00a0new diary entries`;
-  if (count === 1) return 'Новая запись в\u00a0дневнике';
-  const form = new Intl.PluralRules('ru').select(count);
-  const phrase = form === 'one' ? 'новая запись' : form === 'few' ? 'новые записи' : 'новых записей';
-  return `${count}\u00a0${phrase} в\u00a0дневнике`;
-}
-
 function initUpdates() {
   const data = document.querySelector('#project-updates-data');
   const notice = document.querySelector('[data-return-update]');
@@ -34,7 +26,7 @@ function initUpdates() {
     const link = document.createElement('a');
     link.href = latest.href;
     const label = kind === 'diary'
-      ? diaryUpdateLabel(updates.length, lang)
+      ? `${lang === 'ru' ? 'В\u00a0дневнике' : 'In the diary'} · ${latest.dateLabel} · ${latest.title}`
       : lang === 'ru' ? `Подтверждено ${latest.label}` : `${latest.label} confirmed`;
     const split = label.lastIndexOf(' ');
     link.append(document.createTextNode(label.slice(0, split + 1)));

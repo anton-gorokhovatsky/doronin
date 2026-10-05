@@ -161,7 +161,12 @@ export async function checkDiaryReadingRoute(page, total) {
   assert.equal(await page.locator("[data-diary-story-panel]:visible").count(), 1);
   const visibleLinks = page.locator("[data-diary-story-link]:not([hidden])");
   assert.equal(await visibleLinks.count(), total - 1);
-  assert.equal(await archive.locator("summary").count(), 0);
+  const index = archive.locator(".diary-index");
+  assert.equal(await archive.locator("summary").count(), 1);
+  assert.equal(await index.getAttribute("open"), null, "The full index starts collapsed while the card rail stays visible");
+  const indexLinks = index.locator("[data-diary-index-link]");
+  assert.equal(await indexLinks.count(), total);
+  assert.equal(await index.locator('[aria-current="location"]').getAttribute("href"), `#${await panels.first().getAttribute("id")}`);
   const rail = archive.locator("[data-diary-archive-rail]");
   const archiveLayout = await visibleLinks.evaluateAll(links => links.map(link => {
     const box = link.getBoundingClientRect();
@@ -203,6 +208,15 @@ export async function checkDiaryReadingRoute(page, total) {
   await page.goForward();
   const firstId = await panels.first().getAttribute("id");
   await page.waitForFunction(id => !document.getElementById(id).hidden, firstId);
+  await index.locator("summary").press("Enter");
+  assert(await indexLinks.last().isVisible());
+  await indexLinks.last().press("Enter");
+  assert(await panels.last().isVisible());
+  assert.equal(await page.evaluate(() => document.activeElement?.id), olderId);
+  assert.equal(await index.locator('[aria-current="location"]').getAttribute("href"), `#${olderId}`);
+  await page.goBack();
+  await page.waitForFunction(id => !document.getElementById(id).hidden, firstId);
+  await index.locator("summary").click();
   // These two real posts exercise distinct reading lengths: the concise totals
   // must scroll with their photo, while the long training reflection keeps media nearby.
   const shortId = 'diary-entry-2026-09-12';

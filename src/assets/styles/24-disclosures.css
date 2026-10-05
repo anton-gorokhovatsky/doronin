@@ -1,10 +1,10 @@
-:is(.bike-calendar__details, .proof-sources, .interviews__archive) {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) {
   container: disclosure / inline-size;
   min-width: 0;
   border-block: 1px solid var(--disclosure-line, var(--line-dark));
 }
 
-:is(.bike-calendar__details, .proof-sources, .interviews__archive) > summary {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
@@ -21,30 +21,30 @@
   text-transform: uppercase;
 }
 
-:is(.bike-calendar__details, .proof-sources, .interviews__archive) > summary::-webkit-details-marker {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary::-webkit-details-marker {
   display: none;
 }
 
-:is(.bike-calendar__details, .proof-sources, .interviews__archive) > summary > span {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary > span {
   min-width: 0;
   text-wrap: balance;
 }
 
-:is(.bike-calendar__details, .proof-sources, .interviews__archive) > summary:focus-visible > span {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary:focus-visible > span {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  :is(.bike-calendar__details, .proof-sources, .interviews__archive) > summary:hover > span {
+  :is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary:hover > span {
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
   }
 }
 
-:is(.bike-calendar__details, .proof-sources, .interviews__archive) > summary > small {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary > small {
   color: var(--disclosure-muted, var(--text-editorial-muted));
   font-size: var(--type-service);
   font-weight: 400;
@@ -53,29 +53,83 @@
   text-transform: none;
 }
 
-:is(.bike-calendar__details, .proof-sources, .interviews__archive) > summary > .icon {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary > .icon {
   transition: transform var(--duration-feedback) var(--ease-move);
 }
 
-:is(.bike-calendar__details, .proof-sources, .interviews__archive)[open] > summary > .icon {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index)[open] > summary > .icon {
   transform: rotate(180deg);
 }
 
 @container disclosure (max-width: 40rem) {
-  :is(.bike-calendar__details, .proof-sources, .interviews__archive) > summary {
+  :is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 0.4rem 0.75rem;
   }
 
-  :is(.bike-calendar__details, .proof-sources, .interviews__archive) > summary > small {
+  :is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary > small {
     grid-column: 1;
     grid-row: 2;
   }
 
-  :is(.bike-calendar__details, .proof-sources, .interviews__archive) > summary > .icon {
+  :is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary > .icon {
     grid-column: 2;
     grid-row: 1;
     align-self: start;
     margin-top: 0.15em;
   }
+}
+
+.diary-index {
+  --disclosure-line: color-mix(in srgb, var(--text-editorial) 20%, transparent);
+  margin-top: 1.25rem;
+  color: var(--text-editorial);
+}
+
+.diary-index__list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 1rem;
+}
+
+.diary-index__link {
+  display: grid;
+  grid-template-columns: minmax(11rem, max-content) minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.5rem 1.5rem;
+  min-height: 3rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--disclosure-line);
+  color: inherit;
+  font: 600 var(--type-copy)/1.4 var(--body);
+  text-decoration: none;
+}
+
+.diary-index__link time,
+.diary-index__entry small {
+  color: var(--text-editorial-muted);
+  font-size: var(--type-service);
+  font-weight: 400;
+}
+
+.diary-index__entry { min-width: 0; }
+.diary-index__entry small { display: block; margin-top: 0.25rem; }
+.diary-index__entry small[hidden] { display: none; }
+.diary-index__link > .icon { width: 1em; height: 1em; }
+.diary-index__link:focus-visible { outline-color: var(--text-editorial); }
+.diary-index__link:focus-visible .diary-index__entry > span {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .diary-index__link:hover .diary-index__entry > span {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+}
+
+@container disclosure (max-width: 40rem) {
+  .diary-index__link { grid-template-columns: minmax(0, 1fr) auto; gap: 0.4rem 0.75rem; }
+  .diary-index__link time { grid-column: 1 / -1; }
 }

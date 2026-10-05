@@ -1221,6 +1221,7 @@ const diaryStories = document.querySelector("[data-diary-stories]");
 
 if (diaryStories) {
   const diaryLinks = [...diaryStories.querySelectorAll("[data-diary-story-link]")];
+  const indexLinks = [...diaryStories.querySelectorAll("[data-diary-index-link]")];
   const diaryPanels = [...diaryStories.querySelectorAll("[data-diary-story-panel]")];
   const archiveRail = diaryStories.querySelector("[data-diary-archive-rail]");
   const archiveControls = diaryStories.querySelector("[data-diary-archive-controls]");
@@ -1265,6 +1266,12 @@ if (diaryStories) {
       }
     }
     for (const link of diaryLinks) link.hidden = link.hash === `#${id}`;
+    for (const link of indexLinks) {
+      const current = link.hash === `#${id}`;
+      if (current) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+      link.querySelector("[data-diary-index-current]").hidden = !current;
+    }
     archiveRail?.scrollTo({ left: 0, behavior: "instant" });
     syncArchiveControls();
 
@@ -1277,7 +1284,7 @@ if (diaryStories) {
     }
   };
 
-  for (const link of diaryLinks) {
+  for (const link of [...diaryLinks, ...indexLinks]) {
     link.addEventListener("click", (event) => {
       if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       event.preventDefault();
@@ -1297,7 +1304,7 @@ if (diaryStories) {
     const id = window.location.hash.slice(1);
     const target = diaryPanels.find((panel) => panel.id === id);
     if (target) showDiaryEntry(target.id, { navigate });
-    else if (!id || id === "diary" || id === "top") showDiaryEntry(diaryPanels[0]?.id);
+    else if (!id || ["diary", "diary-archive", "diary-index", "top"].includes(id)) showDiaryEntry(diaryPanels[0]?.id);
   };
 
   showDiaryEntry(diaryPanels[0]?.id);

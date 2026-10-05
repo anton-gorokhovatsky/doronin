@@ -1371,6 +1371,25 @@ function renderDiaryLinks(entries, l) {
     .join("");
 }
 
+function renderDiaryIndex(l) {
+  return `<details class="diary-index" id="diary-index">
+    <summary>
+      <span>${l.diary.indexLabel}</span>
+      <small>${l.diary.rangeCount}</small>
+      ${icons.disclosure}
+    </summary>
+    <ol class="diary-index__list">
+      ${l.diary.entries.map(entry => `<li>
+        <a class="diary-index__link" href="#diary-entry-${entry.date}" data-diary-index-link data-analytics-goal="diary_explore">
+          <time datetime="${entry.date}">${entry.fullDateLabel}</time>
+          <span class="diary-index__entry"><span>${escapeAttribute(entry.tabLabel.replaceAll("\n", " "))}</span><small data-diary-index-current hidden>${l.diary.indexCurrentLabel}</small></span>
+          ${icons.up}
+        </a>
+      </li>`).join("")}
+    </ol>
+  </details>`;
+}
+
 function renderDiaryGallery(entry, entryIndex, l) {
   const hasMultipleMedia = entry.media.length > 1;
   const activeMediaIndex = entry.featuredMedia;
@@ -2304,7 +2323,7 @@ function renderPage(l) {
     </section>
 
     <script type="application/json" id="project-updates-data">${JSON.stringify([
-      ...l.diary.entries.map(entry => ({ id: `diary:${entry.date}`, kind: 'diary', href: `#diary-entry-${entry.date}` })).reverse(),
+      ...l.diary.entries.map(entry => ({ id: `diary:${entry.date}`, kind: 'diary', href: `#diary-entry-${entry.date}`, date: entry.date, dateLabel: entry.fullDateLabel, title: entry.tabLabel.replaceAll('\n', ' ') })).reverse(),
       ...projectHistory.entries.map(entry => ({ id: `distance:${entry.updatedAt}`, kind: 'distance', href: '#distance-history', label: `${formatProjectNumber(entry.distanceKm, l.lang)} ${l.lang === 'ru' ? 'км' : 'km'}` })),
     ]).replaceAll('<', '\\u003c')}</script>
 
@@ -2421,6 +2440,7 @@ function renderPage(l) {
           <div class="diary-archive__links" id="diary-archive-rail" data-diary-archive-rail>
             ${renderDiaryLinks(l.diary.entries, l)}
           </div>
+          ${renderDiaryIndex(l)}
         </nav>
         <div class="diary-follow" role="group" aria-labelledby="diary-follow-label">
           <p class="diary-follow__label" id="diary-follow-label">${l.diary.followLabel}</p>
