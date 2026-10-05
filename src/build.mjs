@@ -2197,13 +2197,6 @@ function renderPage(l) {
 
       <div class="hero__main">
         <div class="hero__content">
-          <aside class="birthday-greeting" aria-label="${l.lang === 'ru' ? 'Поздравление с днём рождения' : 'Birthday wishes'}">
-            <time class="birthday-greeting__date" datetime="2026-10-05">${l.lang === 'ru' ? '5 октября' : '5 October'}</time>
-            <div class="birthday-greeting__copy">
-              <p class="birthday-greeting__title">${l.lang === 'ru' ? 'Витя, с днём рождения!' : 'Happy birthday, Vitya!'}</p>
-              <p class="birthday-greeting__wish">${l.lang === 'ru' ? 'Пусть хватает сил на большие замыслы, а рядом всегда будут свои люди.' : 'May you have the strength for your biggest plans, with your people always by your side.'}</p>
-            </div>
-          </aside>
           <p class="hero__kicker"><time datetime="${shared.startDate}">${l.hero.kicker}</time></p>
           <h1 id="hero-title" class="hero__title">
             ${renderHeroLine(l.hero.lineOne)}
@@ -2211,7 +2204,13 @@ function renderPage(l) {
             <em data-optical-start>${l.hero.accent}</em>
           </h1>
           <div class="hero__evidence">
-            <p class="hero__intro">${l.hero.intro}</p>
+            <p class="hero__intro">
+              <span class="hero__intro-default">${l.hero.intro}</span>
+              <span class="birthday-greeting">
+                <span class="birthday-greeting__title">${l.lang === 'ru' ? 'Витя, с днём рождения!' : 'Happy birthday, Vitya!'}</span>
+                <span class="birthday-greeting__wish">${l.lang === 'ru' ? 'Пусть хватает сил на большие замыслы, а рядом всегда будут свои люди.' : 'May you have the strength for your biggest plans, with your people always by your side.'}</span>
+              </span>
+            </p>
             <a class="text-link hero__evidence-link" href="${shared.project1111InterviewHref}" target="_blank" rel="noopener noreferrer" data-analytics-goal="proof_open">
               <span class="text-link__label">${l.hero.evidenceCta}</span>${icons.external}
             </a>
