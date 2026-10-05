@@ -79,7 +79,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       `${prefix}: horizontal overflow ${geometry.scrollWidth - geometry.clientWidth}px`,
     );
     expect(await page.locator("h1").count() === 1, `${prefix}: expected one h1`);
-    expect(await page.locator(".button--primary").isVisible(), `${prefix}: primary CTA hidden`);
+    expect(await page.locator(".hero .button--primary").isVisible(), `${prefix}: primary CTA hidden`);
 
     const iconAudit = await page.evaluate(() => {
       const selector = [
@@ -360,7 +360,7 @@ async function auditPage(browser, browserName, origin, testCase) {
         const current = getComputedStyle(
           element.querySelector(".menu-toggle__current"),
         );
-        const primary = getComputedStyle(document.querySelector(".button--primary"));
+        const primary = getComputedStyle(document.querySelector(".hero .button--primary"));
         return {
           color: style.color,
           currentColor: current.color,
@@ -379,7 +379,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       await headerCta.hover();
       const headerCtaHover = await headerCta.evaluate((element) => {
         const style = getComputedStyle(element);
-        const primary = getComputedStyle(document.querySelector(".button--primary"));
+        const primary = getComputedStyle(document.querySelector(".hero .button--primary"));
         return {
           backgroundColor: style.backgroundColor,
           color: style.color,
@@ -671,7 +671,7 @@ async function auditPage(browser, browserName, origin, testCase) {
     }
 
     const actionSystem = await page.evaluate(() => {
-      const selectors = [".button--primary", ".site-nav__cta", ".site-footer__cta"];
+      const selectors = [".hero .button--primary", ".site-nav__cta", ".site-footer__cta"];
       const core = selectors.map((selector) => {
         const style = getComputedStyle(document.querySelector(selector));
         return [
@@ -698,7 +698,7 @@ async function auditPage(browser, browserName, origin, testCase) {
           document.querySelector(".partners__closing"),
         ).backgroundColor,
         primaryBackground: getComputedStyle(
-          document.querySelector(".button--primary"),
+          document.querySelector(".hero .button--primary"),
         ).backgroundColor,
       };
     });
