@@ -2203,29 +2203,24 @@ function renderPage(l) {
             ${renderHeroLine(l.hero.lineTwo)}
             <em data-optical-start>${l.hero.accent}</em>
           </h1>
-          <div class="hero__evidence">
-            <p class="hero__intro">
-              <span class="hero__intro-default">${l.hero.intro}</span>
-              <span class="birthday-greeting">
-                <span class="birthday-greeting__title">${l.lang === 'ru' ? 'Витя, с днём рождения!' : 'Happy birthday, Vitya!'}</span>
-                <span class="birthday-greeting__wish">${l.lang === 'ru' ? 'Пусть хватает сил на большие замыслы, а рядом всегда будут свои люди.' : 'May you have the strength for your biggest plans, with your people always by your side.'}</span>
-                <button class="birthday-greeting__replay" type="button" data-birthday-replay hidden>
-                  <span>${l.lang === 'ru' ? 'Ещё конфетти' : 'More confetti'}</span>
-                  <svg class="birthday-greeting__confetti-print" viewBox="0 0 72 40" aria-hidden="true" focusable="false">
-                    <path fill="currentColor" d="M4 7l5-2 5 12-5 2zM48 28l13-4 2 5-13 4z"/>
-                    <path fill="var(--acid)" d="M24 2l11 6-3 5-11-6zM13 32l7-8 4 4-7 8zM62 9l5 1-2 12-5-1z"/>
-                    <path fill="var(--orange)" d="M39 14l5-2 4 12-5 2zM30 33l8 2-1 5-8-2z"/>
-                  </svg>
-                </button>
-              </span>
-            </p>
-            <a class="text-link hero__evidence-link" href="${shared.project1111InterviewHref}" target="_blank" rel="noopener noreferrer" data-analytics-goal="proof_open">
-              <span class="text-link__label">${l.hero.evidenceCta}</span>${icons.external}
-            </a>
-          </div>
-          <div class="hero__actions">
-            <a class="button button--primary action-primary" href="#partner-formats" data-analytics-goal="partner_interest">${l.hero.primaryCta}${icons.down}</a>
-            <a class="button button--ghost" href="#diary" data-analytics-goal="diary_explore">${l.hero.secondaryCta}</a>
+          <div class="hero__reading-actions">
+            <div class="hero__evidence">
+              <p class="hero__intro">
+                <span class="hero__intro-default">${l.hero.intro}</span>
+                <span class="birthday-greeting">
+                  <span class="birthday-greeting__title">${l.lang === 'ru' ? 'Витя, с днём рождения!' : 'Happy birthday, Vitya!'}</span>
+                  <span class="birthday-greeting__wish">${l.lang === 'ru' ? 'Пусть хватает сил на большие замыслы, а рядом всегда будут свои люди.' : 'May you have the strength for your biggest plans, with your people always by your side.'}</span>
+                  <button class="birthday-greeting__replay" type="button" data-birthday-replay hidden>${l.lang === 'ru' ? 'Ещё конфетти' : 'More confetti'}</button>
+                </span>
+              </p>
+              <a class="text-link hero__evidence-link" href="${shared.project1111InterviewHref}" target="_blank" rel="noopener noreferrer" data-analytics-goal="proof_open">
+                <span class="text-link__label">${l.hero.evidenceCta}</span>${icons.external}
+              </a>
+            </div>
+            <div class="hero__actions">
+              <a class="button button--primary action-primary" href="#partner-formats" data-analytics-goal="partner_interest">${l.hero.primaryCta}${icons.down}</a>
+              <a class="button button--ghost" href="#diary" data-analytics-goal="diary_explore">${l.hero.secondaryCta}</a>
+            </div>
           </div>
         </div>
 
