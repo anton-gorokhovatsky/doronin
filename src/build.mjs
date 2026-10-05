@@ -2209,6 +2209,7 @@ function renderPage(l) {
               <span class="birthday-greeting">
                 <span class="birthday-greeting__title">${l.lang === 'ru' ? 'Витя, с днём рождения!' : 'Happy birthday, Vitya!'}</span>
                 <span class="birthday-greeting__wish">${l.lang === 'ru' ? 'Пусть хватает сил на большие замыслы, а рядом всегда будут свои люди.' : 'May you have the strength for your biggest plans, with your people always by your side.'}</span>
+                <button class="birthday-greeting__replay" type="button" data-birthday-replay hidden>${l.lang === 'ru' ? 'Ещё конфетти' : 'More confetti'}</button>
               </span>
             </p>
             <a class="text-link hero__evidence-link" href="${shared.project1111InterviewHref}" target="_blank" rel="noopener noreferrer" data-analytics-goal="proof_open">

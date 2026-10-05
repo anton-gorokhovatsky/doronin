@@ -400,6 +400,119 @@ if (proofSources) {
   });
 }
 
+// A one-day birthday exception: a short celebratory burst, never a loop.
+// The greeting's existing date guard and the shared motion preference own it.
+function setupBirthdayConfetti() {
+  const root = document.documentElement;
+  const greeting = document.querySelector(".birthday-greeting");
+  const replay = document.querySelector("[data-birthday-replay]");
+  const hero = greeting?.closest(".hero");
+  if (!hero || !replay || !root.classList.contains("has-birthday-greeting")) return;
+
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (!context) return;
+  canvas.className = "birthday-confetti";
+  canvas.setAttribute("aria-hidden", "true");
+  canvas.hidden = true;
+  hero.append(canvas);
+  let frame = 0;
+
+  function stop() {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    canvas.hidden = true;
+  }
+
+  function celebrate() {
+    stop();
+    if (reducedMotion.matches || document.hidden ||
+        !root.classList.contains("has-birthday-greeting")) return;
+    const bounds = hero.getBoundingClientRect();
+    const card = greeting.getBoundingClientRect();
+    if (card.bottom < 0 || card.top > window.innerHeight) return;
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.ceil(bounds.width * pixelRatio);
+    canvas.height = Math.ceil(bounds.height * pixelRatio);
+    context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    const palette = getComputedStyle(greeting);
+    const colors = ["--acid", "--paper", "--orange"].map(
+      (name) => palette.getPropertyValue(name).trim(),
+    );
+    const pieces = Array.from({ length: bounds.width < 640 ? 84 : 140 }, (_, i) => {
+      const angle = -Math.PI + Math.random() * Math.PI;
+      const speed = 360 + Math.random() * 380;
+      return {
+        x: card.left - bounds.left + card.width * (i % 2 ? 0.9 : 0.1),
+        y: card.top - bounds.top + card.height * 0.4,
+        vx: Math.cos(angle) * speed * (bounds.width < 640 ? 0.65 : 1.3),
+        vy: Math.sin(angle) * speed,
+        delay: Math.random() * 0.24,
+        size: 5 + Math.random() * 8,
+        length: 1.3 + Math.random() * 1.5,
+        rotation: Math.random() * Math.PI,
+        spin: (Math.random() - 0.5) * 14,
+        color: colors[i % 7 < 4 ? 0 : i % 7 < 6 ? 1 : 2],
+      };
+    });
+    const start = performance.now();
+    canvas.hidden = false;
+
+    function draw(now) {
+      const elapsed = (now - start) / 1000;
+      if (elapsed >= 4.6 || document.hidden || reducedMotion.matches ||
+          !root.classList.contains("has-birthday-greeting")) {
+        stop();
+        return;
+      }
+      context.clearRect(0, 0, bounds.width, bounds.height);
+      context.globalAlpha = Math.min(1, (4.6 - elapsed) / 0.8);
+      for (const piece of pieces) {
+        const t = elapsed - piece.delay;
+        if (t < 0) continue;
+        const x = piece.x + piece.vx * (1 - Math.exp(-t)) +
+          Math.sin(t * 4 + piece.rotation) * 14 * t;
+        const y = piece.y + piece.vy * t + 180 * t * t;
+        context.save();
+        context.translate(x, y);
+        context.rotate(piece.rotation + piece.spin * t);
+        context.scale(1, Math.max(0.16, Math.abs(Math.cos(t * 6 + piece.rotation))));
+        context.fillStyle = piece.color;
+        const w = piece.size;
+        const h = w * piece.length;
+        context.beginPath();
+        context.moveTo(-w / 2, -h / 2);
+        context.lineTo(w / 2, -h / 2);
+        context.lineTo(w / 4, h / 2);
+        context.lineTo(-w * 0.75, h / 2);
+        context.closePath();
+        context.fill();
+        context.restore();
+      }
+      frame = requestAnimationFrame(draw);
+    }
+    frame = requestAnimationFrame(draw);
+  }
+
+  function syncMotion() {
+    replay.hidden = reducedMotion.matches;
+    if (reducedMotion.matches) stop();
+  }
+  syncMotion();
+  replay.addEventListener("click", celebrate);
+  reducedMotion.addEventListener("change", syncMotion);
+  window.addEventListener("resize", stop, { passive: true });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stop();
+  });
+  new MutationObserver(() => {
+    if (!root.classList.contains("has-birthday-greeting")) stop();
+  }).observe(root, { attributes: true, attributeFilter: ["class"] });
+  document.fonts.ready.then(celebrate);
+}
+
+setupBirthdayConfetti();
+
 const heroVideo = document.querySelector("[data-hero-video]");
 const videoToggle = document.querySelector("[data-video-toggle]");
 
