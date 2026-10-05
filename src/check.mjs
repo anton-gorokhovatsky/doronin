@@ -677,10 +677,10 @@ for (const [lang, path] of pages) {
 }
 
 const generatedHtml = (
-  await Promise.all(pages.map(([, path]) => readFile(path, "utf8")))
+  await Promise.all([...pages.map(([, path]) => path), resolve(outputRoot, "birthday/index.html"), resolve(outputRoot, "en/birthday/index.html")].map(path => readFile(path, "utf8")))
 ).join("\n");
 const css = await readFile(resolve(outputRoot, "assets/styles.css"), "utf8");
-const app = await readFile(resolve(outputRoot, "assets/app.js"), "utf8");
+const app = (await Promise.all(["app.js", "hero-media.js"].map(name => readFile(resolve(outputRoot, "assets", name), "utf8")))).join("\n");
 const referencedAssetNames = new Set([
   ...`${generatedHtml}\n${css}`.matchAll(
     /\bassets\/([a-z0-9][a-z0-9._/-]*)/giu,

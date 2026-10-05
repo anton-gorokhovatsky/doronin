@@ -1,4 +1,4 @@
-/* One-day birthday composition, approved 5 October 2026. */
+/* Birthday composition approved 5 October 2026; shared with the permanent archive. */
 .birthday-stage,.birthday-confetti {display:none;}
 .has-birthday-greeting .hero {--birthday-film-height:clamp(30rem,72svh,55rem);min-height:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;}
 .has-birthday-greeting .hero__main,.has-birthday-greeting .hero__veil,.has-birthday-greeting .header-actions {display:none;}
@@ -53,4 +53,18 @@ body:has(.nav-shell[open]) :is(.birthday-greeting,.birthday-confetti) {visibilit
  :root.text-enlarged .birthday-stage {--page-gutter:16px;}
  :root.text-enlarged .birthday-salute {font-size:1rem;max-width:none;}
  :root.text-enlarged .birthday-replay {gap:.75rem;}
+}
+
+/* The archive adds navigation around the approved composition. */
+.birthday-archive-header {position:absolute;grid-template-columns:auto 1fr;}
+.birthday-archive-header::after {display:none;}
+.birthday-archive-header .birthday-home {grid-column:2;justify-self:end;width:auto;min-width:0;min-height:3rem;gap:.75rem;padding:.7rem 1rem;}
+.birthday-archive-footer {display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:1rem var(--page-gutter);background:var(--surface-editorial);color:var(--text-editorial);font-size:.8rem;}
+.birthday-archive-footer a {display:inline-flex;align-items:center;min-height:2.75rem;color:inherit;text-underline-offset:.25em;}
+:root:not(.js)[data-birthday-archive] .hero__media-controls {display:none;}
+@media(max-width:640px) {
+ .birthday-archive-header .birthday-home {font-size:.7rem;}
+ .birthday-archive-footer {padding-inline:1rem;}
+ :root.text-enlarged .birthday-archive-header {grid-template-columns:minmax(0,1fr);gap:.5rem;}
+ :root.text-enlarged .birthday-archive-header .birthday-home {grid-column:1;justify-self:start;max-width:100%;gap:.5rem;padding-inline:.6rem;}
 }

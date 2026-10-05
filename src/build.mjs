@@ -84,6 +84,8 @@ const assetVersion = createHash("sha256")
   .update(styleBundle)
   .update(morphiconsPackage.version)
   .update(await readFile(resolve(assetSource, "app.js")))
+  .update(await readFile(resolve(assetSource, "hero-media.js")))
+  .update(await readFile(resolve(assetSource, "birthday-page.js")))
   .update(await readFile(resolve(assetSource, "theme-init.js")))
   .update(await readFile(resolve(assetSource, "solar-clock.js")))
   .update(await readFile(resolve(assetSource, "dubai-light.js")))
@@ -2008,6 +2010,57 @@ function typographHtml(html, lang) {
     .replace(/[ \t]+$/gm, "");
 }
 
+function renderHeroMedia(l, birthday = false) {
+  return `<figure class="hero__media">
+        <video
+          data-hero-video
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          poster="${l.assetBase}assets/${birthday ? `birthday-2026-film.jpg?v=${birthdayVideoVersion}` : "hero.jpg"}"
+          data-birthday-poster="${l.assetBase}assets/birthday-2026-film.jpg?v=${birthdayVideoVersion}"
+          aria-hidden="true"
+        >
+          <source src="${l.assetBase}assets/${birthday ? "birthday-2026-film-mobile" : "hero-loop-mobile"}.mp4?v=${birthday ? birthdayVideoVersion : heroVideoVersion}" data-birthday-src="${l.assetBase}assets/birthday-2026-film-mobile.mp4?v=${birthdayVideoVersion}" type="video/mp4" media="(max-width: 640px)">
+          <source src="${l.assetBase}assets/${birthday ? "birthday-2026-film" : "hero-loop"}.mp4?v=${birthday ? birthdayVideoVersion : heroVideoVersion}" data-birthday-src="${l.assetBase}assets/birthday-2026-film.mp4?v=${birthdayVideoVersion}" type="video/mp4">
+        </video>
+      </figure>
+      <div class="hero__veil" aria-hidden="true"></div>
+      <div class="hero__media-controls">
+        <button
+          class="hero__media-toggle"
+          type="button"
+          data-video-toggle ${birthday ? "hidden" : ""}
+          data-play-label="${l.hero.videoPlay}"
+          data-pause-label="${l.hero.videoPause}"
+          aria-label="${l.hero.videoPlay}"
+          aria-pressed="false"
+        >
+          ${mediaIcons.toggle}
+          <span class="sr-only" data-video-toggle-label>${l.hero.videoPlay}</span>
+        </button>
+      </div>`;
+}
+
+function renderBirthdayGreeting(l, diaryHref = "#diary") {
+  return `<div class="birthday-stage birthday-greeting">
+        <span class="birthday-film-credit">${l.lang === 'ru' ? 'Из фильма «1111» · 2024' : 'From the film “1111” · 2024'}</span>
+        <div id="birthday-title" class="birthday-title" role="heading" aria-level="1">
+          <span class="birthday-name">${l.lang === 'ru' ? 'Витя,' : 'Vitya,'}</span>
+          <span class="birthday-salute">${l.lang === 'ru' ? 'с днём рождения!' : 'happy birthday!'}</span>
+        </div>
+        <div class="birthday-message">
+          <p>${l.lang === 'ru' ? 'Пусть здоровья и сил хватает на большие замыслы, а рядом всегда будут свои люди.' : 'May you have the health and strength for your biggest plans, with your people always by your side.'}</p>
+          <button class="birthday-replay" type="button" data-birthday-replay hidden><span>${l.lang === 'ru' ? 'Больше праздника!' : 'More celebration!'}</span>${birthdayIcon}</button>
+        </div>
+        <div class="birthday-context">
+          <p><b>${l.lang === 'ru' ? '11 111 км на велосипеде' : '11,111 km by bike'}</b><span>${l.lang === 'ru' ? '1–31 декабря 2026 · Виктор Доронин' : '1–31 December 2026 · Viktor Doronin'}</span></p>
+          <a class="birthday-diary" href="${diaryHref}" data-analytics-goal="diary_explore"><span>${l.lang === 'ru' ? 'Читать дневник' : 'Read the diary'}</span>${diaryHref === "#diary" ? icons.down : icons.earlier}</a>
+        </div>
+      </div>`;
+}
+
 function renderPage(l) {
   const startDate = new Date(`${projectPlan.period.startDate}T12:00:00Z`);
   const startFormatter = new Intl.DateTimeFormat(l.lang, {
@@ -2084,6 +2137,7 @@ function renderPage(l) {
   >
   <script src="${l.assetBase}assets/theme-init.js?v=${assetVersion}"></script>
   <link rel="stylesheet" href="${l.assetBase}assets/styles.css?v=${assetVersion}">
+  <script src="${l.assetBase}assets/hero-media.js?v=${assetVersion}" defer></script>
   <script src="${l.assetBase}assets/app.js?v=${assetVersion}" defer></script>
   <script src="${l.assetBase}assets/dubai-light.js?v=${assetVersion}" type="module"></script>
   <script src="${l.assetBase}assets/journey.js?v=${assetVersion}" type="module"></script>
@@ -2171,52 +2225,9 @@ function renderPage(l) {
 
   <main id="main">
     <section class="hero" id="top" aria-labelledby="hero-title">
-      <figure class="hero__media">
-        <video
-          data-hero-video
-          muted
-          loop
-          playsinline
-          preload="metadata"
-          poster="${l.assetBase}assets/hero.jpg"
-          data-birthday-poster="${l.assetBase}assets/birthday-2026-film.jpg?v=${birthdayVideoVersion}"
-          aria-hidden="true"
-        >
-          <source src="${l.assetBase}assets/hero-loop-mobile.mp4?v=${heroVideoVersion}" data-birthday-src="${l.assetBase}assets/birthday-2026-film-mobile.mp4?v=${birthdayVideoVersion}" type="video/mp4" media="(max-width: 640px)">
-          <source src="${l.assetBase}assets/hero-loop.mp4?v=${heroVideoVersion}" data-birthday-src="${l.assetBase}assets/birthday-2026-film.mp4?v=${birthdayVideoVersion}" type="video/mp4">
-        </video>
-      </figure>
-      <div class="hero__veil" aria-hidden="true"></div>
-      <div class="hero__media-controls">
-        <button
-          class="hero__media-toggle"
-          type="button"
-          data-video-toggle
-          data-play-label="${l.hero.videoPlay}"
-          data-pause-label="${l.hero.videoPause}"
-          aria-label="${l.hero.videoPlay}"
-          aria-pressed="false"
-        >
-          ${mediaIcons.toggle}
-          <span class="sr-only" data-video-toggle-label>${l.hero.videoPlay}</span>
-        </button>
-      </div>
+      ${renderHeroMedia(l)}
 
-      <div class="birthday-stage birthday-greeting">
-        <span class="birthday-film-credit">${l.lang === 'ru' ? 'Из фильма «1111» · 2024' : 'From the film “1111” · 2024'}</span>
-        <div id="birthday-title" class="birthday-title" role="heading" aria-level="1">
-          <span class="birthday-name">${l.lang === 'ru' ? 'Витя,' : 'Vitya,'}</span>
-          <span class="birthday-salute">${l.lang === 'ru' ? 'с днём рождения!' : 'happy birthday!'}</span>
-        </div>
-        <div class="birthday-message">
-          <p>${l.lang === 'ru' ? 'Пусть здоровья и сил хватает на большие замыслы, а рядом всегда будут свои люди.' : 'May you have the health and strength for your biggest plans, with your people always by your side.'}</p>
-          <button class="birthday-replay" type="button" data-birthday-replay hidden><span>${l.lang === 'ru' ? 'Больше праздника!' : 'More celebration!'}</span>${birthdayIcon}</button>
-        </div>
-        <div class="birthday-context">
-          <p><b>${l.lang === 'ru' ? '11 111 км на велосипеде' : '11,111 km by bike'}</b><span>${l.lang === 'ru' ? '1–31 декабря 2026 · Виктор Доронин' : '1–31 December 2026 · Viktor Doronin'}</span></p>
-          <a class="birthday-diary" href="#diary" data-analytics-goal="diary_explore"><span>${l.lang === 'ru' ? 'Читать дневник' : 'Read the diary'}</span>${icons.down}</a>
-        </div>
-      </div>
+      ${renderBirthdayGreeting(l)}
 
       <div class="hero__main">
         <div class="hero__content">
@@ -2788,10 +2799,74 @@ function renderWeatherOutlook(l) {
   </section>`;
 }
 
-const renderedPages = Object.values(locales).map((locale) => [
-  locale,
-  renderPage(locale),
-]);
+function renderBirthdayPage(l) {
+  const ru = l.lang === "ru";
+  const homeHref = ru ? "/" : "/en/";
+  const canonical = `https://11111.life${homeHref}birthday/`;
+  const alternateHref = ru ? "/en/birthday/" : "/birthday/";
+  const title = ru ? "Витя, с днём рождения! · 11 111" : "Happy birthday, Vitya! · 11 111";
+  const description = ru
+    ? "Пусть здоровья и сил хватает на большие замыслы, а рядом всегда будут свои люди. 5 октября 2026."
+    : "May you have the health and strength for your biggest plans, with your people always by your side. 5 October 2026.";
+  return typographHtml(`<!doctype html>
+<html lang="${l.lang}" class="has-birthday-greeting" data-birthday-archive data-project-start="${projectPlan.period.startDate}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f1f5ed" media="(prefers-color-scheme: light)" data-theme-color="light">
+  <meta name="theme-color" content="#040c0d" media="(prefers-color-scheme: dark)" data-theme-color="dark">
+  <title>${title}</title>
+  <meta name="description" content="${description}">
+  <link rel="canonical" href="${canonical}">
+  <link rel="alternate" hreflang="${l.lang}" href="${canonical}">
+  <link rel="alternate" hreflang="${ru ? "en" : "ru"}" href="https://11111.life${alternateHref}">
+  <link rel="alternate" hreflang="x-default" href="https://11111.life/birthday/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="11 111">
+  <meta property="og:title" content="${title}">
+  <meta property="og:description" content="${description}">
+  <meta property="og:url" content="${canonical}">
+  <meta property="og:image" content="https://11111.life/assets/birthday-2026-film.jpg?v=${birthdayVideoVersion}">
+  <meta property="og:image:alt" content="${ru ? 'Витю встречают и обнимают. Кадр из фильма «1111», 2024' : 'Vitya is welcomed with hugs. A frame from the film “1111”, 2024'}">
+  <meta property="og:locale" content="${ru ? 'ru_RU' : 'en_US'}">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="${l.assetBase}assets/favicon-adaptive.svg" type="image/svg+xml">
+  <script src="${l.assetBase}assets/theme-init.js?v=${assetVersion}"></script>
+  <link rel="stylesheet" href="${l.assetBase}assets/styles.css?v=${assetVersion}">
+  <script src="${l.assetBase}assets/hero-media.js?v=${assetVersion}" defer></script>
+  <script src="${l.assetBase}assets/birthday-page.js?v=${assetVersion}" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">${l.skip}</a>
+  <header class="site-header is-over-hero birthday-archive-header">
+    <a class="site-logo" href="${homeHref}" aria-label="${l.homeLabel}">
+      <img src="${l.assetBase}assets/logo.svg" alt="" width="512" height="231">
+    </a>
+    <a class="button button--ghost birthday-home" href="${homeHref}">${icons.newer}<span>${ru ? 'К проекту' : 'Back to project'}</span></a>
+  </header>
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="birthday-title">
+      ${renderHeroMedia(l, true)}
+      ${renderBirthdayGreeting(l, `${homeHref}#diary`)}
+    </section>
+  </main>
+  <footer class="birthday-archive-footer">
+    <time datetime="2026-10-05">${ru ? '5 октября 2026' : '5 October 2026'}</time>
+    <a href="${alternateHref}" lang="${ru ? 'en' : 'ru'}" hreflang="${ru ? 'en' : 'ru'}">${ru ? 'English' : 'Русский'}</a>
+  </footer>
+</body>
+</html>`, l.lang);
+}
+
+const renderedPages = Object.values(locales).flatMap((locale) => {
+  const birthdayLocale = {
+    ...locale,
+    outputPath: locale.lang === "ru" ? "birthday/index.html" : "en/birthday/index.html",
+    assetBase: locale.lang === "ru" ? "../" : "../../",
+  };
+  return [[locale, renderPage(locale)], [birthdayLocale, renderBirthdayPage(birthdayLocale)]];
+});
 const productionAssetNames = new Set([
   [null, "solar-clock.js"],
   ...`${styleBundle}\n${renderedPages.map(([, html]) => html).join("\n")}`.matchAll(
@@ -2858,6 +2933,8 @@ await writeFile(
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://11111.life/</loc></url>
   <url><loc>https://11111.life/en/</loc></url>
+  <url><loc>https://11111.life/birthday/</loc></url>
+  <url><loc>https://11111.life/en/birthday/</loc></url>
 </urlset>
 `,
   "utf8",

@@ -1622,7 +1622,20 @@ async function auditBirthdayHero(browser, browserName, origin, testCase) {
     expect(restored.paused && restored.poster.endsWith("hero.jpg") &&
       restored.sources.every(src => src.includes("hero-loop")), `${prefix}: normal media did not return`);
     expect(await page.locator(".hero").getAttribute("aria-labelledby") === "hero-title", `${prefix}: ordinary heading not restored`);
-    return `${prefix}: visible, reduced motion and midnight reset PASS`;
+    const homeHref = testCase.path.startsWith("/en/") ? "/en/" : "/";
+    await page.goto(`${origin}${homeHref}birthday/`, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => document.fonts.ready);
+    expect(await page.getByRole("heading", { level: 1 }).isVisible(), `${prefix}: archive greeting expired`);
+    expect(await page.locator(".birthday-diary").getAttribute("href") === `${homeHref}#diary`, `${prefix}: archive diary link is broken`);
+    expect(await page.locator(".birthday-home").getAttribute("href") === homeHref, `${prefix}: archive return link is broken`);
+    expect(await page.locator("[data-birthday-replay]").isHidden(), `${prefix}: archive ignores reduced motion`);
+    const archiveMedia = await page.locator("[data-hero-video]").evaluate(v => ({
+      paused: v.paused, poster: v.poster, sources: [...v.querySelectorAll("source")].map(s => s.src),
+    }));
+    expect(archiveMedia.paused && archiveMedia.poster.includes("birthday-2026-film") &&
+      archiveMedia.sources.every(src => src.includes("birthday-2026-film")), `${prefix}: archive media lost`);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${prefix}: archive overflows`);
+    return `${prefix}: dated homepage and permanent archive PASS`;
   } finally {
     await context.close();
   }

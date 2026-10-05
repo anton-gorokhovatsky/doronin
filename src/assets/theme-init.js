@@ -28,6 +28,10 @@ const birthdayEnd = Date.parse("2026-10-06T00:00:00+03:00");
 let birthdayTimer;
 function syncBirthdayGreeting() {
   clearTimeout(birthdayTimer);
+  if (root.hasAttribute("data-birthday-archive")) {
+    root.classList.add("has-birthday-greeting");
+    return;
+  }
   const now = Date.now();
   root.classList.toggle("has-birthday-greeting", now >= birthdayStart && now < birthdayEnd);
   const nextBoundary = now < birthdayStart ? birthdayStart : birthdayEnd;
