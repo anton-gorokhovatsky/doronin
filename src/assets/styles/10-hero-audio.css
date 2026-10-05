@@ -608,6 +608,10 @@
   pointer-events: none;
 }
 
+body:has(.nav-shell[open]) :is(.birthday-greeting, .birthday-confetti) {
+  visibility: hidden;
+}
+
 .birthday-greeting__title {
   display: block;
   margin-bottom: 0.4rem;

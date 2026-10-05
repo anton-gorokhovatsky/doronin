@@ -407,6 +407,7 @@ function setupBirthdayConfetti() {
   const greeting = document.querySelector(".birthday-greeting");
   const replay = document.querySelector("[data-birthday-replay]");
   const hero = greeting?.closest(".hero");
+  const navigation = document.querySelector(".nav-shell");
   if (!hero || !replay || !root.classList.contains("has-birthday-greeting")) return;
 
   const canvas = document.createElement("canvas");
@@ -426,7 +427,7 @@ function setupBirthdayConfetti() {
 
   function celebrate() {
     stop();
-    if (reducedMotion.matches || document.hidden ||
+    if (reducedMotion.matches || document.hidden || navigation?.open ||
         !root.classList.contains("has-birthday-greeting")) return;
     const bounds = hero.getBoundingClientRect();
     const card = greeting.getBoundingClientRect();
@@ -500,6 +501,9 @@ function setupBirthdayConfetti() {
   }
   syncMotion();
   replay.addEventListener("click", celebrate);
+  navigation?.addEventListener("toggle", () => {
+    if (navigation.open) stop();
+  });
   reducedMotion.addEventListener("change", syncMotion);
   window.addEventListener("resize", stop, { passive: true });
   document.addEventListener("visibilitychange", () => {
