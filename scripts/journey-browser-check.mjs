@@ -102,11 +102,24 @@ try {
         const wasExpanded = await toggle.getAttribute('aria-expanded');
         await toggle.press('Enter');
         assert.notEqual(await toggle.getAttribute('aria-expanded'), wasExpanded);
-        assert.equal(await widget.evaluate(el=>el.getAnimations({subtree:true}).length), 0, 'Reduced motion keeps the transition instant');
+        const motion = await widget.evaluate(el => ({
+          morphing: el.classList.contains('is-morphing'),
+          ghost: Boolean(el.querySelector('.return-calendar__ghost')),
+          // The shared reduced-motion CSS keeps 0.01ms transitions so their
+          // completion events still fire. These are instant within one frame.
+          durations: el.getAnimations({subtree:true}).map(animation => {
+            const timing = animation.effect.getComputedTiming();
+            return timing.activeDuration + Math.max(0, timing.delay);
+          }),
+        }));
+        assert(!motion.morphing && !motion.ghost && motion.durations.every(duration => duration <= 1),
+          `Reduced motion keeps the transition instant (${JSON.stringify(motion)})`);
         const material = await page.evaluate(() => {
           const w=getComputedStyle(document.querySelector('.return-calendar'));
           const m=getComputedStyle(document.querySelector('.menu-toggle'));
-          return [w.backgroundImage===m.backgroundImage,w.backdropFilter===m.backdropFilter,w.borderColor===m.borderColor];
+          // Menu borders change with its interactive state; the surface,
+          // blur and shadow are the shared material.
+          return [w.backgroundImage===m.backgroundImage,w.backdropFilter===m.backdropFilter,w.boxShadow===m.boxShadow];
         });
         assert(material.every(Boolean), 'The calendar and menu must share the glass material');
         await page.reload();
