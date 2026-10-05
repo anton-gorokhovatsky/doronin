@@ -627,17 +627,18 @@ body:has(.nav-shell[open]) :is(.birthday-greeting, .birthday-confetti) {
   justify-self: start;
   align-self: end;
   align-items: center;
-  justify-content: center;
-  width: fit-content;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
   max-width: 100%;
-  min-height: 2.75rem;
+  min-height: 3rem;
   margin: 0.625rem 0 0;
   padding: 0.625rem 1rem;
   border: 1px solid var(--ink-deep);
   background: var(--ink-deep);
   color: var(--paper);
-  font: 600 0.875rem/1.25 var(--body);
-  text-align: center;
+  font: 600 1rem/1.25 var(--body);
+  text-align: left;
   cursor: pointer;
   isolation: isolate;
   overflow: hidden;
@@ -646,16 +647,16 @@ body:has(.nav-shell[open]) :is(.birthday-greeting, .birthday-confetti) {
     color var(--duration-feedback) var(--ease-move);
 }
 
-.birthday-greeting__replay::before {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  background: currentColor;
-  opacity: 0.16;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='32' viewBox='0 0 40 32'%3E%3Cpath d='M3 5l3-1 3 7-3 1zM23 7l7 2-1 3-7-2zM10 27l5-4 2 2-5 4zM33 22l3 1-2 7-3-1z'/%3E%3C/svg%3E") repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='32' viewBox='0 0 40 32'%3E%3Cpath d='M3 5l3-1 3 7-3 1zM23 7l7 2-1 3-7-2zM10 27l5-4 2 2-5 4zM33 22l3 1-2 7-3-1z'/%3E%3C/svg%3E") repeat;
-  content: "";
+.birthday-greeting__confetti-print {
+  display: block;
+  flex: 0 0 3.75rem;
+  width: 3.75rem;
+  height: auto;
   pointer-events: none;
+}
+
+.text-enlarged .birthday-greeting__confetti-print {
+  display: none;
 }
 
 .text-enlarged.has-birthday-greeting .birthday-greeting {

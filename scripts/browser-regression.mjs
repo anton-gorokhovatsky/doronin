@@ -351,6 +351,17 @@ async function auditPage(browser, browserName, origin, testCase) {
         `${prefix}: long current chapter is clipped (${JSON.stringify(longChapter)})`,
       );
 
+      // Compare header states with their semantic palette, not the hero CTA:
+      // temporary compositions may deliberately give that CTA a quieter role.
+      const headerPalette = await menuToggle.evaluate((element) => {
+        const probe = document.createElement("span");
+        probe.style.cssText = "display:none;background-color:var(--acid);color:var(--ink)";
+        element.append(probe);
+        const style = getComputedStyle(probe);
+        const palette = { acid: style.backgroundColor, ink: style.color };
+        probe.remove();
+        return palette;
+      });
       await menuToggle.hover();
       await page.waitForTimeout(420);
       const menuHover = await menuToggle.evaluate((element) => {
@@ -358,18 +369,16 @@ async function auditPage(browser, browserName, origin, testCase) {
         const current = getComputedStyle(
           element.querySelector(".menu-toggle__current"),
         );
-        const primary = getComputedStyle(document.querySelector(".button--primary"));
         return {
           color: style.color,
           currentColor: current.color,
           borderColor: style.borderColor,
-          acid: primary.backgroundColor,
         };
       });
       expect(
-        menuHover.color === menuHover.acid &&
-          menuHover.currentColor === menuHover.acid &&
-          menuHover.borderColor === menuHover.acid,
+        menuHover.color === headerPalette.acid &&
+          menuHover.currentColor === headerPalette.acid &&
+          menuHover.borderColor === headerPalette.acid,
         `${prefix}: scrolled Menu hover lost its acid state (${JSON.stringify(menuHover)})`,
       );
 
@@ -377,17 +386,14 @@ async function auditPage(browser, browserName, origin, testCase) {
       await headerCta.hover();
       const headerCtaHover = await headerCta.evaluate((element) => {
         const style = getComputedStyle(element);
-        const primary = getComputedStyle(document.querySelector(".button--primary"));
         return {
           backgroundColor: style.backgroundColor,
           color: style.color,
-          expectedBackground: primary.backgroundColor,
-          expectedColor: primary.color,
         };
       });
       expect(
-        headerCtaHover.backgroundColor === headerCtaHover.expectedBackground &&
-          headerCtaHover.color === headerCtaHover.expectedColor,
+        headerCtaHover.backgroundColor === headerPalette.acid &&
+          headerCtaHover.color === headerPalette.ink,
         `${prefix}: header CTA hover exposes a low-contrast transition (${JSON.stringify(headerCtaHover)})`,
       );
 
@@ -669,8 +675,9 @@ async function auditPage(browser, browserName, origin, testCase) {
     }
 
     const actionSystem = await page.evaluate(() => {
+      const birthday = document.documentElement.classList.contains("has-birthday-greeting");
       const selectors = [".button--primary", ".site-nav__cta", ".site-footer__cta"];
-      const core = selectors.map((selector) => {
+      const readCore = (selector) => {
         const style = getComputedStyle(document.querySelector(selector));
         return [
           style.backgroundColor,
@@ -678,9 +685,14 @@ async function auditPage(browser, browserName, origin, testCase) {
           style.fontWeight,
           style.textTransform,
         ];
-      });
+      };
+      const core = selectors.map(readCore);
       return {
-        core,
+        // Only the birthday hero gives visual priority to the greeting.
+        // Its CTA must still use the existing ghost-button material.
+        core: birthday ? core.slice(1) : core,
+        birthdayHeroMatchesGhost: !birthday ||
+          JSON.stringify(core[0]) === JSON.stringify(readCore(".hero__actions .button--ghost")),
         minHeights: selectors.map((selector) =>
           parseFloat(getComputedStyle(document.querySelector(selector)).minHeight),
         ),
@@ -696,7 +708,7 @@ async function auditPage(browser, browserName, origin, testCase) {
           document.querySelector(".partners__closing"),
         ).backgroundColor,
         primaryBackground: getComputedStyle(
-          document.querySelector(".button--primary"),
+          document.querySelector(".site-nav__cta"),
         ).backgroundColor,
       };
     });
@@ -704,6 +716,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       actionSystem.core.every(
         (value) => JSON.stringify(value) === JSON.stringify(actionSystem.core[0]),
       ) &&
+        actionSystem.birthdayHeroMatchesGhost &&
         actionSystem.minHeights.every((height) => height >= 56) &&
         actionSystem.menuLabel === testCase.conversionLabel &&
         actionSystem.footerLabel === testCase.conversionLabel &&
