@@ -576,6 +576,63 @@
     calc(var(--hero-profile-space) + var(--hero-content-bottom-gap));
 }
 
+.birthday-greeting {
+  display: none;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 1.25rem;
+  max-width: 44rem;
+  margin: 0 0 clamp(1.75rem, 4svh, 3rem);
+  padding: 1rem 1.25rem;
+  border-inline-start: 2px solid var(--acid);
+  background: var(--ink-deep);
+  color: var(--paper);
+  font-family: var(--body);
+}
+
+.has-birthday-greeting .birthday-greeting {
+  display: grid;
+}
+
+.birthday-greeting__date {
+  padding-top: 0.25rem;
+  color: var(--acid);
+  font-size: var(--type-service);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.birthday-greeting__copy {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.birthday-greeting__title {
+  margin: 0;
+  font-family: var(--body);
+  font-size: clamp(1.125rem, calc(1rem + 0.6vw), 1.5rem);
+  font-weight: 700;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.birthday-greeting__wish {
+  max-width: 48ch;
+  margin: 0;
+  color: var(--paper-dim);
+  font-size: 1rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+@media (max-width: 640px) {
+  .birthday-greeting {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+}
+
 .hero__kicker {
   max-width: 100%;
   margin: 0 0 clamp(1rem, 3svh, 1.75rem);

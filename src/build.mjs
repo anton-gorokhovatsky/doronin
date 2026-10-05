@@ -2197,6 +2197,13 @@ function renderPage(l) {
 
       <div class="hero__main">
         <div class="hero__content">
+          <aside class="birthday-greeting" aria-label="${l.lang === 'ru' ? 'Поздравление с днём рождения' : 'Birthday wishes'}">
+            <time class="birthday-greeting__date" datetime="2026-10-05">${l.lang === 'ru' ? '5 октября' : '5 October'}</time>
+            <div class="birthday-greeting__copy">
+              <p class="birthday-greeting__title">${l.lang === 'ru' ? 'Витя, с днём рождения!' : 'Happy birthday, Vitya!'}</p>
+              <p class="birthday-greeting__wish">${l.lang === 'ru' ? 'Пусть хватает сил на большие замыслы, а рядом всегда будут свои люди.' : 'May you have the strength for your biggest plans, with your people always by your side.'}</p>
+            </div>
+          </aside>
           <p class="hero__kicker"><time datetime="${shared.startDate}">${l.hero.kicker}</time></p>
           <h1 id="hero-title" class="hero__title">
             ${renderHeroLine(l.hero.lineOne)}
