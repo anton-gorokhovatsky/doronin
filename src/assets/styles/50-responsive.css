@@ -917,6 +917,40 @@
     font-size: 0.36em;
   }
 
+  /* The birthday card leads this one-day composition. */
+  .has-birthday-greeting .hero__media-controls {
+    top: 0.625rem;
+    right: calc(var(--mobile-control-edge) + 3.5rem);
+  }
+
+  .has-birthday-greeting .hero__content {
+    padding-top: 5.5rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .has-birthday-greeting .hero__intro {
+    max-width: none;
+    margin-top: 1rem;
+  }
+
+  .has-birthday-greeting .birthday-greeting {
+    display: block;
+    padding: 1.125rem;
+  }
+
+  .birthday-greeting__title {
+    margin-bottom: 0.75rem;
+    font-size: 1.5rem;
+  }
+
+  .birthday-greeting__replay {
+    margin: 0.875rem 0 0 auto;
+  }
+
+  .has-birthday-greeting .hero__actions {
+    margin-top: 0.75rem;
+  }
+
   .audio-story {
     grid-template-columns: minmax(0, 1fr);
     gap: 2.25rem;
