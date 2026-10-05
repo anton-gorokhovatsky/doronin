@@ -183,3 +183,84 @@
     text-decoration-thickness: 2px;
   }
 }
+
+/* Floating diary widget shares the production glass material with the menu. */
+.return-calendar {
+  position: fixed;
+  z-index: 18;
+  left: var(--page-gutter);
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  width: min(12rem, calc(100vw - 2 * var(--page-gutter)));
+  border: 1px solid var(--glass-border);
+  background: var(--glass-material);
+  color: var(--paper);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+  box-shadow: var(--glass-shadow);
+}
+.return-calendar__link {
+  display: grid;
+  gap: 0.8rem;
+  padding: 0.875rem;
+  color: inherit;
+  text-decoration: none;
+}
+.return-calendar__date { display: grid; justify-items: start; gap: 0.15rem; }
+.return-calendar__date span {
+  padding-right: 2rem;
+  color: var(--acid);
+  font: 600 0.75rem/1.3 var(--body);
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+.return-calendar__date strong {
+  font: 400 3.25rem/1 var(--body);
+  letter-spacing: -0.055em;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.return-calendar__copy {
+  display: grid;
+  gap: 0.35rem;
+  padding-left: 0.65rem;
+  border-left: 2px solid var(--acid);
+}
+.return-calendar__copy small { color: var(--paper-dim); font: 400 0.75rem/1.3 var(--body); }
+.return-calendar__copy strong { font: 600 0.875rem/1.35 var(--body); text-wrap: pretty; }
+.return-calendar__compact { display: none; }
+.return-calendar__toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.return-calendar__toggle .icon { width: 1rem; height: 1rem; transform: rotate(180deg); }
+.return-calendar.is-collapsed { width: 7rem; }
+.return-calendar.is-collapsed .return-calendar__link { gap: 0.45rem; padding: 0.75rem; }
+.return-calendar.is-collapsed .return-calendar__date strong { font-size: 2.75rem; }
+.return-calendar.is-collapsed .return-calendar__copy { display: none; }
+.return-calendar.is-collapsed .return-calendar__compact { display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; font: 500 0.75rem/1.3 var(--body); }
+.return-calendar__compact .icon { width: 0.8rem; height: 0.8rem; }
+.return-calendar.is-collapsed .return-calendar__toggle .icon { transform: none; }
+.return-calendar.is-morphing { overflow: clip; }
+.return-calendar.is-morphing:has(:focus-visible) { outline: 2px solid var(--acid); outline-offset: 3px; }
+.return-calendar :focus-visible { outline: 2px solid var(--acid); outline-offset: 3px; }
+body:has(.nav-shell[open]) .return-calendar { visibility: hidden; }
+:root.text-enlarged .return-calendar__copy strong { overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .return-calendar { left: auto; right: var(--page-gutter); }
+  .return-calendar__toggle .icon { transform: rotate(90deg); }
+  .return-calendar.is-collapsed .return-calendar__toggle .icon { transform: rotate(-90deg); }
+}
+@media (hover: hover) and (pointer: fine) {
+  .return-calendar__link:hover :is(.return-calendar__copy strong, .return-calendar__compact) { text-decoration: underline; text-underline-offset: 0.2em; }
+  .return-calendar__toggle:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
+}

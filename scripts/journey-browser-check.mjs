@@ -89,14 +89,28 @@ try {
         await page.waitForTimeout(250);
         assert.equal(await range.inputValue(),paused);
         await page.locator('[data-ride-replay]').screenshot({path:`${out}/${name}-${lang}-${width}-replay.png`});
-        // Returning users see new material until it has actually been opened.
-        await page.evaluate(()=>{const items=JSON.parse(document.querySelector('#project-updates-data').textContent);localStorage.setItem('11111-seen-updates-v1',JSON.stringify({version:1,ids:items.slice(0,-1).map(x=>x.id)}));});
-        await page.goto(`${base}/${lang==='en'?'en/':''}?release=${revision||'four-review'}&return=1#top`);
-        await page.locator('[data-return-update]').waitFor({state:'visible'});
-        await page.locator('[data-return-links] a').click();
-        await page.waitForFunction(()=>JSON.parse(localStorage.getItem('11111-seen-updates-v1')).ids.includes(JSON.parse(document.querySelector('#project-updates-data').textContent).filter(x=>x.kind==='diary').at(-1).id));
+        // The dated diary entry stays available before and after reading it.
+        const widget = page.locator('.return-calendar');
+        const latest = await page.evaluate(() => JSON.parse(document.querySelector('#project-updates-data').textContent).filter(x=>x.kind==='diary').at(-1));
+        assert(await widget.isVisible());
+        assert.equal(await widget.locator('[data-calendar-link]').getAttribute('href'), latest.href);
+        assert.equal(await widget.locator('[data-calendar-date]').getAttribute('datetime'), latest.date);
+        await widget.locator('[data-calendar-link]').click();
+        await page.waitForFunction(id=>document.activeElement?.id === id, latest.href.slice(1));
+        assert(await widget.isVisible(), 'Reading the entry must not dismiss the calendar');
+        const toggle = widget.locator('[data-calendar-toggle]');
+        const wasExpanded = await toggle.getAttribute('aria-expanded');
+        await toggle.press('Enter');
+        assert.notEqual(await toggle.getAttribute('aria-expanded'), wasExpanded);
+        assert.equal(await widget.evaluate(el=>el.getAnimations({subtree:true}).length), 0, 'Reduced motion keeps the transition instant');
+        const material = await page.evaluate(() => {
+          const w=getComputedStyle(document.querySelector('.return-calendar'));
+          const m=getComputedStyle(document.querySelector('.menu-toggle'));
+          return [w.backgroundImage===m.backgroundImage,w.backdropFilter===m.backdropFilter,w.borderColor===m.borderColor];
+        });
+        assert(material.every(Boolean), 'The calendar and menu must share the glass material');
         await page.reload();
-        await page.waitForLoadState('domcontentloaded');
+        await widget.waitFor({state:'visible'});
         assert(await page.locator('[data-return-update]').isHidden());
         report.push({engine:name,lang,width,text,errors});
         await page.close();

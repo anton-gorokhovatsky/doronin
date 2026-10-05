@@ -2,7 +2,7 @@
   container-name: proof-layout;
   container-type: inline-size;
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(18rem, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: clamp(3rem, 6vw, 7rem);
   min-height: 0;
@@ -30,7 +30,7 @@
 }
 
 .proof h2 {
-  max-width: 13ch;
+  max-width: 26ch;
   margin: 2rem 0 0;
   color: var(--proof-title-color);
   font-family: var(--display);
@@ -579,3 +579,15 @@
     text-decoration-thickness: 2px;
   }
 }
+
+/* A film starts with its own frame; media reach belongs to the partner story. */
+.film-view { position:relative; z-index:1; display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:clamp(1.5rem,3vw,3.5rem); align-items:center; }
+.film-view__frame { grid-column:1 / 9; position:relative; display:block; color:var(--paper); }
+.film-view__frame img { display:block; width:100%; height:auto; aspect-ratio:16 / 9; object-fit:cover; }
+.film-view__badge { position:absolute; right:1rem; bottom:1rem; display:flex; align-items:center; gap:0.65rem; padding:0.65rem 0.85rem; background:var(--glass-material); -webkit-backdrop-filter:var(--glass-filter); backdrop-filter:var(--glass-filter); font-size:var(--type-service); }
+.film-view__badge .icon { width:1em; height:1em; }
+.film-view__frame:focus-visible { outline-color:var(--text-proof); outline-offset:6px; }
+.film-view__intro { grid-column:9 / -1; min-width:0; }
+.film-view__intro p { margin:0 0 1.5rem; max-width:45ch; font-size:var(--type-copy-lead); line-height:var(--leading-copy-lead); }
+.film-view__intro .button { width:100%; min-width:0; }
+.film-view__intro small { display:block; margin-top:0.75rem; color:var(--text-proof-muted); font-size:var(--type-service); line-height:1.5; }

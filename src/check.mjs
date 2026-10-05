@@ -293,8 +293,15 @@ for (const [lang, path] of pages) {
   const discussionActions = [
     findAnchorByClass(html, "header-cta"),
     findAnchorByClass(html, "site-nav__cta"),
-    findAnchorByClass(html, "site-footer__cta"),
   ];
+  const footerDiaryAction = findAnchorByClass(html, "site-footer__cta");
+  expect(
+    footerDiaryAction.includes('href="#diary"') &&
+      footerDiaryAction.includes('data-analytics-goal="diary_explore"') &&
+      footerDiaryAction.includes('icon--up') &&
+      compactMarkupText(footerDiaryAction) === (lang === "ru" ? "Читать дневник" : "Read the diary"),
+    `${lang}: главное действие подвала должно возвращать к дневнику`,
+  );
   const contactActions = [
     ...html.matchAll(
       /<a\b[^>]*class="[^"]*\bcontact-action\b[^"]*"[^>]*>[\s\S]*?<\/a>/gu,
@@ -339,8 +346,7 @@ for (const [lang, path] of pages) {
         anchor.includes('data-analytics-goal="partner_interest"') &&
         compactMarkupText(anchor) === actionCopy.discuss,
     ) &&
-      discussionActions[1].includes('icon--down') &&
-      discussionActions[2].includes('icon--up'),
+      discussionActions[1].includes('icon--down'),
     `${lang}: каждое действие обсуждения участия должно вести в один контактный модуль с направленной SVG-иконкой`,
   );
   expect(

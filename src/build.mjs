@@ -376,16 +376,20 @@ const locales = {
       ],
     },
     proof: {
-      eyebrow: "Архив предыдущего проекта",
-      title: "«1111»: фильм и проверяемый результат",
+      eyebrow: "Документальный фильм · 2024",
+      title: "«1111. Обратная сторона»",
       body:
-        "Предыдущий проект показал: аудитория готова к длинным форматам, честность работает лучше глянца, а история продолжает жить после финиша.",
+        "В декабре 2024 года Виктор прошёл 10 км вплавь, 1001 км на велосипеде и 100 км бегом — за 58 часов без сна. В фильме — дистанция изнутри и люди рядом с ним.",
       metrics: [
         ["≈1,3 млн", "просмотров пяти серий и фильма"],
         ["+310%", "рост аудитории героя"],
         ["25+", "федеральных СМИ"],
       ],
-      filmCta: "Смотреть фильм о проекте «1111»",
+      filmCta: "Смотреть фильм",
+      filmAlt: "Виктор в плавательной шапочке и очках у бортика бассейна — кадр из фильма «1111»",
+      filmPlatform: "VK Видео · откроется в новой вкладке",
+      resultsLabel: "Записи Strava и протоколы соревнований",
+      reachTitle: "Медийный результат «1111»",
       externalLabel: "Откроется ВКонтакте в новой вкладке",
       sourcesTitle: "Факты и источники",
       sourcesUpdated: "Просмотры проверены 9 сентября 2026",
@@ -404,6 +408,7 @@ const locales = {
           contextLink: ["Фильм «1111»", shared.filmHref],
         },
         {
+          kind: "media",
           title: "≈1,3 млн просмотров",
           body:
             "Пять серий — 233, 239, 231, 231 и 273 тыс.; фильм — 92,8 тыс. Сумма округлённых счётчиков VK Видео — около 1,3 млн просмотров.",
@@ -438,6 +443,7 @@ const locales = {
           ],
         },
         {
+          kind: "media",
           title: "+310% и 25+ СМИ",
           body:
             "Результаты коммуникационной кампании проекта «1111» по данным команды проекта.",
@@ -574,7 +580,8 @@ const locales = {
       titleFallback: "Старт проекта",
       titleActive: "История идёт",
       titleFinished: "История продолжается",
-      afterCredits: "Следить за дневником",
+      diaryCta: "Читать дневник",
+      afterCredits: "Дневник в Telegram",
       navLabel: "Навигация",
       contactLabel: "Связаться",
       utilityLabel: "Сайт",
@@ -815,16 +822,20 @@ const locales = {
       ],
     },
     proof: {
-      eyebrow: "Archive of the previous project",
-      title: "“1111”: the film and a verifiable result",
+      eyebrow: "Documentary · 2024",
+      title: "“1111. The Other Side”",
       body:
-        "The previous project showed that audiences embrace long-form stories, honesty outperforms gloss, and the story lives on after the finish.",
+        "In December 2024, Viktor swam 10 km, cycled 1001 km and ran 100 km — in 58 hours without sleep. The film follows the challenge from the inside and the people alongside him.",
       metrics: [
         ["≈1.3M", "views across five episodes and the film"],
         ["+310%", "growth in Viktor’s audience"],
         ["25+", "federal media outlets"],
       ],
-      filmCta: "Watch the film about Project “1111”",
+      filmCta: "Watch the film",
+      filmAlt: "Viktor in a swimming cap and goggles at the pool edge — a still from the film “1111”",
+      filmPlatform: "VK Video · opens in a new tab",
+      resultsLabel: "Strava records and race results",
+      reachTitle: "The audience for “1111”",
       externalLabel: "Opens VK in a new tab",
       sourcesTitle: "Facts and sources",
       sourcesUpdated: "View counts checked September 9, 2026",
@@ -843,6 +854,7 @@ const locales = {
           contextLink: ["Film “1111”", shared.filmHref],
         },
         {
+          kind: "media",
           title: "≈1.3M views",
           body:
             "The five episodes have 233k, 239k, 231k, 231k and 273k views; the film has 92.8k. VK Video’s rounded counters add up to approximately 1.3M views.",
@@ -877,6 +889,7 @@ const locales = {
           ],
         },
         {
+          kind: "media",
           title: "+310% and 25+ media outlets",
           body:
             "Communication results from Project “1111”, as reported by the project team.",
@@ -1013,7 +1026,8 @@ const locales = {
       titleFallback: "Project start",
       titleActive: "The story is unfolding",
       titleFinished: "The story continues",
-      afterCredits: "Follow the diary",
+      diaryCta: "Read the diary",
+      afterCredits: "Diary on Telegram",
       navLabel: "Navigation",
       contactLabel: "Get in touch",
       utilityLabel: "Website",
@@ -1123,6 +1137,10 @@ function renderMenuSettings(l) {
 const icons = {
   external: `
     <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M4 12 12 4M6 4h6v6"></path>
+    </svg>`,
+  resize: `
+    <svg class="icon icon--resize" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M4 12 12 4M6 4h6v6"></path>
     </svg>`,
   down: `
@@ -1615,8 +1633,9 @@ function renderPartnerFormats(partners) {
     .join("");
 }
 
-function renderProofSources(proof) {
+function renderProofSources(proof, kind = "sport") {
   return proof.sources
+    .filter(source => (source.kind || "sport") === kind)
     .map(
       (source, index) => `
         <article class="proof-source">
@@ -2331,6 +2350,16 @@ function renderPage(l) {
       <aside class="return-update" data-return-update hidden aria-label="${l.lang === 'ru' ? 'Изменения с прошлого посещения' : 'Updates since your last visit'}">
         <div class="return-update__links" data-return-links></div>
         <template data-return-icon>${icons.down}</template>
+        <template data-return-calendar>
+          <aside class="return-calendar" aria-label="${l.lang === 'ru' ? 'Последняя запись дневника' : 'Latest diary entry'}">
+            <a class="return-calendar__link" data-calendar-link>
+              <time class="return-calendar__date" data-calendar-date aria-hidden="true"><span data-calendar-month></span><strong data-calendar-day></strong></time>
+              <span class="return-calendar__copy" id="return-calendar-copy"><small>${l.lang === 'ru' ? 'Последняя запись' : 'Latest entry'}</small><strong data-calendar-title></strong></span>
+              <span class="return-calendar__compact" aria-hidden="true">${l.lang === 'ru' ? 'Дневник' : 'Diary'}${icons.earlier}</span>
+            </a>
+            <button class="return-calendar__toggle" type="button" aria-controls="return-calendar-copy" data-calendar-toggle>${icons.resize}</button>
+          </aside>
+        </template>
       </aside>
       ${renderChapterLabel(l, "#top", l.manifesto.eyebrow)}
       <div class="manifesto__copy">
@@ -2498,20 +2527,22 @@ function renderPage(l) {
       <div class="proof__heading">
         ${renderChapterLabel(l, "#proof", l.proof.eyebrow)}
         <h2 id="proof-title">${l.proof.title}</h2>
-        <p>${l.proof.body}</p>
-        <a class="text-link" href="${shared.filmHref}" data-analytics-goal="film_open" target="_blank" rel="noopener noreferrer">
-          <span class="text-link__label">${l.proof.filmCta}</span>
-          ${icons.external}
-          <span class="sr-only">${l.proof.externalLabel}</span>
-        </a>
       </div>
-      <div class="proof-metrics">
-        ${renderMetrics(l.proof.metrics, "proof-metric")}
+      <div class="film-view">
+        <a class="film-view__frame" href="${shared.filmHref}" data-analytics-goal="film_open" target="_blank" rel="noopener noreferrer" aria-label="${l.proof.filmCta} · ${l.proof.externalLabel}">
+          <img src="${l.assetBase}assets/nav-film-detail.jpg" alt="${l.proof.filmAlt}" width="1024" height="576" loading="lazy">
+          <span class="film-view__badge" aria-hidden="true">VK ${l.lang === "ru" ? "Видео" : "Video"}${icons.external}</span>
+        </a>
+        <div class="film-view__intro">
+          <p>${l.proof.body}</p>
+          <a class="button button--primary" href="${shared.filmHref}" data-analytics-goal="film_open" target="_blank" rel="noopener noreferrer"><span>${l.proof.filmCta}</span>${icons.external}</a>
+          <small>${l.proof.filmPlatform}</small>
+        </div>
       </div>
       <details class="proof-sources" id="proof-sources">
         <summary>
           <span>${l.proof.sourcesTitle}</span>
-          <small>${l.proof.sourcesUpdated}</small>
+          <small>${l.proof.resultsLabel}</small>
           ${icons.disclosure}
         </summary>
         <div class="proof-sources__grid">
@@ -2577,6 +2608,17 @@ function renderPage(l) {
         </div>
       </div>
       <div class="partners__offer">
+        <section class="partner-media" id="project-reach" aria-labelledby="project-reach-title">
+          <header class="partner-media__heading">
+            <h3 id="project-reach-title">${l.proof.reachTitle}</h3>
+            <p>${l.proof.sourcesUpdated}</p>
+          </header>
+          <div class="proof-metrics">${renderMetrics(l.proof.metrics, "proof-metric")}</div>
+          <details class="partner-media__sources">
+            <summary><span>${l.proof.sourcesTitle}</span>${icons.disclosure}</summary>
+            <div class="proof-sources__grid">${renderProofSources(l.proof, "media")}</div>
+          </details>
+        </section>
         <div class="partner-formats" id="partner-formats">
           <p class="partner-formats__label">${l.partners.formatsLabel}</p>
           <ol class="partner-formats__list">
@@ -2627,8 +2669,8 @@ function renderPage(l) {
         >${l.footer.titleFallback}</span>
         <span data-footer-countdown data-optical-start aria-live="polite"><time datetime="${projectPlan.period.startDate}">${startDateLabel}</time></span>
       </h2>
-      <a class="site-footer__cta action-primary" href="#partner-contact" data-analytics-goal="partner_interest">
-        ${l.footer.partnerCta}${icons.up}
+      <a class="site-footer__cta action-primary" href="#diary" data-analytics-goal="diary_explore">
+        ${l.footer.diaryCta}${icons.up}
       </a>
     </div>
 

@@ -1,10 +1,10 @@
-:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index, .partner-media__sources) {
   container: disclosure / inline-size;
   min-width: 0;
   border-block: 1px solid var(--disclosure-line, var(--line-dark));
 }
 
-:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index, .partner-media__sources) > summary {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
@@ -21,30 +21,30 @@
   text-transform: uppercase;
 }
 
-:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary::-webkit-details-marker {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index, .partner-media__sources) > summary::-webkit-details-marker {
   display: none;
 }
 
-:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary > span {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index, .partner-media__sources) > summary > span {
   min-width: 0;
   text-wrap: balance;
 }
 
-:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary:focus-visible > span {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index, .partner-media__sources) > summary:focus-visible > span {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  :is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary:hover > span {
+  :is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index, .partner-media__sources) > summary:hover > span {
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
   }
 }
 
-:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary > small {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index, .partner-media__sources) > summary > small {
   color: var(--disclosure-muted, var(--text-editorial-muted));
   font-size: var(--type-service);
   font-weight: 400;
@@ -53,26 +53,26 @@
   text-transform: none;
 }
 
-:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary > .icon {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index, .partner-media__sources) > summary > .icon {
   transition: transform var(--duration-feedback) var(--ease-move);
 }
 
-:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index)[open] > summary > .icon {
+:is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index, .partner-media__sources)[open] > summary > .icon {
   transform: rotate(180deg);
 }
 
 @container disclosure (max-width: 40rem) {
-  :is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary {
+  :is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index, .partner-media__sources) > summary {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 0.4rem 0.75rem;
   }
 
-  :is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary > small {
+  :is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index, .partner-media__sources) > summary > small {
     grid-column: 1;
     grid-row: 2;
   }
 
-  :is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index) > summary > .icon {
+  :is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index, .partner-media__sources) > summary > .icon {
     grid-column: 2;
     grid-row: 1;
     align-self: start;

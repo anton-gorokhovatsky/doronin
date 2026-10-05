@@ -122,3 +122,10 @@
     text-wrap: balance;
   }
 }
+
+@media (max-width:960px) {
+  .film-view { grid-template-columns:minmax(0,1fr); }
+  .film-view__frame, .film-view__intro { grid-column:1; }
+}
+:root.text-enlarged .film-view { grid-template-columns:minmax(0,1fr); }
+:root.text-enlarged .film-view__frame, :root.text-enlarged .film-view__intro { grid-column:1; }

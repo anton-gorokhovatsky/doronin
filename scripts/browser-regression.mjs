@@ -119,7 +119,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       `${prefix}: icon aspect ratios diverged (${JSON.stringify(iconAudit.malformed)})`,
     );
     expect(
-      iconAudit.disclosureCount === 4 && iconAudit.mediaToggleCount === 3,
+      iconAudit.disclosureCount === 5 && iconAudit.mediaToggleCount === 3,
       `${prefix}: shared icon roles regressed (${JSON.stringify(iconAudit)})`,
     );
     expect(
@@ -708,7 +708,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       ) &&
         actionSystem.minHeights.every((height) => height >= 56) &&
         actionSystem.menuLabel === testCase.conversionLabel &&
-        actionSystem.footerLabel === testCase.conversionLabel &&
+        actionSystem.footerLabel === (testCase.path.startsWith("/en") ? "Read the diary" : "Читать дневник") &&
         actionSystem.partnerBackground === actionSystem.primaryBackground,
       `${prefix}: primary CTA system diverged (${JSON.stringify(actionSystem)})`,
     );
