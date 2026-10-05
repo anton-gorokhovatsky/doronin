@@ -723,6 +723,7 @@ const styleModuleNames = [
   "60-themes-accessibility.css",
   "65-dubai-light.css",
   "70-journey.css",
+  "75-birthday.css",
 ];
 const sourceStyleManifest = await readFile(resolve("src/assets/styles.css"), "utf8");
 const sourceStyleBundle = (

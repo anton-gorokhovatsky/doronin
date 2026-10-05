@@ -617,6 +617,30 @@ if (heroVideo && videoToggle) {
     }
   });
 
+  const regularPoster = heroVideo.getAttribute("poster");
+  const regularSources = heroVideoSources.map(source => source.getAttribute("src"));
+  let birthdayMode = null;
+  function syncBirthdayVideo() {
+    const active = document.documentElement.classList.contains("has-birthday-greeting");
+    if (active === birthdayMode) return;
+    const initialized = birthdayMode !== null;
+    birthdayMode = active;
+    if (!active && !initialized) return;
+    document.querySelector(".hero").setAttribute("aria-labelledby", active ? "birthday-title" : "hero-title");
+    heroVideo.poster = active ? heroVideo.dataset.birthdayPoster : regularPoster;
+    for (const [index, source] of heroVideoSources.entries()) {
+      source.src = active ? source.dataset.birthdaySrc : regularSources[index];
+    }
+    failedHeroVideoSources.clear();
+    heroVideoUnavailable = false;
+    videoToggle.hidden = false;
+    heroVideo.load();
+    if (initialized && !reducedMotion.matches && !userPausedVideo) playHeroVideo();
+  }
+  syncBirthdayVideo();
+  new MutationObserver(syncBirthdayVideo).observe(document.documentElement, {
+    attributes: true, attributeFilter: ["class"],
+  });
   syncVideoToggle();
 
   if (!reducedMotion.matches && !heroVideoUnavailable) {
@@ -1965,7 +1989,9 @@ if (siteHeader && heroSection) {
     }
 
     const headerBottom = siteHeader.getBoundingClientRect().bottom;
-    const firstTextTop = heroHeaderTrigger.getBoundingClientRect().top;
+    const visibleTrigger = document.documentElement.classList.contains("has-birthday-greeting")
+      ? heroSection.querySelector(".birthday-name") : heroHeaderTrigger;
+    const firstTextTop = visibleTrigger.getBoundingClientRect().top;
 
     siteHeader.classList.toggle(
       "is-over-hero",
@@ -1980,6 +2006,9 @@ if (siteHeader && heroSection) {
   }
 
   syncHeroHeaderState();
+  new MutationObserver(requestHeroHeaderSync).observe(document.documentElement, {
+    attributes: true, attributeFilter: ["class"],
+  });
   window.addEventListener("scroll", requestHeroHeaderSync, { passive: true });
   window.addEventListener("resize", requestHeroHeaderSync);
 }

@@ -44,6 +44,7 @@ const styleModuleNames = [
   "60-themes-accessibility.css",
   "65-dubai-light.css",
   "70-journey.css",
+  "75-birthday.css",
 ];
 const styleBundle = (
   await Promise.all(
@@ -96,6 +97,11 @@ const heroVideoVersion = createHash("sha256")
   .update(await readFile(resolve(assetSource, "hero-loop-mobile.mp4")))
   .digest("hex")
   .slice(0, 10);
+const birthdayVideoVersion = createHash("sha256")
+  .update(await readFile(resolve(assetSource, "birthday-2026-film.mp4")))
+  .update(await readFile(resolve(assetSource, "birthday-2026-film-mobile.mp4")))
+  .digest("hex").slice(0, 10);
+const birthdayIcon = `<svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M111.49,52.63a15.8,15.8,0,0,0-26,5.77L33,202.78A15.83,15.83,0,0,0,47.76,224a16,16,0,0,0,5.46-1l144.37-52.5a15.8,15.8,0,0,0,5.78-26Zm-8.33,135.21-35-35,13.16-36.21,58.05,58.05Zm-55,20,14-38.41,24.45,24.45ZM156,168.64,87.36,100l13-35.87,91.43,91.43ZM160,72a37.8,37.8,0,0,1,3.84-15.58C169.14,45.83,179.14,40,192,40c6.7,0,11-2.29,13.65-7.21A22,22,0,0,0,208,23.94,8,8,0,0,1,224,24c0,12.86-8.52,32-32,32-6.7,0-11,2.29-13.65,7.21A22,22,0,0,0,176,72.06,8,8,0,0,1,160,72ZM136,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm101.66,82.34a8,8,0,1,1-11.32,11.31l-16-16a8,8,0,0,1,11.32-11.32Zm4.87-42.75-24,8a8,8,0,0,1-5.06-15.18l24-8a8,8,0,0,1,5.06,15.18Z"/></svg>`;
 const editorialVideoVersion = createHash("sha256")
   .update(await readFile(resolve(assetSource, "story-recovery.mp4")))
   .digest("hex")
@@ -2173,10 +2179,11 @@ function renderPage(l) {
           playsinline
           preload="metadata"
           poster="${l.assetBase}assets/hero.jpg"
+          data-birthday-poster="${l.assetBase}assets/birthday-2026-film.jpg?v=${birthdayVideoVersion}"
           aria-hidden="true"
         >
-          <source src="${l.assetBase}assets/hero-loop-mobile.mp4?v=${heroVideoVersion}" type="video/mp4" media="(max-width: 640px)">
-          <source src="${l.assetBase}assets/hero-loop.mp4?v=${heroVideoVersion}" type="video/mp4">
+          <source src="${l.assetBase}assets/hero-loop-mobile.mp4?v=${heroVideoVersion}" data-birthday-src="${l.assetBase}assets/birthday-2026-film-mobile.mp4?v=${birthdayVideoVersion}" type="video/mp4" media="(max-width: 640px)">
+          <source src="${l.assetBase}assets/hero-loop.mp4?v=${heroVideoVersion}" data-birthday-src="${l.assetBase}assets/birthday-2026-film.mp4?v=${birthdayVideoVersion}" type="video/mp4">
         </video>
       </figure>
       <div class="hero__veil" aria-hidden="true"></div>
@@ -2195,6 +2202,22 @@ function renderPage(l) {
         </button>
       </div>
 
+      <div class="birthday-stage birthday-greeting">
+        <span class="birthday-film-credit">${l.lang === 'ru' ? 'Из фильма «1111» · 2024' : 'From the film “1111” · 2024'}</span>
+        <div id="birthday-title" class="birthday-title" role="heading" aria-level="1">
+          <span class="birthday-name">${l.lang === 'ru' ? 'Витя,' : 'Vitya,'}</span>
+          <span class="birthday-salute">${l.lang === 'ru' ? 'с днём рождения!' : 'happy birthday!'}</span>
+        </div>
+        <div class="birthday-message">
+          <p>${l.lang === 'ru' ? 'Пусть здоровья и сил хватает на большие замыслы, а рядом всегда будут свои люди.' : 'May you have the health and strength for your biggest plans, with your people always by your side.'}</p>
+          <button class="birthday-replay" type="button" data-birthday-replay hidden><span>${l.lang === 'ru' ? 'Больше праздника!' : 'More celebration!'}</span>${birthdayIcon}</button>
+        </div>
+        <div class="birthday-context">
+          <p><b>${l.lang === 'ru' ? '11 111 км на велосипеде' : '11,111 km by bike'}</b><span>${l.lang === 'ru' ? '1–31 декабря 2026 · Виктор Доронин' : '1–31 December 2026 · Viktor Doronin'}</span></p>
+          <a class="birthday-diary" href="#diary" data-analytics-goal="diary_explore"><span>${l.lang === 'ru' ? 'Читать дневник' : 'Read the diary'}</span>${icons.down}</a>
+        </div>
+      </div>
+
       <div class="hero__main">
         <div class="hero__content">
           <p class="hero__kicker"><time datetime="${shared.startDate}">${l.hero.kicker}</time></p>
@@ -2207,11 +2230,6 @@ function renderPage(l) {
             <div class="hero__evidence">
               <p class="hero__intro">
                 <span class="hero__intro-default">${l.hero.intro}</span>
-                <span class="birthday-greeting">
-                  <span class="birthday-greeting__title">${l.lang === 'ru' ? 'Витя, с днём рождения!' : 'Happy birthday, Vitya!'}</span>
-                  <span class="birthday-greeting__wish">${l.lang === 'ru' ? 'Пусть хватает сил на большие замыслы, а рядом всегда будут свои люди.' : 'May you have the strength for your biggest plans, with your people always by your side.'}</span>
-                  <button class="birthday-greeting__replay" type="button" data-birthday-replay hidden>${l.lang === 'ru' ? 'Ещё конфетти' : 'More confetti'}</button>
-                </span>
               </p>
               <a class="text-link hero__evidence-link" href="${shared.project1111InterviewHref}" target="_blank" rel="noopener noreferrer" data-analytics-goal="proof_open">
                 <span class="text-link__label">${l.hero.evidenceCta}</span>${icons.external}

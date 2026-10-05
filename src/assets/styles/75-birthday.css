@@ -1,0 +1,56 @@
+/* One-day birthday composition, approved 5 October 2026. */
+.birthday-stage,.birthday-confetti {display:none;}
+.has-birthday-greeting .hero {--birthday-film-height:clamp(30rem,72svh,55rem);min-height:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;}
+.has-birthday-greeting .hero__main,.has-birthday-greeting .hero__veil,.has-birthday-greeting .header-actions {display:none;}
+.has-birthday-greeting .hero__media {height:var(--birthday-film-height);bottom:auto;z-index:0;}
+.has-birthday-greeting .hero__media video {object-position:50% 0%;filter:none;}
+.has-birthday-greeting .hero__media::after {content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#02160f66 0%,#02160f00 26%,#02160f00 55%,#02160f60 100%);}
+.has-birthday-greeting .hero__media-controls {top:6.5rem;right:var(--page-gutter);}
+.has-birthday-greeting .hero__media-toggle {border-radius:0;background:#02160f66;color:var(--paper);border-color:#f1f5ed80;}
+.has-birthday-greeting .birthday-stage {position:relative;z-index:1;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:var(--birthday-film-height) auto auto auto;width:100%;color:var(--ink-deep);}
+.birthday-stage::before {content:"";position:absolute;z-index:-1;inset:var(--birthday-film-height) 0 0;background:var(--acid);}
+.birthday-stage :is(p,span) {max-width:none;}
+.birthday-film-credit {position:absolute;top:7.4rem;right:calc(var(--page-gutter) + 4rem);color:var(--paper);font:500 .6875rem/1.3 var(--body);text-shadow:0 1px 8px #02160f;}
+.birthday-title {display:contents;}
+.birthday-name {grid-area:1/1;align-self:end;margin:0 var(--page-gutter);padding:0 0 .025em;font:700 clamp(4rem,calc(.5rem + 20.6vw),20rem)/.88 var(--display);letter-spacing:-.055em;text-indent:-.065em;text-transform:uppercase;color:var(--acid);pointer-events:none;}
+:root[lang="en"] .birthday-name {font-size:clamp(1.5rem,calc(.1rem + 16vw),16rem);}
+.birthday-salute {grid-area:2/1;padding:1.75rem var(--page-gutter) 0;font:700 clamp(1.45rem,calc(.5rem + 3.5vw),4.8rem)/1.15 var(--display);text-transform:uppercase;letter-spacing:-.04em;}
+.birthday-message {grid-area:3/1;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:1.5rem;align-items:center;padding:1.5rem var(--page-gutter) 2rem;}
+.birthday-message p {grid-column:1/8;max-width:47ch;margin:0;font:400 clamp(1.05rem,calc(.6rem + 1vw),1.5rem)/1.45 var(--body);text-wrap:pretty;}
+.birthday-replay {grid-column:10/-1;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;width:100%;min-height:3.75rem;padding:.85rem 1.15rem;border:1px solid var(--ink-deep);border-radius:0;background:var(--ink-deep);color:var(--acid);font:700 1rem/1.2 var(--body);cursor:pointer;transition:background var(--duration-feedback),color var(--duration-feedback);}
+.birthday-replay[hidden] {display:none;}
+.birthday-replay svg {width:1.75rem;height:1.75rem;flex-shrink:0;}
+.birthday-context {grid-area:4/1;display:flex;align-items:center;justify-content:space-between;gap:2rem;margin:0 var(--page-gutter);border-top:1px solid #02160f50;padding:1rem 0 1.5rem;font-size:.8rem;line-height:1.6;}
+.birthday-context p {display:flex;flex-direction:column;gap:.1rem;margin:0;}
+.birthday-context b {font-size:1rem;font-weight:700;}
+.birthday-diary {display:inline-flex;align-items:center;gap:2rem;min-height:2.75rem;color:inherit;text-decoration:none;font-size:.875rem;font-weight:700;}
+.birthday-diary span {border-bottom:1px solid currentColor;padding-bottom:.2rem;}
+.birthday-diary svg {width:1.25rem;height:1.25rem;}
+.has-birthday-greeting .hero__foot {position:relative;grid-row:2;margin:0;background:var(--ink-deep);color:var(--paper);border-top:0;}
+.has-birthday-greeting .site-header.is-over-hero .site-logo {filter:none;}
+.birthday-stage :focus-visible {outline:3px solid currentColor;outline-offset:5px;}
+.has-birthday-greeting .birthday-confetti:not([hidden]) {position:absolute;z-index:5;inset:0;display:block;width:100%;height:100%;pointer-events:none;}
+body:has(.nav-shell[open]) :is(.birthday-greeting,.birthday-confetti) {visibility:hidden;}
+@media(hover:hover) and (pointer:fine) {.birthday-replay:hover {background:var(--paper);color:var(--ink-deep);}.birthday-diary:hover span {border-bottom-width:2px;}}
+@media(max-width:1000px) and (min-width:641px) {.birthday-replay {grid-column:9/-1;}}
+@media(max-width:640px) {
+ .has-birthday-greeting .hero {--birthday-film-height:clamp(24rem,65svh,38rem);}
+ .has-birthday-greeting .birthday-stage {--page-gutter:1rem;}
+ .has-birthday-greeting .hero__media video {object-position:50% 45%;}
+ .has-birthday-greeting .hero__media-controls {top:calc(var(--birthday-film-height) - 21vw - 4.1rem);right:var(--mobile-control-edge);}
+ .birthday-film-credit {top:calc(var(--birthday-film-height) - 21vw - 2.55rem);left:var(--page-gutter);right:auto;font-size:.5625rem;}
+ .birthday-name {font-size:clamp(1.5rem,calc(.1rem + 20.2vw),8rem);padding-bottom:.06em;}
+ .birthday-salute {font-size:clamp(1.35rem,calc(.45rem + 4.5vw),2rem);padding-top:1.15rem;line-height:1.18;max-width:23ch;}
+ .birthday-message {grid-template-columns:minmax(0,1fr);gap:1.25rem;padding-block:1rem 1.25rem;}
+ .birthday-message p,.birthday-replay {grid-column:1;}
+ .birthday-message p {font-size:1rem;max-width:36ch;}
+ .birthday-replay {min-height:3rem;padding:.7rem 1rem;font-size:.875rem;}
+ .birthday-replay svg {width:1.4rem;height:1.4rem;}
+ .birthday-context {flex-wrap:wrap;align-items:flex-start;gap:1rem;padding-block:.9rem 1.2rem;font-size:.625rem;}
+ .birthday-context b {font-size:.75rem;}
+ .birthday-diary {flex-shrink:0;gap:.7rem;font-size:.75rem;}
+ .birthday-diary svg {width:1rem;height:1rem;}
+ :root.text-enlarged .birthday-stage {--page-gutter:16px;}
+ :root.text-enlarged .birthday-salute {font-size:1rem;max-width:none;}
+ :root.text-enlarged .birthday-replay {gap:.75rem;}
+}

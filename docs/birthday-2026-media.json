@@ -1,0 +1,19 @@
+{
+  "publicArchive": "https://disk.yandex.ru/d/rsNJOp0jgMmnug",
+  "original": "1111 - 4k.mov",
+  "originalSha256": "26d1581047d4fb27978c8a765d628790c41e4fb5a5dff6bef77a44ba7b9e53ca",
+  "startSeconds": 3487,
+  "durationSeconds": 17,
+  "selectedByUser": "58:07–58:24, entire interval",
+  "use": "Birthday hero on 5 October 2026; archival film footage from 2024, not a current live scene",
+  "audio": "Removed for silent page playback",
+  "derivative": "src/assets/birthday-2026-film.mp4",
+  "derivativeSha256": "470c8638095dca4a237a6b4bb59fdd990f6e2e9275dbffed29519a3240cde845",
+  "mobileReframe": {
+    "file": "src/assets/birthday-2026-film-mobile.mp4",
+    "width": 720,
+    "height": 960,
+    "description": "The same full 17 seconds, framing follows Viktor within each original shot; no cuts added",
+    "sha256": "f45691f7ac062f3df987883eb2e02aba21580fb9053bc97e9ae4c1e59780a1f0"
+  }
+}
