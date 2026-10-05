@@ -1627,7 +1627,7 @@ async function auditBirthdayHero(browser, browserName, origin, testCase) {
     await page.evaluate(() => document.fonts.ready);
     expect(await page.getByRole("heading", { level: 1 }).isVisible(), `${prefix}: archive greeting expired`);
     expect(await page.locator(".birthday-diary").getAttribute("href") === `${homeHref}#diary`, `${prefix}: archive diary link is broken`);
-    expect(await page.locator(".birthday-home").getAttribute("href") === homeHref, `${prefix}: archive return link is broken`);
+    expect(await page.locator(".birthday-home").getAttribute("href") === `${homeHref}#about`, `${prefix}: archive return link is broken`);
     expect(await page.locator("[data-birthday-replay]").isHidden(), `${prefix}: archive ignores reduced motion`);
     const archiveMedia = await page.locator("[data-hero-video]").evaluate(v => ({
       paused: v.paused, poster: v.poster, sources: [...v.querySelectorAll("source")].map(s => s.src),
@@ -1635,7 +1635,17 @@ async function auditBirthdayHero(browser, browserName, origin, testCase) {
     expect(archiveMedia.paused && archiveMedia.poster.includes("birthday-2026-film") &&
       archiveMedia.sources.every(src => src.includes("birthday-2026-film")), `${prefix}: archive media lost`);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${prefix}: archive overflows`);
-    return `${prefix}: dated homepage and permanent archive PASS`;
+    // On the birthday itself the homepage has the same greeting. The return
+    // action must land on project content, not merely change the page URL.
+    await page.clock.setFixedTime(new Date("2026-10-05T12:00:00+03:00"));
+    await page.locator(".birthday-home").click();
+    await page.waitForURL(`${origin}${homeHref}#about`);
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForFunction(() => {
+      const title = document.querySelector("#manifesto-title")?.getBoundingClientRect();
+      return title && title.top >= 0 && title.top < innerHeight - 40;
+    });
+    return `${prefix}: dated homepage, permanent archive and return to project PASS`;
   } finally {
     await context.close();
   }

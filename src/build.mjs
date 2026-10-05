@@ -2843,7 +2843,7 @@ function renderBirthdayPage(l) {
     <a class="site-logo" href="${homeHref}" aria-label="${l.homeLabel}">
       <img src="${l.assetBase}assets/logo.svg" alt="" width="512" height="231">
     </a>
-    <a class="button button--ghost birthday-home" href="${homeHref}">${icons.newer}<span>${ru ? 'К проекту' : 'Back to project'}</span></a>
+    <a class="button button--ghost birthday-home" href="${homeHref}#about">${icons.newer}<span>${ru ? 'К проекту' : 'Back to project'}</span></a>
   </header>
   <main id="main">
     <section class="hero" id="top" aria-labelledby="birthday-title">
