@@ -34,6 +34,8 @@ export async function openPage(browser, origin, spec) {
     await context.route(/\.mp4(?:\?.*)?$/u, (route) => route.abort());
   }
   const page = await context.newPage();
+  // Date-dependent hero variants have their own regression cases.
+  await page.clock.setFixedTime(new Date(spec.date || "2026-10-06T12:00:00+03:00"));
   await page.route("https://mc.yandex.ru/**", (route) => route.abort());
   // Forecast variants are exercised in dubai-light-check; keep the general matrix offline.
   await page.route("https://api.met.no/**", (route) => route.abort());

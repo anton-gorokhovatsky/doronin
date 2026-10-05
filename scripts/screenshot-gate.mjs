@@ -41,6 +41,8 @@ async function capture(browser, origin, spec) {
     await context.route(/\.mp4(?:\?.*)?$/u, (route) => route.abort());
   }
   const page = await context.newPage();
+  // Keep the standard composition stable across one-day celebrations.
+  await page.clock.setFixedTime(new Date(spec.date || "2026-10-06T12:00:00+03:00"));
   await page.route("https://mc.yandex.ru/**", (route) => route.abort());
   await page.route("https://api.met.no/**", (route) => route.abort());
 

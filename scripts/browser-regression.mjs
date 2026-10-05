@@ -36,6 +36,8 @@ async function auditPage(browser, browserName, origin, testCase) {
     viewport: testCase.viewport,
   });
   const page = await context.newPage();
+  // The standard-site contract is independent of the runner calendar.
+  await page.clock.setFixedTime(new Date("2026-10-06T12:00:00+03:00"));
   const errors = [];
   const requestedPaths = [];
   page.on("request", (request) => requestedPaths.push(new URL(request.url()).pathname));
@@ -1590,6 +1592,42 @@ async function auditPage(browser, browserName, origin, testCase) {
   }
 }
 
+async function auditBirthdayHero(browser, browserName, origin, testCase) {
+  const context = await browser.newContext({ reducedMotion: "reduce", viewport: testCase.viewport });
+  const page = await context.newPage();
+  await page.clock.setFixedTime(new Date("2026-10-05T12:00:00+03:00"));
+  await page.route("https://mc.yandex.ru/**", route => route.abort());
+  await page.route("https://api.met.no/**", route => route.abort());
+  try {
+    await page.goto(`${origin}${testCase.path}`, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => document.fonts.ready);
+    const prefix = `${browserName} ${testCase.name} birthday`;
+    expect(await page.locator(".birthday-stage").isVisible(), `${prefix}: greeting hidden`);
+    expect(await page.locator(".birthday-diary").isVisible(), `${prefix}: diary action hidden`);
+    expect(!(await page.locator(".hero__main").isVisible()), `${prefix}: ordinary hero competes with greeting`);
+    expect(await page.getByRole("heading", { level: 1 }).count() === 1, `${prefix}: ambiguous primary heading`);
+    expect(await page.locator("[data-birthday-replay]").isHidden(), `${prefix}: confetti ignores reduced motion`);
+    const media = await page.locator("[data-hero-video]").evaluate(v => ({
+      paused: v.paused, poster: v.poster, sources: [...v.querySelectorAll("source")].map(s => s.src),
+    }));
+    expect(media.paused && media.poster.includes("birthday-2026-film") &&
+      media.sources.every(src => src.includes("birthday-2026-film")), `${prefix}: birthday media or motion preference lost`);
+    await page.clock.setFixedTime(new Date("2026-10-06T00:00:00+03:00"));
+    await page.evaluate(() => window.dispatchEvent(new Event("pageshow")));
+    await page.locator(".hero__main").waitFor({ state: "visible" });
+    expect(!(await page.locator(".birthday-stage").isVisible()), `${prefix}: greeting survived midnight`);
+    const restored = await page.locator("[data-hero-video]").evaluate(v => ({
+      paused: v.paused, poster: v.poster, sources: [...v.querySelectorAll("source")].map(s => s.src),
+    }));
+    expect(restored.paused && restored.poster.endsWith("hero.jpg") &&
+      restored.sources.every(src => src.includes("hero-loop")), `${prefix}: normal media did not return`);
+    expect(await page.locator(".hero").getAttribute("aria-labelledby") === "hero-title", `${prefix}: ordinary heading not restored`);
+    return `${prefix}: visible, reduced motion and midnight reset PASS`;
+  } finally {
+    await context.close();
+  }
+}
+
 const allBrowsers = [
   ["chromium", chromium],
   ["webkit", webkit],
@@ -1645,6 +1683,7 @@ if (workerIndex >= 0) {
 
   const browser = await browserType.launch({ headless: true });
   try {
+    console.log(await auditBirthdayHero(browser, browserName, origin, testCase));
     console.log(await auditPage(browser, browserName, origin, testCase));
   } finally {
     await browser.close().catch(() => {});
