@@ -289,6 +289,11 @@
   scroll-margin-top: 6rem;
 }
 
+/* The article is a reading destination, not an interactive control. */
+.diary-story:focus {
+  outline: none;
+}
+
 .diary-story[hidden],
 .diary-archive__link[hidden] {
   display: none;
