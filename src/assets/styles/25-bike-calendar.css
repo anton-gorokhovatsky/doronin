@@ -5,7 +5,7 @@
 .bike-calendar {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: clamp(3.5rem, 7vw, 7rem);
+  gap: var(--space-stack);
 }
 
 .bike-calendar > * {

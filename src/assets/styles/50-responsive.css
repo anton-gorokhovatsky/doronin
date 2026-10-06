@@ -517,7 +517,8 @@
     display: none;
   }
 
-  .section-heading .section-label span {
+  .section-heading .section-label > span {
+    --chapter-number-optical-y: 0em;
     display: block;
     width: auto;
     height: auto;
@@ -2028,6 +2029,7 @@
   .section-label { align-items: baseline; gap: .75rem; }
   .section-label::after { display: none; }
   .section-label > span {
+    --chapter-number-optical-y: 0em;
     display: block;
     flex: 0 0 auto;
     width: auto;

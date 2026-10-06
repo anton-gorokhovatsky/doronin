@@ -177,7 +177,8 @@
   text-transform: uppercase;
 }
 
-.section-label span {
+.section-label > span {
+  --chapter-number-optical-y: -0.055em;
   display: grid;
   place-items: center;
   width: 2.1rem;
@@ -185,6 +186,14 @@
   border: 1px solid currentColor;
   border-radius: 50%;
   box-shadow: var(--label-index-shadow);
+}
+
+.section-label__number {
+  font-weight: inherit;
+  font-variant-numeric: lining-nums tabular-nums;
+  line-height: 1;
+  letter-spacing: 0;
+  transform: translateY(var(--chapter-number-optical-y));
 }
 
 .section-label p {

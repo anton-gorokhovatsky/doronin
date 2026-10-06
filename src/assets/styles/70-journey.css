@@ -37,8 +37,8 @@
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   grid-template-areas: "intro scene" "console scene" "audio audio" "footer footer";
   gap: var(--space-group) clamp(2rem, 4vw, 4rem);
-  margin: clamp(3rem, 6vw, 6rem) calc(-1 * var(--page-gutter)) 0;
-  padding: calc(var(--replay-edge) + 2rem) var(--page-gutter) calc(var(--replay-edge) + 1rem);
+  margin: var(--space-stack) calc(-1 * var(--page-gutter)) 0;
+  padding: var(--space-group) var(--page-gutter) calc(var(--replay-edge) + 1rem);
   color-scheme: dark;
   color: var(--paper);
   scroll-margin-top: 0;

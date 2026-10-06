@@ -1074,7 +1074,7 @@ function renderChapterLabel(l, href, label, light = false) {
   const index = l.nav.findIndex(([target]) => target === href);
   if (index < 0) throw new Error(`Chapter ${href} is missing from ${l.lang} navigation`);
   return `<div class="section-label${light ? " section-label--dark" : ""}" data-chapter-label="${href}">
-    <span>${String(index + 1).padStart(2, "0")}</span>
+    <span><b class="section-label__number">${String(index + 1).padStart(2, "0")}</b></span>
     <p>${label}</p>
   </div>`;
 }

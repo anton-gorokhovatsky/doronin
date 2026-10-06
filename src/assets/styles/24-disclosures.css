@@ -3,13 +3,18 @@
   min-width: 0;
 }
 
+/* A single edge identifies the disclosure. The calendar already follows an edge. */
+:is(.proof-sources, .interviews__archive, .diary-index, .partner-media__sources) {
+  border-top: 1px solid var(--disclosure-line, var(--line-dark));
+}
+
 :is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index, .partner-media__sources) > summary {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 1rem;
-  min-height: 5rem;
-  padding-block: 1rem;
+  min-height: 3.5rem;
+  padding-block: 0.75rem;
   color: inherit;
   cursor: pointer;
   font-size: var(--type-service-strong);
