@@ -1139,10 +1139,6 @@ const icons = {
     <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M4 12 12 4M6 4h6v6"></path>
     </svg>`,
-  resize: `
-    <svg class="icon icon--resize" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-      <path d="M4 12 12 4M6 4h6v6"></path>
-    </svg>`,
   down: `
     <svg class="icon icon--down" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M8 3v10M4.5 9.5 8 13l3.5-3.5"></path>
@@ -2357,7 +2353,7 @@ function renderPage(l) {
               <span class="return-calendar__copy" id="return-calendar-copy"><small>${l.lang === 'ru' ? 'Последняя запись' : 'Latest entry'}</small><strong data-calendar-title></strong></span>
               <span class="return-calendar__compact" aria-hidden="true">${l.lang === 'ru' ? 'Дневник' : 'Diary'}${icons.earlier}</span>
             </a>
-            <button class="return-calendar__toggle" type="button" aria-controls="return-calendar-copy" data-calendar-toggle>${icons.resize}</button>
+            <button class="return-calendar__toggle" type="button" aria-controls="return-calendar-copy" data-calendar-toggle>${icons.disclosure}</button>
           </aside>
         </template>
       </aside>
