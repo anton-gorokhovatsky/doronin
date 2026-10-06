@@ -1396,7 +1396,8 @@ function renderDiaryIndex(l) {
       ${l.diary.entries.map(entry => `<li>
         <a class="diary-index__link" href="#diary-entry-${entry.date}" data-diary-index-link data-analytics-goal="diary_explore">
           <time datetime="${entry.date}">${entry.fullDateLabel}</time>
-          <span class="diary-index__entry"><span>${escapeAttribute(entry.tabLabel.replaceAll("\n", " "))}</span><small data-diary-index-current hidden>${l.diary.indexCurrentLabel}</small></span>
+          <span class="diary-index__entry"><span>${escapeAttribute(entry.tabLabel.replaceAll("\n", " "))}</span></span>
+          <small class="diary-index__current" data-diary-index-current hidden>${l.diary.indexCurrentLabel}</small>
           ${icons.up}
         </a>
       </li>`).join("")}
