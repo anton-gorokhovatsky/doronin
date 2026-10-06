@@ -122,6 +122,10 @@ try {
           return [w.backgroundImage===m.backgroundImage,w.backdropFilter===m.backdropFilter,w.boxShadow===m.boxShadow];
         });
         assert(material.every(Boolean), 'The calendar and menu must share the glass material');
+        await page.locator('.site-footer__legal').scrollIntoViewIfNeeded();
+        await widget.waitFor({state:'hidden'});
+        await page.locator(latest.href).scrollIntoViewIfNeeded();
+        await widget.waitFor({state:'visible'});
         await page.reload();
         await widget.waitFor({state:'visible'});
         assert(await page.locator('[data-return-update]').isHidden());

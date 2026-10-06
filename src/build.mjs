@@ -1799,7 +1799,7 @@ function renderInterviews(items, l, startIndex = 0) {
 function renderStory(items, l) {
   return items
     .map(
-      (item, index) => `
+      (item) => `
         <figure
           class="story-frame${item.video ? " story-frame--motion" : ""}${item.caption === "Движение" || item.caption === "Motion" ? " story-frame--movement" : ""}"
           ${item.video ? "data-story-video-frame" : ""}
@@ -1840,7 +1840,6 @@ function renderStory(items, l) {
             }
           </div>
           <figcaption>
-            <span aria-hidden="true">${String(index + 1).padStart(2, "0")}</span>
             <strong>${item.caption}</strong>
             ${
               item.date
@@ -2352,7 +2351,7 @@ function renderPage(l) {
             <a class="return-calendar__link" data-calendar-link>
               <time class="return-calendar__date" data-calendar-date aria-hidden="true"><span data-calendar-month></span><strong data-calendar-day></strong></time>
               <span class="return-calendar__copy" id="return-calendar-copy"><small>${l.lang === 'ru' ? 'Последняя запись' : 'Latest entry'}</small><strong data-calendar-title></strong></span>
-              <span class="return-calendar__compact" aria-hidden="true">${l.lang === 'ru' ? 'Дневник' : 'Diary'}${icons.earlier}</span>
+              <span class="return-calendar__compact" aria-hidden="true">${l.lang === 'ru' ? 'Дневник' : 'Diary'}</span>
             </a>
             <button class="return-calendar__toggle" type="button" aria-controls="return-calendar-copy" data-calendar-toggle>${icons.disclosure}</button>
           </aside>
@@ -2693,22 +2692,21 @@ function renderPage(l) {
       <img src="${l.assetBase}assets/logo.svg" alt="" width="512" height="231">
     </div>
 
-    <a
-      class="site-footer__after-credits"
-      href="${shared.viktorTelegramHref}"
-      data-analytics-goal="diary_follow"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <span aria-hidden="true"></span>
-      <strong>${l.footer.afterCredits}</strong>
-      ${icons.external}
-    </a>
-
     <div class="site-footer__legal">
+      <a
+        class="site-footer__after-credits"
+        href="${shared.viktorTelegramHref}"
+        data-analytics-goal="diary_follow"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span aria-hidden="true"></span>
+        <strong>${l.footer.afterCredits}</strong>
+        ${icons.external}
+      </a>
       <p>${l.footer.legal}</p>
       <div class="site-footer__credits">
-        <a href="${shared.designHref}" target="_blank" rel="noopener noreferrer">${l.footer.designCredit}${icons.external}</a>
+        <a href="${shared.designHref}" target="_blank" rel="noopener noreferrer"><span>${l.footer.designCredit}</span>${icons.external}</a>
       </div>
     </div>
   </footer>

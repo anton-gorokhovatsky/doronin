@@ -165,6 +165,17 @@ function initCalendar(notice, latest, lang) {
   window.addEventListener('resize', finish, { passive: true });
   sync();
   document.body.append(calendar);
+  // The footer already contains the diary link; keep its links and legal text clear.
+  const footer = document.querySelector('.site-footer');
+  if (footer) {
+    const syncFooter = visible => {
+      if (visible) finish();
+      calendar.hidden = visible;
+    };
+    const box = footer.getBoundingClientRect();
+    syncFooter(box.top < window.innerHeight && box.bottom > 0);
+    new IntersectionObserver(([entry]) => syncFooter(entry.isIntersecting)).observe(footer);
+  }
   return calendar;
 }
 if (typeof document !== 'undefined') initUpdates();
