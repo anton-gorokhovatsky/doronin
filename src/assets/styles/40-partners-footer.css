@@ -203,10 +203,6 @@
   border-bottom: 1px solid var(--partners-line);
 }
 
-.partner-format + .partner-format {
-  border-left: 1px solid var(--partners-line);
-}
-
 .partner-format > span {
   color: color-mix(in srgb, currentColor 62%, transparent);
   font-size: var(--type-service-index);
@@ -413,7 +409,6 @@
 
 .partners__channels a + a {
   padding-left: clamp(1.25rem, 2vw, 2rem);
-  border-left: 1px solid var(--partner-closing-line);
 }
 
 .partners__channels a::before {

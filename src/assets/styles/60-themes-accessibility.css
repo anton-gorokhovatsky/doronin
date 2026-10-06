@@ -140,50 +140,34 @@ html.motion-reduced *::after {
 }
 
 /*
- * Night mode is one instrument panel, not a recoloured set of day surfaces.
- * The cold substrate and grid are shared; cyan reports data, acid marks the
+ * Night surfaces share a cold substrate. Cyan reports data, acid marks the
  * active route, coral marks lived experience, and red is reserved for a limit.
+ * Surface lighting stays continuous without a decorative grid.
  */
 :root {
-  --night-grid:
-    repeating-linear-gradient(
-      90deg,
-      rgba(111, 215, 204, 0.022) 0 1px,
-      transparent 1px 8rem
-    ),
-    repeating-linear-gradient(
-      0deg,
-      rgba(111, 215, 204, 0.014) 0 1px,
-      transparent 1px 8rem
-    );
   --night-editorial-art:
     radial-gradient(ellipse at 86% 8%, rgba(111, 215, 204, 0.24), transparent 30rem),
     linear-gradient(112deg, rgba(223, 255, 56, 0.05), transparent 32%),
-    var(--night-grid),
     linear-gradient(136deg, #08202a 0%, #02090e 52%, #09241a 100%);
   --night-proof-art:
     radial-gradient(ellipse at 14% 12%, rgba(255, 96, 70, 0.28), transparent 30rem),
     radial-gradient(ellipse at 88% 72%, rgba(111, 215, 204, 0.12), transparent 34rem),
     linear-gradient(116deg, rgba(255, 96, 70, 0.075), transparent 42%),
-    var(--night-grid),
     linear-gradient(128deg, #1a0d0b 0%, #02080d 56%, #201407 100%);
   --night-partners-art:
     radial-gradient(ellipse at 88% 12%, rgba(223, 255, 56, 0.2), transparent 32rem),
     radial-gradient(ellipse at 12% 78%, rgba(111, 215, 204, 0.12), transparent 36rem),
-    var(--night-grid),
     linear-gradient(132deg, #061c23 0%, #02090c 52%, #0b2916 100%);
   --night-athlete-art:
     radial-gradient(ellipse at 72% 32%, rgba(255, 96, 70, 0.3), transparent 35rem),
     radial-gradient(ellipse at 14% 82%, rgba(111, 215, 204, 0.11), transparent 32rem),
     linear-gradient(118deg, transparent 48%, rgba(255, 96, 70, 0.075) 62%, transparent 78%),
-    var(--night-grid),
     linear-gradient(132deg, #041016 0%, #062018 58%, #24130a 100%);
   --night-distance-total-art:
     radial-gradient(ellipse at 12% 8%, rgba(223, 255, 56, 0.08), transparent 24rem),
     radial-gradient(ellipse at 88% 78%, rgba(111, 215, 204, 0.08), transparent 28rem),
-    var(--night-grid),
     linear-gradient(122deg, #02090e, #041711);
-  --night-footer-art: var(--night-grid);
+  --night-footer-art: none;
 }
 
 :root.theme-dark {
@@ -314,7 +298,6 @@ html.motion-reduced *::after {
     radial-gradient(ellipse at 14% 18%, rgba(111, 215, 204, 0.15), transparent 32rem),
     radial-gradient(ellipse at 86% 76%, rgba(255, 96, 70, 0.18), transparent 36rem),
     linear-gradient(118deg, transparent 46%, rgba(255, 96, 70, 0.055) 62%, transparent 78%),
-    var(--night-grid),
     linear-gradient(132deg, #021117 0%, #02090d 52%, #1a0e0a 100%);
 }
 
@@ -322,7 +305,6 @@ html.motion-reduced *::after {
   background:
     radial-gradient(ellipse at 84% 16%, rgba(255, 96, 70, 0.18), transparent 34rem),
     radial-gradient(ellipse at 18% 76%, rgba(111, 215, 204, 0.12), transparent 36rem),
-    var(--night-grid),
     linear-gradient(128deg, #041820 0%, #06120f 50%, #190d09 100%);
 }
 
@@ -330,7 +312,6 @@ html.motion-reduced *::after {
   background:
     radial-gradient(ellipse at 8% 12%, rgba(255, 96, 70, 0.2), transparent 32rem),
     radial-gradient(ellipse at 92% 72%, rgba(111, 215, 204, 0.14), transparent 36rem),
-    var(--night-grid),
     linear-gradient(132deg, #160b09 0%, #031016 48%, #081c13 100%);
 }
 

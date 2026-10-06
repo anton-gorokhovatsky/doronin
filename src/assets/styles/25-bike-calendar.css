@@ -102,7 +102,6 @@
   min-height: clamp(13rem, 19vw, 22rem);
   padding: clamp(1rem, 1.8vw, 1.75rem) clamp(0.75rem, 1.1vw, 1.5rem);
   align-content: space-between;
-  border-right: 1px solid var(--line-dark);
 }
 
 .bike-calendar__sequence li:nth-child(1) {
@@ -200,7 +199,6 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   border-top: 1px solid var(--line-dark);
-  border-left: 1px solid var(--line-dark);
 }
 
 .bike-calendar__segment {
@@ -212,7 +210,6 @@
   min-height: clamp(20rem, 30vw, 34rem);
   padding: var(--segment-padding-block) var(--segment-padding-inline);
   grid-template-rows: auto minmax(0, 1fr) auto;
-  border-right: 1px solid var(--line-dark);
   border-bottom: 1px solid var(--line-dark);
 }
 
