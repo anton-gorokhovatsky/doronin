@@ -693,14 +693,16 @@
   backdrop-filter: var(--glass-filter);
 }
 
-.button--ghost:focus-visible {
+.button--ghost:focus-visible,
+.film-view__frame:focus-visible .film-view__badge {
   border-color: var(--paper);
   background: var(--paper);
   color: var(--ink);
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .button--ghost:hover {
+  .button--ghost:hover,
+  .film-view__frame:hover .film-view__badge {
     border-color: var(--paper);
     background: var(--paper);
     color: var(--ink);

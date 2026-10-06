@@ -585,6 +585,7 @@
 .film-view__frame { grid-column:1 / 9; position:relative; display:block; color:var(--paper); }
 .film-view__frame img { display:block; width:100%; height:auto; aspect-ratio:16 / 9; object-fit:cover; }
 .film-view__badge { position:absolute; right:1rem; bottom:1rem; display:flex; align-items:center; gap:0.65rem; padding:0.65rem 0.85rem; background:var(--glass-material); -webkit-backdrop-filter:var(--glass-filter); backdrop-filter:var(--glass-filter); font-size:var(--type-service); }
+.film-view__badge { transition: background-color var(--duration-feedback) var(--ease-move), color var(--duration-feedback) var(--ease-move); }
 .film-view__badge .icon { width:1em; height:1em; }
 .film-view__frame:focus-visible { outline-color:var(--text-proof); outline-offset:6px; }
 .film-view__intro { grid-column:9 / -1; min-width:0; }
