@@ -73,6 +73,9 @@ function initCalendar(notice, latest, lang) {
   link.href = latest.href;
   link.setAttribute('aria-label', `${lang === 'ru' ? 'Читать последнюю запись' : 'Read the latest entry'} · ${latest.dateLabel} · ${latest.title}`);
   const toggle = calendar.querySelector('[data-calendar-toggle]');
+  // Native focus-visible can persist when a pointer clicks the already-focused control.
+  calendar.addEventListener('pointerdown', () => calendar.setAttribute('data-pointer-focus', ''), { capture: true });
+  document.addEventListener('keydown', () => calendar.removeAttribute('data-pointer-focus'), { capture: true });
   const copy = calendar.querySelector('.return-calendar__copy');
   let collapsed = window.matchMedia('(max-width: 640px)').matches;
   const sync = () => {

@@ -93,7 +93,6 @@
   grid-template-columns: minmax(0, 1fr);
   align-self: start;
   gap: 0;
-  border-top: 1px solid var(--line-dark);
 }
 
 .proof-metric {
@@ -103,7 +102,6 @@
   justify-content: flex-start;
   gap: 0.55rem;
   padding: 1.15rem;
-  border-bottom: 1px solid var(--line-dark);
 }
 
 .proof-metric strong {

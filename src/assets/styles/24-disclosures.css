@@ -1,7 +1,6 @@
 :is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index, .partner-media__sources) {
   container: disclosure / inline-size;
   min-width: 0;
-  border-block: 1px solid var(--disclosure-line, var(--line-dark));
 }
 
 :is(.bike-calendar__details, .proof-sources, .interviews__archive, .diary-index, .partner-media__sources) > summary {
