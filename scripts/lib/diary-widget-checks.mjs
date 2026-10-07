@@ -16,6 +16,7 @@ export async function checkDiaryWidget(page) {
   const hero = await bounds('.hero');
   const calendar = await bounds('#distance');
   const calendarLabel = await bounds('#distance .section-label');
+  const fitsReadingViewport = calendarLabel.top - height - hero.bottom - 32 >= height;
   await scrollTo(0);
   await widget.waitFor({ state: 'hidden' });
   assert(await widget.isHidden(), 'The hero already provides the diary action');
@@ -24,7 +25,11 @@ export async function checkDiaryWidget(page) {
   await page.waitForTimeout(220);
   assert(await widget.isHidden(), 'Fast travel cancels the pending appearance instead of flashing a card');
   await scrollTo(hero.bottom + 40);
-  await page.waitForTimeout(220);
+  if (fitsReadingViewport) await widget.waitFor({ state: 'visible' });
+  else {
+    await page.waitForTimeout(220);
+    assert(await widget.isHidden(), 'Pausing in a short gap does not reveal a transient shortcut');
+  }
   const beforeNormalScroll = await widget.isVisible();
   await scrollTo(hero.bottom + 220);
   await page.waitForTimeout(220);
