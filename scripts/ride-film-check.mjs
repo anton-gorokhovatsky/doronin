@@ -18,8 +18,12 @@ const server=await startSiteServer(process.argv[2] || 'site');
 const out='artifacts/gate/automated/ride-film';
 await mkdir(out,{recursive:true});
 const reports=[];
+const launchers={chromium,webkit};
+const engines=(process.env.RIDE_FILM_ENGINES || 'chromium,webkit').split(',').map(name=>name.trim());
+assert(engines.length>0 && engines.every(name=>launchers[name]),'Playback requires a known browser engine');
 try {
-  for (const [engine,launcher] of [['chromium',chromium],['webkit',webkit]]) {
+  for (const engine of engines) {
+    const launcher=launchers[engine];
     const browser=await launcher.launch();
     try {
       for (const [lang,width,enlarged] of [['ru',1440,false],['ru',390,false],['en',320,false],['en',390,true]]) {

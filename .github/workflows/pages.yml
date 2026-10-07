@@ -76,6 +76,9 @@ jobs:
         run: pnpm gate
         env:
           CI_BROWSER_REGRESSION_JOB: separate
+          # WebKit's media stack is platform-specific; native playback is
+          # required separately on macOS, matching Safari's target platform.
+          RIDE_FILM_ENGINES: chromium
           RELEASE_SCOPE: ${{ needs.scope.outputs.checks }}
           RELEASE_EVENT: ${{ github.event_name }}
           RELEASE_BASE: ${{ github.event.before }}
@@ -125,11 +128,48 @@ jobs:
         env:
           BROWSER_REGRESSION_ENGINES: chromium
 
+  ride-film-playback:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11.9.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install native WebKit
+        run: pnpm exec playwright install webkit
+
+      - name: Build and check archival film playback
+        run: |
+          pnpm build:site
+          node scripts/ride-film-check.mjs site
+        env:
+          RIDE_FILM_ENGINES: webkit
+
+      - name: Upload WebKit playback screenshots
+        uses: actions/upload-artifact@v7
+        with:
+          name: native-webkit-ride-film
+          path: artifacts/gate/automated/ride-film
+
   deploy:
-    if: ${{ !cancelled() && needs.quality.result == 'success' && (needs.browser-regression.result == 'success' || needs.browser-regression.result == 'skipped') }}
+    if: ${{ !cancelled() && needs.quality.result == 'success' && needs.ride-film-playback.result == 'success' && (needs.browser-regression.result == 'success' || needs.browser-regression.result == 'skipped') }}
     needs:
       - quality
       - browser-regression
+      - ride-film-playback
     runs-on: ubuntu-latest
     environment:
       name: github-pages
