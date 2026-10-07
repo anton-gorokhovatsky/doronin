@@ -749,7 +749,7 @@
 }
 
 .event-status__rail[data-status-timeline="calendar"] span {
-  height: var(--status-rise);
+  height: calc(0.24rem + var(--status-rise));
   background: hsl(var(--status-heat) 100% 60% / 0.22);
 }
 
@@ -758,7 +758,7 @@
 }
 
 .event-status__rail[data-status-timeline="calendar"] span.is-current {
-  height: 0.24rem;
+  height: 0.6rem;
   background: hsl(var(--status-heat) 100% 60%);
   box-shadow: 0 0 0.45rem hsl(var(--status-heat) 100% 60% / 0.24);
 }
@@ -777,6 +777,12 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
   line-height: 1;
+}
+
+@media (min-width: 901px) {
+  body[data-project-phase="before"] .event-status__value {
+    font-size: clamp(3.25rem, calc(1.3rem + 3.3vw), 5.6rem);
+  }
 }
 
 .event-status__label {

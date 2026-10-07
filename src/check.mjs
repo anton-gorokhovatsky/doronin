@@ -258,14 +258,14 @@ for (const [lang, path] of pages) {
   const actionCopy =
     lang === "ru"
       ? {
-          diary: "Читать дневник",
+          diary: "Дневник подготовки",
           diaryTelegram: "Дневник в Telegram",
           discuss: "Обсудить участие",
           email: "Написать по почте",
           telegram: "Написать в Telegram",
         }
       : {
-          diary: "Read the diary",
+          diary: "Preparation diary",
           diaryTelegram: "Diary on Telegram",
           discuss: "Discuss a partnership",
           email: "Send an email",
