@@ -18,6 +18,7 @@ export async function checkDiaryWidget(page) {
   const calendarLabel = await bounds('#distance .section-label');
   const roomBeforeCalendar = hero.bottom + 40 + height < calendarLabel.top;
   await scrollTo(0);
+  await widget.waitFor({ state: 'hidden' });
   assert(await widget.isHidden(), 'The hero already provides the diary action');
   await scrollTo(hero.bottom + 40);
   await scrollTo(calendar.top + 48);
@@ -37,11 +38,13 @@ export async function checkDiaryWidget(page) {
     await scrollTo(hero.bottom + 12);
     assert(await widget.isVisible(), 'Small reverse scrolling keeps a visible shortcut');
     await scrollTo(hero.bottom - 1);
+    await widget.waitFor({ state: 'hidden' });
     assert(await widget.isHidden(), 'Returning to the hero hides the duplicate action');
     await scrollTo(hero.bottom + 12);
     assert(await widget.isHidden(), 'The hero boundary has a buffer before reappearing');
   }
   await scrollTo(calendarLabel.top - height + 16);
+  await widget.waitFor({ state: 'hidden' });
   assert(await widget.isHidden(), 'The shortcut leaves calendar dates unobstructed while reading');
   await scrollTo(calendarLabel.top - height - 16);
   assert(await widget.isHidden(), 'Small reverse scrolling at the calendar does not flicker');
@@ -73,11 +76,13 @@ export async function checkDiaryWidget(page) {
 
   const film = await bounds('.ride-film__screen');
   await scrollTo(film.top - height + 16);
+  await widget.waitFor({ state: 'hidden' });
   assert(await widget.isHidden(), 'The shortcut leaves film controls unobstructed');
   await scrollTo(film.top - height - 16);
   assert(await widget.isHidden(), 'Small reverse scrolling at the film does not flicker');
   const diary = await bounds('#diary');
   await scrollTo(diary.top + 48);
+  await widget.waitFor({ state: 'hidden' });
   assert(await widget.isHidden(), 'The diary is already the reading destination');
   await scrollTo(diary.bottom + 48);
   await widget.waitFor({ state: 'visible' });
