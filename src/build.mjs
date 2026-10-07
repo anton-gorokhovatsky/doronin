@@ -239,12 +239,13 @@ const locales = {
       totalValue: "11 111",
       totalUnit: "км",
       specialLabel: "Специальный этап",
-      baseLabel: "Базовый блок",
-      finishLabel: "Финиш проекта",
-      finishMeta: "День без заявленной дистанции",
+      baseLabel: "Межэтапный блок",
+      baseDayLabel: "Базовый день",
+      plannedTotalLabel: "Плановый итог",
+      plannedMonthLabel: "По плану за декабрь",
+      openStageLabel: "Открыть этап в календаре",
+      finishLabel: "Фиксация результата",
       finishMonth: "декабря",
-      finishDetail:
-        "Команда фиксирует итоговый результат и завершает проект.",
       continuousLabel: "Один непрерывный заезд",
       oneDayLabel: "Один день",
       dailyLabel: "в день",
@@ -256,9 +257,9 @@ const locales = {
       rhythmText:
         "20 базовых дней — по 333 км; ещё два — по 338 км. Перед финальным этапом Виктор набирает ровно 10 000 км. Финальный этап — непрерывный заезд на 1111 км.",
       calendarFarTitle: "Полный календарь декабря",
-      calendarFarMeta: "11 блоков · 1–31 декабря",
+      calendarFarMeta: "1–31 декабря",
       calendarNearTitle: "План декабря",
-      calendarNearMeta: "11 блоков · 1–31 декабря",
+      calendarNearMeta: "1–31 декабря",
       calendarActiveTitle: "Календарь прохождения",
       calendarActiveMeta: "Текущий этап отмечен внутри",
       calendarFinishedTitle: "Архив плана декабря",
@@ -688,11 +689,12 @@ const locales = {
       totalUnit: "km",
       specialLabel: "Special stage",
       baseLabel: "Base block",
-      finishLabel: "Project finish",
-      finishMeta: "No scheduled distance",
+      baseDayLabel: "Base day",
+      plannedTotalLabel: "Planned total",
+      plannedMonthLabel: "Planned for December",
+      openStageLabel: "Open this stage in the calendar",
+      finishLabel: "Result confirmation",
       finishMonth: "December",
-      finishDetail:
-        "The team records the final result and brings the project to a close.",
       continuousLabel: "One continuous ride",
       oneDayLabel: "One day",
       dailyLabel: "per day",
@@ -704,9 +706,9 @@ const locales = {
       rhythmText:
         "Twenty base days cover 333 km each; two more cover 338 km. Before the final stage, Viktor reaches exactly 10,000 km. The final stage is a continuous 1111 km ride.",
       calendarFarTitle: "Full December calendar",
-      calendarFarMeta: "11 blocks · December 1–31",
+      calendarFarMeta: "December 1–31",
       calendarNearTitle: "December plan",
-      calendarNearMeta: "11 blocks · December 1–31",
+      calendarNearMeta: "December 1–31",
       calendarActiveTitle: "Race calendar",
       calendarActiveMeta: "The current planned stage is marked inside",
       calendarFinishedTitle: "December plan archive",
@@ -1234,7 +1236,7 @@ function renderCalendarSegments(plan, l) {
   return plan.segments
     .map((segment, index) => {
       cumulativeDistance += segment.totalDistanceKm;
-      const value = formatProjectNumber(segment.totalDistanceKm, l.lang);
+      const value = formatProjectNumber(segment.kind === "base" ? segment.dailyDistanceKm : segment.totalDistanceKm, l.lang);
       const cumulative = formatProjectNumber(cumulativeDistance, l.lang);
       const label =
         segment.kind === "special"
@@ -1248,49 +1250,34 @@ function renderCalendarSegments(plan, l) {
             ? l.distance.continuousLabel
             : l.distance.oneDayLabel
           : segment.kind === "base"
-            ? `${formatProjectNumber(segment.dailyDistanceKm, l.lang)}\u00a0${l.distance.totalUnit} ${l.distance.dailyLabel} · ${formatProjectNumber(segment.totalDistanceKm, l.lang)}\u00a0${l.distance.totalUnit} ${l.distance.totalBlockLabel}`
+            ? `${formatProjectNumber(segment.totalDistanceKm, l.lang)}\u00a0${l.distance.totalUnit} ${l.distance.totalBlockLabel}`
             : "";
       const calendarDate = formatCalendarRange(segment, l.lang);
       const calendarValue =
         segment.kind === "finish"
           ? ""
-          : `${value}\u00a0${l.distance.totalUnit}`;
+          : `${value}\u00a0${l.distance.totalUnit}${segment.kind === "base" ? ` ${l.distance.dailyLabel}` : ""}`;
 
       return `
         <article
-          class="bike-calendar__segment bike-calendar__segment--${segment.kind}"
+          class="calendar-program__row calendar-program__row--${segment.kind}"
           id="calendar-segment-${String(index + 1).padStart(2, "0")}"
-          style="--calendar-order:${index}"
+          data-calendar-kind="${segment.kind}"
+          data-calendar-day-label="${escapeAttribute(typographText(l.distance.baseDayLabel, l.lang))}"
           data-calendar-start="${segment.startDate}"
           data-calendar-end="${segment.endDate}"
-          data-calendar-date="${escapeAttribute(calendarDate)}"
-          data-calendar-label="${escapeAttribute(label)}"
-          data-calendar-value="${escapeAttribute(calendarValue)}"
+          data-calendar-date="${escapeAttribute(typographText(calendarDate, l.lang))}"
+          data-calendar-label="${escapeAttribute(typographText(label, l.lang))}"
+          data-calendar-value="${escapeAttribute(typographText(calendarValue, l.lang))}"
         >
-          <div class="bike-calendar__segment-meta">
-            <span>${String(index + 1).padStart(2, "0")}</span>
-            ${
-              segment.kind === "finish"
-                ? ""
-                : `<time datetime="${segment.startDate}">${formatCalendarRange(segment, l.lang)}</time>`
-            }
+          <time class="calendar-program__date" datetime="${segment.startDate}">${calendarDate}</time>
+          <div class="calendar-program__event">
+            <p class="calendar-program__name">${label}</p>
+            ${detail ? `<p class="calendar-program__note">${detail}</p>` : ""}
+            <span class="calendar-program__today" data-calendar-today hidden>${l.distance.currentStageLabel}</span>
           </div>
-          <div class="bike-calendar__segment-main">
-            <p class="bike-calendar__segment-label">${label}</p>
-            ${
-              segment.kind === "finish"
-                ? `<time class="bike-calendar__finish-date" datetime="${segment.startDate}"><strong class="bike-calendar__finish-mark" data-optical-start data-optical-leading="3">31</strong><span>${l.distance.finishMonth}</span></time>`
-                : `<p class="bike-calendar__segment-value" data-optical-start data-optical-leading="${String(value).trim().charAt(0)}"><strong>${value}</strong><span>${l.distance.totalUnit}</span></p>`
-            }
-            ${
-              segment.kind === "finish"
-                ? `<p class="bike-calendar__segment-detail bike-calendar__finish-detail">${l.distance.finishDetail}</p>`
-                : detail
-                  ? `<p class="bike-calendar__segment-detail">${detail}</p>`
-                  : ""
-            }
-          </div>
-          <p class="bike-calendar__cumulative"><span>${l.distance.totalLabel}</span><strong>${cumulative}\u00a0${l.distance.totalUnit}</strong></p>
+          ${segment.kind === "finish" ? "" : `<p class="calendar-program__distance"><strong data-optical-start>${value}</strong><span>${l.distance.totalUnit}${segment.kind === "base" ? `<small>${l.distance.dailyLabel}</small>` : ""}</span></p>`}
+          ${segment.kind === "finish" ? "" : `<p class="calendar-program__cumulative" data-plan-cumulative="${cumulativeDistance}"><span>${l.distance.plannedTotalLabel}</span><strong>${cumulative}\u00a0${l.distance.totalUnit}</strong></p>`}
         </article>`;
     })
     .join("");
@@ -1298,18 +1285,13 @@ function renderCalendarSegments(plan, l) {
 
 function renderSpecialSequence(plan, l) {
   const stages = plan.segments.filter((segment) => segment.kind === "special");
-  const totalDistance = stages.reduce(
-    (total, stage) => total + stage.totalDistanceKm,
-    0,
-  );
 
   return stages
     .map(
       (stage, index) => `
-        <li style="--calendar-order:${index};--stage-distance:${stage.totalDistanceKm};--stage-share:${((stage.totalDistanceKm / totalDistance) * 100).toFixed(6)}%">
-          <span>${String(index + 1).padStart(2, "0")}</span>
-          <strong data-optical-start>${formatProjectNumber(stage.totalDistanceKm, l.lang)}</strong>
-          <time datetime="${stage.startDate}">${formatCalendarRange(stage, l.lang)}</time>
+        <li class="calendar-poster__row${index === stages.length - 1 ? ' calendar-poster__row--final' : ''}" style="--poster-scale:${5 + index * 2.25};--poster-cap:${5 + index * 2}rem">
+          <a class="calendar-poster__date" href="#calendar-segment-${String(plan.segments.indexOf(stage) + 1).padStart(2, '0')}" aria-label="${escapeAttribute(`${formatCalendarRange(stage, l.lang)}. ${l.distance.openStageLabel}: ${stage.totalDistanceKm} ${l.distance.totalUnit}`)}"><time datetime="${stage.startDate}">${formatCalendarRange(stage, l.lang)}</time></a>
+          <p class="calendar-poster__value"><strong data-optical-start>${formatProjectNumber(stage.totalDistanceKm, l.lang)}</strong><span>${l.distance.totalUnit}</span></p>
         </li>`,
     )
     .join("");
@@ -2300,8 +2282,8 @@ function renderPage(l) {
           aria-live="polite"
           aria-atomic="true"
           data-lang="${l.lang}"
-          data-start="${shared.startDate}T00:00:00+03:00"
-          data-end="2027-01-01T00:00:00+03:00"
+          data-start="${projectPlan.period.startDate}T00:00:00+04:00"
+          data-end="${new Date(Date.parse(`${projectPlan.period.finishDate}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10)}T00:00:00+04:00"
           data-before-one="${statusForms[0]}"
           data-before-few="${statusForms[1]}"
           data-before-many="${statusForms[2]}"
@@ -2372,18 +2354,18 @@ function renderPage(l) {
     </section>
 
     <section class="distance section section--light" id="distance" aria-labelledby="distance-title">
-      <div class="section-heading">
+      <div class="section-heading" data-diary-widget-clear>
         ${renderChapterLabel(l, "#distance", l.distance.eyebrow, true)}
         <div>
           <h2 id="distance-title">${l.distance.title}</h2>
           <p>${l.distance.intro}</p>
         </div>
       </div>
-      <div class="bike-calendar">
-        <ol class="bike-calendar__sequence" aria-label="${l.distance.specialSummary}">
+      <div class="bike-calendar" data-diary-widget-clear>
+        <ol class="calendar-poster" aria-label="${l.distance.specialSummary}">
           ${renderSpecialSequence(projectPlan, l)}
         </ol>
-        <aside class="bike-calendar__current" data-calendar-current hidden>
+        <aside class="calendar-current" data-calendar-current hidden>
           <p>${l.distance.currentStageLabel}</p>
           <a href="#distance" data-calendar-current-link>
             <span data-calendar-current-date></span>
@@ -2393,7 +2375,7 @@ function renderPage(l) {
           </a>
         </aside>
         <details
-          class="bike-calendar__details"
+          class="bike-calendar__details calendar-program"
           data-calendar-details
           data-calendar-ready="${String(projectPlan.unconfirmedFacts.length === 0)}"
           data-calendar-near-days="${shared.calendarNearStartDays}"
@@ -2415,29 +2397,20 @@ function renderPage(l) {
             >${l.distance.calendarFarMeta}</small>
             ${icons.disclosure}
           </summary>
-          <div class="bike-calendar__details-body">
-            <div class="bike-calendar__rhythm">
+          <div class="calendar-program__body">
+            <div class="calendar-program__rhythm">
               <div>
                 <p>${l.distance.rhythmTitle}</p>
                 <span>${l.distance.rhythmText}</span>
               </div>
             </div>
-            <div class="bike-calendar__segments">
+            <div class="calendar-program__list">
               ${renderCalendarSegments(projectPlan, l)}
-            </div>
-            <div class="bike-calendar__total" role="img" aria-label="${l.distance.formulaLabel}">
-              <p><span>${l.distance.baseSummary}</span><strong>${l.distance.formulaBase}</strong></p>
-              <b class="bike-calendar__operator bike-calendar__operator--plus" aria-hidden="true">+</b>
-              <p><span>${l.distance.specialSummary}</span><strong>${l.distance.formulaSpecial}</strong></p>
-              <div class="bike-calendar__total-answer" data-unit="${escapeAttribute(l.distance.totalUnit)}">
-                <b class="bike-calendar__operator bike-calendar__operator--equals" aria-hidden="true">=</b>
-                <p class="bike-calendar__total-result"><span>${l.distance.totalLabel}</span><strong data-optical-start>${l.distance.formulaResult}<small>${l.distance.totalUnit}</small></strong></p>
-              </div>
             </div>
           </div>
         </details>
       </div>
-      ${renderDistanceHistory(l)}
+      <div class="calendar-progress" data-distance-progress-slot="calendar">${renderDistanceHistory(l)}</div>
       ${renderRideFilm(l, rideRecord, rideTiming, assetVersion, mediaIcons.toggle, icons.external)}
     </section>
 

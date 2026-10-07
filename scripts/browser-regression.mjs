@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+
 import { execFile } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
@@ -10,6 +12,7 @@ import { checkMenuMorph } from "./lib/menu-morph-checks.mjs";
 import { checkEditorialInitial, checkEditorialFallback, checkDeferredDecoration, checkUpperPageRoutes, selectDiaryEntry, checkDiaryReadingRoute } from "./lib/editorial-checks.mjs";
 
 const execFileAsync = promisify(execFile);
+const projectPlan = JSON.parse(await readFile(new URL("../src/project-plan.json", import.meta.url), "utf8"));
 const diaryEntries = createDiaryContent("ru").entries;
 const diaryEntryCount = diaryEntries.length;
 const diaryMedia = diaryEntries.flatMap((entry) => entry.media);
@@ -768,323 +771,100 @@ async function auditPage(browser, browserName, origin, testCase) {
     );
 
     const calendarState = await page.locator(".bike-calendar").evaluate((element) => {
-      const sequence = element.querySelector(".bike-calendar__sequence");
-      const stages = [...sequence.children];
+      const rect = (node) => node?.getBoundingClientRect().toJSON() || null;
+      const contained = (box, parent) => !box ||
+        (box.left >= parent.left - 1 && box.right <= parent.right + 1 &&
+         box.top >= parent.top - 1 && box.bottom <= parent.bottom + 1);
+      const sequence = element.querySelector(".calendar-poster");
+      const stages = [...sequence.children].map((stage) => ({
+        box: rect(stage),
+        date: rect(stage.querySelector(".calendar-poster__date")),
+        value: rect(stage.querySelector(".calendar-poster__value")),
+        unit: rect(stage.querySelector(".calendar-poster__value > span")),
+        distance: Number(stage.querySelector("strong").textContent.trim()),
+        href: stage.querySelector("a").getAttribute("href"),
+        fontSize: Number.parseFloat(getComputedStyle(stage.querySelector("strong")).fontSize),
+      }));
+      const segments = [...element.querySelectorAll(".calendar-program__row")].map((row) => {
+        const box = rect(row);
+        const parts = [...row.children].map(rect);
+        const overlaps = parts.some((a, index) => parts.slice(index + 1).some((b) =>
+          a.left < b.right - 1 && a.right > b.left + 1 &&
+          a.top < b.bottom - 1 && a.bottom > b.top + 1));
+        return {
+          id: row.id,
+          kind: row.dataset.calendarKind,
+          start: row.dataset.calendarStart,
+          end: row.dataset.calendarEnd,
+          datetime: row.querySelector("time").dateTime,
+          dateLeft: rect(row.querySelector("time")).left,
+          distance: row.querySelector(".calendar-program__distance > strong")?.textContent.trim() || null,
+          cumulative: row.querySelector("[data-plan-cumulative]")?.dataset.planCumulative || null,
+          label: row.querySelector(".calendar-program__name").textContent.trim(),
+          hasNote: Boolean(row.querySelector(".calendar-program__note")),
+          contained: parts.every((part) => contained(part, box)),
+          overlaps,
+        };
+      });
       return {
-        stageCount: stages.length,
-        segmentCount: element.querySelectorAll(".bike-calendar__segment").length,
-        stageValues: stages.map((stage) => stage.querySelector("strong")?.textContent.trim()),
-        stageWidths: stages.map((stage) => stage.getBoundingClientRect().width),
-        stageFontSizes: stages.map((stage) =>
-          Number.parseFloat(getComputedStyle(stage.querySelector("strong")).fontSize),
-        ),
+        stages, segments,
+        stageContentFits: stages.every((stage) =>
+          contained(stage.date, stage.box) && contained(stage.value, stage.box) && contained(stage.unit, stage.box)),
         sequenceDisplay: getComputedStyle(sequence).display,
-        sequenceWidth: sequence.getBoundingClientRect().width,
-        parentWidth: element.getBoundingClientRect().width,
+        sequenceWidth: rect(sequence).width,
+        parentWidth: rect(element).width,
+        finishLabel: element.querySelector(".calendar-program__row--finish .calendar-program__name").textContent.trim(),
       };
     });
+    let cumulativeDistance = 0;
+    const expectedSegments = projectPlan.segments.map((segment, index) => {
+      cumulativeDistance += segment.totalDistanceKm;
+      return {
+        id: `calendar-segment-${String(index + 1).padStart(2, "0")}`,
+        kind: segment.kind, start: segment.startDate, end: segment.endDate,
+        distance: segment.kind === "finish" ? null :
+          String(segment.kind === "base" ? segment.dailyDistanceKm : segment.totalDistanceKm),
+        cumulative: segment.kind === "finish" ? null : String(cumulativeDistance),
+      };
+    });
+    const actualSegments = calendarState.segments.map(({id, kind, start, end, distance, cumulative}) =>
+      ({id, kind, start, end, distance, cumulative}));
+    const expectedStageLinks = expectedSegments.filter((segment) => segment.kind === "special").map((segment) => `#${segment.id}`);
     expect(
-      calendarState.stageCount === 5 &&
-        calendarState.segmentCount === 11 &&
-        calendarState.stageValues.join(",") === "333,555,777,999,1111" &&
-        calendarState.sequenceWidth <= calendarState.parentWidth + 1,
-      `${prefix}: canonical cycling calendar regressed (${JSON.stringify(calendarState)})`,
+      calendarState.stages.length === projectPlan.specialSequenceKm.length &&
+        calendarState.stages.map((stage) => stage.distance).join(",") === projectPlan.specialSequenceKm.join(",") &&
+        calendarState.stages.map((stage) => stage.href).join(",") === expectedStageLinks.join(",") &&
+        JSON.stringify(actualSegments) === JSON.stringify(expectedSegments),
+      `${prefix}: poster or full calendar differs from the canonical plan (${JSON.stringify(calendarState)})`,
     );
-    if (testCase.viewport.width > 820) {
-      const firstRowWidth = calendarState.stageWidths
-        .slice(0, 3)
-        .reduce((sum, width) => sum + width, 0);
-      const secondRowWidth = calendarState.stageWidths
-        .slice(3)
-        .reduce((sum, width) => sum + width, 0);
-      const widthErrors = [
-        ...calendarState.stageWidths
-          .slice(0, 3)
-          .map((width, index) =>
-            Math.abs(width / firstRowWidth - [333, 555, 777][index] / 1665),
-          ),
-        ...calendarState.stageWidths
-          .slice(3)
-          .map((width, index) =>
-            Math.abs(width / secondRowWidth - [999, 1111][index] / 2110),
-          ),
-      ];
-      expect(
-        calendarState.sequenceDisplay === "grid" &&
-          Math.max(...widthErrors) <= 0.01 &&
-          Math.max(...calendarState.stageFontSizes) -
-            Math.min(...calendarState.stageFontSizes) <=
-            0.5,
-        `${prefix}: special-stage rows lose proportional widths or equal number sizes (${JSON.stringify({ ...calendarState, widthErrors })})`,
-      );
-    }
+    expect(
+      calendarState.sequenceDisplay === "grid" &&
+        calendarState.sequenceWidth <= calendarState.parentWidth + 1 &&
+        calendarState.stageContentFits &&
+        calendarState.stages.every((stage, index, rows) => index === 0 ||
+          (stage.box.top >= rows[index - 1].box.bottom - 1 && stage.fontSize > rows[index - 1].fontSize)) &&
+        calendarState.stages.every((stage) => stage.date.height >= 44 &&
+          (testCase.viewport.width <= 720 ? stage.value.top >= stage.date.bottom - 1 :
+            stage.value.left >= stage.date.right - 1)),
+      `${prefix}: poster loses its increasing type, target sizes or non-overlapping rows (${JSON.stringify(calendarState.stages)})`,
+    );
+    const finish = calendarState.segments.at(-1);
+    expect(
+      calendarState.segments.every((segment) => segment.contained && !segment.overlaps && segment.datetime === segment.start) &&
+        Math.max(...calendarState.segments.map((segment) => segment.dateLeft)) -
+          Math.min(...calendarState.segments.map((segment) => segment.dateLeft)) <= 1 &&
+        finish.kind === "finish" && !finish.hasNote && finish.distance === null && finish.cumulative === null &&
+        calendarState.finishLabel === (testCase.path.startsWith("/en/") ? "Result confirmation" : "Фиксация результата"),
+      `${prefix}: calendar rows overlap, lose their date axis or repeat a distance at the finish (${JSON.stringify(calendarState.segments)})`,
+    );
 
-    const calendarComposition = await page.locator(".bike-calendar").evaluate(
-      (element) => {
-        const rect = (node) => node?.getBoundingClientRect() || null;
-        const rhythmMetrics = [
-          ...element.querySelectorAll(".bike-calendar__rhythm dl > div"),
-        ].map((metric) => {
-          const value = rect(metric.querySelector("dt"));
-          const label = rect(metric.querySelector("dd"));
-          return {
-            gap: value && label ? label.top - value.bottom : null,
-            label: metric.querySelector("dd")?.textContent.trim() || "",
-            value: metric.querySelector("dt")?.textContent.trim() || "",
-          };
-        });
-        const finish = element.querySelector(".bike-calendar__segment--finish");
-        const finishMeta = rect(finish?.querySelector(".bike-calendar__segment-meta"));
-        const finishMain = rect(finish?.querySelector(".bike-calendar__segment-main"));
-        const finishLabel = rect(finish?.querySelector(".bike-calendar__segment-label"));
-        const finishValue = rect(finish?.querySelector(".bike-calendar__finish-mark"));
-        const finishTotal = rect(finish?.querySelector(".bike-calendar__cumulative"));
-        const terms = [
-          ...element.querySelectorAll(".bike-calendar__total > p strong"),
-          element.querySelector(".bike-calendar__total-result strong"),
-        ].map(rect);
-        const operators = [
-          ...element.querySelectorAll(".bike-calendar__operator"),
-        ].map(rect);
-        const totalBox = rect(element.querySelector(".bike-calendar__total"));
-        const sourceRows = [
-          ...element.querySelectorAll(".bike-calendar__total > p"),
-        ].map((row) => ({
-          box: rect(row),
-          label: rect(row.querySelector("span")),
-          value: rect(row.querySelector("strong")),
-        }));
-        const answerBox = rect(
-          element.querySelector(".bike-calendar__total-answer"),
-        );
-        const answerLabel = rect(
-          element.querySelector(".bike-calendar__total-result > span"),
-        );
-        const answerValue = rect(
-          element.querySelector(".bike-calendar__total-result > strong"),
-        );
-        const center = (box) => box.top + box.height / 2;
-        const segmentGroups = [
-          ...element.querySelectorAll(
-            ".bike-calendar__segment:not(.bike-calendar__segment--finish)",
-          ),
-        ].map((segment) => {
-          const label = rect(segment.querySelector(".bike-calendar__segment-label"));
-          const value = rect(segment.querySelector(".bike-calendar__segment-value"));
-          const detail = rect(segment.querySelector(".bike-calendar__segment-detail"));
-          const total = rect(segment.querySelector(".bike-calendar__cumulative"));
-          return {
-            labelValueGap: label && value ? value.top - label.bottom : null,
-            valueDetailGap: value && detail ? detail.top - value.bottom : null,
-            detailTotalGap: detail && total ? total.top - detail.bottom : null,
-          };
-        });
-        const sequenceRows = [
-          ...element.querySelectorAll(".bike-calendar__sequence li"),
-        ].map((row) => {
-          const rowBox = rect(row);
-          const index = rect(row.querySelector("span"));
-          const value = rect(row.querySelector("strong"));
-          const date = rect(row.querySelector("time"));
-          return {
-            contained: [index, value, date].every(
-              (box) =>
-                box.left >= rowBox.left - 1 &&
-                box.right <= rowBox.right + 1 &&
-                box.top >= rowBox.top - 1 &&
-                box.bottom <= rowBox.bottom + 1,
-            ),
-            date: row.querySelector("time")?.textContent.trim() || "",
-            indexLeft: rowBox.left + row.querySelector("span").offsetLeft,
-            rowBottom: rowBox.bottom,
-            rowTop: rowBox.top,
-            valueLeft: rowBox.left + row.querySelector("strong").offsetLeft,
-          };
-        });
-        const calendarSegments = [
-          ...element.querySelectorAll(".bike-calendar__segment"),
-        ].map((segment) => {
-          const segmentBox = rect(segment);
-          const meta = rect(segment.querySelector(".bike-calendar__segment-meta"));
-          const main = rect(segment.querySelector(".bike-calendar__segment-main"));
-          const label = rect(segment.querySelector(".bike-calendar__segment-label"));
-          const value = rect(
-            segment.querySelector(
-              ".bike-calendar__segment-value, .bike-calendar__finish-mark",
-            ),
-          );
-          const detail = rect(segment.querySelector(".bike-calendar__segment-detail"));
-          const total = rect(segment.querySelector(".bike-calendar__cumulative"));
-          return {
-            axes: [meta, main, label, detail, total]
-              .filter(Boolean)
-              .map((box) => box.left),
-            contained: [meta, main, label, value, detail, total]
-              .filter(Boolean)
-              .every(
-                (box) =>
-                  box.left >= segmentBox.left - 1 &&
-                  box.right <= segmentBox.right + 1 &&
-                  box.top >= segmentBox.top - 1 &&
-                  box.bottom <= segmentBox.bottom + 1,
-              ),
-            isFinish: segment.classList.contains("bike-calendar__segment--finish"),
-            width: segmentBox.width,
-          };
-        });
-        return {
-          calendarSegments,
-          finish: {
-            detailCount: finish?.querySelectorAll(
-              ".bike-calendar__segment-detail",
-            ).length,
-            detailText:
-              finish?.querySelector(".bike-calendar__finish-detail")?.textContent.trim() || "",
-            metaText:
-              finish?.querySelector(".bike-calendar__segment-meta")?.textContent.trim() || "",
-            monthText:
-              finish?.querySelector(".bike-calendar__finish-date span")?.textContent.trim() || "",
-            labelValueGap:
-              finishLabel && finishValue ? finishValue.top - finishLabel.bottom : null,
-            mainContained:
-              finishMeta && finishMain && finishTotal
-                ? finishMain.top >= finishMeta.bottom &&
-                  finishMain.bottom <= finishTotal.top
-                : false,
-          },
-          formulaOperatorDeltas: operators.map((operator, index) => {
-            const leftTerm = terms[index];
-            const rightTerm = terms[index + 1];
-            if (innerWidth <= 820 && index === 1) {
-              return Math.abs(center(operator) - center(rightTerm));
-            }
-            return Math.max(
-              Math.abs(center(operator) - center(leftTerm)),
-              Math.abs(center(operator) - center(rightTerm)),
-            );
-          }),
-          formulaOperatorVisibility: operators.map(
-            (operator) => Boolean(operator && operator.width > 0 && operator.height > 0),
-          ),
-          mobileFormula: {
-            totalBox,
-            sourceRows,
-            answerBox,
-            answerLabel,
-            answerValue,
-          },
-          rhythmMetrics,
-          segmentGroups,
-          sequenceRows,
-        };
-      },
-    );
-    expect(
-      calendarComposition.rhythmMetrics.every(
-        (metric) =>
-          metric.gap >= 0 &&
-          metric.gap <= 24 &&
-          !metric.label.startsWith(metric.value),
-      ),
-      `${prefix}: calendar summary repeats values or breaks proximity (${JSON.stringify(calendarComposition.rhythmMetrics)})`,
-    );
-    expect(
-      calendarComposition.finish.detailCount === 1 &&
-        calendarComposition.finish.detailText.length > 0 &&
-        calendarComposition.finish.metaText.length > 0 &&
-        calendarComposition.finish.monthText.length > 0 &&
-        calendarComposition.finish.mainContained &&
-        calendarComposition.finish.labelValueGap >= 0,
-      `${prefix}: calendar finish card overlaps or repeats its date (${JSON.stringify(calendarComposition.finish)})`,
-    );
-    expect(
-      calendarComposition.calendarSegments.every(
-        (segment) =>
-          segment.contained &&
-          Math.max(...segment.axes) - Math.min(...segment.axes) <= 1,
-      ) &&
-        (testCase.viewport.width <= 820 ||
-          calendarComposition.calendarSegments.find((segment) => segment.isFinish)
-            ?.width >=
-            Math.max(
-              ...calendarComposition.calendarSegments
-                .filter((segment) => !segment.isFinish)
-                .map((segment) => segment.width),
-            ) *
-              1.9),
-      `${prefix}: calendar cards lose the shared text axis or the desktop finish row (${JSON.stringify(calendarComposition.calendarSegments)})`,
-    );
-    if (testCase.viewport.width > 820) {
-      expect(
-        calendarComposition.formulaOperatorVisibility.length === 2 &&
-          calendarComposition.formulaOperatorVisibility.every(Boolean) &&
-          calendarComposition.formulaOperatorDeltas.every((delta) => delta <= 3),
-        `${prefix}: desktop calendar formula hides a sign or loses its shared optical centre (${JSON.stringify({ deltas: calendarComposition.formulaOperatorDeltas, visibility: calendarComposition.formulaOperatorVisibility })})`,
-      );
-    } else {
-      const { totalBox, sourceRows, answerBox, answerLabel, answerValue } =
-        calendarComposition.mobileFormula;
-      const contained = (box, parent) =>
-        box &&
-        parent &&
-        box.left >= parent.left - 1 &&
-        box.right <= parent.right + 1 &&
-        box.top >= parent.top - 1 &&
-        box.bottom <= parent.bottom + 1;
-      expect(
-        calendarComposition.formulaOperatorVisibility.length === 2 &&
-          calendarComposition.formulaOperatorVisibility.every((visible) => !visible) &&
-          sourceRows.length === 2 &&
-          sourceRows.every(
-            ({ box, label, value }) =>
-              contained(box, totalBox) &&
-              contained(label, box) &&
-              contained(value, box),
-          ) &&
-          Math.max(...sourceRows.map(({ box }) => box.left)) -
-            Math.min(...sourceRows.map(({ box }) => box.left)) <=
-            1 &&
-          Math.max(...sourceRows.map(({ box }) => box.right)) -
-            Math.min(...sourceRows.map(({ box }) => box.right)) <=
-            1 &&
-          contained(answerBox, totalBox) &&
-          contained(answerLabel, answerBox) &&
-          contained(answerValue, answerBox) &&
-          Math.abs(answerBox.left - totalBox.left) <= 1 &&
-          Math.abs(answerBox.right - totalBox.right) <= 1,
-        `${prefix}: mobile calendar calculation must be two aligned source rows and one contained result card (${JSON.stringify(calendarComposition.mobileFormula)})`,
-      );
-    }
-    if (testCase.viewport.width <= 820) {
-      expect(
-        calendarComposition.segmentGroups.every(
-          (group) =>
-            group.labelValueGap >= 0 &&
-            group.labelValueGap <= 48 &&
-            group.valueDetailGap >= 0 &&
-            group.valueDetailGap <= 40 &&
-            group.detailTotalGap >= 0 &&
-            group.detailTotalGap <= 48,
-        ),
-        `${prefix}: mobile calendar breaks vertical proximity (${JSON.stringify(calendarComposition.segmentGroups)})`,
-      );
-      expect(
-        calendarComposition.sequenceRows.every(
-          (row) => row.contained && !/декабрь$/iu.test(row.date),
-        ) &&
-          calendarComposition.sequenceRows.every(
-            (row, index, rows) =>
-              index === 0 || row.rowTop >= rows[index - 1].rowBottom - 1,
-          ) &&
-          Math.max(...calendarComposition.sequenceRows.map((row) => row.indexLeft)) -
-            Math.min(...calendarComposition.sequenceRows.map((row) => row.indexLeft)) <=
-            1 &&
-          Math.max(...calendarComposition.sequenceRows.map((row) => row.valueLeft)) -
-            Math.min(...calendarComposition.sequenceRows.map((row) => row.valueLeft)) <=
-            1,
-        `${prefix}: mobile stage list loses its shared axes or date grammar (${JSON.stringify(calendarComposition.sequenceRows)})`,
-      );
-    }
+    // A date in the poster opens the full program with native keyboard navigation.
+    await calendarDetails.locator("summary").click();
+    const finalStageDate = page.locator(".calendar-poster__date").last();
+    await finalStageDate.focus();
+    await finalStageDate.press("Enter");
+    await page.waitForFunction(() => document.querySelector("[data-calendar-details]").open &&
+      location.hash === "#calendar-segment-10");
 
     if (testCase.viewport.width > 960) {
       const stickyState = await page.locator(".athlete").evaluate(async (section) => {
@@ -1458,7 +1238,7 @@ async function auditPage(browser, browserName, origin, testCase) {
         };
       });
       expect(
-        (await page.locator(".bike-calendar__sequence > li").count()) === 5 &&
+        (await page.locator(".calendar-poster > li").count()) === 5 &&
           mobileSurfaceFixes.notesDividerImage === "none" &&
           (browserName !== "webkit" ||
             mobileSurfaceFixes.proofHangingPunctuation === "none"),
@@ -1541,12 +1321,15 @@ async function auditPage(browser, browserName, origin, testCase) {
               calendarPhase: document.body.dataset.calendarPhase,
               calendarReady: document.body.dataset.calendarReady,
               currentCount: document.querySelectorAll(
-                '.bike-calendar__segment[aria-current="step"]',
+                '.calendar-program__row[aria-current="step"]',
               ).length,
               currentHidden: current?.hidden ?? true,
               currentHref: current
                 ?.querySelector("[data-calendar-current-link]")
                 ?.getAttribute("href"),
+              currentDate: current?.querySelector("[data-calendar-current-date]")?.textContent.replace(/\s+/g, " ").trim(),
+              currentTitle: current?.querySelector("[data-calendar-current-title]")?.textContent.trim(),
+              currentValue: current?.querySelector("[data-calendar-current-value]")?.textContent.replace(/\s+/g, " ").trim(),
               name: phaseName,
               open: details?.open ?? false,
               projectPhase: document.body.dataset.projectPhase,
@@ -1571,6 +1354,9 @@ async function auditPage(browser, browserName, origin, testCase) {
           active.currentCount === 1 &&
           active.currentHidden === false &&
           active.currentHref === "#calendar-segment-06" &&
+          active.currentDate === "15 декабря" &&
+          active.currentTitle === "Базовый день" &&
+          active.currentValue === "333 км в день" &&
           active.title === "Календарь прохождения" &&
           finished.projectPhase === "finished" &&
           finished.calendarPhase === "finished" &&

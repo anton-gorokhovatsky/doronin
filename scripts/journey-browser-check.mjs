@@ -65,6 +65,9 @@ try {
         }
         assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
         assert.deepEqual(errors,[]);
+        await page.locator('#distance .section-heading').scrollIntoViewIfNeeded();
+        await page.locator('.return-calendar').waitFor({state:'hidden'});
+        assert(await page.locator('.return-calendar').isHidden(), 'The diary widget must leave the calendar heading unobstructed');
         await page.locator('[data-ride-film]').scrollIntoViewIfNeeded();
         assert.equal(await page.locator('[data-ride-film]').evaluate(el=>el.tagName),'ARTICLE');
         assert(await page.locator('[data-film-map]').isVisible());

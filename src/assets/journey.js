@@ -165,17 +165,27 @@ function initCalendar(notice, latest, lang) {
   window.addEventListener('resize', finish, { passive: true });
   sync();
   document.body.append(calendar);
-  // The footer already contains the diary link; keep its links and legal text clear.
-  const footer = document.querySelector('.site-footer');
-  if (footer) {
-    const syncFooter = visible => {
-      if (visible) finish();
-      calendar.hidden = visible;
-    };
-    const box = footer.getBoundingClientRect();
-    syncFooter(box.top < window.innerHeight && box.bottom > 0);
-    new IntersectionObserver(([entry]) => syncFooter(entry.isIntersecting)).observe(footer);
+  // Keep the footer and calendar dates clear of the fixed diary shortcut.
+  const clearRegions = document.querySelectorAll('.site-footer, [data-diary-widget-clear]');
+  const visibleRegions = new Set();
+  const syncClearRegions = () => {
+    const hidden = visibleRegions.size > 0;
+    if (hidden) finish();
+    calendar.hidden = hidden;
+  };
+  const clearObserver = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) visibleRegions.add(entry.target);
+      else visibleRegions.delete(entry.target);
+    }
+    syncClearRegions();
+  });
+  for (const region of clearRegions) {
+    const box = region.getBoundingClientRect();
+    if (box.top < window.innerHeight && box.bottom > 0) visibleRegions.add(region);
+    clearObserver.observe(region);
   }
+  syncClearRegions();
   return calendar;
 }
 if (typeof document !== 'undefined') initUpdates();

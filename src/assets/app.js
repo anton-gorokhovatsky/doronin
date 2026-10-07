@@ -1103,9 +1103,9 @@ if (eventStatus) {
     const calendarSegments = [
       ...calendarDetails.querySelectorAll("[data-calendar-start]"),
     ];
-    const projectDate = new Date(now.getTime() + 3 * 60 * 60 * 1000)
-      .toISOString()
-      .slice(0, 10);
+    const projectDate = new Intl.DateTimeFormat("en-CA", {
+      year: "numeric", month: "2-digit", day: "2-digit", timeZone: "Asia/Dubai",
+    }).format(now);
     const currentSegment =
       calendarPhase === "active"
         ? calendarSegments.find(
@@ -1134,6 +1134,8 @@ if (eventStatus) {
     }
 
     for (const segment of calendarSegments) {
+      const today = segment.querySelector("[data-calendar-today]");
+      if (today) today.hidden = segment !== currentSegment;
       if (segment === currentSegment) {
         segment.setAttribute("aria-current", "step");
       } else {
@@ -1162,10 +1164,16 @@ if (eventStatus) {
 
         if (currentLink) currentLink.href = `#${currentSegment.id}`;
         if (currentDate) {
-          currentDate.textContent = currentSegment.dataset.calendarDate || "";
+          currentDate.textContent = currentSegment.dataset.calendarKind === "base"
+            ? new Intl.DateTimeFormat(eventStatus.dataset.lang === "ru" ? "ru-RU" : "en-GB", {
+              day: "numeric", month: "long", timeZone: "Asia/Dubai",
+            }).format(now).replace(/ /g, "\u00a0")
+            : currentSegment.dataset.calendarDate || "";
         }
         if (currentTitle) {
-          currentTitle.textContent = currentSegment.dataset.calendarLabel || "";
+          currentTitle.textContent = currentSegment.dataset.calendarKind === "base"
+            ? currentSegment.dataset.calendarDayLabel
+            : currentSegment.dataset.calendarLabel || "";
         }
         if (currentValue) {
           currentValue.textContent = currentSegment.dataset.calendarValue || "";

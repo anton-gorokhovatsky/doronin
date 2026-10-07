@@ -516,38 +516,44 @@ for (const [lang, path] of pages) {
   );
   expect(
     html.includes('class="bike-calendar"') &&
-      html.includes('class="bike-calendar__details"') &&
+      html.includes('class="bike-calendar__details calendar-program"') &&
       html.includes("data-calendar-details") &&
       html.includes('data-calendar-ready="false"') &&
       html.includes('data-calendar-near-days="30"') &&
       html.includes("data-calendar-current") &&
       (html.match(/data-calendar-phase-copy/g) || []).length === 2 &&
-      (html.match(/class="bike-calendar__segment bike-calendar__segment--/g) || [])
+      (html.match(/class="calendar-program__row calendar-program__row--/g) || [])
         .length === projectPlan.segments.length &&
       (html.match(/id="calendar-segment-\d{2}"/g) || []).length ===
         projectPlan.segments.length &&
-      (html.match(/<li style="--calendar-order:/g) || []).length ===
+      (html.match(/<li class="calendar-poster__row/g) || []).length ===
       projectPlan.specialSequenceKm.length &&
       projectPlan.specialSequenceKm.every((distance) =>
         html.includes(`>${distance}</strong>`),
       ),
     `${lang}: календарь должен оставлять пять вершин на поверхности и рендерить все сегменты плана в фазовом раскрытии`,
   );
+  const ridingSegments = projectPlan.segments.filter((segment) => segment.kind !== "finish");
+  let plannedDistance = 0;
+  const expectedCumulative = ridingSegments.map((segment) => plannedDistance += segment.totalDistanceKm);
+  const actualCumulative = [...html.matchAll(/data-plan-cumulative="(\d+)"/gu)].map(([, value]) => Number(value));
   expect(
-    (html.match(/class="bike-calendar__operator /g) || []).length === 2 &&
-      html.includes('bike-calendar__operator--plus') &&
-      html.includes('bike-calendar__operator--equals'),
-    `${lang}: календарная формула должна сохранять оба видимых арифметических знака`,
+    JSON.stringify(actualCumulative) === JSON.stringify(expectedCumulative) &&
+      actualCumulative.at(-1) === projectPlan.targetDistanceKm,
+    `${lang}: накопительный план должен вычисляться из канонических сегментов и завершаться один раз`,
   );
   expect(
     html.includes('class="hero-peaks"') &&
       (html.match(/data-date="2026-12-/g) || []).length === 5,
     `${lang}: первый экран должен показывать пять календарных вершин`,
   );
+  const finishRow = html.match(/<article\b[^>]*class="calendar-program__row calendar-program__row--finish"[\s\S]*?<\/article>/u)?.[0] || "";
   expect(
-    html.includes('class="bike-calendar__finish-date"') &&
-      html.includes('class="bike-calendar__segment-detail bike-calendar__finish-detail"'),
-    `${lang}: финиш должен объяснять последний календарный день, а не выглядеть новой дистанцией`,
+    finishRow.includes(`datetime="${projectPlan.period.finishDate}"`) &&
+      finishRow.includes(lang === "ru" ? "Фиксация результата" : "Result confirmation") &&
+      !finishRow.includes('class="calendar-program__distance"') &&
+      !finishRow.includes("data-plan-cumulative"),
+    `${lang}: 31 декабря фиксирует результат без новой дистанции и повторного планового итога`,
   );
   expect(
     html.includes("54\u00a0×\u00a036"),
@@ -876,31 +882,12 @@ expect(
   "css: декабрь должен завершать календарную шкалу красной зоной",
 );
 expect(
-  /\.bike-calendar\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s.test(
-    css,
-  ) &&
-    /\.bike-calendar__sequence\s*\{[^}]*display:\s*grid[^}]*grid-template-columns:\s*repeat\(15,/s.test(
-      css,
-    ) &&
-    /\.bike-calendar__sequence li:nth-child\(1\)\s*\{[^}]*grid-column:\s*span 3/s.test(
-      css,
-    ) &&
-    /\.bike-calendar__sequence li:nth-child\(3\)\s*\{[^}]*grid-column:\s*span 7/s.test(
-      css,
-    ) &&
-    /\.bike-calendar__sequence li:nth-child\(5\)\s*\{[^}]*grid-column:\s*span 8/s.test(
-      css,
-    ) &&
-    /\.bike-calendar__segment--finish\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/s.test(
-      css,
-    ) &&
-    /\.bike-calendar__details-body\s*\{[^}]*display:\s*grid/s.test(
-      css,
-    ) &&
-    /@media \(max-width:\s*820px\)[\s\S]*?\.bike-calendar__sequence\s*\{[^}]*grid-template-columns:\s*1fr[^}]*width:\s*100%[^}]*min-width:\s*0/s.test(
-      css,
-    ),
-  "css: календарь должен иметь фазовое раскрытие, одну колонку на mobile, две пропорциональные строки этапов и полноширинный финиш на desktop",
+  /\.calendar-poster\s*\{[^}]*container:\s*poster\s*\/\s*inline-size[^}]*display:\s*grid/s.test(css) &&
+    css.includes(".calendar-poster__row--final::before") &&
+    css.includes("background: var(--acid)") &&
+    /@media \(max-width:\s*720px\)[\s\S]*?\.calendar-poster__row\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s.test(css) &&
+    css.includes(":root.text-enlarged .calendar-program__row"),
+  "css: афиша должна использовать общий акцент, вертикальный ритм на телефоне и reflow при увеличении текста",
 );
 expect(
   !css.includes("--icon-motion-") &&
