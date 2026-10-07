@@ -199,7 +199,18 @@ function initCalendar(notice, latest, lang) {
     readingDiary = readingRegion(diary, readingDiary);
     readingFilm = readingRegion(film, readingFilm);
     readingFooter = readingRegion(footer, readingFooter);
-    const hidden = !pastHero || readingCalendar || readingDiary || readingFilm || readingFooter;
+    const blockers = [
+      calendarBox && { top: calendarTop, bottom: calendarBox.bottom },
+      ...[diary, film, footer].filter(Boolean).map(region => region.getBoundingClientRect()),
+    ].filter(Boolean);
+    const gapStart = Math.max(heroBottom + boundaryGap,
+      ...blockers.filter(box => box.bottom <= 0).map(box => box.bottom + boundaryGap));
+    const gapEnd = Math.min(Infinity,
+      ...blockers.filter(box => box.top >= window.innerHeight).map(box => box.top - window.innerHeight));
+    // A pause alone does not make a short gap useful. Measure the whole reading
+    // stretch, so a card cannot appear for one wheel step before disappearing.
+    const hasReadingSpace = gapEnd - gapStart >= window.innerHeight;
+    const hidden = !pastHero || readingCalendar || readingDiary || readingFilm || readingFooter || !hasReadingSpace;
     clearTimeout(revealTimer);
     if (hidden) {
       if (!calendar.hidden) finish();

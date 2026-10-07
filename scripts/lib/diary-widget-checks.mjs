@@ -16,7 +16,6 @@ export async function checkDiaryWidget(page) {
   const hero = await bounds('.hero');
   const calendar = await bounds('#distance');
   const calendarLabel = await bounds('#distance .section-label');
-  const roomBeforeCalendar = hero.bottom + 40 + height < calendarLabel.top;
   await scrollTo(0);
   await widget.waitFor({ state: 'hidden' });
   assert(await widget.isHidden(), 'The hero already provides the diary action');
@@ -24,10 +23,15 @@ export async function checkDiaryWidget(page) {
   await scrollTo(calendar.top + 48);
   await page.waitForTimeout(220);
   assert(await widget.isHidden(), 'Fast travel cancels the pending appearance instead of flashing a card');
-  if (roomBeforeCalendar) {
+  await scrollTo(hero.bottom + 40);
+  await page.waitForTimeout(220);
+  const beforeNormalScroll = await widget.isVisible();
+  await scrollTo(hero.bottom + 220);
+  await page.waitForTimeout(220);
+  assert.equal(await widget.isVisible(), beforeNormalScroll,
+    'One ordinary scroll must not flash a shortcut in the short gap before the calendar');
+  if (beforeNormalScroll) {
     await scrollTo(hero.bottom + 40);
-    await widget.waitFor({ state: 'visible' });
-    assert(await widget.isVisible(), 'The shortcut appears after the first screen');
     // The reported regression: the heading alone entering the bottom of the
     // viewport must not immediately dismiss the shortcut.
     const headingPeek = Math.max(hero.bottom + 40, calendar.top - height + 24);
@@ -51,6 +55,8 @@ export async function checkDiaryWidget(page) {
   const diaryBeforeToggle = await bounds('#diary');
   await scrollTo(diaryBeforeToggle.bottom + 48);
   await widget.waitFor({ state: 'visible' });
+  await scrollTo(diaryBeforeToggle.bottom + 228);
+  assert(await widget.isVisible(), 'The shortcut stays visible through an ordinary scroll in a reading stretch');
 
   const expanded = await toggle.getAttribute('aria-expanded');
   await toggle.press('Enter');
