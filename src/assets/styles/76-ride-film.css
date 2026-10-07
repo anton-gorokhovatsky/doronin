@@ -3,7 +3,6 @@
   /* Keep the shared theme's illumination continuous across this transition. */
   background-attachment: fixed;
 }
-html.ride-film-in-view .return-calendar { visibility: hidden; pointer-events: none; }
 .ride-film {
   --film-mobile-focal: 32%;
   position: relative;

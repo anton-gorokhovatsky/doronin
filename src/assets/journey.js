@@ -165,27 +165,65 @@ function initCalendar(notice, latest, lang) {
   window.addEventListener('resize', finish, { passive: true });
   sync();
   document.body.append(calendar);
-  // Keep the footer and calendar dates clear of the fixed diary shortcut.
-  const clearRegions = document.querySelectorAll('.site-footer, [data-diary-widget-clear]');
-  const visibleRegions = new Set();
-  const syncClearRegions = () => {
-    const hidden = visibleRegions.size > 0;
-    if (hidden) finish();
-    calendar.hidden = hidden;
-  };
-  const clearObserver = new IntersectionObserver(entries => {
-    for (const entry of entries) {
-      if (entry.isIntersecting) visibleRegions.add(entry.target);
-      else visibleRegions.delete(entry.target);
-    }
-    syncClearRegions();
-  });
-  for (const region of clearRegions) {
+  // A persistent shortcut between reading destinations, independent of scroll
+  // direction or the individual calendar blocks entering the viewport.
+  const hero = document.querySelector('.hero');
+  const diary = document.querySelector('#diary');
+  const projectCalendar = document.querySelector('#distance');
+  const calendarStart = projectCalendar?.querySelector('.section-label');
+  const film = document.querySelector('.ride-film__screen');
+  const footer = document.querySelector('.site-footer');
+  const boundaryGap = 32;
+  let pastHero = false;
+  let readingDiary = false;
+  let readingCalendar = false;
+  let readingFilm = false;
+  let readingFooter = false;
+  let revealTimer = 0;
+  const readingRegion = (region, wasReading) => {
+    if (!region) return false;
     const box = region.getBoundingClientRect();
-    if (box.top < window.innerHeight && box.bottom > 0) visibleRegions.add(region);
-    clearObserver.observe(region);
+    // Leave a small buffer when returning across a section boundary, so tiny
+    // scroll reversals cannot repeatedly hide and show the same control.
+    const buffer = wasReading ? boundaryGap : 0;
+    return box.top < window.innerHeight + buffer && box.bottom > -buffer;
+  };
+  const syncVisibility = () => {
+    const heroBottom = hero?.getBoundingClientRect().bottom ?? -Infinity;
+    pastHero = heroBottom <= (pastHero ? 0 : -boundaryGap);
+    const calendarBox = projectCalendar?.getBoundingClientRect();
+    const calendarTop = calendarStart?.getBoundingClientRect().top ?? calendarBox?.top;
+    readingCalendar = Boolean(calendarBox &&
+      calendarTop < window.innerHeight + (readingCalendar ? boundaryGap : 0) &&
+      calendarBox.bottom > (readingCalendar ? -boundaryGap : 0));
+    readingDiary = readingRegion(diary, readingDiary);
+    readingFilm = readingRegion(film, readingFilm);
+    readingFooter = readingRegion(footer, readingFooter);
+    const hidden = !pastHero || readingCalendar || readingDiary || readingFilm || readingFooter;
+    clearTimeout(revealTimer);
+    if (hidden) {
+      if (!calendar.hidden) finish();
+      calendar.hidden = true;
+    } else if (calendar.hidden) {
+      // Fast travel through an eligible gap should not flash a card for an
+      // instant. Once shown, ordinary scrolling never restarts its visibility.
+      revealTimer = setTimeout(() => { calendar.hidden = false; }, 180);
+    }
+  };
+  let visibilityFrame = 0;
+  const scheduleVisibility = () => {
+    if (visibilityFrame) return;
+    visibilityFrame = requestAnimationFrame(() => {
+      visibilityFrame = 0;
+      syncVisibility();
+    });
+  };
+  window.addEventListener('scroll', scheduleVisibility, { passive: true });
+  window.addEventListener('resize', scheduleVisibility, { passive: true });
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(scheduleVisibility).observe(document.querySelector('main'));
   }
-  syncClearRegions();
+  syncVisibility();
   return calendar;
 }
 if (typeof document !== 'undefined') initUpdates();

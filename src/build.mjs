@@ -2261,7 +2261,7 @@ function renderPage(l) {
                 <span class="hero__intro-default">${l.hero.intro}</span>
               </p>
             </div>
-            <div class="hero__actions" data-diary-widget-clear>
+            <div class="hero__actions">
               <a class="button button--primary action-primary" href="#diary" data-analytics-goal="diary_explore">${l.hero.primaryCta}${icons.down}</a>
             </div>
           </div>
@@ -2345,14 +2345,14 @@ function renderPage(l) {
     </section>
 
     <section class="distance section section--light" id="distance" aria-labelledby="distance-title">
-      <div class="section-heading" data-diary-widget-clear>
+      <div class="section-heading">
         ${renderChapterLabel(l, "#distance", l.distance.eyebrow, true)}
         <div>
           <h2 id="distance-title">${l.distance.title}</h2>
           <p>${l.distance.intro}</p>
         </div>
       </div>
-      <div class="bike-calendar" data-diary-widget-clear>
+      <div class="bike-calendar">
         <ol class="calendar-poster" aria-label="${l.distance.specialSummary}">
           ${renderSpecialSequence(projectPlan, l)}
         </ol>

@@ -235,7 +235,6 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) stop(
 window.addEventListener('pagehide', stop);
 new IntersectionObserver(entries => {
   const visible = entries[0].isIntersecting;
-  document.documentElement.classList.toggle('ride-film-in-view', visible);
   if (!visible) stop();
 }, { threshold: 0 }).observe(panel.querySelector('.ride-film__screen'));
 const menu = document.querySelector('.menu-toggle');

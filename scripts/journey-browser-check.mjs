@@ -1,6 +1,7 @@
 import { chromium, webkit } from 'playwright';
 import { startSiteServer } from './lib/site-server.mjs';
 import { checkFilmReadings, checkFilmAppearance } from './lib/ride-film-checks.mjs';
+import { checkDiaryWidget } from './lib/diary-widget-checks.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 const root=process.cwd();
@@ -66,8 +67,6 @@ try {
         assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
         assert.deepEqual(errors,[]);
         await page.locator('#distance .section-heading').scrollIntoViewIfNeeded();
-        await page.locator('.return-calendar').waitFor({state:'hidden'});
-        assert(await page.locator('.return-calendar').isHidden(), 'The diary widget must leave the calendar heading unobstructed');
         await page.locator('[data-ride-film]').scrollIntoViewIfNeeded();
         assert.equal(await page.locator('[data-ride-film]').evaluate(el=>el.tagName),'ARTICLE');
         assert(await page.locator('[data-film-map]').isVisible());
@@ -83,48 +82,7 @@ try {
         await range.press('Home');
         assert.match(await page.locator('[data-film-distance-value]').textContent(),/^0/);
         await page.locator('[data-ride-film]').screenshot({path:`${out}/${name}-${lang}-${width}-replay.png`});
-        await page.locator('#diary').scrollIntoViewIfNeeded();
-        // The dated diary entry stays available before and after reading it.
-        const widget = page.locator('.return-calendar');
-        const latest = await page.evaluate(() => JSON.parse(document.querySelector('#project-updates-data').textContent).filter(x=>x.kind==='diary').at(-1));
-        await widget.waitFor({state:'visible'});
-        assert(await widget.isVisible());
-        assert.equal(await widget.locator('[data-calendar-link]').getAttribute('href'), latest.href);
-        assert.equal(await widget.locator('[data-calendar-date]').getAttribute('datetime'), latest.date);
-        await widget.locator('[data-calendar-link]').click();
-        await page.waitForFunction(id=>document.activeElement?.id === id, latest.href.slice(1));
-        assert(await widget.isVisible(), 'Reading the entry must not dismiss the calendar');
-        const toggle = widget.locator('[data-calendar-toggle]');
-        const wasExpanded = await toggle.getAttribute('aria-expanded');
-        await toggle.press('Enter');
-        assert.notEqual(await toggle.getAttribute('aria-expanded'), wasExpanded);
-        const motion = await widget.evaluate(el => ({
-          morphing: el.classList.contains('is-morphing'),
-          ghost: Boolean(el.querySelector('.return-calendar__ghost')),
-          // The shared reduced-motion CSS keeps 0.01ms transitions so their
-          // completion events still fire. These are instant within one frame.
-          durations: el.getAnimations({subtree:true}).map(animation => {
-            const timing = animation.effect.getComputedTiming();
-            return timing.activeDuration + Math.max(0, timing.delay);
-          }),
-        }));
-        assert(!motion.morphing && !motion.ghost && motion.durations.every(duration => duration <= 1),
-          `Reduced motion keeps the transition instant (${JSON.stringify(motion)})`);
-        const material = await page.evaluate(() => {
-          const w=getComputedStyle(document.querySelector('.return-calendar'));
-          const m=getComputedStyle(document.querySelector('.menu-toggle'));
-          // Menu borders change with its interactive state; the surface,
-          // blur and shadow are the shared material.
-          return [w.backgroundImage===m.backgroundImage,w.backdropFilter===m.backdropFilter,w.boxShadow===m.boxShadow];
-        });
-        assert(material.every(Boolean), 'The calendar and menu must share the glass material');
-        await page.locator('.site-footer__legal').scrollIntoViewIfNeeded();
-        await widget.waitFor({state:'hidden'});
-        await page.locator(latest.href).scrollIntoViewIfNeeded();
-        await widget.waitFor({state:'visible'});
-        await page.reload();
-        await widget.waitFor({state:'visible'});
-        assert(await page.locator('[data-return-update]').isHidden());
+        await checkDiaryWidget(page);
         report.push({engine:name,lang,width,text,errors});
         await page.close();
       }
