@@ -249,7 +249,7 @@ async function auditPage(browser, browserName, origin, testCase) {
         const status = document.querySelector(".event-status").getBoundingClientRect();
         const statusValue = document.querySelector(".event-status__value").getBoundingClientRect();
         const statusLabel = document.querySelector(".event-status__label").getBoundingClientRect();
-        const secondary = getComputedStyle(document.querySelector(".button--ghost"));
+        const actions = [...document.querySelectorAll(".hero__actions a")];
         return {
           heroHeight: heroMain.height,
           mainBottom: heroMain.bottom,
@@ -263,14 +263,16 @@ async function auditPage(browser, browserName, origin, testCase) {
           statusBottom: status.bottom,
           heroBottom: heroContent.bottom,
           statusBottomDelta: Math.abs(statusValue.bottom - statusLabel.bottom),
-          secondaryDisplay: secondary.display,
+          actionCount: actions.length,
+          primaryTarget: actions[0]?.getAttribute("href"),
         };
       });
       expect(
         near(firstScreen.heroHeight, firstScreen.innerHeight, 1) &&
           firstScreen.statusTop >= firstScreen.heroBottom - 1 &&
           firstScreen.statusBottom <= firstScreen.mainBottom + 1 &&
-          firstScreen.secondaryDisplay === "none" &&
+          firstScreen.actionCount === 1 &&
+          firstScreen.primaryTarget === "#diary" &&
           firstScreen.introColor !== firstScreen.heroColor &&
           firstScreen.introSize >= 16 &&
           firstScreen.introSize <= 17.1 &&
