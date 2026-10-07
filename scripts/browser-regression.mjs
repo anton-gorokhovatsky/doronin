@@ -1446,12 +1446,12 @@ async function auditPage(browser, browserName, origin, testCase) {
     if (testCase.viewport.width <= 390) {
       const mobileSurfaceFixes = await page.evaluate(() => {
         const proofTitle = getComputedStyle(document.querySelector(".proof h2"));
-        const audioDivider = getComputedStyle(
-          document.querySelector(".audio-story"),
+        const notesDivider = getComputedStyle(
+          document.querySelector(".ride-film__notes"),
           "::before",
         );
         return {
-          audioDividerImage: audioDivider.backgroundImage,
+          notesDividerImage: notesDivider.backgroundImage,
           proofHangingPunctuation: proofTitle.getPropertyValue(
             "hanging-punctuation",
           ),
@@ -1459,7 +1459,7 @@ async function auditPage(browser, browserName, origin, testCase) {
       });
       expect(
         (await page.locator(".bike-calendar__sequence > li").count()) === 5 &&
-          mobileSurfaceFixes.audioDividerImage === "none" &&
+          mobileSurfaceFixes.notesDividerImage === "none" &&
           (browserName !== "webkit" ||
             mobileSurfaceFixes.proofHangingPunctuation === "none"),
         `${prefix}: mobile cycling sequence or Safari surface fixes regressed (${JSON.stringify(mobileSurfaceFixes)})`,
