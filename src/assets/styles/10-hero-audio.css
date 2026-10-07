@@ -787,7 +787,7 @@
 
 .event-status__label {
   width: fit-content;
-  margin-top: 0.55rem;
+  margin-top: 0;
   padding: 0;
   background: transparent;
   color: var(--acid);
