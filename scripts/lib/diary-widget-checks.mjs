@@ -93,6 +93,7 @@ export async function checkDiaryWidget(page) {
 
   const footer = await bounds('.site-footer');
   await scrollTo(footer.top - height + 16);
+  await widget.waitFor({ state: 'hidden' });
   assert(await widget.isHidden(), 'The shortcut never covers footer information');
   await scrollTo(footer.top - height - 16);
   assert(await widget.isHidden(), 'The footer boundary does not flicker');
