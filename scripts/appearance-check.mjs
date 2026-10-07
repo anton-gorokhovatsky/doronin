@@ -58,12 +58,11 @@ try {
         await page.locator('button[data-dubai-mode="current"]').click();
         assert.equal(await resolved(), expected);
         assert(await page.locator('[data-favicon]').getAttribute('href').then(href => href.includes(expected)));
-        assert.equal(await page.locator('#ride-2024 #presence').count(), 1);
-        assert.equal(await page.locator('#presence').evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)');
-        assert(await page.locator('[data-presence-audio]').evaluate(el => el.paused), 'Sound starts only with a user gesture');
+        assert.equal(await page.locator('[data-ride-film]').count(), 1);
+        assert(await page.locator('[data-film-video]').evaluate(el => el.paused && el.muted), 'Film and sound start only with a user gesture');
         await page.evaluate(() => document.fonts.ready);
-        await page.locator('#presence').scrollIntoViewIfNeeded();
-        await checkRenderedTextContrast(page, '#presence');
+        await page.locator('.ride-film__notes').scrollIntoViewIfNeeded();
+        await checkRenderedTextContrast(page, '.ride-film__notes');
         await page.setViewportSize({width:390,height:900});
         await page.locator('.menu-toggle').click();
         const options = page.locator('.site-nav__setting-options--theme');
@@ -89,6 +88,6 @@ try {
       assert(await page.locator('html').evaluate(el => el.classList.contains('theme-dark')), 'First paint resolves Dubai night without deferred scripts or storage');
       await page.close();
     } finally { await browser.close(); }
-    console.log(`${name}: Dubai auto, preview, manual overrides, persistence, no weather/storage and merged audio PASS`);
+    console.log(`${name}: Dubai auto, preview, manual overrides, persistence, no weather/storage and archival film PASS`);
   }
 } finally { await server.close(); }

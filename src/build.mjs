@@ -1,3 +1,4 @@
+import { renderRideFilm } from './ride-film.mjs';
 import { createHash } from "node:crypto";
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -45,6 +46,7 @@ const styleModuleNames = [
   "65-dubai-light.css",
   "70-journey.css",
   "75-birthday.css",
+  "76-ride-film.css",
 ];
 const styleBundle = (
   await Promise.all(
@@ -57,6 +59,7 @@ const projectHistory = JSON.parse(
 let rideRecord = null;
 try { rideRecord = JSON.parse(await readFile(resolve('src/assets/ride-2024.json'), 'utf8')); }
 catch (error) { if (error.code !== 'ENOENT') throw error; }
+const rideTiming = JSON.parse(await readFile(resolve('src/ride-2024-laps.json'), 'utf8'));
 const projectPlan = JSON.parse(
   await readFile(resolve("src/project-plan.json"), "utf8"),
 );
@@ -91,6 +94,8 @@ const assetVersion = createHash("sha256")
   .update(await readFile(resolve(assetSource, "dubai-light.js")))
   .update(await readFile(resolve(assetSource, "journey.js")))
   .update(await readFile(resolve(assetSource, "ride-replay.js")))
+  .update(await readFile(resolve(assetSource, "ride-film.js")))
+  .update(await readFile(resolve(assetSource, "ride-film/sources.json")))
   .update(JSON.stringify(rideRecord))
   .digest("hex")
   .slice(0, 10);
@@ -2175,6 +2180,7 @@ function renderPage(l) {
   <script src="${l.assetBase}assets/app.js?v=${assetVersion}" defer></script>
   <script src="${l.assetBase}assets/dubai-light.js?v=${assetVersion}" type="module"></script>
   <script src="${l.assetBase}assets/journey.js?v=${assetVersion}" type="module"></script>
+  <script src="${l.assetBase}assets/ride-film.js?v=${assetVersion}" type="module"></script>
 </head>
 <body data-project-phase="before">
   <script type="application/json" id="analytics-goal-registry">${analyticsRegistryJson}</script>
@@ -2432,7 +2438,7 @@ function renderPage(l) {
         </details>
       </div>
       ${renderDistanceHistory(l)}
-      ${renderRideReplay(l)}
+      ${renderRideFilm(l, rideRecord, rideTiming, assetVersion, mediaIcons.toggle, icons.external)}
     </section>
 
     <section class="diary section section--light" id="diary" aria-labelledby="diary-title">
@@ -2733,51 +2739,6 @@ function renderMenuWeather(l) {
   </div>`;
 }
 
-function renderRideReplay(l) {
-  if (!rideRecord) return '';
-  const ru = l.lang === 'ru';
-  const start = new Date(rideRecord.start);
-  const local = dubaiClock(start);
-  const light = lightPalette(local.date, local.minutes);
-  const phase = (ru ? {night:'Ночь',dawn:'Утро',day:'День',sunset:'Закат'} : {night:'Night',dawn:'Morning',day:'Day',sunset:'Sunset'})[light.phase];
-  const clock = new Intl.DateTimeFormat(ru ? 'ru-RU' : 'en-GB', {timeZone:'Asia/Dubai',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}).format(start);
-  const elapsed = rideRecord.points.at(-1)[0];
-  const totalTime = `${Math.floor(elapsed/3600)}:${String(Math.floor(elapsed/60)%60).padStart(2,'0')}`;
-  const first = rideRecord.points[0];
-  const route = rideRecord.points.map(point => `${point[2]},${point[3]}`).join(' ');
-  return `<article class="ride-replay" id="ride-2024" aria-labelledby="ride-replay-title" data-ride-replay data-replay-url="${l.assetBase}assets/ride-2024.json?v=${assetVersion}" data-replay-module="${l.assetBase}assets/ride-replay.js?v=${assetVersion}" style="--replay-dark:${light.dark.join(' ')};--replay-beam:${light.beam.join(' ')};--replay-strength:${light.strength};--replay-x:${light.x}%">
-      <header class="ride-replay__intro">
-        <p class="ride-replay__eyebrow">${ru ? 'Дубай · запись 2024 года' : 'Dubai · recorded in 2024'}</p>
-        <h3 id="ride-replay-title"><span class="ride-replay__title-distance" data-optical-start>${formatProjectNumber(rideRecord.distanceKm,l.lang)} <span class="ride-replay__title-unit">${ru ? 'км' : 'km'}</span></span><span>${ru ? 'по кругу' : 'lap by lap'}</span></h3>
-        <p>${ru ? 'Здесь прошёл велосипедный этап «1111». В декабре Виктор вернётся на эту трассу.' : 'This course hosted the cycling leg of “1111”. Viktor returns here in December.'}</p>
-      </header>
-      <div class="ride-replay__scene" data-replay-scene>
-        <svg data-replay-diagram viewBox="0 0 600 410" role="img" aria-label="${ru ? 'Трасса из записи GPX 2024 года' : 'Course from the 2024 GPX recording'}"><polyline data-replay-route points="${route}"></polyline><polyline data-replay-trail></polyline><circle r="5" cx="${first[2]}" cy="${first[3]}"></circle></svg>
-      </div>
-      <div class="ride-replay__console">
-        <div class="ride-replay__reading">
-          <p class="ride-replay__clock"><span data-replay-clock>≈ ${clock}</span><span data-replay-phase>${phase}</span></p>
-          <strong data-replay-distance>0 ${ru ? 'км' : 'km'}</strong>
-          <span data-replay-meta>${ru ? 'С начала записи 0:00' : 'Elapsed 0:00'}</span>
-        </div>
-        <div class="ride-replay__controls" data-replay-controls hidden>
-          <button type="button" data-replay-play data-playing="false"><span data-replay-play-label>${ru ? 'Смотреть заезд' : 'Watch the ride'}</span>${mediaIcons.toggle}</button>
-          <div class="ride-replay__timeline">
-            <label class="sr-only" for="ride-time">${ru ? 'Момент заезда' : 'Ride time'}</label>
-            <input type="range" id="ride-time" data-replay-time min="0" max="1000" value="0" step="1" aria-describedby="ride-replay-status">
-            <div class="ride-replay__ends" aria-hidden="true"><span>0:00</span><span>${totalTime}</span></div>
-          </div>
-        </div>
-        <p class="ride-replay__error" data-replay-error role="status" hidden></p>
-      </div>
-      ${renderPresence(l.presence, l)}
-      <footer class="ride-replay__footer">
-        <p class="ride-replay__status" id="ride-replay-status" data-replay-status>${ru ? 'Время восстановлено по 203 отрезкам Strava. Положение внутри отрезка приблизительное. 1 секунда = 20 минут заезда.' : 'Time reconstructed from 203 Strava splits. Position within each split is approximate. 1 second = 20 minutes of the ride.'}</p>
-        <a class="ride-replay__source" href="${rideRecord.source}" target="_blank" rel="noopener noreferrer">${ru ? 'Оригинал в Strava' : 'Original on Strava'}${icons.external}</a>
-      </footer>
-  </article>`;
-}
-
 function renderDistanceHistory(l) {
   if (!projectStatus.verified) return '';
   const ru = l.lang === 'ru';
@@ -2926,6 +2887,9 @@ const renderedPages = Object.values(locales).flatMap((locale) => {
 });
 const productionAssetNames = new Set([
   [null, "solar-clock.js"],
+  [null, "ride-replay.js"],
+  [null, "ride-film/sources.json"],
+  [null, "ride-film/ride-montage.mp4"],
   ...`${styleBundle}\n${renderedPages.map(([, html]) => html).join("\n")}`.matchAll(
     /\bassets\/([a-z0-9][a-z0-9._/-]*)/giu,
   ),
@@ -2965,6 +2929,10 @@ await writeFile(resolve(assetOutput, "theme-init.js"), `(() => {\n${solarSource}
 const lightSource = (await readFile(resolve(assetSource, "dubai-light.js"), "utf8"))
   .replaceAll("'./solar-clock.js'", `'./solar-clock.js?v=${assetVersion}'`);
 await writeFile(resolve(assetOutput, "dubai-light.js"), lightSource);
+const filmSource = (await readFile(resolve(assetSource, "ride-film.js"), "utf8"))
+  .replaceAll("'./solar-clock.js'", `'./solar-clock.js?v=${assetVersion}'`)
+  .replaceAll("'./ride-replay.js'", `'./ride-replay.js?v=${assetVersion}'`);
+await writeFile(resolve(assetOutput, "ride-film.js"), filmSource);
 const morphiconsOutput = resolve(assetOutput, morphiconsAssetPath);
 await mkdir(morphiconsOutput, { recursive: true });
 for (const file of morphiconsFiles) {

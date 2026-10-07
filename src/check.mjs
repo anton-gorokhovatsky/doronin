@@ -374,21 +374,20 @@ for (const [lang, path] of pages) {
     `${lang}: управление фоновым видео должно оставаться отдельным контролом первого экрана`,
   );
   const distanceIndex = html.indexOf('id="distance"');
-  const presenceIndex = html.indexOf('id="presence"');
+  const rideIndex = html.indexOf('id="ride-2024"');
+  const diaryIndex = html.indexOf('id="diary"');
   const athleteIndex = html.indexOf('id="viktor"');
+  const filmTag = html.match(/<video\b[^>]*\bdata-film-video\b[^>]*>/su)?.[0] || '';
   expect(
-    presenceIndex > distanceIndex &&
-      athleteIndex > presenceIndex &&
-      html.includes('class="audio-story"') &&
-      html.includes("data-presence-player") &&
-      (html.match(/\bdata-presence-scene\b/g) || []).length === 3 &&
-      (html.match(/\bdata-presence-context\b/g) || []).length === 3 &&
-      html.includes("audio-scene-01.m4a") &&
-      html.includes("audio-scene-04.m4a") &&
-      html.includes("audio-scene-05.m4a") &&
-      !html.includes("audio-scene-02.m4a") &&
-      !html.includes("audio-scene-03.m4a"),
-    `${lang}: глава присутствия должна стоять между календарём и портретом, оставаться добровольной и содержать только три уместные архивные сцены`,
+    rideIndex > distanceIndex && diaryIndex > rideIndex && athleteIndex > diaryIndex &&
+      (html.match(/\bdata-film-chapter="/g) || []).length === 4 &&
+      html.includes('data-film-total') && html.includes('38:36') && html.includes('27:13') &&
+      html.includes('data-montage-url=') && html.includes('data-sources-url=') &&
+      html.includes('data-film-route points="') && html.includes('ride-film-description') &&
+      /\bmuted\b/u.test(filmTag) && /\bplaysinline\b/u.test(filmTag) &&
+      /\bpreload="none"/u.test(filmTag) && !/\bautoplay\b/u.test(filmTag) &&
+      !html.includes('data-presence-audio') && !html.includes('audio-scene-'),
+    `${lang}: архивный заезд стоит между календарём и дневником, сохраняет длительности и маршрут без JavaScript; видео и его родной звук включаются зрителем`,
   );
   const heroVideoTag =
     html.match(/<video\b[^>]*\bdata-hero-video\b[^>]*>/su)?.[0] || "";
@@ -730,6 +729,7 @@ const styleModuleNames = [
   "65-dubai-light.css",
   "70-journey.css",
   "75-birthday.css",
+  "76-ride-film.css",
 ];
 const sourceStyleManifest = await readFile(resolve("src/assets/styles.css"), "utf8");
 const sourceStyleBundle = (
@@ -993,11 +993,8 @@ expect(
     app.includes("data-presence-player") &&
     !app.includes("data-distance-story") &&
     !app.includes("data-distance-total") &&
-    generatedHtml.includes("audio-scene-01.m4a") &&
-    generatedHtml.includes("audio-scene-04.m4a") &&
-    generatedHtml.includes("audio-scene-05.m4a") &&
-    !generatedHtml.includes("audio-scene-02.m4a") &&
-    !generatedHtml.includes("audio-scene-03.m4a") &&
+    !generatedHtml.includes("audio-scene-") &&
+    generatedHtml.includes("data-film-video") &&
     /padding-top:\s*var\(--section-space\)/.test(
       diaryRule,
     ) &&

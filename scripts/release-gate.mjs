@@ -24,7 +24,7 @@ const steps = linkOnly ? [
   ["Accessibility matrix", process.execPath, ["scripts/accessibility-gate.mjs"]],
   ["Chromium/WebKit regression", process.execPath, ["scripts/browser-regression.mjs"]],
   ["Automatic appearance", process.execPath, ["scripts/appearance-check.mjs", "site"]],
-  ["Presence playback and visualization", process.execPath, ["scripts/presence-visualization-check.mjs", "site"]],
+  ["Archival film playback and sound", process.execPath, ["scripts/ride-film-check.mjs", "site"]],
   ["Dubai light and data fallbacks", process.execPath, ["scripts/dubai-light-check.mjs", "site"]],
   ["Journey interactions and reflow", process.execPath, ["scripts/journey-browser-check.mjs"]],
   ["Screenshot gate", process.execPath, ["scripts/screenshot-gate.mjs"]],
