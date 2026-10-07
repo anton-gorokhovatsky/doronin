@@ -77,7 +77,7 @@ function initCalendar(notice, latest, lang) {
   calendar.addEventListener('pointerdown', () => calendar.setAttribute('data-pointer-focus', ''), { capture: true });
   document.addEventListener('keydown', () => calendar.removeAttribute('data-pointer-focus'), { capture: true });
   const copy = calendar.querySelector('.return-calendar__copy');
-  let collapsed = window.matchMedia('(max-width: 640px)').matches;
+  let collapsed = true;
   const sync = () => {
     calendar.classList.toggle('is-collapsed', collapsed);
     copy.hidden = collapsed;
@@ -165,61 +165,30 @@ function initCalendar(notice, latest, lang) {
   window.addEventListener('resize', finish, { passive: true });
   sync();
   document.body.append(calendar);
-  // A persistent shortcut between reading destinations, independent of scroll
-  // direction or the individual calendar blocks entering the viewport.
+  // Keep the latest entry available throughout the page. Only the original
+  // hero action and temporary navigation/media layers replace this shortcut.
+  const heroAction = document.querySelector('.hero__actions [href="#diary"]');
   const hero = document.querySelector('.hero');
-  const diary = document.querySelector('#diary');
-  const projectCalendar = document.querySelector('#distance');
-  const calendarStart = projectCalendar?.querySelector('.section-label');
-  const film = document.querySelector('.ride-film__screen');
-  const footer = document.querySelector('.site-footer');
-  const boundaryGap = 32;
-  let pastHero = false;
-  let readingDiary = false;
-  let readingCalendar = false;
-  let readingFilm = false;
-  let readingFooter = false;
-  let revealTimer = 0;
-  const readingRegion = (region, wasReading) => {
-    if (!region) return false;
-    const box = region.getBoundingClientRect();
-    // Leave a small buffer when returning across a section boundary, so tiny
-    // scroll reversals cannot repeatedly hide and show the same control.
-    const buffer = wasReading ? boundaryGap : 0;
-    return box.top < window.innerHeight + buffer && box.bottom > -buffer;
-  };
+  const boundaryGap = 16;
+  let pastAction = false;
   const syncVisibility = () => {
-    const heroBottom = hero?.getBoundingClientRect().bottom ?? -Infinity;
-    pastHero = heroBottom <= (pastHero ? 0 : -boundaryGap);
-    const calendarBox = projectCalendar?.getBoundingClientRect();
-    const calendarTop = calendarStart?.getBoundingClientRect().top ?? calendarBox?.top;
-    readingCalendar = Boolean(calendarBox &&
-      calendarTop < window.innerHeight + (readingCalendar ? boundaryGap : 0) &&
-      calendarBox.bottom > (readingCalendar ? -boundaryGap : 0));
-    readingDiary = readingRegion(diary, readingDiary);
-    readingFilm = readingRegion(film, readingFilm);
-    readingFooter = readingRegion(footer, readingFooter);
-    const blockers = [
-      calendarBox && { top: calendarTop, bottom: calendarBox.bottom },
-      ...[diary, film, footer].filter(Boolean).map(region => region.getBoundingClientRect()),
-    ].filter(Boolean);
-    const gapStart = Math.max(heroBottom + boundaryGap,
-      ...blockers.filter(box => box.bottom <= 0).map(box => box.bottom + boundaryGap));
-    const gapEnd = Math.min(Infinity,
-      ...blockers.filter(box => box.top >= window.innerHeight).map(box => box.top - window.innerHeight));
-    // A pause alone does not make a short gap useful. Measure the whole reading
-    // stretch, so a card cannot appear for one wheel step before disappearing.
-    const hasReadingSpace = gapEnd - gapStart >= window.innerHeight;
-    const hidden = !pastHero || readingCalendar || readingDiary || readingFilm || readingFooter || !hasReadingSpace;
-    clearTimeout(revealTimer);
-    if (hidden) {
-      if (!calendar.hidden) finish();
-      calendar.hidden = true;
-    } else if (calendar.hidden) {
-      // Fast travel through an eligible gap should not flash a card for an
-      // instant. Once shown, ordinary scrolling never restarts its visibility.
-      revealTimer = setTimeout(() => { calendar.hidden = false; }, 180);
+    const actionBottom = (heroAction || hero)?.getBoundingClientRect().bottom ?? -Infinity;
+    pastAction = actionBottom <= (pastAction ? 0 : -boundaryGap);
+    const hidden = !pastAction || Boolean(document.fullscreenElement);
+    if (hidden && !calendar.hidden) finish();
+    calendar.hidden = hidden;
+    // Leave any keyboard-focused control readable and operable beneath the
+    // floating card. Keep its geometry so scrolling can restore it immediately.
+    const focused = document.activeElement;
+    const control = focused?.matches('a, button, input, select, textarea, summary, [role="button"], [role="slider"]');
+    let obscured = false;
+    if (!hidden && control && !calendar.contains(focused)) {
+      const card = calendar.getBoundingClientRect();
+      const target = focused.getBoundingClientRect();
+      obscured = card.left < target.right && card.right > target.left &&
+        card.top < target.bottom && card.bottom > target.top;
     }
+    calendar.toggleAttribute('data-focus-obscured', obscured);
   };
   let visibilityFrame = 0;
   const scheduleVisibility = () => {
@@ -229,6 +198,9 @@ function initCalendar(notice, latest, lang) {
       syncVisibility();
     });
   };
+  document.addEventListener('focusin', scheduleVisibility);
+  document.addEventListener('focusout', scheduleVisibility);
+  document.addEventListener('fullscreenchange', scheduleVisibility);
   window.addEventListener('scroll', scheduleVisibility, { passive: true });
   window.addEventListener('resize', scheduleVisibility, { passive: true });
   if ('ResizeObserver' in window) {
