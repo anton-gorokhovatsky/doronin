@@ -258,37 +258,37 @@ for (const [lang, path] of pages) {
   const actionCopy =
     lang === "ru"
       ? {
-          explore: "Посмотреть форматы участия",
-          diary: "Следить за дневником",
+          diary: "Читать дневник",
           diaryTelegram: "Дневник в Telegram",
           discuss: "Обсудить участие",
           email: "Написать по почте",
           telegram: "Написать в Telegram",
         }
       : {
-          explore: "View partnership options",
-          diary: "Follow the diary",
+          diary: "Read the diary",
           diaryTelegram: "Diary on Telegram",
           discuss: "Discuss a partnership",
           email: "Send an email",
           telegram: "Message on Telegram",
         };
-  const heroPartnerAction = findAnchorByClass(html, "button--primary");
-  const heroDiaryAction = findAnchorByClass(html, "button--ghost");
+  const heroDiaryAction = findAnchorByClass(html, "button--primary");
   const diaryTelegramAction = findAnchorByClass(
     html,
     "diary-follow__telegram",
   );
-  const heroEvidenceLink = findAnchorByClass(html, "hero__evidence-link");
+  const heroMarkup = html.slice(html.indexOf('<div class="hero__main">'), html.indexOf('<div class="hero__foot">'));
+  const heroActionsMarkup = heroMarkup.match(/<div class="hero__actions"[^>]*>[\s\S]*?<\/div>/u)?.[0] || "";
+  const heroEvidenceMarkup = heroMarkup.match(/<div class="hero__evidence"[^>]*>[\s\S]*?<\/div>/u)?.[0] || "";
+  const interviewMarkup = html.slice(html.indexOf('id="interviews"'), html.indexOf('id="partners"'));
   expect(
-    html.indexOf('class="hero__evidence"') > html.indexOf('class="hero"') &&
-      html.indexOf('class="hero__evidence"') < html.indexOf('class="hero__actions"') &&
-      heroEvidenceLink.includes('href="https://youtu.be/4H2fddBQ6VQ"') &&
-      heroEvidenceLink.includes('target="_blank"') &&
-      heroEvidenceLink.includes('rel="noopener noreferrer"') &&
-      heroEvidenceLink.includes('icon--external') &&
+    heroMarkup.includes('class="hero__evidence"') &&
+      compactMarkupText(heroMarkup).includes("2024") &&
+      compactMarkupText(heroMarkup).includes("1111") &&
+      !heroEvidenceMarkup.includes('<a') &&
+      !heroMarkup.includes('class="event-status__meta"') &&
+      interviewMarkup.includes('href="https://youtu.be/4H2fddBQ6VQ"') &&
       html.includes('class="proof-sources" id="proof-sources"'),
-    `${lang}: опыт Виктора должен быть частью первого экрана с прямой ссылкой на интервью о прошлом проекте`,
+    `${lang}: первый экран содержит краткий прошлый результат, а интервью и источники доступны в своих разделах`,
   );
   const discussionActions = [
     findAnchorByClass(html, "header-cta"),
@@ -308,18 +308,12 @@ for (const [lang, path] of pages) {
     ),
   ].map(([anchor]) => anchor);
   expect(
-    heroPartnerAction.includes('href="#partner-formats"') &&
-      html.includes('class="partner-formats" id="partner-formats"') &&
-      heroPartnerAction.includes('data-analytics-goal="partner_interest"') &&
-      heroPartnerAction.includes('icon--down') &&
-      compactMarkupText(heroPartnerAction) === actionCopy.explore,
-    `${lang}: действие первого экрана должно вести к форматам участия и буквально называть этот переход`,
-  );
-  expect(
     heroDiaryAction.includes('href="#diary"') &&
       heroDiaryAction.includes('data-analytics-goal="diary_explore"') &&
-      compactMarkupText(heroDiaryAction) === actionCopy.diary,
-    `${lang}: действие дневника на первом экране должно вести к началу дневниковой главы`,
+      heroDiaryAction.includes('icon--down') &&
+      compactMarkupText(heroDiaryAction) === actionCopy.diary &&
+      (heroActionsMarkup.match(/<a\b/g) || []).length === 1,
+    `${lang}: одно главное действие первого экрана ведёт к дневнику и буквально называет этот переход`,
   );
   expect(
     !html.includes("data-diary-latest") &&

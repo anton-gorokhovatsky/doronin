@@ -621,18 +621,11 @@
 }
 
 .hero__intro {
-  max-width: 34ch;
+  max-width: 44ch;
   margin: clamp(1rem, 3svh, 2rem) 0 0;
   font-size: var(--type-copy-lead);
   font-weight: 450;
   line-height: var(--leading-copy-lead);
-}
-
-.hero__evidence .text-link {
-  max-width: 100%;
-  min-height: 2.75rem;
-  margin-top: 0.35rem;
-  font-size: var(--type-service-strong);
 }
 
 .hero__actions {
@@ -724,14 +717,6 @@
   background: transparent;
   overflow: hidden;
   transform: none;
-}
-
-.event-status__meta {
-  color: var(--paper-dim);
-  font-size: var(--type-service);
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
 }
 
 .event-status__rail {

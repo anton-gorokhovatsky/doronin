@@ -203,13 +203,11 @@ const locales = {
       lineTwo: ["31", "день"],
       accent: "НА ВЕЛОСИПЕДЕ",
       intro:
-        "В декабре 2024 года Виктор преодолел 1111 км без сна в трёх дисциплинах. Впереди — новое испытание.",
-      evidenceCta: "Интервью о проекте «1111»",
+        "В 2024 году — 1111 км в трёх дисциплинах без сна.",
       imageAlt: "Виктор Доронин на велосипеде во время скоростного заезда",
       videoPlay: "Включить видео",
       videoPause: "Пауза",
-      primaryCta: "Посмотреть форматы участия",
-      secondaryCta: "Следить за дневником",
+      primaryCta: "Читать дневник",
       statusFallback: "Старт 1 декабря 2026",
       statusMeta: "11 111 км · 31 день",
       beforeForms: ["день до старта", "дня до старта", "дней до старта"],
@@ -653,13 +651,11 @@ const locales = {
       lineTwo: ["31", "days"],
       accent: "BY BIKE",
       intro:
-        "In December 2024, Viktor covered 1111 km without sleep across three disciplines. A new challenge lies ahead.",
-      evidenceCta: "Interview about Project “1111”",
+        "In 2024: 1111 km across three disciplines, without sleep.",
       imageAlt: "Viktor Doronin riding at speed during a cycling event",
       videoPlay: "Play video",
       videoPause: "Pause",
-      primaryCta: "View partnership options",
-      secondaryCta: "Follow the diary",
+      primaryCta: "Read the diary",
       statusFallback: "Starts December 1, 2026",
       statusMeta: "11,111 km · 31 days",
       beforeForms: ["day to start", "days to start", "days to start"],
@@ -2264,13 +2260,9 @@ function renderPage(l) {
               <p class="hero__intro">
                 <span class="hero__intro-default">${l.hero.intro}</span>
               </p>
-              <a class="text-link hero__evidence-link" href="${shared.project1111InterviewHref}" target="_blank" rel="noopener noreferrer" data-analytics-goal="proof_open">
-                <span class="text-link__label">${l.hero.evidenceCta}</span>${icons.external}
-              </a>
             </div>
-            <div class="hero__actions">
-              <a class="button button--primary action-primary" href="#partner-formats" data-analytics-goal="partner_interest">${l.hero.primaryCta}${icons.down}</a>
-              <a class="button button--ghost" href="#diary" data-analytics-goal="diary_explore">${l.hero.secondaryCta}</a>
+            <div class="hero__actions" data-diary-widget-clear>
+              <a class="button button--primary action-primary" href="#diary" data-analytics-goal="diary_explore">${l.hero.primaryCta}${icons.down}</a>
             </div>
           </div>
         </div>
@@ -2301,7 +2293,6 @@ function renderPage(l) {
           data-live-source-label="${liveStatus.sourceLabel}"
           data-live-source-url="${liveStatus.sourceUrl}"
         >
-          <span class="event-status__meta">${l.hero.statusMeta}</span>
           <span class="event-status__rail" aria-hidden="true">
             ${Array.from(
               { length: 31 },

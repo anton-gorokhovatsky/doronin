@@ -73,16 +73,25 @@ export async function checkUpperPageRoutes(page) {
     return previous;
   });
   try {
+    await selectDiaryEntry(page, -1);
     await page.locator(".hero .button--primary").click();
-    assert.equal(new URL(page.url()).hash, "#partner-formats");
-    const formatsVisible = await page.locator(".partner-formats").evaluate((element) => {
-      const label = element.querySelector(".partner-formats__label").getBoundingClientRect();
-      const first = element.querySelector(".partner-format").getBoundingClientRect();
-      return label.top >= 0 && label.bottom < innerHeight && first.top < innerHeight;
-    });
-    assert(formatsVisible, "The partnership action must reveal the promised formats");
+    assert.equal(new URL(page.url()).hash, "#diary");
+    assert(await page.locator("[data-diary-story-panel]").first().isVisible(),
+      "The main viewer action must open the latest diary entry after browsing the archive");
+
+    const headerContact = page.locator(".header-cta");
+    if (await headerContact.isVisible()) {
+      await headerContact.click();
+    } else {
+      await page.locator(".menu-toggle").click();
+      await page.locator(".site-nav__cta").click();
+    }
+    assert.equal(new URL(page.url()).hash, "#partner-contact");
+    assert(await page.locator("#partner-contact").isVisible(),
+      "The partner route must retain a direct contact action");
 
     const interviewUrl = "https://youtu.be/4H2fddBQ6VQ";
+    const interviewLink = page.locator(`#interviews a[href="${interviewUrl}"]`);
     const interviewRoute = (route) => route.fulfill({
       status: 200,
       contentType: "text/html",
@@ -90,30 +99,18 @@ export async function checkUpperPageRoutes(page) {
     });
     await page.context().route(interviewUrl, interviewRoute);
     try {
-      await page.locator(".hero__evidence-link").focus();
+      await interviewLink.focus();
       const [interview] = await Promise.all([
         page.waitForEvent("popup"),
-        page.locator(".hero__evidence-link").press("Enter"),
+        interviewLink.press("Enter"),
       ]);
       await interview.waitForLoadState("domcontentloaded");
       assert.equal(interview.url(), interviewUrl);
       await interview.close();
-      assert.equal(new URL(page.url()).hash, "#partner-formats");
+      assert.equal(new URL(page.url()).hash, "#partner-contact");
     } finally {
       await page.context().unroute(interviewUrl, interviewRoute);
     }
-
-    await selectDiaryEntry(page, -1);
-    const heroDiaryAction = page.locator(".hero .button--ghost");
-    if (await heroDiaryAction.isVisible()) {
-      await heroDiaryAction.click();
-    } else {
-      await page.locator(".menu-toggle").click();
-      await page.locator('.site-nav a[href="#diary"]').click();
-    }
-    assert.equal(new URL(page.url()).hash, "#diary");
-    assert(await page.locator("[data-diary-story-panel]").first().isVisible(),
-      "Following the diary must show the latest entry");
   } finally {
     await page.evaluate((previous) => {
       document.documentElement.style.scrollBehavior = previous;
