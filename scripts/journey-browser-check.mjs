@@ -84,6 +84,7 @@ try {
         // The dated diary entry stays available before and after reading it.
         const widget = page.locator('.return-calendar');
         const latest = await page.evaluate(() => JSON.parse(document.querySelector('#project-updates-data').textContent).filter(x=>x.kind==='diary').at(-1));
+        await widget.waitFor({state:'visible'});
         assert(await widget.isVisible());
         assert.equal(await widget.locator('[data-calendar-link]').getAttribute('href'), latest.href);
         assert.equal(await widget.locator('[data-calendar-date]').getAttribute('datetime'), latest.date);

@@ -25,25 +25,29 @@ export async function checkFilmReadings(page) {
 }
 
 export async function checkFilmAppearance(page) {
-  const samples = await page.evaluate(() => {
+  const original = await page.locator('html').getAttribute('data-theme');
+  const read = () => page.evaluate(() => {
     const panel = document.querySelector('[data-ride-film]');
-    const root = document.documentElement;
-    const original = root.dataset.theme;
-    const read = () => ({
+    return {
       time:panel.querySelector('[data-film-range]').value,
       timer:panel.querySelector('[data-film-total]').textContent,
       playing:panel.querySelector('[data-film-play]').dataset.playing,
       sound:panel.querySelector('[data-film-sound]').getAttribute('aria-pressed'),
       noteColor:getComputedStyle(panel.querySelector('.ride-film__notes')).color,
       noteBackground:getComputedStyle(panel.querySelector('.ride-film__notes')).backgroundColor,
-    });
-    const samples = ['light','dark'].map(mode=>{
-      document.querySelector(`.site-footer [data-theme-option="${mode}"]`).click();
-      return read();
-    });
-    document.querySelector(`.site-footer [data-theme-option="${original}"]`).click();
-    return samples;
+    };
   });
+  const samples = [];
+  for (const mode of ['light','dark']) {
+    await page.locator(`.site-footer [data-theme-option="${mode}"]`).click();
+    await page.waitForFunction(mode => document.documentElement.classList.contains(`theme-${mode}`), mode);
+    // Sample the rendered notes after the theme change, rather than reading
+    // both inherited colors within the same style-recalculation task.
+    await page.locator('.ride-film__notes').scrollIntoViewIfNeeded();
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    samples.push(await read());
+  }
+  await page.locator(`.site-footer [data-theme-option="${original}"]`).click();
   for (const key of ['time','timer','playing','sound']) assert.equal(samples[0][key],samples[1][key],`Theme preserves ${key}`);
   assert.equal(samples[0].playing,'false','Appearance controls do not start the film');
   assert.notEqual(samples[0].noteColor,samples[1].noteColor,'Provenance follows the global theme');
