@@ -6,13 +6,20 @@ const execFileAsync = promisify(execFile);
 const browserRegressionRunsSeparately =
   process.env.CI_BROWSER_REGRESSION_JOB === "separate";
 const linkOnly = process.env.RELEASE_SCOPE === "links";
-if (linkOnly && detectReleaseScope().scope !== "links") {
-  throw new Error("Short gate requested for a change that is not link-only");
+const widgetOnly = process.env.RELEASE_SCOPE === "widget";
+if ((linkOnly || widgetOnly) && detectReleaseScope().scope !== process.env.RELEASE_SCOPE) {
+  throw new Error("The requested short gate does not match the actual push");
 }
 const steps = linkOnly ? [
   ["Production build", process.execPath, ["src/build.mjs", "site"]],
   ["Static contract", process.execPath, ["src/check.mjs", "site"]],
   ["Changed external links", process.execPath, ["scripts/link-check.mjs"]],
+  ["Whitespace/errors", "git", ["diff", "--check"]],
+] : widgetOnly ? [
+  ["Release scope rules", process.execPath, ["--test", "scripts/release-scope.test.mjs"]],
+  ["Production build", process.execPath, ["src/build.mjs", "site"]],
+  ["Static contract", process.execPath, ["src/check.mjs", "site"]],
+  ["Diary widget", process.execPath, ["scripts/diary-widget-check.mjs"]],
   ["Whitespace/errors", "git", ["diff", "--check"]],
 ] : [
   ["Release scope rules", process.execPath, ["--test", "scripts/release-scope.test.mjs"]],
@@ -50,6 +57,8 @@ for (const [label, executable, args] of steps) {
 process.stdout.write(
   linkOnly
     ? "\nLink-only release gate passed.\n"
+    : widgetOnly
+    ? "\nDiary widget release gate passed.\n"
     : browserRegressionRunsSeparately
     ? "\nCore release gate passed; browser regression runs in its own CI job.\n"
     : "\nRelease gate passed.\n",

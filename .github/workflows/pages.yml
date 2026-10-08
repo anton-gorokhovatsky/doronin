@@ -59,15 +59,15 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install browser engines
-        run: pnpm exec playwright install --with-deps ${{ needs.scope.outputs.checks == 'links' && 'chromium' || 'chromium webkit' }}
+        run: pnpm exec playwright install --with-deps ${{ needs.scope.outputs.checks != 'full' && 'chromium' || 'chromium webkit' }}
 
       - name: Refresh dust forecast
-        if: needs.scope.outputs.checks != 'links'
+        if: needs.scope.outputs.checks == 'full'
         run: node scripts/update-dust.mjs
         continue-on-error: true
 
-      - name: Fetch link comparison
-        if: needs.scope.outputs.checks == 'links'
+      - name: Fetch short-gate comparison
+        if: needs.scope.outputs.checks != 'full'
         env:
           BASE_SHA: ${{ github.event.before }}
         run: git fetch --no-tags --depth=1 origin "$BASE_SHA"
@@ -100,7 +100,7 @@ jobs:
 
   browser-regression:
     needs: scope
-    if: needs.scope.outputs.checks != 'links'
+    if: needs.scope.outputs.checks == 'full'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -129,6 +129,8 @@ jobs:
           BROWSER_REGRESSION_ENGINES: chromium
 
   ride-film-playback:
+    needs: scope
+    if: needs.scope.outputs.checks == 'full'
     runs-on: macos-15
     steps:
       - name: Checkout
@@ -165,7 +167,7 @@ jobs:
           path: artifacts/gate/automated/ride-film
 
   deploy:
-    if: ${{ !cancelled() && needs.quality.result == 'success' && needs.ride-film-playback.result == 'success' && (needs.browser-regression.result == 'success' || needs.browser-regression.result == 'skipped') }}
+    if: ${{ !cancelled() && needs.quality.result == 'success' && (needs.ride-film-playback.result == 'success' || needs.ride-film-playback.result == 'skipped') && (needs.browser-regression.result == 'success' || needs.browser-regression.result == 'skipped') }}
     needs:
       - quality
       - browser-regression

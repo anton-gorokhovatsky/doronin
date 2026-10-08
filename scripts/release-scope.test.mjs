@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { classifyChanges, detectReleaseScope } from "./release-scope.mjs";
+import { classifyChanges, classifyComponentChanges, detectReleaseScope } from "./release-scope.mjs";
 
 const source = readFileSync(new URL("../src/build.mjs", import.meta.url), "utf8");
 const change = (key, url) => source.replace(new RegExp(`(^  ${key}: ")[^"]+`, "m"), `$1${url}`);
@@ -42,4 +42,38 @@ test("scheduled, manual and missing-base runs keep the full gate", () => {
   for (const base of ["0".repeat(40), "a".repeat(40), "invalid"]) {
     assert.equal(detectReleaseScope({ event: "push", base }).scope, "full");
   }
+});
+
+const widgetSources = Object.fromEntries(["src/assets/journey.js", "src/assets/styles/70-journey.css"].map(file =>
+  [file, readFileSync(new URL(`../${file}`, import.meta.url), "utf8")]));
+
+test("isolated widget changes use the component gate", () => {
+  const after = { ...widgetSources,
+    "src/assets/journey.js": widgetSources["src/assets/journey.js"].replace("let collapsed = true", "let collapsed = false"),
+    "src/assets/styles/70-journey.css": widgetSources["src/assets/styles/70-journey.css"].replace("outline-offset: -4px", "outline-offset: -3px"),
+  };
+  assert.equal(classifyComponentChanges(Object.keys(after), widgetSources, after).scope, "widget");
+});
+
+test("other journey behavior and styling cannot bypass the full gate", () => {
+  for (const [file, from, to] of [
+    ["src/assets/journey.js", "const KEY =", "const OTHER_KEY ="],
+    ["src/assets/styles/70-journey.css", ".ride-replay__controls button", ".ride-replay__controls a"],
+  ]) {
+    assert.equal(classifyComponentChanges([file], widgetSources,
+      { ...widgetSources, [file]: widgetSources[file].replace(from, to) }).scope, "full");
+  }
+  assert.equal(classifyComponentChanges(["src/assets/journey.js", "src/assets/app.js"], widgetSources, widgetSources).scope, "full");
+});
+
+test("release-check changes validate the short gate itself", () => {
+  assert.equal(classifyComponentChanges([".github/workflows/pages.yml", "scripts/release-gate.mjs"], {}, {}).scope, "widget");
+  assert.equal(classifyComponentChanges([".github/workflows/pages.yml", "src/build.mjs"], {}, {}).scope, "full");
+});
+
+test("an unrecognized widget boundary keeps the full gate", () => {
+  const file = "src/assets/journey.js";
+  const after = { ...widgetSources, [file]: widgetSources[file].replace("function initCalendar(", "function otherCalendar(") };
+  assert.equal(classifyComponentChanges([file], widgetSources, after).scope, "full");
+  assert.equal(classifyComponentChanges([file], {}, {}).scope, "full");
 });

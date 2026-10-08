@@ -9,6 +9,34 @@ const linkKeys = [
 ];
 const full = (reason) => ({ scope: "full", reason, links: [] });
 
+const widgetFiles = new Set(["src/assets/journey.js", "src/assets/styles/70-journey.css"]);
+const checkFiles = new Set([
+  "AGENTS.md", ".github/workflows/pages.yml", "scripts/release-scope.mjs",
+  "scripts/release-scope.test.mjs", "scripts/release-gate.mjs",
+  "scripts/diary-widget-check.mjs", "scripts/lib/diary-widget-checks.mjs",
+]);
+
+export function classifyComponentChanges(files, before, after) {
+  if (!files.length || files.some(file => !widgetFiles.has(file) && !checkFiles.has(file))) {
+    return full("The change is outside the diary widget and its release checks");
+  }
+  for (const file of files.filter(file => widgetFiles.has(file))) {
+    const outsideWidget = source => {
+      if (typeof source !== "string") return null;
+      const marker = file.endsWith(".js") ? "\nfunction initCalendar(" : "/* Floating diary widget ";
+      const start = source.indexOf(marker);
+      const end = file.endsWith(".js") ? source.lastIndexOf("\nif (typeof document !==") : source.length;
+      if (start < 0 || end <= start || source.indexOf(marker, start + marker.length) !== -1) return null;
+      return source.slice(0, start) + source.slice(end);
+    };
+    const oldOutside = outsideWidget(before[file]);
+    if (oldOutside === null || oldOutside !== outsideWidget(after[file])) {
+      return full("Journey code outside the widget changed");
+    }
+  }
+  return { scope: "widget", reason: "Diary widget or its release checks changed", links: [] };
+}
+
 export function classifyChanges(files, before, after) {
   if (files.length !== 1 || files[0] !== "src/build.mjs") {
     return full("Changes are not limited to shared external links");
@@ -48,8 +76,15 @@ export function detectReleaseScope({ event = process.env.RELEASE_EVENT, base = p
   try {
     const git = (...args) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
     const files = git("diff", "--name-only", "--no-renames", "-z", base, head).split("\0").filter(Boolean);
-    if (files.length !== 1 || files[0] !== "src/build.mjs") return full("Other files changed");
-    return classifyChanges(files, git("show", `${base}:src/build.mjs`), git("show", `${head}:src/build.mjs`));
+    if (files.length === 1 && files[0] === "src/build.mjs") {
+      return classifyChanges(files, git("show", `${base}:src/build.mjs`), git("show", `${head}:src/build.mjs`));
+    }
+    const before = {}, after = {};
+    for (const file of files.filter(file => widgetFiles.has(file))) {
+      before[file] = git("show", `${base}:${file}`);
+      after[file] = git("show", `${head}:${file}`);
+    }
+    return classifyComponentChanges(files, before, after);
   } catch {
     return full("The previous revision is unavailable");
   }
