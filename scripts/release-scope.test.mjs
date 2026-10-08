@@ -77,3 +77,12 @@ test("an unrecognized widget boundary keeps the full gate", () => {
   assert.equal(classifyComponentChanges([file], widgetSources, after).scope, "full");
   assert.equal(classifyComponentChanges([file], {}, {}).scope, "full");
 });
+
+test("dedicated archival-film changes use the film component checks", () => {
+  const paths = ["src/ride-film.mjs", "src/assets/ride-film.js", "src/assets/styles/76-ride-film.css"];
+  assert.equal(classifyComponentChanges(paths, {}, {}).scope, "film");
+  assert.equal(classifyComponentChanges([...paths, "scripts/ride-film-check.mjs", ".github/workflows/pages.yml"], {}, {}).scope, "film");
+  for (const outside of ["src/assets/app.js", "src/assets/ride-2024.json", "src/assets/ride-film/sources.json", "src/assets/styles/70-journey.css"]) {
+    assert.equal(classifyComponentChanges([...paths, outside], {}, {}).scope, "full");
+  }
+});

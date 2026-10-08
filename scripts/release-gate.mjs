@@ -7,7 +7,8 @@ const browserRegressionRunsSeparately =
   process.env.CI_BROWSER_REGRESSION_JOB === "separate";
 const linkOnly = process.env.RELEASE_SCOPE === "links";
 const widgetOnly = process.env.RELEASE_SCOPE === "widget";
-if ((linkOnly || widgetOnly) && detectReleaseScope().scope !== process.env.RELEASE_SCOPE) {
+const filmOnly = process.env.RELEASE_SCOPE === "film";
+if ((linkOnly || widgetOnly || filmOnly) && detectReleaseScope().scope !== process.env.RELEASE_SCOPE) {
   throw new Error("The requested short gate does not match the actual push");
 }
 const steps = linkOnly ? [
@@ -20,6 +21,12 @@ const steps = linkOnly ? [
   ["Production build", process.execPath, ["src/build.mjs", "site"]],
   ["Static contract", process.execPath, ["src/check.mjs", "site"]],
   ["Diary widget", process.execPath, ["scripts/diary-widget-check.mjs"]],
+  ["Whitespace/errors", "git", ["diff", "--check"]],
+] : filmOnly ? [
+  ["Release scope rules", process.execPath, ["--test", "scripts/release-scope.test.mjs"]],
+  ["Production build", process.execPath, ["src/build.mjs", "site"]],
+  ["Static contract", process.execPath, ["src/check.mjs", "site"]],
+  ["Archival film", process.execPath, ["scripts/ride-film-check.mjs", "site"]],
   ["Whitespace/errors", "git", ["diff", "--check"]],
 ] : [
   ["Release scope rules", process.execPath, ["--test", "scripts/release-scope.test.mjs"]],
@@ -59,6 +66,8 @@ process.stdout.write(
     ? "\nLink-only release gate passed.\n"
     : widgetOnly
     ? "\nDiary widget release gate passed.\n"
+    : filmOnly
+    ? "\nArchival film release gate passed.\n"
     : browserRegressionRunsSeparately
     ? "\nCore release gate passed; browser regression runs in its own CI job.\n"
     : "\nRelease gate passed.\n",

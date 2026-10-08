@@ -130,7 +130,7 @@ jobs:
 
   ride-film-playback:
     needs: scope
-    if: needs.scope.outputs.checks == 'full'
+    if: needs.scope.outputs.checks == 'full' || needs.scope.outputs.checks == 'film'
     runs-on: macos-15
     steps:
       - name: Checkout

@@ -5,10 +5,12 @@ const panel = document.querySelector('[data-ride-film]');
 if (panel) {
 const ru = document.documentElement.lang === 'ru';
 const text = ru ? {
+  totalDuration: 'Полное время · ч:мин', elapsed: 'С начала заезда · ч:мин',
   play: 'Смотреть заезд', pause: 'Пауза', replay: 'Смотреть снова', loading: 'Загрузка сцены…',
   retry: 'Повторить загрузку', failed: 'Не удалось загрузить сцену. Можно повторить или открыть фильм целиком.',
   soundOn: 'Выключить звук', soundOff: 'Включить звук', day: 'День', night: 'Ночь',
 } : {
+  totalDuration: 'Total duration · hr:min', elapsed: 'Elapsed time · hr:min',
   play: 'Watch the ride', pause: 'Pause', replay: 'Watch again', loading: 'Loading the scene…',
   retry: 'Try loading again', failed: 'The scene could not load. Try again or watch the full film.',
   soundOn: 'Mute', soundOff: 'Turn sound on', day: 'Day', night: 'Night',
@@ -24,6 +26,7 @@ const distanceValue = panel.querySelector('[data-film-distance-value]');
 const distanceApprox = panel.querySelector('[data-film-distance-approx]');
 const clock = panel.querySelector('[data-film-clock]');
 const timer = panel.querySelector('[data-film-total]');
+const timerCaption = panel.querySelector('[data-film-duration-label]');
 const chapters = [...panel.querySelectorAll('[data-film-chapter]')];
 const clockFormat = new Intl.DateTimeFormat(ru ? 'ru-RU' : 'en-GB', {
   timeZone: 'Asia/Dubai', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit',
@@ -76,8 +79,11 @@ function paint(forceReadings = true) {
   if (!data) return;
   // The film includes stops, so the counter follows the full recording time.
   // Before the first action the poster shows the complete duration.
-  const timerText = timeText(panel.classList.contains('has-started') ? seconds : total);
+  const started = panel.classList.contains('has-started');
+  const timerText = timeText(started ? seconds : total);
   if (timer.textContent !== timerText) timer.textContent = timerText;
+  const timerLabel = started ? text.elapsed : text.totalDuration;
+  if (timerCaption.textContent !== timerLabel) timerCaption.textContent = timerLabel;
   const leading = timerText[0];
   if (timer.dataset.opticalLeading !== leading) {
     timer.dataset.opticalLeading = leading;

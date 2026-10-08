@@ -10,6 +10,10 @@ const linkKeys = [
 const full = (reason) => ({ scope: "full", reason, links: [] });
 
 const widgetFiles = new Set(["src/assets/journey.js", "src/assets/styles/70-journey.css"]);
+const filmFiles = new Set([
+  "src/ride-film.mjs", "src/assets/ride-film.js", "src/assets/styles/76-ride-film.css",
+  "scripts/ride-film-check.mjs", "scripts/lib/ride-film-checks.mjs",
+]);
 const checkFiles = new Set([
   "AGENTS.md", ".github/workflows/pages.yml", "scripts/release-scope.mjs",
   "scripts/release-scope.test.mjs", "scripts/release-gate.mjs",
@@ -17,6 +21,9 @@ const checkFiles = new Set([
 ]);
 
 export function classifyComponentChanges(files, before, after) {
+  if (files.some(file => filmFiles.has(file)) && files.every(file => filmFiles.has(file) || checkFiles.has(file))) {
+    return { scope: "film", reason: "Only the archival film component and its checks changed", links: [] };
+  }
   if (!files.length || files.some(file => !widgetFiles.has(file) && !checkFiles.has(file))) {
     return full("The change is outside the diary widget and its release checks");
   }

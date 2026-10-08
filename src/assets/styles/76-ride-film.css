@@ -83,13 +83,14 @@
   white-space: nowrap;
 }
 .ride-film__duration-caption {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: .25rem 1.25rem;
+  display: grid;
+  gap: .25rem;
 }
 .ride-film__duration span {
   font: 400 var(--type-service)/1.4 var(--body);
+}
+.ride-film__duration .ride-film__moving-time {
+  font-size: var(--type-service-index);
 }
 .ride-film__position {
   grid-column: 7 / -1;
