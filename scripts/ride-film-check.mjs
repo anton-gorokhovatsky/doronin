@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {chromium,webkit} from 'playwright';
 import {startSiteServer} from './lib/site-server.mjs';
+import {checkFilmLoading} from './lib/film-loading-checks.mjs';
 
 const record = JSON.parse(await readFile('src/assets/ride-2024.json','utf8'));
 const timing = JSON.parse(await readFile('src/ride-2024-laps.json','utf8'));
@@ -89,7 +90,17 @@ try {
       assert(await page.locator('.ride-film__picture').isVisible());
       assert(await page.locator('.ride-film__source').isVisible());
       assert.equal(await page.locator('[data-film-play]').getAttribute('aria-pressed'),'false');
+      await page.unroute('**/ride-montage.mp4?*');
+      await page.locator('[data-film-play]').click();
+      await page.waitForFunction(()=> {
+        const video=document.querySelector('[data-film-video]');
+        return !video.paused && video.currentTime>.2;
+      });
+      assert.equal(await page.locator('[data-film-status]').innerText(),'');
       await page.close();
+      const loading=await checkFilmLoading(browser,server.origin);
+      reports.push({engine,loading,errorRetry:true});
+      console.log(engine+' slow load, cancellation, stalled connection and error retry passed');
     } finally {await browser.close();}
   }
 } finally {await server.close();}

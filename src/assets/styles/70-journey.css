@@ -129,10 +129,70 @@
 body:has(.nav-shell[open]) .return-calendar,
 .return-calendar[data-focus-obscured] { visibility: hidden; }
 :root.text-enlarged .return-calendar__copy strong { overflow-wrap: anywhere; }
-@media (max-width: 640px) {
-  .return-calendar { left: auto; right: var(--mobile-control-edge); }
-  .return-calendar__toggle .icon { right: 0.5rem; transform: rotate(-45deg); }
-  .return-calendar.is-collapsed .return-calendar__toggle .icon { right: 0.5rem; transform: rotate(135deg); }
+@media (max-width: 960px) {
+  /* Keep the reading viewport clear: the mobile shortcut belongs to the
+     navigation strip, beside the menu, rather than over the bottom paragraph. */
+  .return-calendar {
+    z-index: 21;
+    top: 8px;
+    bottom: auto;
+    left: var(--mobile-control-edge);
+    right: auto;
+    max-width: calc(100vw - 2 * var(--mobile-control-edge) - 60px);
+  }
+  .return-calendar.is-collapsed { width: min(12rem, calc(100vw - 2 * var(--mobile-control-edge) - 60px)); }
+  .return-calendar.is-collapsed .return-calendar__link {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: last baseline;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 0.25rem calc(44px + 0.5rem) 0.25rem 0.5rem;
+  }
+  .return-calendar.is-collapsed .return-calendar__date { gap: 0; }
+  .return-calendar.is-collapsed .return-calendar__date span { padding-right: 0; }
+  .return-calendar.is-collapsed .return-calendar__date strong { font-size: 1.5rem; }
+  .return-calendar.is-collapsed .return-calendar__compact { font-size: 0.875rem; }
+  .return-calendar__toggle { width: 44px; height: 48px; }
+  .return-calendar__toggle .icon,
+  .return-calendar.is-collapsed .return-calendar__toggle .icon {
+    top: calc((48px - var(--icon-action-size)) / 2);
+    right: calc((44px - var(--icon-action-size)) / 2);
+    transform: rotate(180deg);
+  }
+  .return-calendar.is-collapsed .return-calendar__toggle .icon { transform: rotate(0deg); }
+  body:has(.return-calendar:not([hidden])) .site-header {
+    min-height: var(--diary-mobile-header-height, 64px);
+    align-items: start;
+  }
+  body:has(.return-calendar:not([hidden])) .site-header .menu-toggle {
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    min-height: 48px;
+  }
+  body:has(.return-calendar:not([hidden])) .site-header .menu-toggle__label { display: none; }
+  body:has(.return-calendar:not([hidden])) .site-header:not(:has(.nav-shell[open]))::before {
+    height: var(--diary-mobile-header-height, 64px);
+    border-color: var(--glass-border);
+    background: var(--glass-material);
+    background-color: var(--ink-deep);
+    box-shadow: var(--glass-shadow);
+    opacity: 1;
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
+  }
+  body:has(.return-calendar:not([hidden])) .site-header:not(:has(.nav-shell[open])) .site-logo {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+  :root.text-enlarged .return-calendar.is-collapsed .return-calendar__link { grid-template-columns: minmax(0, 1fr); }
+  :root.text-enlarged .return-calendar.is-collapsed .return-calendar__date {
+    grid-template-columns: auto auto;
+    align-items: baseline;
+    justify-content: start;
+    gap: 0.5rem;
+  }
 }
 @media (hover: hover) and (pointer: fine) {
   .return-calendar__link:hover :is(.return-calendar__copy strong, .return-calendar__compact) { text-decoration: underline; text-underline-offset: 0.2em; }

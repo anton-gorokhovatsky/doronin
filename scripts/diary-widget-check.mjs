@@ -3,6 +3,7 @@ import { mkdir } from 'node:fs/promises';
 import { chromium } from 'playwright';
 import { startSiteServer } from './lib/site-server.mjs';
 import { checkDiaryWidget } from './lib/diary-widget-checks.mjs';
+import { checkFooterLinks } from './lib/footer-link-checks.mjs';
 
 const server = await startSiteServer(process.argv[2] || 'site');
 const browser = await chromium.launch();
@@ -15,18 +16,16 @@ try {
     { locale: 'ru', width: 320 }, { locale: 'ru', width: 320, enlarged: true },
   ]) {
     const page = await browser.newPage({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
+    page.setDefaultTimeout(5000);
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.route('**/*', route => {
       const url = new URL(route.request().url());
       return url.origin === server.origin && !url.pathname.endsWith('.mp4') ? route.continue() : route.abort();
     });
-    await page.goto(`${server.origin}/${locale === 'en' ? 'en/' : ''}`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${server.origin}/${locale === 'en' ? 'en/' : ''}${enlarged ? '?text=200' : ''}`, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
-    if (enlarged) await page.addStyleTag({ content: 'html { font-size: 200% !important; }' });
     await checkDiaryWidget(page);
-    // The navigation check reloads the page; restore the enlarged-text case.
-    if (enlarged) await page.addStyleTag({ content: 'html { font-size: 200% !important; }' });
     const widget = page.locator('.return-calendar');
     const toggle = widget.locator('button');
     assert.equal(await toggle.getAttribute('title'), null, 'No native tooltip covers the widget');
@@ -58,6 +57,8 @@ try {
     await page.keyboard.press('Shift');
     assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
     assert.equal(await toggle.evaluate(el => getComputedStyle(el).outlineStyle), 'none', 'A modifier key does not restore a pointer focus ring');
+    await checkFooterLinks(page);
+    await page.locator('.site-footer__legal').screenshot({ path: output + '/' + locale + '-' + width + (enlarged ? '-enlarged' : '') + '-footer.png' });
     assert.deepEqual(errors, []);
     console.log(`PASS diary widget: ${locale} ${width}px${enlarged ? ' 200% text' : ''}, scrolling, footer, disclosure, hover and keyboard`);
     await page.close();

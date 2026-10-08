@@ -80,6 +80,16 @@ function initCalendar(notice, latest, lang) {
   }, { capture: true });
   const copy = calendar.querySelector('.return-calendar__copy');
   let collapsed = true;
+  const header = document.querySelector('.site-header');
+  let mobileHeaderHeight = 64;
+  const syncHeader = () => {
+    if (!window.matchMedia('(max-width: 960px)').matches || calendar.hidden) {
+      header?.style.removeProperty('--diary-mobile-header-height');
+    } else {
+      if (collapsed && calendar.isConnected) mobileHeaderHeight = Math.ceil(calendar.getBoundingClientRect().height) + 16;
+      header?.style.setProperty('--diary-mobile-header-height', mobileHeaderHeight + 'px');
+    }
+  };
   const sync = () => {
     calendar.classList.toggle('is-collapsed', collapsed);
     copy.hidden = collapsed;
@@ -87,6 +97,7 @@ function initCalendar(notice, latest, lang) {
     toggle.setAttribute('aria-expanded', String(!collapsed));
     const label = lang === 'ru' ? (collapsed ? 'Развернуть название записи' : 'Свернуть название записи') : (collapsed ? 'Show entry title' : 'Hide entry title');
     toggle.setAttribute('aria-label', label);
+    syncHeader();
   };
   const day = calendar.querySelector('[data-calendar-day]');
   const compact = calendar.querySelector('.return-calendar__compact');
@@ -183,6 +194,7 @@ function initCalendar(notice, latest, lang) {
     const hidden = !readingStarted || footerVisible || Boolean(document.fullscreenElement);
     if (hidden && !calendar.hidden) finish();
     calendar.hidden = hidden;
+    syncHeader();
     // Leave any keyboard-focused control readable and operable beneath the
     // floating card. Keep its geometry so scrolling can restore it immediately.
     const focused = document.activeElement;
@@ -204,13 +216,19 @@ function initCalendar(notice, latest, lang) {
       syncVisibility();
     });
   };
+  const navigation = document.querySelector('.nav-shell');
+  if (navigation) new MutationObserver(scheduleVisibility).observe(navigation, {
+    attributes: true, attributeFilter: ['open'],
+  });
   document.addEventListener('focusin', scheduleVisibility);
   document.addEventListener('focusout', scheduleVisibility);
   document.addEventListener('fullscreenchange', scheduleVisibility);
   window.addEventListener('scroll', scheduleVisibility, { passive: true });
   window.addEventListener('resize', scheduleVisibility, { passive: true });
   if ('ResizeObserver' in window) {
-    new ResizeObserver(scheduleVisibility).observe(document.querySelector('main'));
+    const geometry = new ResizeObserver(scheduleVisibility);
+    geometry.observe(document.querySelector('main'));
+    if (navigation) geometry.observe(navigation.querySelector('.menu-toggle'));
   }
   syncVisibility();
   return calendar;

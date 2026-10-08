@@ -129,22 +129,41 @@ function stop() {
   video.pause();
   syncControls();
 }
-function readyVideo() {
-  if (mediaReady) return mediaReady;
-  video.hidden = true;
-  mediaReady = new Promise((resolve, reject) => {
-    const timer = setTimeout(() => done(new Error('timeout')), 12000);
-    const good = () => done();
+function waitForVideo(event, ready) {
+  if (ready()) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    let timer;
+    const progressEvents = ['loadstart', 'progress', 'loadedmetadata', 'canplay'];
+    const good = () => { if (ready()) done(); };
     const bad = () => done(new Error('media'));
+    const progress = () => {
+      clearTimeout(timer);
+      if (ready()) { done(); return; }
+      // A large film may take longer than twelve seconds on a cold connection.
+      // Only fail when no loading progress has arrived for thirty seconds.
+      timer = setTimeout(() => ready() ? done() : done(new Error('media stalled')), 30000);
+    };
     function done(error) {
       clearTimeout(timer);
-      video.removeEventListener('loadeddata', good);
+      video.removeEventListener(event, good);
       video.removeEventListener('error', bad);
+      progressEvents.forEach(name => video.removeEventListener(name, progress));
       error ? reject(error) : resolve();
     }
-    video.addEventListener('loadeddata', good, { once: true });
+    video.addEventListener(event, good);
     video.addEventListener('error', bad, { once: true });
-  }).catch(error => { mediaReady = undefined; throw error; });
+    progressEvents.forEach(name => video.addEventListener(name, progress));
+    progress();
+  });
+}
+function readyVideo() {
+  if (video.error) mediaReady = undefined;
+  // Reuse data that arrived after a cancelled or timed-out attempt.
+  if (video.getAttribute('src') && !video.error && video.readyState >= 2) return Promise.resolve();
+  if (mediaReady) return mediaReady;
+  video.hidden = true;
+  mediaReady = waitForVideo('loadeddata', () => video.readyState >= 2 && !video.error)
+    .catch(error => { mediaReady = undefined; throw error; });
   video.src = panel.dataset.montageUrl;
   video.load();
   return mediaReady;
@@ -161,20 +180,9 @@ async function setMedia(resume) {
     // At the end, show the last actual frame. The replay action starts from zero.
     const target = Math.min(mediaTime(seconds), video.duration - 1 / montage.frameRate);
     if (Math.abs(video.currentTime - target) > 1 / (montage.frameRate * 2)) {
-      await new Promise((resolve, reject) => {
-        const timer = setTimeout(() => done(new Error('seek timeout')), 12000);
-        const good = () => done();
-        const bad = () => done(new Error('seek media'));
-        function done(error) {
-          clearTimeout(timer);
-          video.removeEventListener('seeked', good);
-          video.removeEventListener('error', bad);
-          error ? reject(error) : resolve();
-        }
-        video.addEventListener('seeked', good, { once: true });
-        video.addEventListener('error', bad, { once: true });
-        video.currentTime = target;
-      });
+      video.currentTime = target;
+      await waitForVideo('seeked', () => !video.seeking && video.readyState >= 2 &&
+        Math.abs(video.currentTime - target) <= 1 / montage.frameRate);
     }
     if (id !== loadId) return false;
     video.hidden = false;
@@ -243,10 +251,10 @@ new IntersectionObserver(entries => {
   const visible = entries[0].isIntersecting;
   if (!visible) stop();
 }, { threshold: 0 }).observe(panel.querySelector('.ride-film__screen'));
-const menu = document.querySelector('.menu-toggle');
+const menu = document.querySelector('.nav-shell');
 if (menu) new MutationObserver(() => {
-  if (menu.getAttribute('aria-expanded') === 'true') stop();
-}).observe(menu, { attributes: true, attributeFilter: ['aria-expanded'] });
+  if (menu.open) stop();
+}).observe(menu, { attributes: true, attributeFilter: ['open'] });
 
 try {
   const [response, sources] = await Promise.all([fetch(panel.dataset.recordUrl), fetch(panel.dataset.sourcesUrl)]);

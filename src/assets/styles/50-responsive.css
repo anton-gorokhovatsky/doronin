@@ -1854,8 +1854,9 @@
   }
 
   .site-footer__credits a {
-    justify-content: space-between;
-    width: 100%;
+    justify-content: flex-start;
+    width: fit-content;
+    gap: var(--inline-action-gap);
     text-decoration: none;
   }
 
