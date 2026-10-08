@@ -77,7 +77,7 @@ function initCalendar(notice, latest, lang) {
   calendar.addEventListener('pointerdown', () => calendar.setAttribute('data-pointer-focus', ''), { capture: true });
   document.addEventListener('keydown', () => calendar.removeAttribute('data-pointer-focus'), { capture: true });
   const copy = calendar.querySelector('.return-calendar__copy');
-  let collapsed = true;
+  let collapsed = window.matchMedia('(max-width: 640px)').matches;
   const sync = () => {
     calendar.classList.toggle('is-collapsed', collapsed);
     copy.hidden = collapsed;

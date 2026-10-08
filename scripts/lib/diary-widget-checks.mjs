@@ -13,6 +13,7 @@ export async function checkDiaryWidget(page) {
     return { top: box.top + scrollY, bottom: box.bottom + scrollY };
   });
   const height = await page.evaluate(() => innerHeight);
+  const initialExpanded = await page.evaluate(() => String(!matchMedia('(max-width: 640px)').matches));
   const action = await bounds('.hero__actions [href="#diary"]');
   await page.locator('.hero__actions [href="#diary"]').focus();
   await scrollTo(0);
@@ -20,7 +21,7 @@ export async function checkDiaryWidget(page) {
   assert(await widget.isHidden(), 'The hero already provides the diary action');
   await scrollTo(action.bottom + 20);
   await widget.waitFor({ state: 'visible' });
-  assert.equal(await toggle.getAttribute('aria-expanded'), 'false', 'The shortcut starts compact on every screen');
+  assert.equal(await toggle.getAttribute('aria-expanded'), initialExpanded, 'The calendar keeps its original desktop/mobile disclosure');
   await scrollTo(action.bottom + 4);
   assert(await widget.isVisible(), 'Small reverse scrolling does not dismiss the shortcut');
   await scrollTo(action.bottom - 1);
@@ -44,15 +45,17 @@ export async function checkDiaryWidget(page) {
     const box = el.getBoundingClientRect();
     const link = el.querySelector('a').getBoundingClientRect();
     const toggle = el.querySelector('button').getBoundingClientRect();
-    const text = el.querySelector('.return-calendar__compact').getBoundingClientRect();
+    const date = el.querySelector('.return-calendar__date').getBoundingClientRect();
+    const text = el.querySelector(el.classList.contains('is-collapsed') ? '.return-calendar__compact' : '.return-calendar__copy').getBoundingClientRect();
     return box.left >= 0 && box.right <= innerWidth && box.bottom <= innerHeight &&
       el.scrollWidth <= el.clientWidth + 1 && link.height >= 44 && toggle.width >= 44 &&
-      toggle.height >= 44 && text.right <= toggle.left;
+      toggle.height >= 44 && text.top >= date.bottom && text.right <= box.right;
   });
-  assert(fits, 'The compact date, label and separate touch target fit without clipping');
+  assert(fits, 'The original calendar stack and separate touch target fit without clipping');
 
   await toggle.press('Enter');
-  assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
+  const chosenExpanded = String(initialExpanded !== 'true');
+  assert.equal(await toggle.getAttribute('aria-expanded'), chosenExpanded);
   const motion = await widget.evaluate(el => ({
     morphing: el.classList.contains('is-morphing'),
     ghost: Boolean(el.querySelector('.return-calendar__ghost')),
@@ -80,10 +83,10 @@ export async function checkDiaryWidget(page) {
   await widget.waitFor({ state: 'visible' });
   await page.waitForFunction(() => !document.querySelector('.nav-shell').open &&
     !document.querySelector('.return-calendar').inert);
-  assert.equal(await toggle.getAttribute('aria-expanded'), 'true',
+  assert.equal(await toggle.getAttribute('aria-expanded'), chosenExpanded,
     'Temporary hiding preserves the chosen disclosure state');
   await toggle.click();
-  assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+  assert.equal(await toggle.getAttribute('aria-expanded'), initialExpanded);
 
   // Put an actual page action under the floating control and focus it without
   // scrolling: keyboard access takes precedence over the shortcut.
@@ -94,7 +97,7 @@ export async function checkDiaryWidget(page) {
   await pageAction.evaluate(el => el.focus({ preventScroll: true }));
   await widget.waitFor({ state: 'hidden' });
   assert(await widget.isHidden(), 'The shortcut never obscures a focused page control');
-  await scrollTo(pageActionBounds.top - height / 2);
+  await scrollTo(pageActionBounds.bottom - widgetTop + 32);
   await widget.waitFor({ state: 'visible' });
 
   const latest = await page.evaluate(() =>
@@ -109,6 +112,6 @@ export async function checkDiaryWidget(page) {
   await page.evaluate(() => document.fonts.ready);
   await scrollTo((await bounds('#diary')).top);
   await widget.waitFor({ state: 'visible' });
-  assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+  assert.equal(await toggle.getAttribute('aria-expanded'), initialExpanded);
   assert(await page.locator('[data-return-update]').isHidden());
 }
