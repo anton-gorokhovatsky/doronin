@@ -13,29 +13,36 @@ export async function checkDiaryWidget(page) {
     return { top: box.top + scrollY, bottom: box.bottom + scrollY };
   });
   const height = await page.evaluate(() => innerHeight);
-  const initialExpanded = await page.evaluate(() => String(!matchMedia('(max-width: 640px)').matches));
-  const action = await bounds('.hero__actions [href="#diary"]');
+  const initialExpanded = 'false';
+  const chapter = await bounds('#manifesto-title');
+  const entrance = chapter.top - height;
   await page.locator('.hero__actions [href="#diary"]').focus();
   await scrollTo(0);
   await widget.waitFor({ state: 'hidden' });
   assert(await widget.isHidden(), 'The hero already provides the diary action');
-  await scrollTo(action.bottom + 20);
+  await scrollTo(entrance + 32);
   await widget.waitFor({ state: 'visible' });
-  assert.equal(await toggle.getAttribute('aria-expanded'), initialExpanded, 'The calendar keeps its original desktop/mobile disclosure');
-  await scrollTo(action.bottom + 4);
+  assert.equal(await toggle.getAttribute('aria-expanded'), initialExpanded, 'The calendar appears compact to leave room for the chapter');
+  await scrollTo(entrance + 4);
   assert(await widget.isVisible(), 'Small reverse scrolling does not dismiss the shortcut');
-  await scrollTo(action.bottom - 1);
+  await scrollTo(entrance - 1);
   await widget.waitFor({ state: 'hidden' });
-  await scrollTo(action.bottom + 4);
-  assert(await widget.isHidden(), 'The hero action boundary has a small buffer');
-  await scrollTo(action.bottom + 20);
+  await scrollTo(entrance + 4);
+  assert(await widget.isHidden(), 'The chapter entrance has a small buffer');
+  await scrollTo(entrance + 32);
   await widget.waitFor({ state: 'visible' });
+
+  // Reproduce the reported second-screen state, with the tail of the hero
+  // still visible, rather than jumping straight to a later chapter.
+  const secondScreen = Math.max(entrance + 32, (await bounds('#about')).top - height * 0.25);
+  await scrollTo(secondScreen);
+  assert(await widget.isVisible(), 'The shortcut is already present on the second screen');
 
   // Exercise ordinary continuous scrolling, with no pause to reveal the card.
   // The calendar, film, diary and footer are reading destinations, not blockers.
   const end = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
   const stops = [];
-  for (let y = action.bottom + 20; y < end; y += height * 0.8) stops.push(y);
+  for (let y = entrance + 32; y < end; y += height * 0.8) stops.push(y);
   stops.push(end);
   for (const y of [...stops, ...stops.toReversed()]) {
     await scrollTo(y);

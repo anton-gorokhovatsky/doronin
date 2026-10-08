@@ -77,7 +77,7 @@ function initCalendar(notice, latest, lang) {
   calendar.addEventListener('pointerdown', () => calendar.setAttribute('data-pointer-focus', ''), { capture: true });
   document.addEventListener('keydown', () => calendar.removeAttribute('data-pointer-focus'), { capture: true });
   const copy = calendar.querySelector('.return-calendar__copy');
-  let collapsed = window.matchMedia('(max-width: 640px)').matches;
+  let collapsed = true;
   const sync = () => {
     calendar.classList.toggle('is-collapsed', collapsed);
     copy.hidden = collapsed;
@@ -165,16 +165,15 @@ function initCalendar(notice, latest, lang) {
   window.addEventListener('resize', finish, { passive: true });
   sync();
   document.body.append(calendar);
-  // Keep the latest entry available throughout the page. Only the original
-  // hero action and temporary navigation/media layers replace this shortcut.
-  const heroAction = document.querySelector('.hero__actions [href="#diary"]');
-  const hero = document.querySelector('.hero');
+  // Keep the diary available as the next chapter enters the viewport, even
+  // while the bottom of the hero and its action are still visible above it.
+  const firstChapter = document.querySelector('#manifesto-title');
   const boundaryGap = 16;
-  let pastAction = false;
+  let readingStarted = false;
   const syncVisibility = () => {
-    const actionBottom = (heroAction || hero)?.getBoundingClientRect().bottom ?? -Infinity;
-    pastAction = actionBottom <= (pastAction ? 0 : -boundaryGap);
-    const hidden = !pastAction || Boolean(document.fullscreenElement);
+    const chapterTop = firstChapter?.getBoundingClientRect().top ?? -Infinity;
+    readingStarted = chapterTop <= window.innerHeight - (readingStarted ? 0 : boundaryGap);
+    const hidden = !readingStarted || Boolean(document.fullscreenElement);
     if (hidden && !calendar.hidden) finish();
     calendar.hidden = hidden;
     // Leave any keyboard-focused control readable and operable beneath the
