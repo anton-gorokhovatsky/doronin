@@ -1,10 +1,11 @@
+import { selectBrowserEngines } from "./lib/check-runtime.mjs";
 import assert from 'node:assert/strict';
 import { chromium, webkit } from 'playwright';
 import { startSiteServer } from './lib/site-server.mjs';
 import { checkRenderedTextContrast } from './lib/rendered-contrast.mjs';
 const server = await startSiteServer(process.argv[2] || 'preview');
 try {
-  for (const [name, engine] of Object.entries({ chromium, webkit })) {
+  for (const [name, engine] of selectBrowserEngines({ chromium, webkit })) {
     const browser = await engine.launch();
     try {
       for (const [clock, expected, device] of [

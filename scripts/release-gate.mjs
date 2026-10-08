@@ -1,41 +1,51 @@
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
-
-const execFileAsync = promisify(execFile);
-const full = process.argv.includes("--full");
-const browserRegressionRunsSeparately =
-  process.env.CI_BROWSER_REGRESSION_JOB === "separate";
-const steps = [
-  ["Project plan", process.execPath, ["scripts/validate-project-plan.mjs"]],
-  ["Status schema", process.execPath, ["scripts/validate-project-status.mjs"]],
-  ["Journey and environmental data", process.execPath, ["scripts/journey-check.mjs"]],
-  ["Production build", process.execPath, ["src/build.mjs", "site"]],
-  ["Static contract", process.execPath, ["src/check.mjs", "site"]],
-  ...(full ? [
-    ["Accessibility matrix", process.execPath, ["scripts/accessibility-gate.mjs"]],
-    ...(!browserRegressionRunsSeparately ? [
-      ["Chromium/WebKit regression", process.execPath, ["scripts/browser-regression.mjs"]],
-    ] : []),
-    ["Automatic appearance", process.execPath, ["scripts/appearance-check.mjs", "site"]],
-    ["Archival film playback and sound", process.execPath, ["scripts/ride-film-check.mjs", "site"]],
-    ["Dubai light and data fallbacks", process.execPath, ["scripts/dubai-light-check.mjs", "site"]],
-    ["Journey interactions and reflow", process.execPath, ["scripts/journey-browser-check.mjs"]],
-    ["Screenshot gate", process.execPath, ["scripts/screenshot-gate.mjs"]],
-  ] : []),
-  ["Whitespace/errors", "git", ["diff", "--check"]],
-];
-
-for (const [label, executable, args] of steps) {
-  process.stdout.write(`\n[gate] ${label}\n`);
-  const { stdout, stderr } = await execFileAsync(executable, args, {
-    cwd: process.cwd(),
-    env: process.env,
-    maxBuffer: 20 * 1024 * 1024,
-  });
-  if (stdout) process.stdout.write(stdout);
-  if (stderr) process.stderr.write(stderr);
+import { spawn } from "node:child_process";
+import { mkdir, writeFile } from "node:fs/promises";
+import { performance } from "node:perf_hooks";
+import { staticChecks, browserChecks, selectChecks } from "./lib/check-registry.mjs";
+const options = selectChecks(process.argv.slice(2));
+if (options.list) {
+  for (const check of [...staticChecks, ...browserChecks]) console.log(check.id.padEnd(12) + " " + check.script);
+} else {
+  const report = { startedAt: new Date().toISOString(), mode: options.full ? "full" : "focused/static", status: "running", checks: [] };
+  const output = "artifacts/gate/automated/checks-report.json";
+  await mkdir("artifacts/gate/automated", { recursive: true });
+  await writeFile(output, JSON.stringify(report, null, 2) + "\n");
+  for (const check of options.checks) {
+    if (options.full && check.id === "browser" && process.env.CI_BROWSER_REGRESSION_JOB === "separate") {
+      report.checks.push({ id: check.id, status: "separate-ci-job" });
+      continue;
+    }
+    console.log("\n[check] " + check.label);
+    const started = performance.now();
+    let result;
+    try {
+      result = await new Promise((resolve, reject) => {
+        const child = spawn(check.command ?? process.execPath,
+          check.command ? check.args : [...(check.nodeArgs ?? []), check.script, ...(check.args ?? [])],
+          { stdio: "inherit", env: process.env, timeout: 20 * 60 * 1000 });
+        child.once("error", reject);
+        child.once("close", (code, signal) => resolve({ code, signal }));
+      });
+    } catch (error) {
+      result = { code: 1, error: error.message };
+    }
+    const seconds = Math.round((performance.now() - started) / 100) / 10;
+    const status = result.code === 0 ? "passed" : "failed";
+    report.checks.push({ id: check.id, status, seconds, ...result });
+    report.status = status === "failed" ? "failed" : "running";
+    report.finishedAt = new Date().toISOString();
+    await writeFile(output, JSON.stringify(report, null, 2) + "\n");
+    console.log("[check] " + check.id + ": " + status + " (" + seconds + "s)");
+    if (status === "failed") {
+      console.error("Stopped at " + check.id + ". Report: " + output);
+      process.exitCode = 1;
+      break;
+    }
+  }
+  if (!process.exitCode) {
+    report.status = "passed";
+    report.finishedAt = new Date().toISOString();
+    await writeFile(output, JSON.stringify(report, null, 2) + "\n");
+    console.log("\nSelected checks passed. Report: " + output);
+  }
 }
-
-process.stdout.write(full
-  ? "\nFull site checks passed.\n"
-  : "\nBuild and static release checks passed.\n");

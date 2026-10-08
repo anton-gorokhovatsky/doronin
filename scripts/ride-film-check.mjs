@@ -1,3 +1,4 @@
+import { selectBrowserEngines } from "./lib/check-runtime.mjs";
 import assert from 'node:assert/strict';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {chromium,webkit} from 'playwright';
@@ -19,7 +20,7 @@ const out='artifacts/gate/automated/ride-film';
 await mkdir(out,{recursive:true});
 const reports=[];
 const launchers={chromium,webkit};
-const engines=(process.env.RIDE_FILM_ENGINES || 'chromium,webkit').split(',').map(name=>name.trim());
+const engines=selectBrowserEngines(launchers, 'RIDE_FILM_ENGINES').map(([name])=>name);
 assert(engines.length>0 && engines.every(name=>launchers[name]),'Playback requires a known browser engine');
 try {
   for (const engine of engines) {

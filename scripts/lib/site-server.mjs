@@ -31,6 +31,8 @@ function safePath(root, requestPath) {
 
 export async function startSiteServer(rootPath) {
   const root = resolve(rootPath);
+  const index = await stat(resolve(root, "index.html"));
+  if (!index.isFile()) throw new Error("Test site needs index.html: " + root);
   const server = createServer(async (request, response) => {
     try {
       const file = safePath(root, request.url || "/");
@@ -38,18 +40,36 @@ export async function startSiteServer(rootPath) {
       if (!details.isFile()) throw new Error("Not a file");
 
       const contentType = MIME[extname(file).toLowerCase()] || "application/octet-stream";
-      const range = request.headers.range?.match(/bytes=(\d*)-(\d*)/);
-      if (range) {
-        const start = range[1] ? Number(range[1]) : 0;
-        const end = range[2] ? Number(range[2]) : details.size - 1;
+      if (request.headers.range) {
+        const range = request.headers.range.match(/^bytes=(\d*)-(\d*)$/);
+        let start = range?.[1] ? Number(range[1]) : 0;
+        let end = range?.[2] ? Number(range[2]) : details.size - 1;
+        if (range && !range[1] && range[2]) {
+          start = Math.max(0, details.size - Number(range[2]));
+          end = details.size - 1;
+        }
+        if (!range || (!range[1] && !range[2]) ||
+            (!range[1] && Number(range[2]) === 0) ||
+            start >= details.size || end < start ||
+            !Number.isSafeInteger(start) || !Number.isSafeInteger(end)) {
+          response.writeHead(416, { "Content-Range": "bytes */" + details.size });
+          response.end();
+          return;
+        }
+        end = Math.min(end, details.size - 1);
         response.writeHead(206, {
           "Accept-Ranges": "bytes",
           "Cache-Control": "no-store",
           "Content-Length": end - start + 1,
-          "Content-Range": `bytes ${start}-${end}/${details.size}`,
+          "Content-Range": "bytes " + start + "-" + end + "/" + details.size,
           "Content-Type": contentType,
         });
-        createReadStream(file, { start, end }).pipe(response);
+        if (request.method === "HEAD") response.end();
+        else {
+          const stream = createReadStream(file, { start, end });
+          response.once("close", () => stream.destroy());
+          stream.pipe(response);
+        }
         return;
       }
 
@@ -58,7 +78,12 @@ export async function startSiteServer(rootPath) {
         "Content-Length": details.size,
         "Content-Type": contentType,
       });
-      createReadStream(file).pipe(response);
+      if (request.method === "HEAD") response.end();
+      else {
+        const stream = createReadStream(file);
+        response.once("close", () => stream.destroy());
+        stream.pipe(response);
+      }
     } catch {
       response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
       response.end("Not found");
@@ -77,6 +102,8 @@ export async function startSiteServer(rootPath) {
     origin: `http://127.0.0.1:${address.port}`,
     close: () => new Promise((resolveClose, rejectClose) => {
       server.close((error) => (error ? rejectClose(error) : resolveClose()));
+      server.closeIdleConnections?.();
+      server.closeAllConnections?.();
     }),
   };
 }

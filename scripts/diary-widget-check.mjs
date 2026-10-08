@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 import { startSiteServer } from './lib/site-server.mjs';
 import { checkDiaryWidget } from './lib/diary-widget-checks.mjs';
 
-const server = await startSiteServer('site');
+const server = await startSiteServer(process.argv[2] || 'site');
 const browser = await chromium.launch();
 const output = 'artifacts/gate/automated/diary-widget';
 await mkdir(output, { recursive: true });

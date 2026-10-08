@@ -1,3 +1,4 @@
+import { selectBrowserEngines } from "./lib/check-runtime.mjs";
 import { chromium, webkit } from 'playwright';
 import { startSiteServer } from './lib/site-server.mjs';
 import { checkFilmReadings, checkFilmAppearance } from './lib/ride-film-checks.mjs';
@@ -5,17 +6,21 @@ import { checkDiaryWidget } from './lib/diary-widget-checks.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 const root=process.cwd();
-const revision=process.argv[2];
-const server=revision ? null : await startSiteServer(`${root}/site`);
-const base=server?.origin || 'https://11111.life';
-const out=`${root}/tmp/four-review/${revision || 'local'}`;
+const publicIndex=process.argv.indexOf('--url');
+const publicUrl=publicIndex < 0 ? null : process.argv[publicIndex+1];
+if (publicIndex >= 0 && !publicUrl) throw new Error('--url requires an explicit public URL');
+if (publicUrl && !/^https?:$/.test(new URL(publicUrl).protocol)) throw new Error('Public check requires an HTTP URL');
+const revision=publicUrl ? new URL(publicUrl).searchParams.get('release') : null;
+const server=publicUrl ? null : await startSiteServer(process.argv[2] || 'site');
+const base=server?.origin || new URL(publicUrl).origin;
+const out=`${root}/artifacts/gate/automated/journey/${revision || 'local'}`;
 await mkdir(out,{recursive:true});
 const now=Date.parse('2026-09-12T17:30:00Z');
 const weather={properties:{meta:{updated_at:new Date(now-3600000).toISOString()},timeseries:[{time:new Date(now-1800000).toISOString(),data:{instant:{details:{cloud_area_fraction:3,wind_speed:5.9,wind_from_direction:0,air_temperature:36,ultraviolet_index_clear_sky:2}}}}]}};
 const dust={version:1,source:'NASA GEOS-FP',issuedAt:'2026-09-12T06:00:00Z',grid:{latitude:25.25,longitude:55.3125},intervalMinutes:180,points:[{time:'2026-09-12T16:30:00Z',dustUgM3:300,opticalDepth:.4}]};
 const report=[];
 try {
-  for(const [name,engine] of Object.entries({chromium,webkit})) {
+  for(const [name,engine] of selectBrowserEngines({chromium,webkit})) {
     const browser=await engine.launch();
     try {
       for(const [lang,width,text] of [['ru',1440,false],['ru',390,false],['en',320,true]]) {

@@ -47,6 +47,7 @@ jobs:
           RIDE_FILM_ENGINES: chromium
 
       - name: Upload gate screenshots
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: production-gate-screenshots
@@ -111,6 +112,7 @@ jobs:
           RIDE_FILM_ENGINES: webkit
 
       - name: Upload WebKit playback screenshots
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: native-webkit-ride-film

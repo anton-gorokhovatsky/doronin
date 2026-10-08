@@ -1,15 +1,13 @@
+import { prepareTestSite } from "./lib/check-runtime.mjs";
 import { createHash } from "node:crypto";
-import { execFile } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { promisify } from "node:util";
 
 import { chromium } from "playwright";
 
 import { startSiteServer } from "./lib/site-server.mjs";
 import { selectDiaryEntry } from "./lib/editorial-checks.mjs";
 
-const execFileAsync = promisify(execFile);
 const outputRoot = resolve("artifacts/gate/automated");
 
 function expect(condition, message) {
@@ -418,10 +416,8 @@ async function capture(browser, origin, spec) {
   }
 }
 
-await execFileAsync(process.execPath, ["src/build.mjs"]);
+const testRoot = await prepareTestSite(process.argv[2]);
 await mkdir(outputRoot, { recursive: true });
-const server = await startSiteServer("preview");
-const browser = await chromium.launch({ headless: true });
 
 const specs = [
   {
@@ -1015,11 +1011,15 @@ const selectedSpecs = screenshotFilter
   ? screenshotSpecs.filter((spec) => spec.name.includes(screenshotFilter))
   : screenshotSpecs;
 
+expect(selectedSpecs.length > 0, "No screenshot scenarios match: " + screenshotFilter);
+const server = await startSiteServer(testRoot);
 const manifest = [];
+let browser;
 try {
+  browser = await chromium.launch({ headless: true });
   for (const spec of selectedSpecs) manifest.push(await capture(browser, server.origin, spec));
 } finally {
-  await browser.close();
+  await browser?.close();
   await server.close();
 }
 

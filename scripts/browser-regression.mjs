@@ -1,3 +1,4 @@
+import { prepareTestSite, selectBrowserEngines } from "./lib/check-runtime.mjs";
 import { readFile } from "node:fs/promises";
 
 import { execFile } from "node:child_process";
@@ -1439,18 +1440,7 @@ async function auditBirthdayHero(browser, browserName, origin, testCase) {
   }
 }
 
-const allBrowsers = [
-  ["chromium", chromium],
-  ["webkit", webkit],
-];
-const requestedBrowserNames = new Set(
-  (process.env.BROWSER_REGRESSION_ENGINES || "chromium,webkit")
-    .split(",")
-    .map((name) => name.trim())
-    .filter(Boolean),
-);
-const browsers = allBrowsers.filter(([name]) => requestedBrowserNames.has(name));
-expect(browsers.length > 0, "Browser regression has no valid engines to run");
+const browsers = selectBrowserEngines({ chromium, webkit }, "BROWSER_REGRESSION_ENGINES");
 const cases = [
   {
     name: "RU 1440×900",
@@ -1500,8 +1490,8 @@ if (workerIndex >= 0) {
     await browser.close().catch(() => {});
   }
 } else {
-  await execFileAsync(process.execPath, ["src/build.mjs"]);
-  const server = await startSiteServer("preview");
+  const testRoot = await prepareTestSite(process.argv[2]);
+  const server = await startSiteServer(testRoot);
   const results = [];
   const scriptPath = fileURLToPath(import.meta.url);
   try {
@@ -1511,7 +1501,7 @@ if (workerIndex >= 0) {
         const { stdout, stderr } = await execFileAsync(
           process.execPath,
           [scriptPath, workerMarker, name, String(caseIndex), server.origin],
-          { maxBuffer: 10 * 1024 * 1024 },
+          { maxBuffer: 10 * 1024 * 1024, timeout: 10 * 60 * 1000 },
         );
         if (stderr) process.stderr.write(stderr);
         results.push(stdout.trim());

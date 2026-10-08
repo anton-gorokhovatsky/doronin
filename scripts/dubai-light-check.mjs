@@ -1,3 +1,4 @@
+import { selectBrowserEngines } from "./lib/check-runtime.mjs";
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { chromium, webkit } from 'playwright';
@@ -118,7 +119,7 @@ const assertStableControls = (before, after, label) => {
   });
 };
 try {
-  for (const [engineName, engine] of Object.entries({ chromium, webkit })) {
+  for (const [engineName, engine] of selectBrowserEngines({ chromium, webkit })) {
     const browser = await engine.launch();
     try {
       for (const locale of ['ru', 'en']) {

@@ -16,7 +16,10 @@
     "test:light": "node scripts/dubai-light-check.mjs",
     "gate:screenshots": "node scripts/screenshot-gate.mjs",
     "gate": "node scripts/release-gate.mjs",
-    "gate:full": "node scripts/release-gate.mjs --full"
+    "gate:full": "node scripts/release-gate.mjs --full",
+    "rules:check": "node scripts/validate-checks.mjs",
+    "checks:list": "node scripts/release-gate.mjs --list",
+    "test:checks": "node --test scripts/check-system.test.mjs scripts/lib/site-server.test.mjs"
   },
   "dependencies": {
     "morphicons": "1.7.1"

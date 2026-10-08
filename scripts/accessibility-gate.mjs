@@ -1,5 +1,4 @@
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
+import { prepareTestSite, selectBrowserEngines } from "./lib/check-runtime.mjs";
 
 import { chromium, webkit } from "playwright";
 
@@ -12,11 +11,7 @@ import {
 } from "./lib/accessibility-helpers.mjs";
 import { startSiteServer } from "./lib/site-server.mjs";
 
-const execFileAsync = promisify(execFile);
-const browsers = [
-  ["chromium", chromium],
-  ["webkit", webkit],
-];
+const browsers = selectBrowserEngines({ chromium, webkit });
 
 async function runAxeSmoke(browser, origin) {
   const specs = [
@@ -300,15 +295,16 @@ async function runKeyboardRoute(browser, browserName, origin, viewport) {
   }
 }
 
-await execFileAsync(process.execPath, ["src/build.mjs"]);
-const server = await startSiteServer("preview");
+const testRoot = await prepareTestSite(process.argv[2]);
+const server = await startSiteServer(testRoot);
 const results = [];
 
 try {
-  const chromiumBrowser = await chromium.launch({ headless: true });
+  const [smokeName, smokeType] = browsers.find(([name]) => name === "chromium") ?? browsers[0];
+  const chromiumBrowser = await smokeType.launch({ headless: true });
   try {
     results.push(...(await runAxeSmoke(chromiumBrowser, server.origin)));
-    results.push(...(await runForcedColors(chromiumBrowser, server.origin)));
+    if (smokeName === "chromium") results.push(...(await runForcedColors(chromiumBrowser, server.origin)));
   } finally {
     await chromiumBrowser.close();
   }
