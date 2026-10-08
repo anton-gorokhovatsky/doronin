@@ -25,6 +25,8 @@ try {
     await page.evaluate(() => document.fonts.ready);
     if (enlarged) await page.addStyleTag({ content: 'html { font-size: 200% !important; }' });
     await checkDiaryWidget(page);
+    // The navigation check reloads the page; restore the enlarged-text case.
+    if (enlarged) await page.addStyleTag({ content: 'html { font-size: 200% !important; }' });
     const widget = page.locator('.return-calendar');
     const toggle = widget.locator('button');
     assert.equal(await toggle.getAttribute('title'), null, 'No native tooltip covers the widget');
