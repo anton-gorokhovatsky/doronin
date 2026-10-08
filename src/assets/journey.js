@@ -75,7 +75,9 @@ function initCalendar(notice, latest, lang) {
   const toggle = calendar.querySelector('[data-calendar-toggle]');
   // Native focus-visible can persist when a pointer clicks the already-focused control.
   calendar.addEventListener('pointerdown', () => calendar.setAttribute('data-pointer-focus', ''), { capture: true });
-  document.addEventListener('keydown', () => calendar.removeAttribute('data-pointer-focus'), { capture: true });
+  document.addEventListener('keydown', event => {
+    if (['Tab', 'Enter', ' '].includes(event.key)) calendar.removeAttribute('data-pointer-focus');
+  }, { capture: true });
   const copy = calendar.querySelector('.return-calendar__copy');
   let collapsed = true;
   const sync = () => {
@@ -85,7 +87,6 @@ function initCalendar(notice, latest, lang) {
     toggle.setAttribute('aria-expanded', String(!collapsed));
     const label = lang === 'ru' ? (collapsed ? 'Развернуть название записи' : 'Свернуть название записи') : (collapsed ? 'Show entry title' : 'Hide entry title');
     toggle.setAttribute('aria-label', label);
-    toggle.title = label;
   };
   const day = calendar.querySelector('[data-calendar-day]');
   const compact = calendar.querySelector('.return-calendar__compact');

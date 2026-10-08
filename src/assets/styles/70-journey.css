@@ -264,13 +264,10 @@
   text-decoration-thickness: 2px;
   text-underline-offset: 0.2em;
 }
-.return-calendar:not([data-pointer-focus]) .return-calendar__toggle:focus-visible::after {
-  position: absolute;
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 2px solid currentColor;
-  border-radius: 50%;
-  content: "";
+.return-calendar:not([data-pointer-focus]) .return-calendar__toggle:focus-visible {
+  color: var(--acid);
+  outline: 2px solid var(--acid);
+  outline-offset: -4px;
 }
 body:has(.nav-shell[open]) .return-calendar,
 .return-calendar[data-focus-obscured] { visibility: hidden; }
@@ -282,5 +279,5 @@ body:has(.nav-shell[open]) .return-calendar,
 }
 @media (hover: hover) and (pointer: fine) {
   .return-calendar__link:hover :is(.return-calendar__copy strong, .return-calendar__compact) { text-decoration: underline; text-underline-offset: 0.2em; }
-  .return-calendar__toggle:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
+  .return-calendar__toggle:hover { color: var(--acid); }
 }
