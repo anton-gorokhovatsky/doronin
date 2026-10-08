@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import { classifyChanges, classifyComponentChanges, detectReleaseScope } from "./release-scope.mjs";
 
@@ -87,7 +90,24 @@ test("dedicated archival-film changes use the film component checks", () => {
   }
 });
 
-test("a manual comparison checks the actual diff against the named commit", () => {
-  const result = detectReleaseScope({ event: "workflow_dispatch", base: "b106cf59f5c096e09d2c16872d28c5971a882367" });
-  assert.equal(result.scope, detectReleaseScope({ event: "push", base: "b106cf59f5c096e09d2c16872d28c5971a882367" }).scope);
+test("manual comparisons check all changes since the named commit", () => {
+  const cwd = mkdtempSync(join(tmpdir(), "release-scope-"));
+  const git = (...args) => execFileSync("git", ["-c", "user.name=Scope test", "-c", "user.email=scope@example.invalid", ...args], { cwd, encoding: "utf8", stdio: "pipe" }).trim();
+  const commit = () => { git("add", "."); git("commit", "-qm", "fixture"); };
+  try {
+    git("init", "-q", "--object-format=sha1");
+    mkdirSync(join(cwd, "src"));
+    writeFileSync(join(cwd, "src/ride-film.mjs"), "// before\n");
+    commit();
+    const base = git("rev-parse", "HEAD");
+    writeFileSync(join(cwd, "src/ride-film.mjs"), "// caption change\n");
+    commit();
+    assert.equal(detectReleaseScope({ event: "workflow_dispatch", base, cwd }).scope, "film");
+    assert.equal(detectReleaseScope({ event: "schedule", base, cwd }).scope, "full");
+    writeFileSync(join(cwd, "src/build.mjs"), "// unrelated build change\n");
+    commit();
+    assert.equal(detectReleaseScope({ event: "workflow_dispatch", base, cwd }).scope, "full");
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
 });
