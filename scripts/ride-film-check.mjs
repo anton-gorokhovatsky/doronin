@@ -40,7 +40,7 @@ try {
         await page.waitForFunction(()=>!document.querySelector('[data-film-play]').disabled);
         assert.equal(await page.locator('[data-film-total]').innerText(),'38:36');
         assert.equal(await page.locator('[data-film-duration-label]').innerText(),lang==='ru'?'Полное время · ч:мин':'Total duration · hr:min');
-        assert.match(await page.locator('.ride-film__moving-time').innerText(),lang==='ru'?/Всего\s+в\s+движении.*27:13/:/Total\s+moving\s+time.*27:13/);
+        assert.equal((await page.locator('.ride-film__moving-time').innerText()).replace(/\s+/gu,' '),lang==='ru'?'Всего в движении — 27:13':'Total moving time — 27:13');
         assert(await video.evaluate(v=>v.paused && v.muted && !v.getAttribute('src')),'No video or sound starts on arrival');
         await play.focus();await play.press('Space');
         await page.waitForFunction(()=>!document.querySelector('[data-film-video]').paused && document.querySelector('[data-film-video]').currentTime>.2);

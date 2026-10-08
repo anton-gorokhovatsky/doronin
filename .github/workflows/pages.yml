@@ -5,6 +5,11 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      comparison_base:
+        description: "Compare with this commit for focused checks; leave blank for the full gate"
+        required: false
+        type: string
   schedule:
     - cron: "23 1,7,13,19 * * *"
 
@@ -25,9 +30,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Fetch previous revision
-        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        if: (github.event.before || inputs.comparison_base) && (github.event.before || inputs.comparison_base) != '0000000000000000000000000000000000000000'
         env:
-          BASE_SHA: ${{ github.event.before }}
+          BASE_SHA: ${{ github.event.before || inputs.comparison_base }}
         run: git fetch --no-tags --depth=1 origin "$BASE_SHA"
         continue-on-error: true
       - name: Choose relevant checks
@@ -35,7 +40,7 @@ jobs:
         run: node scripts/release-scope.mjs
         env:
           RELEASE_EVENT: ${{ github.event_name }}
-          RELEASE_BASE: ${{ github.event.before }}
+          RELEASE_BASE: ${{ github.event.before || inputs.comparison_base }}
 
   quality:
     needs: scope
@@ -69,7 +74,7 @@ jobs:
       - name: Fetch short-gate comparison
         if: needs.scope.outputs.checks != 'full'
         env:
-          BASE_SHA: ${{ github.event.before }}
+          BASE_SHA: ${{ github.event.before || inputs.comparison_base }}
         run: git fetch --no-tags --depth=1 origin "$BASE_SHA"
 
       - name: Run release gate
@@ -81,7 +86,7 @@ jobs:
           RIDE_FILM_ENGINES: chromium
           RELEASE_SCOPE: ${{ needs.scope.outputs.checks }}
           RELEASE_EVENT: ${{ github.event_name }}
-          RELEASE_BASE: ${{ github.event.before }}
+          RELEASE_BASE: ${{ github.event.before || inputs.comparison_base }}
 
       - name: Upload gate screenshots
         if: needs.scope.outputs.checks != 'links'

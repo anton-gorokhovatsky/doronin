@@ -35,7 +35,7 @@ test("invalid destinations and changed source structure fall back to full", () =
   assert.equal(classifyChanges(paths, source, change("designHref", "https://example.com/") + '\n  designHref: "https://example.com/",').scope, "full");
 });
 
-test("scheduled, manual and missing-base runs keep the full gate", () => {
+test("scheduled, manual without a known base and missing-base runs keep the full gate", () => {
   for (const event of ["schedule", "workflow_dispatch", undefined]) {
     assert.equal(detectReleaseScope({ event, base: "a".repeat(40) }).scope, "full");
   }
@@ -85,4 +85,9 @@ test("dedicated archival-film changes use the film component checks", () => {
   for (const outside of ["src/assets/app.js", "src/assets/ride-2024.json", "src/assets/ride-film/sources.json", "src/assets/styles/70-journey.css"]) {
     assert.equal(classifyComponentChanges([...paths, outside], {}, {}).scope, "full");
   }
+});
+
+test("a manual comparison checks the actual diff against the named commit", () => {
+  const result = detectReleaseScope({ event: "workflow_dispatch", base: "b106cf59f5c096e09d2c16872d28c5971a882367" });
+  assert.equal(result.scope, detectReleaseScope({ event: "push", base: "b106cf59f5c096e09d2c16872d28c5971a882367" }).scope);
 });

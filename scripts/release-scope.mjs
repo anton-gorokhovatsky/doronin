@@ -77,8 +77,8 @@ export function classifyChanges(files, before, after) {
 }
 
 export function detectReleaseScope({ event = process.env.RELEASE_EVENT, base = process.env.RELEASE_BASE, head = "HEAD", cwd = process.cwd() } = {}) {
-  if (event !== "push" || !/^[0-9a-f]{40}$/.test(base || "") || /^0+$/.test(base)) {
-    return full("Scheduled, manual or unknown comparison");
+  if (!["push", "workflow_dispatch"].includes(event) || !/^[0-9a-f]{40}$/.test(base || "") || /^0+$/.test(base)) {
+    return full("Scheduled or unknown comparison");
   }
   try {
     const git = (...args) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
