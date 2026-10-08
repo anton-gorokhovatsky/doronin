@@ -11,7 +11,7 @@
 | Конверсия | `project_explore`, `partner_interest` |
 | Вовлечение | `diary_explore`, `diary_follow` |
 | Предпочтения | `language_switch`, `theme_change` |
-| Медиа | `hero_video_pause`, `hero_video_resume`, `presence_audio_start`, `diary_video_start`, `diary_video_complete` |
+| Медиа | `hero_video_pause`, `hero_video_resume`, `diary_video_start`, `diary_video_complete` |
 | Доказательства | `proof_open` |
 | Контент | `diary_open`, `calendar_open`, `film_open` |
 | Контакт | `contact_email`, `contact_telegram` |
@@ -19,7 +19,7 @@
 ## Privacy contract
 
 В параметры попадают только заранее разрешённые категориальные значения:
-идентификатор раздела, фаза календаря, номер звуковой сцены, язык, тема и
+идентификатор раздела, фаза календаря, язык, тема и
 место переключателя.
 Адреса, имена, контактные значения, полный URL, свободный текст и содержимое
 полей не отправляются. `app.js` отбрасывает неизвестные цели, неизвестные ключи

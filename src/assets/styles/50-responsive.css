@@ -458,29 +458,6 @@
     pointer-events: none;
   }
 
-  .audio-story {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2.5rem;
-    min-height: 0;
-    padding-block: 4.5rem 5rem;
-  }
-
-  .audio-story__intro {
-    grid-column: 1;
-    grid-template-columns: minmax(8rem, 0.45fr) minmax(0, 1fr);
-    align-items: end;
-    gap: 2rem;
-  }
-
-  .audio-story__player {
-    grid-column: 1;
-  }
-
-  .audio-story__contexts {
-    grid-column: 1;
-    margin-top: -0.4rem;
-  }
-
   .header-actions {
     display: none;
     order: 3;
@@ -920,122 +897,6 @@
 
   .hero__title em {
     font-size: 0.36em;
-  }
-
-  .audio-story {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2.25rem;
-    padding: 3.75rem var(--page-gutter) 4.25rem;
-  }
-
-  .audio-story__intro {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.35rem;
-  }
-
-  .audio-story__meta {
-    gap: 0.65rem;
-  }
-
-  .audio-story__copy h2 {
-    font-size: var(--type-chapter-compact);
-    white-space: nowrap;
-  }
-
-  :root.text-enlarged .audio-story__copy h2 {
-    overflow-wrap: anywhere;
-    white-space: normal;
-  }
-
-  .audio-story__copy p {
-    max-width: 34ch;
-    margin-top: 0.65rem;
-    font-size: var(--type-copy);
-  }
-
-  .audio-story__player {
-    margin-top: 0;
-    overflow: hidden;
-  }
-
-  .audio-story__storyline {
-    grid-template-columns: none;
-    grid-auto-columns: 82vw;
-    grid-auto-flow: column;
-    gap: 0.5rem;
-    width: 100%;
-    min-width: 100%;
-    padding-right: 18vw;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    touch-action: pan-x;
-  }
-
-  .audio-story__storyline li {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
-
-  .audio-story__storyline::-webkit-scrollbar {
-    display: none;
-  }
-
-  .audio-story__storyline button {
-    gap: 0.9rem;
-    min-height: 7.25rem;
-    padding: 1.1rem 1rem 0.9rem;
-  }
-
-  .audio-story__storyline button[aria-pressed="true"]:focus-visible {
-    background: var(--acid);
-    color: var(--ink);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .audio-story__storyline button[aria-pressed="true"]:hover {
-      background: var(--acid);
-      color: var(--ink);
-    }
-  }
-
-  .audio-story__scene-icon {
-    --icon-scene-size: 1.35rem;
-  }
-
-  .audio-story__storyline button strong {
-    font-size: var(--type-service);
-    letter-spacing: -0.01em;
-  }
-
-  .audio-story__contexts {
-    margin-top: 0;
-  }
-
-  .audio-story__contexts::before {
-    left: 0;
-    width: min(82vw, 100%);
-  }
-
-  .audio-story__contexts p {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.35rem;
-    padding: 0 1rem;
-  }
-
-  .audio-story__contexts strong,
-  .audio-story__contexts span {
-    grid-column: 1;
-    padding-inline: 0;
-  }
-
-  .audio-story__contexts span {
-    border-left: 0;
-  }
-
-  .audio-story__contexts p::before {
-    display: none;
   }
 
   .project-phases {
@@ -2064,18 +1925,6 @@
     --type-display-feature: 1.6rem;
     --type-display-lead: 1.3rem;
     --type-number-proof: 1.8rem;
-  }
-
-  .audio-story {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.9rem;
-  }
-
-  .audio-story__meta,
-  .audio-story__copy,
-  .audio-story__player {
-    grid-column: 1;
-    grid-row: auto;
   }
 
   .interviews__heading h2 {

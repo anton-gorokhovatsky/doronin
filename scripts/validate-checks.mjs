@@ -7,10 +7,19 @@ import { staticChecks, browserChecks } from "./lib/check-registry.mjs";
 const checks = [...staticChecks, ...browserChecks];
 assert.equal(new Set(checks.map(check => check.id)).size, checks.length, "Check IDs must be unique");
 const execFileAsync = promisify(execFile);
-await Promise.all(checks.map(async check => {
-  await access(check.script);
-  await execFileAsync(process.execPath, ["--check", check.script]);
-}));
+// Follow local imports: extracted scenarios are part of the registered check.
+const checkedModules = new Set();
+async function validateModule(file) {
+  const path = resolve(file);
+  if (checkedModules.has(path)) return;
+  checkedModules.add(path);
+  await access(path);
+  const source = await readFile(path, "utf8");
+  await execFileAsync(process.execPath, ["--check", path]);
+  const imports = [...source.matchAll(/(?:from\s+|import\s+)["'](\.{1,2}\/[^"']+\.(?:mjs|js))["']/g)];
+  await Promise.all(imports.map(([, target]) => validateModule(resolve(dirname(path), target))));
+}
+await Promise.all(checks.map(check => validateModule(check.script)));
 const pkg = JSON.parse(await readFile("package.json", "utf8"));
 for (const [name, command] of Object.entries(pkg.scripts)) {
   for (const match of command.matchAll(/\b(?:src|scripts)\/[\w./-]+\.mjs\b/g)) {
@@ -39,7 +48,7 @@ for (const file of documents) {
 }
 assert.equal(pkg.scripts.gate, "node scripts/release-gate.mjs");
 assert.equal(pkg.scripts["gate:full"], "node scripts/release-gate.mjs --full");
-console.log("Rules/check registry: " + checks.length + " checks, " + documents.length + " documents, " + links + " local links valid.");
+console.log("Rules/check registry: " + checks.length + " checks, " + checkedModules.size + " modules, " + documents.length + " documents, " + links + " local links valid.");
 
 const publish = await readFile(".github/workflows/pages.yml", "utf8");
 assert.match(publish, /run: pnpm gate\s*$/m, "Publishing must call the static gate");

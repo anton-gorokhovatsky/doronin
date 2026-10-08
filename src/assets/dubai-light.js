@@ -416,6 +416,4 @@ function initDubaiLight() {
 
 if (typeof document !== 'undefined') {
   initDubaiLight();
-  const replay = document.querySelector('[data-ride-replay]');
-  if (replay) import(new URL(replay.dataset.replayModule, document.baseURI)).then(module => module.initRideReplay(lightPalette, dubaiClock)).catch(() => {});
 }

@@ -269,41 +269,6 @@ const locales = {
       formulaSpecial: "3775",
       formulaResult: "11 111",
     },
-    presence: {
-      eyebrow: "Из фильма «1111»",
-      title: "Звуки дистанции",
-      description:
-        "Три короткие сцены возвращают физическое ощущение дистанции: дыхание, ритм и скорость.",
-      hint: "Выберите сцену, чтобы включить звук.",
-      scenesLabel: "Выбрать звуковую сцену из фильма «1111»",
-      play: "Включить сцену",
-      pause: "Поставить сцену на паузу",
-      scenes: [
-        {
-          title: "Дыхание",
-          file: "audio-scene-01.m4a",
-          duration: "13.973333",
-          contextTitle: "Усилие",
-          context:
-            "Вдох, выдох и короткая пауза делают усилие слышимым.",
-        },
-        {
-          title: "Ритм",
-          file: "audio-scene-04.m4a",
-          duration: "20.138667",
-          contextTitle: "Повторение",
-          context:
-            "Отдельные движения складываются в устойчивый темп.",
-        },
-        {
-          title: "Скорость",
-          file: "audio-scene-05.m4a",
-          duration: "16.298667",
-          contextTitle: "Поток",
-          context: "Шум воздуха делает скорость физически ощутимой.",
-        },
-      ],
-    },
     viktor: {
       eyebrow: "О герое",
       title: "Виктор Доронин",
@@ -714,40 +679,6 @@ const locales = {
       formulaBase: "7336",
       formulaSpecial: "3775",
       formulaResult: "11,111",
-    },
-    presence: {
-      eyebrow: "From the film “1111”",
-      title: "Sounds of the ride",
-      description:
-        "Three short scenes bring back the physical feeling of the distance: breath, rhythm and speed.",
-      hint: "Choose a scene to play the audio.",
-      scenesLabel: "Choose a sound scene from the film “1111”",
-      play: "Play scene",
-      pause: "Pause scene",
-      scenes: [
-        {
-          title: "Breath",
-          file: "audio-scene-01.m4a",
-          duration: "13.973333",
-          contextTitle: "Effort",
-          context:
-            "An inhale, an exhale and a short pause make the effort audible.",
-        },
-        {
-          title: "Rhythm",
-          file: "audio-scene-04.m4a",
-          duration: "20.138667",
-          contextTitle: "Repetition",
-          context: "Separate movements settle into a sustained rhythm.",
-        },
-        {
-          title: "Speed",
-          file: "audio-scene-05.m4a",
-          duration: "16.298667",
-          contextTitle: "Airflow",
-          context: "The rush of air makes speed feel physical.",
-        },
-      ],
     },
     viktor: {
       eyebrow: "About Viktor",
@@ -1175,18 +1106,6 @@ const mediaIcons = {
       <path class="media-toggle-icon__pause" d="M4.5 3h2.25v10H4.5zM9.25 3h2.25v10H9.25z"></path>
     </svg>`,
 };
-
-const presenceSceneIcons = [
-  `<svg class="audio-story__scene-icon audio-story__scene-icon--breath" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-    <path d="M18.084 24.785c-2.604-1.529-1.994-5.207-.155-7.022c3.188-3.212 8.526-2.15 11.285 1.015c4 4.598 2.436 11.584-2.233 15.107c-6.174 4.681-15.107 2.627-19.526-3.344c-5.54-7.488-2.937-18.056 4.574-23.287c9.1-6.21 21.723-3.105 27.813 5.696c7.046 10.247 3.5 24.279-6.77 31.05"></path>
-  </svg>`,
-  `<svg class="audio-story__scene-icon audio-story__scene-icon--rhythm" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-    <path d="M2 25h9l5-12 6 24 8-34 7 22h9"></path>
-  </svg>`,
-  `<svg class="audio-story__scene-icon audio-story__scene-icon--speed" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-    <path d="M29 3 9 29h14l-4 16 20-27H25Z"></path>
-  </svg>`,
-];
 
 function formatProjectNumber(value, lang) {
   if (value < 10000) return String(value);
@@ -1673,70 +1592,6 @@ function renderAdventures(items, l) {
         </a>`,
     )
     .join("");
-}
-
-function renderPresence(presence, l) {
-  return `
-    <section class="audio-story" id="presence" aria-labelledby="presence-title">
-      <div class="audio-story__intro">
-        <div class="audio-story__meta">
-          <p>${presence.eyebrow}</p>
-        </div>
-        <div class="audio-story__copy">
-          <h4 id="presence-title">${presence.title}</h4>
-          <p>${presence.description}</p>
-        </div>
-      </div>
-      <div class="audio-story__player" data-presence-player>
-        <p class="audio-story__hint">${presence.hint}</p>
-        <ol class="audio-story__storyline" aria-label="${presence.scenesLabel}">
-          ${presence.scenes
-            .map(
-              (scene, index) => `
-            <li>
-              <button
-                type="button"
-                data-presence-scene
-                data-scene-title="${scene.title}"
-                data-audio-src="${l.assetBase}assets/${scene.file}"
-                data-duration="${scene.duration}"
-                data-play-label="${presence.play}"
-                data-pause-label="${presence.pause}"
-                data-playing="false"
-                aria-label="${presence.play}: ${scene.title}"
-                aria-pressed="${index === 0 ? "true" : "false"}"
-              >
-                <span class="audio-story__scene-line" aria-hidden="true"><i data-scene-progress></i></span>
-                <span class="audio-story__scene-head">
-                  ${presenceSceneIcons[index]}
-                </span>
-                <span class="audio-story__scene-foot">
-                  <strong>${scene.title}</strong>
-                  <span class="audio-story__wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
-                </span>
-              </button>
-            </li>`,
-            )
-            .join("")}
-        </ol>
-        <div class="audio-story__contexts" aria-live="polite" aria-atomic="true">
-          ${presence.scenes
-            .map(
-              (scene, index) => `
-                <p data-presence-context${index === 0 ? "" : " hidden"}>
-                  <strong>${scene.contextTitle}</strong>
-                  <span>${scene.context}</span>
-                </p>`,
-            )
-            .join("")}
-        </div>
-      </div>
-      <audio
-        data-presence-audio
-        preload="none"
-        src="${l.assetBase}assets/${presence.scenes[0].file}"
-      ></audio>
-    </section>`;
 }
 
 function renderInterviews(items, l, startIndex = 0) {

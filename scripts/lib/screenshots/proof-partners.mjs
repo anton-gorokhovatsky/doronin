@@ -1,0 +1,35 @@
+export const proofPartnerSpecs = [
+  {
+    name: "en-390-light-bike-calendar",
+    path: "/en/?gate=en-390-light-calendar#distance",
+    locale: "en",
+    theme: "light",
+    target: ".calendar-poster",
+    viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-390-dark-proof-open",
+    path: "/?gate=ru-390-dark-proof#proof",
+    locale: "ru",
+    theme: "dark",
+    proofOpen: true,
+    target: ".proof-source",
+    viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-390-dark-partner-closing",
+    path: "/?gate=ru-390-dark-partners#partners",
+    locale: "ru",
+    theme: "dark",
+    target: ".partners__closing",
+    viewport: { width: 390, height: 844 },
+  },
+  {
+    name: "ru-1440-light-partner-formats",
+    path: "/?gate=ru-1440-light-partners#partners",
+    locale: "ru",
+    theme: "light",
+    target: ".partner-formats__list",
+    viewport: { width: 1440, height: 900 },
+  },
+];

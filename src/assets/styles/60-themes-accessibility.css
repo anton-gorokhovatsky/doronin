@@ -34,14 +34,6 @@ html.motion-reduced *::after {
  * reintroduce another visual language.
  */
 :is(
-    .audio-story.is-audio-entering::before,
-    .audio-story.is-audio-entering .audio-story__player,
-    .audio-story__storyline button.is-scene-entering,
-    .audio-story__storyline button.is-scene-entering::after,
-    .audio-story__storyline button.is-scene-entering .audio-story__scene-head,
-    .audio-story__storyline button.is-scene-entering .audio-story__scene-foot,
-    .audio-story__contexts p.is-context-entering strong,
-    .audio-story__contexts p.is-context-entering span,
     .distance-story.is-distance-cutting .distance-story__counter,
     .distance-story__frame.is-active.is-motion-entering,
     .distance-story__frame.is-motion-entering figcaption span,
@@ -248,13 +240,6 @@ html.motion-reduced *::after {
   --glass-border: rgba(217, 226, 217, 0.24);
   --glass-filter: blur(22px) saturate(1.16);
   --glass-shadow: 0 1.25rem 3.5rem rgba(0, 0, 0, 0.18);
-}
-
-/* The calendar's night surface continues through the replay and sound scenes. */
-:root.theme-dark .ride-replay {
-  --replay-surface: transparent;
-  --replay-light-shape: ellipse 85% 60%;
-  --replay-light-y: 50%;
 }
 
 :root.theme-dark .site-nav__preview-media img {

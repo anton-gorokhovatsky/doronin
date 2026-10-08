@@ -42,7 +42,6 @@ const requiredAnalyticsGoals = [
   "theme_change",
   "hero_video_pause",
   "hero_video_resume",
-  "presence_audio_start",
   "proof_open",
   "diary_video_start",
   "diary_video_complete",
@@ -54,8 +53,11 @@ const requiredAnalyticsGoals = [
   "contact_telegram",
 ];
 const retiredProductionAssets = [
+  "audio-scene-01.m4a",
   "audio-scene-02.m4a",
   "audio-scene-03.m4a",
+  "audio-scene-04.m4a",
+  "audio-scene-05.m4a",
   "distance-bike-motion.mp4",
   "distance-bike-presence.mp4",
   "distance-run-motion.mp4",
@@ -943,11 +945,8 @@ expect(
 expect(
   /@media \(max-width:\s*640px\)[\s\S]*?\.hero__intro\s*\{[^}]*font-weight:\s*400/s.test(
     css,
-  ) &&
-    /\.audio-story::before\s*\{[^}]*background:\s*var\(--line-light\)/s.test(
-      css,
-    ),
-  "mobile: вводный текст hero должен быть обычного веса, а граница звуковой главы — без отдельного кислотного рудимента",
+  ),
+  "mobile: вводный текст hero должен быть обычного веса",
 );
 expect(
   normalizedCss.split(productionGlassMaterial).length === 3 &&
@@ -971,7 +970,9 @@ expect(
 );
 expect(
   !app.includes("data-sound-player") &&
-    app.includes("data-presence-player") &&
+    !app.includes("data-presence-player") &&
+    !css.includes(".audio-story") &&
+    !css.includes(".ride-replay") &&
     !app.includes("data-distance-story") &&
     !app.includes("data-distance-total") &&
     !generatedHtml.includes("audio-scene-") &&
