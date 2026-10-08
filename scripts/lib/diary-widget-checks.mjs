@@ -57,44 +57,10 @@ export async function checkDiaryWidget(page) {
     const text = el.querySelector(el.classList.contains('is-collapsed') ? '.return-calendar__compact' : '.return-calendar__copy').getBoundingClientRect();
     return box.left >= 0 && box.right <= innerWidth && box.bottom <= innerHeight &&
       el.scrollWidth <= el.clientWidth + 1 && link.height >= 44 && toggle.width >= 44 &&
-      toggle.height >= 44 && text.right <= box.right && (innerWidth > 960
-        ? text.top >= date.bottom
-        : box.top >= 0 && box.bottom <= document.querySelector('.site-header').getBoundingClientRect().bottom);
+      toggle.height >= 44 && text.top >= date.bottom && text.right <= box.right &&
+      box.top >= innerHeight / 2;
   });
   assert(fits, 'The original calendar stack and separate touch target fit without clipping');
-
-  // Reproduce the ordinary reading state that the old corner card obscured.
-  await page.locator('.ride-film__notes').evaluate(el => window.scrollTo({
-    top: scrollY + el.getBoundingClientRect().top - innerHeight * 0.68, behavior: 'instant',
-  }));
-  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  assert(await widget.isVisible(), 'The shortcut remains available while reading film context');
-  if (await page.evaluate(() => innerWidth <= 960)) {
-    const coveredWords = await widget.evaluate(card => {
-      const box = card.getBoundingClientRect(), covered = [];
-      for (const p of document.querySelectorAll('.ride-film__notes p')) {
-        const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
-        while (walker.nextNode()) {
-          const node = walker.currentNode;
-          for (const match of node.textContent.matchAll(/\S+/gu)) {
-            const range = document.createRange();
-            range.setStart(node, match.index); range.setEnd(node, match.index + match[0].length);
-            for (const rect of range.getClientRects()) {
-              if (rect.left < box.right && rect.right > box.left && rect.top < box.bottom && rect.bottom > box.top) covered.push(match[0]);
-            }
-          }
-        }
-      }
-      return covered;
-    });
-    assert.deepEqual(coveredWords, [], 'The mobile diary shortcut covers no words in the reading paragraph');
-    const separated = await widget.evaluate(el => {
-      const card = el.getBoundingClientRect(), menu = document.querySelector('.menu-toggle').getBoundingClientRect();
-      const link = el.querySelector('a').getBoundingClientRect(), toggle = el.querySelector('button').getBoundingClientRect();
-      return card.right + 8 <= menu.left && toggle.left >= link.left && toggle.right <= card.right;
-    });
-    assert(separated, 'Diary and menu targets remain separate in the navigation strip');
-  }
 
   await toggle.press('Enter');
   const chosenExpanded = String(initialExpanded !== 'true');

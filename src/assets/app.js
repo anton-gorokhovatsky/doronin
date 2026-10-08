@@ -723,7 +723,7 @@ if (eventStatus) {
   const partnerCountdown = document.querySelector("[data-partner-countdown]");
 
   if (partnerCountdown) {
-    partnerCountdown.textContent = `${value.textContent} · ${label.textContent}`;
+    partnerCountdown.textContent = `${value.textContent}\u00a0${label.textContent}`;
   }
 
   for (const menuStatus of document.querySelectorAll("[data-menu-status]")) {
