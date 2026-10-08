@@ -168,12 +168,18 @@ function initCalendar(notice, latest, lang) {
   // Keep the diary available as the next chapter enters the viewport, even
   // while the bottom of the hero and its action are still visible above it.
   const firstChapter = document.querySelector('#manifesto-title');
+  const footer = document.querySelector('.site-footer');
   const boundaryGap = 16;
   let readingStarted = false;
+  let footerVisible = false;
   const syncVisibility = () => {
     const chapterTop = firstChapter?.getBoundingClientRect().top ?? -Infinity;
     readingStarted = chapterTop <= window.innerHeight - (readingStarted ? 0 : boundaryGap);
-    const hidden = !readingStarted || Boolean(document.fullscreenElement);
+    // The footer already contains the diary action. Clear the floating card
+    // as soon as the footer enters the viewport, and keep its disclosure state.
+    const footerTop = footer?.getBoundingClientRect().top ?? Infinity;
+    footerVisible = footerTop < window.innerHeight + (footerVisible ? boundaryGap : 0);
+    const hidden = !readingStarted || footerVisible || Boolean(document.fullscreenElement);
     if (hidden && !calendar.hidden) finish();
     calendar.hidden = hidden;
     // Leave any keyboard-focused control readable and operable beneath the

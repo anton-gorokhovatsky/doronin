@@ -39,8 +39,9 @@ export async function checkDiaryWidget(page) {
   assert(await widget.isVisible(), 'The shortcut is already present on the second screen');
 
   // Exercise ordinary continuous scrolling, with no pause to reveal the card.
-  // The calendar, film, diary and footer are reading destinations, not blockers.
-  const end = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+  // The calendar, film and diary remain reading destinations; the footer has its own action.
+  const footerStart = (await bounds('.site-footer')).top;
+  const end = footerStart - height - 32;
   const stops = [];
   for (let y = entrance + 32; y < end; y += height * 0.8) stops.push(y);
   stops.push(end);
@@ -80,10 +81,24 @@ export async function checkDiaryWidget(page) {
       w.backdropFilter === m.backdropFilter, w.boxShadow === m.boxShadow];
   });
   assert(material.every(Boolean), 'The shortcut shares the menu glass material');
-  for (const selector of ['#distance', '.ride-film__screen', '#diary', '.site-footer']) {
+  for (const selector of ['#distance', '.ride-film__screen', '#diary']) {
     await scrollTo((await bounds(selector)).top);
     assert(await widget.isVisible(), `The shortcut remains available in ${selector}`);
   }
+  await scrollTo(footerStart - height - 24);
+  assert(await widget.isVisible(), 'The shortcut is available just before the footer');
+  await scrollTo(footerStart - height + 1);
+  await widget.waitFor({ state: 'hidden' });
+  assert(await widget.isHidden(), 'The shortcut clears the footer as soon as it enters view');
+  await scrollTo(await page.evaluate(() => document.documentElement.scrollHeight - innerHeight));
+  assert(await widget.isHidden(), 'The footer logo, links and legal line remain unobstructed');
+  await scrollTo(footerStart - height - 4);
+  assert(await widget.isHidden(), 'Small reverse scrolling at the footer does not cause flicker');
+  await scrollTo(footerStart - height - 24);
+  await widget.waitFor({ state: 'visible' });
+  assert.equal(await toggle.getAttribute('aria-expanded'), chosenExpanded,
+    'Returning from the footer preserves the chosen disclosure state');
+
   await page.locator('.menu-toggle').click();
   await widget.waitFor({ state: 'hidden' });
   await page.locator('.menu-toggle').click();
