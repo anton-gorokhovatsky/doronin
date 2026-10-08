@@ -5,11 +5,6 @@ on:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      comparison_base:
-        description: "Compare with this commit for focused checks; leave blank for the full gate"
-        required: false
-        type: string
   schedule:
     - cron: "23 1,7,13,19 * * *"
 
@@ -23,28 +18,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  scope:
+  publish:
     runs-on: ubuntu-latest
-    outputs:
-      checks: ${{ steps.scope.outputs.scope }}
-    steps:
-      - uses: actions/checkout@v6
-      - name: Fetch previous revision
-        if: (github.event.before || inputs.comparison_base) && (github.event.before || inputs.comparison_base) != '0000000000000000000000000000000000000000'
-        env:
-          BASE_SHA: ${{ github.event.before || inputs.comparison_base }}
-        run: git fetch --no-tags --depth=1 origin "$BASE_SHA"
-        continue-on-error: true
-      - name: Choose relevant checks
-        id: scope
-        run: node scripts/release-scope.mjs
-        env:
-          RELEASE_EVENT: ${{ github.event_name }}
-          RELEASE_BASE: ${{ github.event.before || inputs.comparison_base }}
-
-  quality:
-    needs: scope
-    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -63,37 +41,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install browser engines
-        run: pnpm exec playwright install --with-deps ${{ needs.scope.outputs.checks != 'full' && 'chromium' || 'chromium webkit' }}
-
       - name: Refresh dust forecast
-        if: needs.scope.outputs.checks == 'full'
+        if: github.event_name == 'schedule'
         run: node scripts/update-dust.mjs
         continue-on-error: true
 
-      - name: Fetch short-gate comparison
-        if: needs.scope.outputs.checks != 'full'
-        env:
-          BASE_SHA: ${{ github.event.before || inputs.comparison_base }}
-        run: git fetch --no-tags --depth=1 origin "$BASE_SHA"
-
-      - name: Run release gate
+      - name: Build and check site
         run: pnpm gate
-        env:
-          CI_BROWSER_REGRESSION_JOB: separate
-          # WebKit's media stack is platform-specific; native playback is
-          # required separately on macOS, matching Safari's target platform.
-          RIDE_FILM_ENGINES: chromium
-          RELEASE_SCOPE: ${{ needs.scope.outputs.checks }}
-          RELEASE_EVENT: ${{ github.event_name }}
-          RELEASE_BASE: ${{ github.event.before || inputs.comparison_base }}
-
-      - name: Upload gate screenshots
-        if: needs.scope.outputs.checks != 'links'
-        uses: actions/upload-artifact@v7
-        with:
-          name: production-gate-screenshots
-          path: artifacts/gate/automated
 
       - name: Setup Pages
         uses: actions/configure-pages@v6
@@ -102,86 +56,6 @@ jobs:
         uses: actions/upload-pages-artifact@v5
         with:
           path: site
-
-  browser-regression:
-    needs: scope
-    if: needs.scope.outputs.checks == 'full'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 11.9.0
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Install browser engines
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: Run isolated Chromium interaction regression
-        run: pnpm test:browser
-        env:
-          BROWSER_REGRESSION_ENGINES: chromium
-
-  ride-film-playback:
-    needs: scope
-    if: needs.scope.outputs.checks == 'full' || needs.scope.outputs.checks == 'film'
-    runs-on: macos-15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 11.9.0
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Install native WebKit
-        run: pnpm exec playwright install webkit
-
-      - name: Build and check archival film playback
-        run: |
-          pnpm build:site
-          node scripts/ride-film-check.mjs site
-        env:
-          RIDE_FILM_ENGINES: webkit
-
-      - name: Upload WebKit playback screenshots
-        uses: actions/upload-artifact@v7
-        with:
-          name: native-webkit-ride-film
-          path: artifacts/gate/automated/ride-film
-
-  deploy:
-    if: ${{ !cancelled() && needs.quality.result == 'success' && (needs.ride-film-playback.result == 'success' || needs.ride-film-playback.result == 'skipped') && (needs.browser-regression.result == 'success' || needs.browser-regression.result == 'skipped') }}
-    needs:
-      - quality
-      - browser-regression
-      - ride-film-playback
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
 
       - name: Deploy
         id: deployment

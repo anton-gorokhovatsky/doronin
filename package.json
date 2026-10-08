@@ -15,7 +15,8 @@
     "test:browser": "node scripts/browser-regression.mjs",
     "test:light": "node scripts/dubai-light-check.mjs",
     "gate:screenshots": "node scripts/screenshot-gate.mjs",
-    "gate": "node scripts/release-gate.mjs"
+    "gate": "node scripts/release-gate.mjs",
+    "gate:full": "node scripts/release-gate.mjs --full"
   },
   "dependencies": {
     "morphicons": "1.7.1"
