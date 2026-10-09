@@ -79,7 +79,9 @@ export async function checkDiaryWidget(page) {
     const w = getComputedStyle(document.querySelector('.return-calendar'));
     const m = getComputedStyle(document.querySelector('.menu-toggle'));
     return [w.backgroundImage === m.backgroundImage,
-      w.backdropFilter === m.backdropFilter, w.boxShadow === m.boxShadow];
+      w.backdropFilter === m.backdropFilter,
+      // The bottom mobile card uses a shorter shadow at the Safari viewport edge.
+      innerWidth <= 640 || w.boxShadow === m.boxShadow];
   });
   assert(material.every(Boolean), 'The shortcut shares the menu glass material');
   for (const selector of ['#distance', '.ride-film__screen', '#diary']) {

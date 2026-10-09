@@ -130,7 +130,12 @@ body:has(.nav-shell[open]) .return-calendar,
 .return-calendar[data-focus-obscured] { visibility: hidden; }
 :root.text-enlarged .return-calendar__copy strong { overflow-wrap: anywhere; }
 @media (max-width: 640px) {
-  .return-calendar { left: auto; right: var(--mobile-control-edge); }
+  .return-calendar {
+    /* Fade the shadow before Safari clips the layer above its bottom controls. */
+    --glass-shadow: 0 0.125rem 0.5rem -0.125rem rgba(0, 0, 0, 0.18);
+    left: auto;
+    right: var(--mobile-control-edge);
+  }
   .return-calendar__toggle .icon { right: 0.5rem; transform: rotate(-45deg); }
   .return-calendar.is-collapsed .return-calendar__toggle .icon { right: 0.5rem; transform: rotate(135deg); }
 }
