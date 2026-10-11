@@ -11,7 +11,7 @@ export async function readWidgetObstruction(page, scope = 'main') {
     const words = [], actions = [];
     const root = document.querySelector(scope);
     for (const action of root.querySelectorAll('a, button, input, select, textarea, summary, [role="button"], [role="slider"]')) {
-      if (overlaps(action.getBoundingClientRect()) && getComputedStyle(action).visibility === 'visible') {
+      if (overlaps(action.getBoundingClientRect()) && action.checkVisibility({ checkVisibilityCSS: true })) {
         actions.push(action.tagName);
       }
     }
@@ -20,7 +20,7 @@ export async function readWidgetObstruction(page, scope = 'main') {
     while (walker.nextNode()) {
       const node = walker.currentNode, parent = node.parentElement;
       if (parent.closest('script, style, noscript, .sr-only') || !overlaps(parent.getBoundingClientRect()) ||
-          getComputedStyle(parent).visibility !== 'visible') continue;
+          !parent.checkVisibility({ checkVisibilityCSS: true })) continue;
       for (const match of node.textContent.matchAll(/\S+/gu)) {
         range.setStart(node, match.index);
         range.setEnd(node, match.index + match[0].length);
@@ -31,19 +31,33 @@ export async function readWidgetObstruction(page, scope = 'main') {
   }, scope);
 }
 
+// Native scrolling reaches WebKit's rendering thread asynchronously. Wait for
+// the scroll event before the next painted frames, not frames from the old position.
+export async function scrollReadingPosition(page, y) {
+  await page.evaluate(y => new Promise(resolve => {
+    const afterScroll = () => requestAnimationFrame(() => requestAnimationFrame(resolve));
+    const target = Math.max(0, Math.min(y, document.documentElement.scrollHeight - innerHeight));
+    if (Math.abs(scrollY - target) < 1) {
+      afterScroll();
+      return;
+    }
+    window.addEventListener('scroll', afterScroll, { once: true });
+    window.scrollTo({ top: target, behavior: 'instant' });
+  }), y);
+}
+
 export async function checkDiaryWidget(page) {
+  // This is a reading scenario; prior page actions must not leave the pointer on the card.
+  await page.mouse.move(0, 0);
   const widget = page.locator('.return-calendar');
   const toggle = widget.locator('[data-calendar-toggle]');
-  const scrollTo = async y => {
-    await page.evaluate(y => window.scrollTo({ top: y, behavior: 'instant' }), y);
-    await page.evaluate(() => new Promise(resolve =>
-      requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  };
+  const scrollTo = y => scrollReadingPosition(page, y);
   const bounds = selector => page.locator(selector).evaluate(el => {
     const box = el.getBoundingClientRect();
     return { top: box.top + scrollY, bottom: box.bottom + scrollY };
   });
   const height = await page.evaluate(() => innerHeight);
+  const textScale = await page.locator('html').evaluate(el => el.style.fontSize);
   const initialExpanded = 'false';
   await page.locator('.hero__actions [href="#diary"]').focus();
   await scrollTo(0);
@@ -78,6 +92,10 @@ export async function checkDiaryWidget(page) {
   const stops = [];
   for (let y = entrance + 32; y < end; y += height * 0.8) stops.push(y);
   stops.push(end);
+  // Scrolling may reveal the card under a stationary mouse. This must not
+  // count as opening it or exempt the next paragraph from collision checks.
+  const corner = await widget.evaluate(el => ({ left: el.getBoundingClientRect().left, top: el.getBoundingClientRect().top }));
+  await page.mouse.move(corner.left + 2, corner.top + 2);
   const freePositions = new Set();
   for (const y of [...stops, ...stops.toReversed()]) {
     await scrollTo(y);
@@ -90,9 +108,19 @@ export async function checkDiaryWidget(page) {
   assert(freePositions.size > 0, 'The shortcut remains available throughout free reading positions');
   const findFreePosition = async start => {
     const limit = (await bounds('.site-footer')).top - height - 32;
-    const candidates = [start, ...[...freePositions].sort((a, b) => Math.abs(a - start) - Math.abs(b - start))];
+    const nearby = [...freePositions].sort((a, b) => Math.abs(a - start) - Math.abs(b - start));
+    const candidates = [start, ...nearby];
+    // Expanding upwards needs more clearance than the sampled compact card.
+    // Search beside those real free positions instead of assuming identical footprints.
+    for (let offset = 20; offset <= height; offset += 20) {
+      for (const y of nearby) candidates.push(y + offset, y - offset);
+    }
+    const visited = new Set();
     for (const y of candidates) {
-      await scrollTo(Math.max(entrance + 32, Math.min(y, limit)));
+      const target = Math.max(entrance + 32, Math.min(y, limit));
+      if (visited.has(target)) continue;
+      visited.add(target);
+      await scrollTo(target);
       if (await widget.isVisible()) return;
     }
     assert.fail('The card must return in an observed free reading position');
@@ -202,6 +230,12 @@ export async function checkDiaryWidget(page) {
   await page.waitForFunction(id => document.activeElement?.id === id, latest.href.slice(1));
   await findFreePosition((await bounds('#diary')).top);
   await page.reload();
+  // A manually applied text fixture must persist across reload like a real
+  // browser text preference; otherwise its recorded geometry belongs to 200%.
+  if (textScale) await page.evaluate(scale => {
+    document.documentElement.style.fontSize = scale;
+    window.dispatchEvent(new Event('resize'));
+  }, textScale);
   await page.evaluate(() => document.fonts.ready);
   await findFreePosition((await bounds('#diary')).top);
   assert.equal(await toggle.getAttribute('aria-expanded'), initialExpanded);

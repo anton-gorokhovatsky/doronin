@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readWidgetObstruction } from './diary-widget-checks.mjs';
+import { readWidgetObstruction, scrollReadingPosition } from './diary-widget-checks.mjs';
 
 export async function checkDiaryTouch(browser, origin) {
   const context = await browser.newContext({ isMobile: true, hasTouch: true,
@@ -11,10 +11,7 @@ export async function checkDiaryTouch(browser, origin) {
     const url = new URL(route.request().url());
     return url.origin === origin && !url.pathname.endsWith('.mp4') ? route.continue() : route.abort();
   });
-  const scroll = async y => {
-    await page.evaluate(y => scrollTo({ top: y, behavior: 'instant' }), y);
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  };
+  const scroll = y => scrollReadingPosition(page, y);
   try {
     await page.goto(origin, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);

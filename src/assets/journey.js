@@ -179,6 +179,18 @@ function initCalendar(notice, latest, lang) {
   let engaged = false;
   const intersects = (a, b) => a.width > 0 && a.height > 0 &&
     a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+  const rendered = element => {
+    // WebKit may retain nonzero rects for content inside a closed details.
+    if (typeof element.checkVisibility === 'function') return element.checkVisibility({ checkVisibilityCSS: true });
+    if (getComputedStyle(element).visibility !== 'visible') return false;
+    for (let ancestor = element.parentElement; ancestor; ancestor = ancestor.parentElement) {
+      if (ancestor.tagName === 'DETAILS' && !ancestor.open) {
+        const summary = [...ancestor.children].find(child => child.tagName === 'SUMMARY');
+        if (!summary?.contains(element)) return false;
+      }
+    }
+    return true;
+  };
   const contentObscured = card => {
     if (!main) return false;
     if (!readingNodes) {
@@ -195,12 +207,12 @@ function initCalendar(notice, latest, lang) {
     }
     for (const control of pageControls) {
       if (intersects(control.getBoundingClientRect(), card) &&
-          getComputedStyle(control).visibility === 'visible') return true;
+          rendered(control)) return true;
     }
     const range = document.createRange();
     for (const [parent, nodes] of readingNodes) {
       if (!intersects(parent.getBoundingClientRect(), card) ||
-          getComputedStyle(parent).visibility !== 'visible') continue;
+          !rendered(parent)) continue;
       for (const node of nodes) {
         range.selectNodeContents(node);
         if ([...range.getClientRects()].some(rect => intersects(rect, card))) return true;
@@ -253,7 +265,8 @@ function initCalendar(notice, latest, lang) {
     if (!calendar.contains(document.activeElement)) engaged = false;
     scheduleVisibility();
   });
-  calendar.addEventListener('pointerenter', () => { engaged = true; });
+  // A card appearing under a stationary pointer is not an interaction.
+  calendar.addEventListener('pointerdown', () => { engaged = true; });
   calendar.addEventListener('pointerleave', event => {
     // Touch has no hover; lifting a finger must not dismiss the title just opened.
     if (event.pointerType === 'touch') return;
