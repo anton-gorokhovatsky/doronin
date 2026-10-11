@@ -26,43 +26,49 @@ try {
     });
     await page.goto(`${server.origin}/${locale === 'en' ? 'en/' : ''}${enlarged ? '?text=200' : ''}`, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
-    const { findFreePosition } = await checkDiaryWidget(page);
+    const { positionInReading } = await checkDiaryWidget(page);
     const widget = page.locator('.return-calendar');
-    const toggle = widget.locator('button');
-    assert.equal(await toggle.getAttribute('title'), null, 'No native tooltip covers the widget');
-    assert(await toggle.getAttribute('aria-label'), 'The disclosure keeps its accessible name');
+    const close = widget.locator('[data-calendar-close]');
+    assert.equal(await close.getAttribute('title'), null, 'No native tooltip covers the widget');
+    assert.equal(await close.getAttribute('aria-label'),
+      locale === 'ru' ? 'Скрыть виджет дневника' : 'Hide diary widget');
     const capture = state => widget.screenshot({ path: `${output}/${locale}-${width}${enlarged ? '-enlarged' : ''}-${state}.png` });
-    const hover = async () => {
-      await toggle.hover();
-      await page.waitForFunction(() => {
-        const widget = document.querySelector('.return-calendar');
-        return getComputedStyle(widget.querySelector('button')).color !== getComputedStyle(widget).color;
-      });
-      assert.equal(await toggle.evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)', 'Hover leaves the glass surface uninterrupted');
-      assert.equal(await toggle.evaluate(el => getComputedStyle(el).outlineStyle), 'none', 'Pointer hover does not masquerade as keyboard focus');
-    };
-    await hover();
-    await capture('compact-hover');
-    await toggle.click();
-    await hover();
-    assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
-    await capture('expanded-hover');
+    await close.hover();
+    await page.waitForFunction(() => {
+      const widget = document.querySelector('.return-calendar');
+      return getComputedStyle(widget.querySelector('button')).color !== getComputedStyle(widget).color;
+    });
+    assert.equal(await close.evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)');
+    assert.equal(await close.evaluate(el => getComputedStyle(el).outlineStyle), 'none');
+    await capture('close-hover');
     await page.mouse.move(20, 100);
-    await findFreePosition(await page.evaluate(() => scrollY));
     await widget.locator('a').focus();
     await page.keyboard.press('Tab');
-    assert(await toggle.evaluate(el => document.activeElement === el));
-    assert.notEqual(await toggle.evaluate(el => getComputedStyle(el).outlineStyle), 'none', 'Keyboard focus remains visible');
+    assert(await close.evaluate(el => document.activeElement === el));
+    assert.notEqual(await close.evaluate(el => getComputedStyle(el).outlineStyle), 'none');
     await capture('keyboard');
-    await toggle.click();
-    await hover();
+    await close.click();
+    await widget.waitFor({ state: 'hidden' });
     await page.keyboard.press('Shift');
-    assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
-    assert.equal(await toggle.evaluate(el => getComputedStyle(el).outlineStyle), 'none', 'A modifier key does not restore a pointer focus ring');
+    assert.equal(await close.evaluate(el => getComputedStyle(el).outlineStyle), 'none',
+      'A modifier key never restores a pointer focus ring');
+    await page.reload();
+    await scrollIntoReading(page);
+    assert(await widget.isHidden(), 'Pointer dismissal survives reload');
+    await page.evaluate(() => sessionStorage.removeItem('11111-diary-widget-dismissed'));
+    await page.reload();
+    if (enlarged) await page.evaluate(() => {
+      document.documentElement.style.fontSize = '200%';
+      window.dispatchEvent(new Event('resize'));
+    });
+    await page.evaluate(() => document.fonts.ready);
+    await positionInReading(await page.locator('#diary').evaluate(el => scrollY + el.getBoundingClientRect().top));
     await checkFooterLinks(page);
-    await page.locator('.site-footer__legal').screenshot({ path: output + '/' + locale + '-' + width + (enlarged ? '-enlarged' : '') + '-footer.png' });
+    await page.locator('.site-footer__legal').screenshot({
+      path: `${output}/${locale}-${width}${enlarged ? '-enlarged' : ''}-footer.png`,
+    });
     assert.deepEqual(errors, []);
-    console.log(`PASS diary widget: ${locale} ${width}px${enlarged ? ' 200% text' : ''}, scrolling, footer, disclosure, hover and keyboard`);
+    console.log(`PASS diary widget: ${locale} ${width}px${enlarged ? ' 200% text' : ''}, steady scrolling, footer, direct link, close, reload, hover and keyboard`);
     await page.close();
   }
   await checkDiaryTouch(browser, server.origin);
@@ -72,4 +78,8 @@ try {
 } finally {
   await browser.close();
   await server.close();
+}
+
+async function scrollIntoReading(page) {
+  await page.locator('#diary').scrollIntoViewIfNeeded();
 }

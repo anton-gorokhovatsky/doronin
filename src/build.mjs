@@ -1069,6 +1069,10 @@ function renderMenuSettings(l) {
 }
 
 const icons = {
+  close: `
+    <svg class="icon icon--close" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M3 3l10 10M13 3L3 13"></path>
+    </svg>`,
   external: `
     <svg class="icon icon--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M4 12 12 4M6 4h6v6"></path>
@@ -2184,10 +2188,9 @@ function renderPage(l) {
           <aside class="return-calendar" aria-label="${l.lang === 'ru' ? 'Последняя запись дневника' : 'Latest diary entry'}">
             <a class="return-calendar__link" data-calendar-link>
               <time class="return-calendar__date" data-calendar-date aria-hidden="true"><span data-calendar-month></span><strong data-calendar-day></strong></time>
-              <span class="return-calendar__copy" id="return-calendar-copy"><small>${l.lang === 'ru' ? 'Последняя запись' : 'Latest entry'}</small><strong data-calendar-title></strong></span>
               <span class="return-calendar__compact" aria-hidden="true">${l.lang === 'ru' ? 'Дневник' : 'Diary'}</span>
             </a>
-            <button class="return-calendar__toggle" type="button" aria-controls="return-calendar-copy" data-calendar-toggle>${icons.disclosure}</button>
+            <button class="return-calendar__close" type="button" aria-label="${l.lang === 'ru' ? 'Скрыть виджет дневника' : 'Hide diary widget'}" data-calendar-close>${icons.close}</button>
           </aside>
         </template>
       </aside>
