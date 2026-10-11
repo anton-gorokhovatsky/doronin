@@ -67,8 +67,26 @@ try {
         await page.waitForFunction(()=>document.querySelector('[data-film-video]').paused);
         await page.locator('.menu-toggle').click();
         const range=page.locator('[data-film-range]');
-        await range.focus();await range.press('End');
-        await page.waitForFunction(()=>document.querySelector('[data-film-range]').value==='138980' && !document.querySelector('[data-film-video]').seeking);
+        // Native details toggle is asynchronous. A control in an inert main
+        // cannot receive End even though the menu has already closed visually.
+        await page.waitForFunction(()=>!document.querySelector('.nav-shell').open &&
+          !document.querySelector('main').inert && !document.querySelector('[data-film-range]').disabled);
+        await range.focus();
+        assert(await range.evaluate(el=>document.activeElement===el),'The film range has keyboard focus after menu isolation ends');
+        await range.press('End');
+        try {
+          await page.waitForFunction(()=>document.querySelector('[data-film-range]').value==='138980' && !document.querySelector('[data-film-video]').seeking);
+        } catch(error) {
+          console.error('Film end-seek state', await page.evaluate(()=> {
+            const v=document.querySelector('[data-film-video]'), range=document.querySelector('[data-film-range]');
+            return {value:range.value,disabled:range.disabled,focused:document.activeElement===range,
+              inert:document.querySelector('main').inert,time:v.currentTime,duration:v.duration,
+              seeking:v.seeking,paused:v.paused,readyState:v.readyState,error:v.error?.code,
+              status:document.querySelector('[data-film-status]').textContent};
+          }));
+          await page.screenshot({path:`${out}/${engine}-${lang}-${width}-seek-failure.png`});
+          throw error;
+        }
         assert.equal(await page.locator('[data-film-total]').innerText(),'38:36');
         assert.match(await page.locator('[data-film-distance-value]').innerText(),/^1001[,.]0$/);
         await play.click();
