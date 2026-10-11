@@ -28,9 +28,9 @@ const analyticsDocumentation = await readFile(
   resolve("docs/analytics-goals.md"),
   "utf8",
 );
-const documentedAnalyticsGoalIds = [
-  ...analyticsDocumentation.matchAll(/`([a-z][a-z0-9_]+)`/g),
-].map(([, goal]) => goal);
+const documentedAnalyticsGoalIds = analyticsDocumentation.split("\n")
+  .filter(line => line.startsWith("|"))
+  .flatMap(line => [...line.matchAll(/`([a-z][a-z0-9_]+)`/g)].map(([, goal]) => goal));
 const triggeredAnalyticsGoals = new Set();
 const requiredAnalyticsGoals = [
   "menu_open",

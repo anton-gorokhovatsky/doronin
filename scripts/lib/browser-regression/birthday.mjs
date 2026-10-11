@@ -4,7 +4,6 @@ export async function auditBirthdayHero(browser, browserName, origin, testCase) 
   const context = await browser.newContext({ reducedMotion: "reduce", viewport: testCase.viewport });
   const page = await context.newPage();
   await page.clock.setFixedTime(new Date("2026-10-05T12:00:00+03:00"));
-  await page.route("https://mc.yandex.ru/**", route => route.abort());
   await page.route("https://api.met.no/**", route => route.abort());
   try {
     await page.goto(`${origin}${testCase.path}`, { waitUntil: "domcontentloaded" });

@@ -9,7 +9,6 @@ export async function checkFilmLoading(browser, origin) {
     try {
       await page.clock.install();
       await page.route('https://api.met.no/**', route => route.abort());
-      await page.route('https://mc.yandex.ru/**', route => route.abort());
       await page.route('**/ride-montage.mp4?*', async route => { await held; await route.continue(); });
       await page.goto(origin + '/?film=loading#ride-2024', { waitUntil: 'domcontentloaded' });
       const play = page.locator('[data-film-play]');

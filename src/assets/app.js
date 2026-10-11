@@ -12,6 +12,12 @@ const phaseFixtureDates = {
 const localFixtureHost = /^(?:127(?:\.\d{1,3}){3}|localhost|\[::1\])$/i.test(
   window.location.hostname,
 );
+// Service visits never load the counter or send goals, including when a
+// browser preference is switched on. Release/UTM links remain audience visits.
+const serviceVisit = localFixtureHost || navigator.webdriver === true ||
+  requestParameters.get("service") === "check" ||
+  ["phase", "calendar", "text", "theme", "film", "browser-regression"]
+    .some(key => requestParameters.has(key));
 const phaseFixture =
   localFixtureHost && Object.hasOwn(phaseFixtureDates, requestedPhase)
     ? requestedPhase
@@ -212,7 +218,7 @@ function syncAnalyticsPreference() {
 }
 
 function initializeAnalytics() {
-  if (!analyticsEnabled || analyticsInitialized) {
+  if (serviceVisit || !analyticsEnabled || analyticsInitialized) {
     return;
   }
 
@@ -276,7 +282,7 @@ applyAnalyticsPreference(analyticsEnabled ? "on" : "off", false);
 function reachGoal(goal, params = {}) {
   const definition = analyticsGoals.get(goal);
 
-  if (!analyticsEnabled || !definition || typeof window.ym !== "function") {
+  if (serviceVisit || !analyticsEnabled || !definition || typeof window.ym !== "function") {
     return;
   }
 

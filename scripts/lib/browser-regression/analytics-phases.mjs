@@ -1,43 +1,9 @@
 import { expect } from "../check-assertions.mjs";
 
 export async function checkAnalyticsAndPhases({ page, origin, testCase, prefix }) {
-  const analytics = await page.evaluate(() =>
-    window.__analyticsCalls
-      .filter(([, command]) => command === "reachGoal")
-      .map(([counterId, command, goal, params]) => ({
-        counterId,
-        command,
-        goal,
-        params,
-      })),
-  );
-  for (const goal of [
-    "menu_open",
-    "theme_change",
-    "proof_open",
-    "calendar_open",
-    "chapter_navigation",
-    "project_explore",
-    "language_switch",
-  ]) {
-    expect(
-      analytics.some((event) => event.goal === goal),
-      `${prefix}: analytics goal ${goal} did not fire`,
-    );
-  }
-  expect(
-    analytics.every(
-      ({ counterId, command, params }) =>
-        counterId === 111159425 &&
-        command === "reachGoal" &&
-        Object.keys(params || {}).every((key) =>
-          ["chapter", "language", "location", "phase", "theme"].includes(
-            key,
-          ),
-        ),
-    ),
-    `${prefix}: analytics emitted an unknown counter, command, or parameter`,
-  );
+  expect(await page.evaluate(() => window.__analyticsCalls.length === 0 &&
+    !document.querySelector('[data-analytics-loader]')),
+    `${prefix}: service visits must not initialize analytics or send goals`);
 
   if (testCase.name === "RU 1440×900") {
     const phaseCases = [

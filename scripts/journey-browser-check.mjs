@@ -30,7 +30,6 @@ try {
         await page.clock.setFixedTime(new Date(now));
         await page.route('https://api.met.no/**',r=>r.fulfill({json:weather}));
         await page.route('**/dubai-dust.json',r=>r.fulfill({json:dust}));
-        await page.route('https://mc.yandex.ru/**',r=>r.abort());
         await page.route('**/*.mp4',r=>r.abort());
         await page.goto(`${base}/${lang==='en'?'en/':''}?release=${revision||'four-review'}`);
         await page.evaluate(()=>document.fonts.ready);
@@ -94,7 +93,6 @@ try {
       for (const javaScriptEnabled of [false,true]) {
         const page=await browser.newPage({viewport:{width:390,height:844},javaScriptEnabled,reducedMotion:'reduce'});
         await page.route('https://api.met.no/**',r=>r.abort());
-        await page.route('https://mc.yandex.ru/**',r=>r.abort());
         await page.route('**/*.mp4',r=>r.abort());
         await page.route('**/ride-2024.json?*',r=>r.abort());
         await page.goto(`${base}/?release=${revision||'four-review'}#ride-2024`,{waitUntil:'domcontentloaded'});

@@ -10,6 +10,7 @@ export const staticChecks = [
 export const browserChecks = [
   { id: "a11y", label: "Accessibility", script: "scripts/accessibility-gate.mjs" },
   { id: "browser", label: "Page interactions", script: "scripts/browser-regression.mjs" },
+  { id: "analytics", label: "Audience goals and service-visit exclusion", script: "scripts/analytics-check.mjs" },
   { id: "appearance", label: "Automatic and manual appearance", script: "scripts/appearance-check.mjs" },
   { id: "film", label: "Archival film playback and sound", script: "scripts/ride-film-check.mjs" },
   { id: "light", label: "Dubai light and data fallbacks", script: "scripts/dubai-light-check.mjs" },

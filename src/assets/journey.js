@@ -171,6 +171,43 @@ function initCalendar(notice, latest, lang) {
   const firstChapter = document.querySelector('#manifesto-title');
   const footer = document.querySelector('.site-footer');
   const boundaryGap = 16;
+  const main = document.querySelector('main');
+  // Cache the text nodes, not their coordinates: scrolling, disclosure and
+  // enlarged text must be checked against the actual current line fragments.
+  let readingNodes = null;
+  let pageControls = [];
+  let engaged = false;
+  const intersects = (a, b) => a.width > 0 && a.height > 0 &&
+    a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+  const contentObscured = card => {
+    if (!main) return false;
+    if (!readingNodes) {
+      readingNodes = new Map();
+      const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        const node = walker.currentNode;
+        const parent = node.parentElement;
+        if (!node.textContent.trim() || parent.closest('script, style, noscript, .sr-only')) continue;
+        if (!readingNodes.has(parent)) readingNodes.set(parent, []);
+        readingNodes.get(parent).push(node);
+      }
+      pageControls = [...main.querySelectorAll('a, button, input, select, textarea, summary, [role="button"], [role="slider"]')];
+    }
+    for (const control of pageControls) {
+      if (intersects(control.getBoundingClientRect(), card) &&
+          getComputedStyle(control).visibility === 'visible') return true;
+    }
+    const range = document.createRange();
+    for (const [parent, nodes] of readingNodes) {
+      if (!intersects(parent.getBoundingClientRect(), card) ||
+          getComputedStyle(parent).visibility !== 'visible') continue;
+      for (const node of nodes) {
+        range.selectNodeContents(node);
+        if ([...range.getClientRects()].some(rect => intersects(rect, card))) return true;
+      }
+    }
+    return false;
+  };
   let readingStarted = false;
   let footerVisible = false;
   const syncVisibility = () => {
@@ -195,6 +232,10 @@ function initCalendar(notice, latest, lang) {
         card.top < target.bottom && card.bottom > target.top;
     }
     calendar.toggleAttribute('data-focus-obscured', obscured);
+    // Preserve the card's corner, dimensions and disclosure. Only yield when
+    // its actual footprint covers reading or an action, not a whole section.
+    calendar.toggleAttribute('data-content-obscured', !hidden && !engaged &&
+      contentObscured(calendar.getBoundingClientRect()));
   };
   let visibilityFrame = 0;
   const scheduleVisibility = () => {
@@ -204,14 +245,44 @@ function initCalendar(notice, latest, lang) {
       syncVisibility();
     });
   };
-  document.addEventListener('focusin', scheduleVisibility);
-  document.addEventListener('focusout', scheduleVisibility);
+  document.addEventListener('focusin', () => {
+    engaged = calendar.contains(document.activeElement);
+    scheduleVisibility();
+  });
+  document.addEventListener('focusout', () => {
+    if (!calendar.contains(document.activeElement)) engaged = false;
+    scheduleVisibility();
+  });
+  calendar.addEventListener('pointerenter', () => { engaged = true; });
+  calendar.addEventListener('pointerleave', event => {
+    // Touch has no hover; lifting a finger must not dismiss the title just opened.
+    if (event.pointerType === 'touch') return;
+    if (calendar.hasAttribute('data-pointer-focus') || !calendar.contains(document.activeElement)) engaged = false;
+    scheduleVisibility();
+  });
+  calendar.addEventListener('click', scheduleVisibility);
+  document.addEventListener('pointerdown', event => {
+    if (!calendar.contains(event.target)) {
+      engaged = false;
+      scheduleVisibility();
+    }
+  }, { passive: true });
   document.addEventListener('fullscreenchange', scheduleVisibility);
-  window.addEventListener('scroll', scheduleVisibility, { passive: true });
+  window.addEventListener('scroll', () => {
+    engaged = false;
+    scheduleVisibility();
+  }, { passive: true });
   window.addEventListener('resize', scheduleVisibility, { passive: true });
   if ('ResizeObserver' in window) {
-    new ResizeObserver(scheduleVisibility).observe(document.querySelector('main'));
+    const observer = new ResizeObserver(scheduleVisibility);
+    if (main) observer.observe(main);
+    observer.observe(calendar);
   }
+  if (main) new MutationObserver(() => {
+    readingNodes = null;
+    scheduleVisibility();
+  }).observe(main, { childList: true, subtree: true });
+  document.fonts?.ready.then(scheduleVisibility);
   syncVisibility();
   return calendar;
 }

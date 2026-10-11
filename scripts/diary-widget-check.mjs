@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
-import { chromium } from 'playwright';
+import { chromium, webkit } from 'playwright';
 import { startSiteServer } from './lib/site-server.mjs';
 import { checkDiaryWidget } from './lib/diary-widget-checks.mjs';
 import { checkFooterLinks } from './lib/footer-link-checks.mjs';
+import { checkDiaryTouch } from './lib/diary-widget-touch.mjs';
 
 const server = await startSiteServer(process.argv[2] || 'site');
 const browser = await chromium.launch();
@@ -25,7 +26,7 @@ try {
     });
     await page.goto(`${server.origin}/${locale === 'en' ? 'en/' : ''}${enlarged ? '?text=200' : ''}`, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
-    await checkDiaryWidget(page);
+    const { findFreePosition } = await checkDiaryWidget(page);
     const widget = page.locator('.return-calendar');
     const toggle = widget.locator('button');
     assert.equal(await toggle.getAttribute('title'), null, 'No native tooltip covers the widget');
@@ -47,6 +48,7 @@ try {
     assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
     await capture('expanded-hover');
     await page.mouse.move(20, 100);
+    await findFreePosition(await page.evaluate(() => scrollY));
     await widget.locator('a').focus();
     await page.keyboard.press('Tab');
     assert(await toggle.evaluate(el => document.activeElement === el));
@@ -63,6 +65,10 @@ try {
     console.log(`PASS diary widget: ${locale} ${width}px${enlarged ? ' 200% text' : ''}, scrolling, footer, disclosure, hover and keyboard`);
     await page.close();
   }
+  await checkDiaryTouch(browser, server.origin);
+  const safari = await webkit.launch();
+  try { await checkDiaryTouch(safari, server.origin); }
+  finally { await safari.close(); }
 } finally {
   await browser.close();
   await server.close();

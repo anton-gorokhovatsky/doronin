@@ -31,7 +31,6 @@ try {
       for (const [lang,width,enlarged] of [['ru',1440,false],['ru',390,false],['en',320,false],['en',390,true]]) {
         const page=await browser.newPage({viewport:{width,height:900},reducedMotion:'reduce'});
         await page.route('https://api.met.no/**',r=>r.abort());
-        await page.route('https://mc.yandex.ru/**',r=>r.abort());
         const errors=[];page.on('pageerror',e=>errors.push(e.message));
         await page.goto(`${server.origin}/${lang==='en'?'en/':''}?film=gate${enlarged?'&text=200':''}#ride-2024`);
         await page.evaluate(()=>document.fonts.ready);

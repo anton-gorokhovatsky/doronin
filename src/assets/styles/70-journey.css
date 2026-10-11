@@ -42,6 +42,9 @@
 }
 
 /* Floating diary widget shares the production glass material with the menu. */
+/* Inherited visibility must change immediately on the card and its controls;
+   the disclosure already owns its animation through WAAPI. */
+.return-calendar, .return-calendar * { transition-property: none; }
 .return-calendar {
   position: fixed;
   z-index: 18;
@@ -127,7 +130,8 @@
   outline-offset: -4px;
 }
 body:has(.nav-shell[open]) .return-calendar,
-.return-calendar[data-focus-obscured] { visibility: hidden; }
+.return-calendar[data-focus-obscured],
+.return-calendar[data-content-obscured] { visibility: hidden; }
 :root.text-enlarged .return-calendar__copy strong { overflow-wrap: anywhere; }
 @media (max-width: 640px) {
   .return-calendar {

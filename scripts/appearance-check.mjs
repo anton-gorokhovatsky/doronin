@@ -16,7 +16,6 @@ try {
         const page = await browser.newPage({ colorScheme: device, reducedMotion: 'reduce' });
         await page.clock.setFixedTime(new Date(clock));
         await page.route('https://api.met.no/**', r => r.abort());
-        await page.route('https://mc.yandex.ru/**', r => r.abort());
         await page.goto(server.origin);
         await page.waitForFunction(() => document.documentElement.dataset.dubaiMode === 'current');
         const resolved = () => page.locator('html').evaluate(el => el.classList.contains('theme-dark') ? 'dark' : 'light');

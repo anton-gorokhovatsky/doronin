@@ -78,8 +78,6 @@ const server = await startSiteServer(process.argv[2] || 'preview');
 const report = [];
 const createWeatherPage = async (owner, options) => {
   const page = await owner.newPage(options);
-  // Forecast fixtures must not depend on the live analytics service.
-  await page.route('https://mc.yandex.ru/**', route => route.abort());
   return page;
 };
 const readControlGeometry = page => page.evaluate(() => {
@@ -270,15 +268,23 @@ try {
         await page.route('https://api.met.no/**', route => failure === 'network' ? route.abort() : route.fulfill({ json: failure === 'storage' ? fresh : withSeries([forecastAt(now - 7200000)]) }));
         // Reproduce a stalled third-party script without contacting the network.
         // Component readiness must not wait for this request or window.load.
-        const analyticsRequest = failure === 'network' ? page.waitForRequest('https://mc.yandex.ru/**') : null;
-        if (analyticsRequest) await page.route('https://mc.yandex.ru/**', () => {});
+        const stalledScriptUrl = `${server.origin}/service-stalled-script.js`;
+        const stalledRequest = failure === 'network' ? page.waitForRequest(stalledScriptUrl) : null;
+        if (stalledRequest) {
+          await page.route(stalledScriptUrl, () => {});
+          await page.route(`${server.origin}/`, async route => {
+            const response = await route.fetch();
+            await route.fulfill({ response, body: (await response.text()).replace('</head>',
+              '<script src="/service-stalled-script.js" async></script></head>') });
+          });
+        }
         await page.goto(`${server.origin}/#dubai-light`, { waitUntil: 'domcontentloaded' });
         await page.locator('[data-dubai-controls]').waitFor({ state: 'visible' });
         await page.locator('button[data-dubai-mode="current"]').click();
         await page.waitForFunction(expected => document.querySelector('[data-dubai-controls]').dataset.weather === expected, failure === 'storage' ? 'fresh' : 'unavailable');
-        if (analyticsRequest) {
-          await analyticsRequest;
-          assert.notEqual(await page.evaluate(() => document.readyState), 'complete', 'Weather fallback is ready while analytics still blocks the load event');
+        if (stalledRequest) {
+          await stalledRequest;
+          assert.notEqual(await page.evaluate(() => document.readyState), 'complete', 'Weather fallback is ready while an unrelated script still blocks the load event');
         }
         assert.equal(await page.locator('[data-dubai-clock]').textContent(), '13:00');
         assert(await page.locator('h1').isVisible());
