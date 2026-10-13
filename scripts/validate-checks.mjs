@@ -27,7 +27,7 @@ for (const [name, command] of Object.entries(pkg.scripts)) {
     catch { throw new Error("Command " + name + " refers to missing " + match[0]); }
   }
 }
-const documents = ["AGENTS.md", "README.md", "docs/verification.md", "docs/nng-ux-rules.md", "docs/product-rules.md", "docs/design-evals.md"];
+const documents = ["AGENTS.md", "README.md", "docs/verification.md", "docs/nng-ux-rules.md", "docs/product-rules.md", "docs/design-evals.md", "docs/birman-interface-rules.md"];
 let links = 0;
 for (const file of documents) {
   const text = await readFile(file, "utf8");
