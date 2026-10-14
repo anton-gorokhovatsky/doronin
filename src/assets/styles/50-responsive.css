@@ -1849,6 +1849,7 @@
   }
 
   .site-footer__credits {
+    padding-top: var(--space-stack);
     justify-content: flex-start;
     width: 100%;
   }

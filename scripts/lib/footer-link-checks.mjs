@@ -20,12 +20,12 @@ export async function checkFooterLinks(page) {
     const fallback = host.querySelector('a[rel="author"]');
     const link = host.shadowRoot?.querySelector('a') || fallback;
     const rect = link.getBoundingClientRect();
-    return { href: link.href, fallbackHref: fallback.href, text: link.textContent,
+    return { href: link.href, fallbackHref: fallback.href, text: link.textContent.replace(/\s+/gu, ' '), name: fallback.textContent.split('—')[0].trim().replace(/\s+/gu, ' '),
       left: rect.left, right: rect.right, height: rect.height, viewport: innerWidth };
   });
   assert.equal(credit.href, 'https://gorokhovatsky.tech/');
   assert.equal(credit.fallbackHref, credit.href, 'The fallback preserves the author destination');
-  assert(credit.text.includes('Антон'), 'The credit identifies the author');
+  assert(credit.text.includes(credit.name), 'The credit identifies the author');
   assert(credit.left >= 0 && credit.right <= credit.viewport, 'The author credit stays within the viewport');
   assert(credit.height > 0, 'The author link remains visible with or without the shared module');
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);

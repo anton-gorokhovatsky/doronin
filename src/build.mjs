@@ -574,6 +574,7 @@ const locales = {
       partnerCta: "Обсудить участие",
       languageCta: "English version",
       legal: "2026 ИП Доронин В. В. · ИНН 344 406 202 270",
+      authorName: "Антон Гороховатский",
       designCredit: "Дизайн и разработка",
       top: "Наверх",
     },
@@ -985,6 +986,7 @@ const locales = {
       partnerCta: "Discuss a partnership",
       languageCta: "Русская версия",
       legal: "2026 · Sole proprietor Viktor Doronin · TIN 344 406 202 270",
+      authorName: "Anton Gorokhovatsky",
       designCredit: "Design and development",
       top: "Back to top",
     },
@@ -2029,7 +2031,7 @@ function renderPage(l) {
   <script src="${l.assetBase}assets/dubai-light.js?v=${assetVersion}" type="module"></script>
   <script src="${l.assetBase}assets/journey.js?v=${assetVersion}" type="module"></script>
   <script src="${l.assetBase}assets/ride-film.js?v=${assetVersion}" type="module"></script>
-  <script src="https://gorokhovatsky.tech/signature/v1/signature.js" type="module"></script>
+  <script src="https://gorokhovatsky.tech/signature/v1/signature.js?v=1.0.2" type="module"></script>
 </head>
 <body data-project-phase="before">
   <script type="application/json" id="analytics-goal-registry">${analyticsRegistryJson}</script>
@@ -2547,8 +2549,8 @@ function renderPage(l) {
       </a>
       <p>${l.footer.legal}</p>
       <div class="site-footer__credits">
-        <ag-signature role-label="${l.footer.designCredit}" theme="dark" controls="external">
-          <a href="${shared.designHref}" rel="author"><span>Антон Гороховатский — ${l.footer.designCredit}</span></a>
+        <ag-signature lang="${l.lang}" role-label="${l.footer.designCredit}" theme="dark" controls="external">
+          <a href="${shared.designHref}" rel="author"><span>${l.footer.authorName} — ${l.footer.designCredit}</span></a>
         </ag-signature>
       </div>
     </div>
