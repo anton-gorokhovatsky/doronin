@@ -1853,6 +1853,10 @@
     width: 100%;
   }
 
+  .motion-switcher .theme-switcher__options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .site-footer__credits a {
     justify-content: flex-start;
     width: fit-content;

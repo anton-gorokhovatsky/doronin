@@ -967,13 +967,37 @@
 }
 
 .site-footer__credits {
+  flex-basis: 100%;
+  padding-top: var(--space-stack);
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.75rem 1.5rem;
 }
 
+.site-footer__credits ag-signature {
+  --ag-signature-size: 8rem;
+  --ag-signature-ink: var(--paper-dim);
+  --ag-signature-muted: rgba(217, 226, 217, 0.7);
+  --ag-signature-accent: var(--acid);
+  --ag-signature-node-ink: var(--paper-dim);
+  --ag-signature-name-size: 1.25rem;
+  --ag-signature-role-size: var(--type-service);
+  --ag-signature-gap: var(--space-stack);
+  min-width: 0;
+  max-width: 100%;
+  min-height: 5.75rem;
+  font-family: var(--body);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.motion-switcher button {
+  min-height: 2.75rem;
+}
+
 .site-footer__credits a {
+  min-height: 2.75rem;
   min-width: 0;
   max-width: 100%;
   color: var(--paper-dim);

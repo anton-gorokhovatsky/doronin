@@ -126,6 +126,7 @@ function emitMotionPreferenceChange() {
 }
 
 function syncMotionPreference() {
+  document.documentElement.dataset.reduceMotion = String(reducedMotion.matches);
   document.documentElement.classList.toggle(
     "motion-reduced",
     reducedMotion.matches,

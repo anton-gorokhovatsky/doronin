@@ -146,7 +146,7 @@ const shared = {
   dustyDumbbellsHref: "https://dustydumbbells.com/",
   gastrodinamikaHref: "https://www.instagram.com/gstrdnmc/",
   photoHref: "https://khanayphoto.ru/",
-  designHref: "https://gorokhovatsky.tech/?point=eleven",
+  designHref: "https://gorokhovatsky.tech/",
   startDate: "2026-12-01",
   endDate: "2026-12-31",
   calendarNearStartDays: 30,
@@ -564,8 +564,8 @@ const locales = {
       themeDark: "Тёмная",
       settingsLabel: "Настройки",
       motionLabel: "Движение",
-      motionSystem: "Система",
-      motionReduced: "Меньше",
+      motionSystem: "По системе",
+      motionReduced: "Без анимации",
       analyticsLabel: "Аналитика",
       analyticsOn: "Вкл",
       analyticsOff: "Выкл",
@@ -976,7 +976,7 @@ const locales = {
       settingsLabel: "Settings",
       motionLabel: "Motion",
       motionSystem: "System",
-      motionReduced: "Reduced",
+      motionReduced: "No animation",
       analyticsLabel: "Analytics",
       analyticsOn: "On",
       analyticsOff: "Off",
@@ -1043,6 +1043,17 @@ function renderThemeSwitcher(l) {
         <button type="button" data-theme-option="dark" aria-pressed="false">${l.footer.themeDark}</button>
       </div>
       <p class="theme-switcher__hint" id="theme-auto-hint">${l.footer.themeSystem} — ${l.footer.themeAutoHint.replace(/^./u, (letter) => letter.toLocaleLowerCase(l.lang))}</p>
+    </div>`;
+}
+
+function renderMotionSwitcher(l) {
+  return `
+    <div class="theme-switcher motion-switcher" role="group" aria-label="${l.footer.motionLabel}">
+      <span class="theme-switcher__label">${l.footer.motionLabel}</span>
+      <div class="theme-switcher__options">
+        <button type="button" data-motion-option="system" aria-pressed="true">${l.footer.motionSystem}</button>
+        <button type="button" data-motion-option="reduced" aria-pressed="false">${l.footer.motionReduced}</button>
+      </div>
     </div>`;
 }
 
@@ -2018,6 +2029,7 @@ function renderPage(l) {
   <script src="${l.assetBase}assets/dubai-light.js?v=${assetVersion}" type="module"></script>
   <script src="${l.assetBase}assets/journey.js?v=${assetVersion}" type="module"></script>
   <script src="${l.assetBase}assets/ride-film.js?v=${assetVersion}" type="module"></script>
+  <script src="https://gorokhovatsky.tech/signature/v1/signature.js" type="module"></script>
 </head>
 <body data-project-phase="before">
   <script type="application/json" id="analytics-goal-registry">${analyticsRegistryJson}</script>
@@ -2507,6 +2519,7 @@ function renderPage(l) {
       <div class="site-footer__utility">
         <p>${l.footer.utilityLabel}</p>
         ${renderThemeSwitcher(l)}
+        ${renderMotionSwitcher(l)}
         <div class="site-footer__utility-links">
           <a data-language-switch href="${l.alternateHref}" hreflang="${l.lang === "ru" ? "en" : "ru"}">${l.footer.languageCta}${icons.external}</a>
           <a href="#top">${l.footer.top}${icons.up}</a>
@@ -2534,7 +2547,9 @@ function renderPage(l) {
       </a>
       <p>${l.footer.legal}</p>
       <div class="site-footer__credits">
-        <a href="${shared.designHref}" target="_blank" rel="noopener noreferrer"><span>${l.footer.designCredit}</span>${icons.external}</a>
+        <ag-signature role-label="${l.footer.designCredit}" theme="dark" controls="external">
+          <a href="${shared.designHref}" rel="author"><span>Антон Гороховатский — ${l.footer.designCredit}</span></a>
+        </ag-signature>
       </div>
     </div>
   </footer>
