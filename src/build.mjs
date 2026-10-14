@@ -2536,6 +2536,7 @@ function renderPage(l) {
     </div>
 
     <div class="site-footer__legal">
+      <div class="site-footer__publication">
       <a
         class="site-footer__after-credits"
         href="${shared.viktorTelegramHref}"
@@ -2548,6 +2549,7 @@ function renderPage(l) {
         ${icons.external}
       </a>
       <p>${l.footer.legal}</p>
+      </div>
       <div class="site-footer__credits">
         <ag-signature lang="${l.lang}" role-label="${l.footer.designCredit}" theme="dark" controls="external">
           <a href="${shared.designHref}" rel="author"><span>${l.footer.authorName} — ${l.footer.designCredit}</span></a>
