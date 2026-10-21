@@ -1,0 +1,92 @@
+/* Adjacent reading columns meet at the cap-height of their first line.
+   Trim only the space above that line; keep interline spacing and descenders.
+   This is independent of the baseline used for a number and its unit. */
+.proof-source__index,
+.proof-source h3,
+.proof-source > p,
+.proof-source__links > span {
+  text-box: trim-start cap alphabetic;
+}
+
+@media (min-width: 961px) {
+  .section-heading,
+  .section-heading--compact,
+  .interviews__heading,
+  .partner-media__heading,
+  .calendar-poster__row,
+  .calendar-program__row {
+    align-items: start;
+  }
+
+  .manifesto__copy,
+  .section-heading > .section-label,
+  .manifesto > .section-label {
+    align-self: start;
+  }
+
+  .interviews__intro {
+    margin-block-start: clamp(2.5rem, 6vw, 6rem);
+  }
+
+  .manifesto h2,
+  .section-heading h2,
+  .interviews__heading h2,
+  .interviews__intro,
+  .partners__pitch > p,
+  .partner-media__heading > h3,
+  .partner-media__heading > p,
+  .partner-format > span,
+  .partner-format > strong,
+  .partners__cta,
+  .partners__person > *,
+  .calendar-poster__date > time,
+  .calendar-poster__value > strong,
+  .calendar-program__date,
+  .calendar-program__name,
+  .calendar-program__distance > strong,
+  .calendar-program__cumulative > span,
+  .calendar-program__rhythm > div > * {
+    text-box: trim-start cap alphabetic;
+  }
+
+  .calendar-poster__date {
+    align-items: start;
+  }
+
+  @supports (text-box: trim-start cap alphabetic) {
+    /* The chapter circle and rule retain their place around the label's
+       first line, without centering the label in the neighbouring heading. */
+    :is(
+      .manifesto > .section-label,
+      .section-heading > .section-label,
+      .diary-live__meta > .section-label
+    ) {
+      align-items: start;
+    }
+
+    :is(
+      .manifesto > .section-label,
+      .section-heading > .section-label,
+      .diary-live__meta > .section-label
+    ) > p {
+      text-box: trim-start cap alphabetic;
+    }
+
+    :is(
+      .manifesto > .section-label,
+      .section-heading > .section-label,
+      .diary-live__meta > .section-label
+    ) > span {
+      flex-shrink: 0;
+      margin-block-start: calc((1cap - 2.1rem) / 2);
+    }
+
+    :is(
+      .manifesto > .section-label,
+      .section-heading > .section-label,
+      .diary-live__meta > .section-label
+    )::after {
+      margin-block-start: calc(0.5cap - 0.5px);
+    }
+  }
+}

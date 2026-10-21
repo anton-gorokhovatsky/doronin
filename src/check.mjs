@@ -732,6 +732,7 @@ const styleModuleNames = [
   "70-journey.css",
   "75-birthday.css",
   "76-ride-film.css",
+  "80-optical-alignment.css",
 ];
 const sourceStyleManifest = await readFile(resolve("src/assets/styles.css"), "utf8");
 const sourceStyleBundle = (
