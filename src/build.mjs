@@ -124,6 +124,7 @@ const shared = {
   viktorInstagramHref: "https://www.instagram.com/victordoronin/",
   filmHref: "https://vkvideo.ru/video-224465212_456239107",
   everestingFilmHref: "https://www.youtube.com/watch?v=Bi8rY8Qs7IY",
+  everestingActivityHref: "https://www.strava.com/activities/6101598144",
   project1111InterviewHref: "https://youtu.be/4H2fddBQ6VQ",
   project1111Activities: {
     swim: "https://www.strava.com/activities/13181645645",
@@ -279,7 +280,7 @@ const locales = {
       achievements: [
         ["4×", "участник чемпионата мира WC Ironman Kona"],
         ["252,8 км", "Marathon des Sables в Сахаре"],
-        ["17 696 м", "двойной Everesting за один заезд"],
+        ["17 758 м", "двойной Everesting за один заезд"],
         ["58 часов", "ультратриатлон 1111 км без сна"],
       ],
     },
@@ -415,9 +416,12 @@ const locales = {
         {
           title: "Двойной Everesting · 2021",
           body:
-            "11–12 октября 2021 года Виктор набрал 17 696 м высоты за один заезд в Красной Поляне.",
-          linkLabel: "Фильм о заезде",
-          links: [["Everesting X2 · Veter sport", shared.everestingFilmHref]],
+            "Двойной Everesting — две высоты Эвереста, 17 696 м набора за один заезд. Виктор стартовал в Красной Поляне 10 октября 2021 года в 23:50; Strava зафиксировала 17 758 м набора высоты.",
+          stackLinks: true,
+          links: [
+            ["Заезд в Strava", shared.everestingActivityHref],
+            ["Everesting X2 · Veter sport", shared.everestingFilmHref],
+          ],
         },
         {
           kind: "media",
@@ -698,7 +702,7 @@ const locales = {
       achievements: [
         ["4×", "Ironman World Championship Kona participant"],
         ["252.8 km", "Marathon des Sables in the Sahara"],
-        ["17,696 m", "Double Everesting elevation gain in one ride"],
+        ["17,758 m", "Double Everesting elevation gain in one ride"],
         ["58 hours", "1111 km ultra-triathlon without sleep"],
       ],
     },
@@ -834,9 +838,12 @@ const locales = {
         {
           title: "Double Everesting · 2021",
           body:
-            "On October 11–12, 2021, Viktor gained 17,696 metres of elevation in a single ride in Krasnaya Polyana.",
-          linkLabel: "Film of the ride",
-          links: [["Everesting X2 · Veter sport", shared.everestingFilmHref]],
+            "Double Everesting means twice the height of Everest: 17,696 metres of elevation gain in a single ride. Viktor started in Krasnaya Polyana on October 10, 2021 at 23:50; Strava recorded 17,758 metres of elevation gain.",
+          stackLinks: true,
+          links: [
+            ["Ride on Strava", shared.everestingActivityHref],
+            ["Everesting X2 · Veter sport", shared.everestingFilmHref],
+          ],
         },
         {
           kind: "media",
