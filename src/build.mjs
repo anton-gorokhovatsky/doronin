@@ -123,6 +123,7 @@ const shared = {
   viktorStravaHref: "https://www.strava.com/athletes/786744",
   viktorInstagramHref: "https://www.instagram.com/victordoronin/",
   filmHref: "https://vkvideo.ru/video-224465212_456239107",
+  everestingFilmHref: "https://www.youtube.com/watch?v=Bi8rY8Qs7IY",
   project1111InterviewHref: "https://youtu.be/4H2fddBQ6VQ",
   project1111Activities: {
     swim: "https://www.strava.com/activities/13181645645",
@@ -410,6 +411,13 @@ const locales = {
             ["2018 · BTU (PDF)", shared.raceResults.kona2018],
             ["2024 · BTU (PDF)", shared.raceResults.kona2024],
           ],
+        },
+        {
+          title: "Двойной Everesting · 2021",
+          body:
+            "11–12 октября 2021 года Виктор набрал 17 696 м высоты за один заезд в Красной Поляне.",
+          linkLabel: "Фильм о заезде",
+          links: [["Everesting X2 · Veter sport", shared.everestingFilmHref]],
         },
         {
           kind: "media",
@@ -822,6 +830,13 @@ const locales = {
             ["2018 · BTU (PDF)", shared.raceResults.kona2018],
             ["2024 · BTU (PDF)", shared.raceResults.kona2024],
           ],
+        },
+        {
+          title: "Double Everesting · 2021",
+          body:
+            "On October 11–12, 2021, Viktor gained 17,696 metres of elevation in a single ride in Krasnaya Polyana.",
+          linkLabel: "Film of the ride",
+          links: [["Everesting X2 · Veter sport", shared.everestingFilmHref]],
         },
         {
           kind: "media",
