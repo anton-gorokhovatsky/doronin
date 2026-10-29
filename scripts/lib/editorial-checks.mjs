@@ -126,6 +126,37 @@ export async function selectDiaryEntry(page, index) {
   await link.click();
 }
 
+export async function checkDiaryArchiveKeyboard(page) {
+  const rail = page.locator("[data-diary-archive-rail]");
+  const links = rail.locator("[data-diary-story-link]:not([hidden])");
+  const selectedBefore = await page.locator("[data-diary-story-panel]:visible").getAttribute("id");
+  const webkit = page.context().browser().browserType().name() === "webkit";
+  await rail.scrollIntoViewIfNeeded();
+  await links.first().focus();
+
+  let previous = 0;
+  for (const index of [0, 1, 2, 1, 0, 1]) {
+    if (index !== previous) {
+      const key = index > previous ? "Tab" : "Shift+Tab";
+      await page.keyboard.press(webkit ? `Alt+${key}` : key);
+    }
+    const link = links.nth(index);
+    assert.equal(await page.evaluate(() => document.activeElement?.getAttribute("href")),
+      await link.getAttribute("href"));
+    await page.waitForFunction(() => {
+      const link = document.activeElement;
+      const rail = link.closest("[data-diary-archive-rail]");
+      if (!rail) return false;
+      const card = link.getBoundingClientRect();
+      const visible = rail.getBoundingClientRect();
+      return card.left >= visible.left - 1 && card.right <= visible.right + 1;
+    }, null, { timeout: 1500 });
+    assert.equal(await page.locator("[data-diary-story-panel]:visible").getAttribute("id"),
+      selectedBefore, "Moving keyboard focus through the archive must not change the open entry");
+    previous = index;
+  }
+}
+
 export async function checkDiaryReadingRoute(page, total) {
   const chapterIndices = await page.evaluate(() => {
     const navigation = [...document.querySelectorAll('.site-nav__primary a')];
@@ -178,6 +209,7 @@ export async function checkDiaryReadingRoute(page, total) {
     Math.abs(card.y - archiveLayout[0].y) <= 1 &&
     (index === 0 || card.x > archiveLayout[index - 1].x + archiveLayout[index - 1].width)),
   "Diary cards must form one readable horizontal row");
+  await checkDiaryArchiveKeyboard(page);
   const selectedBefore = await page.locator("[data-diary-story-panel]:visible").getAttribute("id");
   await archive.locator("[data-diary-archive-earlier]").click();
   await page.waitForFunction(() => document.querySelector("[data-diary-archive-rail]").scrollLeft > 2);

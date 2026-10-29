@@ -997,6 +997,18 @@ if (diaryStories) {
 
   archiveNewer?.addEventListener("click", () => browseArchive(-1));
   archiveEarlier?.addEventListener("click", () => browseArchive(1));
+  archiveRail?.addEventListener("focusin", (event) => {
+    const card = event.target.closest("[data-diary-story-link]");
+    if (!card?.matches(":focus-visible")) return;
+    const cardBounds = card.getBoundingClientRect();
+    const railBounds = archiveRail.getBoundingClientRect();
+    if (cardBounds.left < railBounds.left - 1 || cardBounds.right > railBounds.right + 1) {
+      archiveRail.scrollTo({
+        left: archiveRail.scrollLeft + cardBounds.left - railBounds.left,
+        behavior: "instant",
+      });
+    }
+  });
   archiveRail?.addEventListener("scroll", syncArchiveControls, { passive: true });
   if (archiveRail && "ResizeObserver" in window) {
     new ResizeObserver(syncArchiveControls).observe(archiveRail);
