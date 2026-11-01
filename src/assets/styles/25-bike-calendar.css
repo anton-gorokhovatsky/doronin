@@ -335,8 +335,33 @@
   }
 
   .calendar-program__row {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.8rem 1rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.55rem;
+  }
+
+  .calendar-program__event {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+  }
+
+  .calendar-program__note {
+    margin: 0;
+  }
+
+  .calendar-program__distance {
+    margin-top: 0.25rem;
+  }
+
+  .calendar-program__cumulative {
+    margin-top: 0.25rem;
+  }
+
+  .calendar-program__cumulative > strong {
+    font-size: var(--type-service);
+    font-weight: 500;
+    color: var(--text-editorial-muted);
   }
 
   .calendar-program__row--finish {

@@ -187,6 +187,7 @@
   min-width: 0;
   min-height: var(--action-min-height);
   margin-top: 0;
+  color: var(--paper);
   font-size: var(--type-service-strong);
   font-weight: 600;
   letter-spacing: 0;
@@ -194,8 +195,9 @@
   text-transform: none;
 }
 
-.hero__diary-link .icon {
+.hero__actions .hero__diary-link .icon {
   flex: 0 0 auto;
+  margin-inline-start: 0;
 }
 
 .button {
