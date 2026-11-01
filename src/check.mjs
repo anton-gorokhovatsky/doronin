@@ -129,7 +129,9 @@ for (const [lang, path] of pages) {
   const html = await readFile(path, "utf8");
   const diary = diaryByLocale[lang];
   const diaryFactCount = diary.entries.reduce(
-    (total, entry) => total + entry.facts.length,
+    (total, entry) => total + entry.facts.length + (entry.noteLayout === "activity-report"
+      ? (entry.note.match(/^•\s+\d+\s+(?:км|km)$/gmu) || []).length
+      : 0),
     0,
   );
   const diaryMedia = diary.entries.flatMap((entry) => entry.media);
@@ -260,6 +262,7 @@ for (const [lang, path] of pages) {
   const actionCopy =
     lang === "ru"
       ? {
+          plan: "План декабря",
           diary: "Дневник подготовки",
           diaryTelegram: "Дневник в Telegram",
           discuss: "Обсудить участие",
@@ -267,13 +270,15 @@ for (const [lang, path] of pages) {
           telegram: "Написать в Telegram",
         }
       : {
+          plan: "December plan",
           diary: "Preparation diary",
           diaryTelegram: "Diary on Telegram",
           discuss: "Discuss a partnership",
           email: "Send an email",
           telegram: "Message on Telegram",
         };
-  const heroDiaryAction = findAnchorByClass(html, "button--primary");
+  const heroPlanAction = findAnchorByClass(html, "button--primary");
+  const heroDiaryAction = findAnchorByClass(html, "hero__diary-link");
   const diaryTelegramAction = findAnchorByClass(
     html,
     "diary-follow__telegram",
@@ -310,12 +315,16 @@ for (const [lang, path] of pages) {
     ),
   ].map(([anchor]) => anchor);
   expect(
-    heroDiaryAction.includes('href="#diary"') &&
+    heroPlanAction.includes('href="#distance"') &&
+      heroPlanAction.includes('data-analytics-goal="project_explore"') &&
+      heroPlanAction.includes('icon--down') &&
+      compactMarkupText(heroPlanAction) === actionCopy.plan &&
+      heroDiaryAction.includes('href="#diary"') &&
       heroDiaryAction.includes('data-analytics-goal="diary_explore"') &&
       heroDiaryAction.includes('icon--down') &&
       compactMarkupText(heroDiaryAction) === actionCopy.diary &&
-      (heroActionsMarkup.match(/<a\b/g) || []).length === 1,
-    `${lang}: одно главное действие первого экрана ведёт к дневнику и буквально называет этот переход`,
+      (heroActionsMarkup.match(/<a\b/g) || []).length === 2,
+    `${lang}: главное действие ведёт к плану декабря, рядом остаётся вторичный переход в дневник`,
   );
   expect(
     !html.includes("data-diary-latest") &&
@@ -1080,7 +1089,7 @@ expect(
     app.includes("phaseFixtureDates") &&
     app.includes('near: "2026-11-15T12:00:00+03:00"') &&
     app.includes('calendarFixture === "confirmed"') &&
-    app.includes('calendarPhase === "near" && calendarReady') &&
+    app.includes('calendarPhase === "near";') &&
     app.includes('segment.setAttribute("aria-current", "step")') &&
     app.includes('reachGoal("calendar_open", { phase: calendarPhase })') &&
     app.includes("localFixtureHost") &&

@@ -47,7 +47,7 @@ export async function checkAnalyticsAndPhases({ page, origin, testCase, prefix }
     expect(
       nearUnconfirmed.calendarPhase === "near" &&
         nearUnconfirmed.calendarReady === "false" &&
-        nearUnconfirmed.open === false &&
+        nearUnconfirmed.open === true &&
         nearUnconfirmed.title === "План декабря" &&
         nearConfirmed.calendarPhase === "near" &&
         nearConfirmed.calendarReady === "true" &&

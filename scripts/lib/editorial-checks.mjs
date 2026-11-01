@@ -74,7 +74,7 @@ export async function checkUpperPageRoutes(page) {
   });
   try {
     await selectDiaryEntry(page, -1);
-    await page.locator(".hero .button--primary").click();
+    await page.locator('.hero__actions a[href="#diary"]').click();
     assert.equal(new URL(page.url()).hash, "#diary");
     assert(await page.locator("[data-diary-story-panel]").first().isVisible(),
       "The main viewer action must open the latest diary entry after browsing the archive");

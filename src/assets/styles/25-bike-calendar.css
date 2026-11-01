@@ -206,10 +206,10 @@
 
 .calendar-program__distance {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 0.6rem;
   margin: 0;
-  white-space: nowrap;
 }
 
 .calendar-program__distance > strong {
@@ -220,16 +220,11 @@
   letter-spacing: -0.03em;
 }
 
-.calendar-program__distance > span,
-.calendar-program__distance small {
+.calendar-program__distance > span {
   font-size: var(--type-service);
   font-weight: 500;
   line-height: 1.4;
-}
-
-.calendar-program__distance small {
-  display: block;
-  color: var(--text-editorial-muted);
+  white-space: nowrap;
 }
 
 .calendar-program__row--special .calendar-program__distance > strong {

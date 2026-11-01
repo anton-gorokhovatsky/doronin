@@ -210,7 +210,8 @@ const locales = {
       imageAlt: "Виктор Доронин на велосипеде во время скоростного заезда",
       videoPlay: "Включить видео",
       videoPause: "Пауза",
-      primaryCta: "Дневник подготовки",
+      primaryCta: "План декабря",
+      secondaryCta: "Дневник подготовки",
       statusFallback: "Старт 1 декабря 2026",
       statusMeta: "11 111 км · 31 день",
       beforeForms: ["день до старта", "дня до старта", "дней до старта"],
@@ -634,7 +635,8 @@ const locales = {
       imageAlt: "Viktor Doronin riding at speed during a cycling event",
       videoPlay: "Play video",
       videoPause: "Pause",
-      primaryCta: "Preparation diary",
+      primaryCta: "December plan",
+      secondaryCta: "Preparation diary",
       statusFallback: "Starts December 1, 2026",
       statusMeta: "11,111 km · 31 days",
       beforeForms: ["day to start", "days to start", "days to start"],
@@ -1231,7 +1233,7 @@ function renderCalendarSegments(plan, l) {
             ${detail ? `<p class="calendar-program__note">${detail}</p>` : ""}
             <span class="calendar-program__today" data-calendar-today hidden>${l.distance.currentStageLabel}</span>
           </div>
-          ${segment.kind === "finish" ? "" : `<p class="calendar-program__distance"><strong data-optical-start>${value}</strong><span>${l.distance.totalUnit}${segment.kind === "base" ? `<small>${l.distance.dailyLabel}</small>` : ""}</span></p>`}
+          ${segment.kind === "finish" ? "" : `<p class="calendar-program__distance"><strong data-optical-start>${value}</strong><span>${l.distance.totalUnit}${segment.kind === "base" ? ` ${l.distance.dailyLabel}` : ""}</span></p>`}
           ${segment.kind === "finish" ? "" : `<p class="calendar-program__cumulative" data-plan-cumulative="${cumulativeDistance}"><span>${l.distance.plannedTotalLabel}</span><strong>${cumulative}\u00a0${l.distance.totalUnit}</strong></p>`}
         </article>`;
     })
@@ -1269,7 +1271,7 @@ function renderMetrics(items, className) {
     .join("");
 }
 
-function renderDiaryText(text, className) {
+function renderDiaryText(text, className, layout) {
   return text
     .replace(/<\/?(?:strong|b)\b[^>]*>/giu, "")
     .split(/\n{2,}/u)
@@ -1277,6 +1279,10 @@ function renderDiaryText(text, className) {
     .filter(Boolean)
     .map((group) => {
       const lines = group.split("\n").map((line) => line.trim());
+      if (layout === "activity-report" && /^\p{Extended_Pictographic}/u.test(lines[0])) {
+        const title = lines[0].replace(/^[^\p{L}\p{N}]+/u, "");
+        return `<h4 class="diary__subheading" data-author-copy>${title}</h4>${renderDiaryText(lines.slice(1).join("\n"), className, layout)}`;
+      }
       const listStart = lines.findIndex((line) => line.startsWith("• "));
 
       if (listStart === -1) {
@@ -1285,6 +1291,12 @@ function renderDiaryText(text, className) {
 
       const introduction = lines.slice(0, listStart).join("<br>");
       const items = lines.slice(listStart).map((line) => line.replace(/^•\s+/u, ""));
+      const distances = layout === "activity-report"
+        ? items.map((item) => item.match(/^(\d+)\s+(км|km)$/u))
+        : [];
+      if (distances.length && distances.every(Boolean)) {
+        return `${introduction ? renderDiaryText(introduction, className, layout) : ""}<div class="diary__facts diary__facts--rides">${renderMetrics(distances.map((match) => [match[1], match[2]]), "diary__fact")}</div>`;
+      }
 
       return `
         <div class="${className} ${className}--list">
@@ -1541,7 +1553,7 @@ function renderDiaryEntries(entries, l) {
           <div class="diary__copy">
             ${entry.lead ? renderDiaryText(entry.lead, "diary__lead") : ""}
             ${entry.factsPlacement !== "after-note" ? facts : ""}
-            ${renderDiaryText(entry.note, "diary__note")}
+            ${renderDiaryText(entry.note, "diary__note", entry.noteLayout)}
             ${entry.factsPlacement === "after-note" ? facts : ""}
             <a
               class="text-link text-link--dark diary__source"
@@ -2158,7 +2170,8 @@ function renderPage(l) {
               </p>
             </div>
             <div class="hero__actions">
-              <a class="button button--primary action-primary" href="#diary" data-analytics-goal="diary_explore">${l.hero.primaryCta}${icons.down}</a>
+              <a class="button button--primary action-primary" href="#distance" data-analytics-goal="project_explore">${l.hero.primaryCta}${icons.down}</a>
+              <a class="text-link hero__diary-link" href="#diary" data-analytics-goal="diary_explore"><span class="text-link__label">${l.hero.secondaryCta}</span>${icons.down}</a>
             </div>
           </div>
         </div>
@@ -2262,6 +2275,7 @@ function renderPage(l) {
         </aside>
         <details
           class="bike-calendar__details calendar-program"
+          open
           data-calendar-details
           data-calendar-ready="${String(projectPlan.unconfirmedFacts.length === 0)}"
           data-calendar-near-days="${shared.calendarNearStartDays}"

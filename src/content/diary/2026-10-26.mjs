@@ -1,6 +1,7 @@
 export default {
   "index": "17",
   "date": "2026-10-26",
+  "noteLayout": "activity-report",
   "href": "https://t.me/doroninvdele/1235",
   "image": "diary-2026-10-26.jpg",
   "mediaWidth": 640,

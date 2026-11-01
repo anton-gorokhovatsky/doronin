@@ -858,7 +858,7 @@ if (eventStatus) {
       calendarFixture === "open" ||
       calendarPhase === "active" ||
       calendarPhase === "finished" ||
-      (calendarPhase === "near" && calendarReady);
+      calendarPhase === "near";
 
     document.body.dataset.calendarReady = String(calendarReady);
     calendarDetails.open = shouldOpenCalendar;

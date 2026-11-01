@@ -9,6 +9,21 @@
 
 .diary__source .text-link__label { overflow-wrap: normal; }
 
+.diary__facts.diary__facts--rides {
+  grid-template-columns: repeat(auto-fit, minmax(min(5rem, 100%), 1fr));
+  gap: var(--space-stack);
+  margin-top: var(--space-stack);
+}
+
+.diary__facts--rides .diary__fact strong {
+  font-size: var(--type-number-proof);
+}
+
+.diary__facts--rides .diary__fact + .diary__fact {
+  padding-top: 0;
+  border-top: 0;
+}
+
 @media (min-width: 961px) {
   :root:not(.text-enlarged) .diary__facts--summary {
     grid-template-columns: repeat(3, minmax(0, 1fr));

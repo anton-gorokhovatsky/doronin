@@ -88,8 +88,8 @@ export async function checkMenuTrigger({ page, testCase, prefix }) {
       near(firstScreen.heroHeight, firstScreen.innerHeight, 1) &&
         firstScreen.statusTop >= firstScreen.heroBottom - 1 &&
         firstScreen.statusBottom <= firstScreen.mainBottom + 1 &&
-        firstScreen.actionCount === 1 &&
-        firstScreen.primaryTarget === "#diary" &&
+        firstScreen.actionCount === 2 &&
+        firstScreen.primaryTarget === "#distance" &&
         firstScreen.introColor !== firstScreen.heroColor &&
         firstScreen.introSize >= 16 &&
         firstScreen.introSize <= 17.1 &&
