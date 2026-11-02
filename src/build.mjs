@@ -1254,16 +1254,20 @@ function renderSpecialSequence(plan, l) {
     .join("");
 }
 
-function renderMetrics(items, className) {
+function renderMetrics(items, className, separateUnit = false) {
   return items
     .map(
       ([value, label]) => {
         const glyphCount = Array.from(value.replaceAll(/\s/g, "")).length;
         const density = glyphCount <= 3 ? "short" : glyphCount <= 5 ? "medium" : "long";
+        const unitValue = separateUnit && value.match(/^(≈)?([\d.,]+)\s+(.+)$/u);
+        const visibleValue = unitValue
+          ? `${unitValue[1] ? '<small class="diary__metric-prefix">≈</small>' : ''}<span class="diary__metric-atom" data-optical-start>${unitValue[2]} <small class="diary__metric-unit">${unitValue[3]}</small></span>`
+          : value;
 
         return `
         <div class="${className}" data-metric-density="${density}">
-          <strong data-optical-start>${value}</strong>
+          <strong${unitValue ? ' class="diary__metric-value"' : ' data-optical-start'}>${visibleValue}</strong>
           <span>${label}</span>
         </div>`;
       },
@@ -1307,6 +1311,19 @@ function renderDiaryText(text, className, layout) {
         </div>`;
     })
     .join("");
+}
+
+function renderDiaryNote(entry) {
+  if (!entry.notePresentation) return renderDiaryText(entry.note, "diary__note", entry.noteLayout);
+  return entry.notePresentation.map((block) => {
+    if (block.kind === "heading") {
+      return `<h4 class="diary__subheading" data-author-copy>${block.text}</h4>`;
+    }
+    if (block.kind === "metrics") {
+      return `<div class="diary__facts diary__facts--rides diary__facts--report">${renderMetrics(block.facts.map((fact) => [fact.value, fact.label]), "diary__fact", true)}</div>`;
+    }
+    return renderDiaryText(block.text, "diary__note");
+  }).join("");
 }
 
 function renderDiaryFollowLabel(label) {
@@ -1553,7 +1570,7 @@ function renderDiaryEntries(entries, l) {
           <div class="diary__copy">
             ${entry.lead ? renderDiaryText(entry.lead, "diary__lead") : ""}
             ${entry.factsPlacement !== "after-note" ? facts : ""}
-            ${renderDiaryText(entry.note, "diary__note", entry.noteLayout)}
+            ${renderDiaryNote(entry)}
             ${entry.factsPlacement === "after-note" ? facts : ""}
             <a
               class="text-link text-link--dark diary__source"

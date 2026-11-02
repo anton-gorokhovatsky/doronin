@@ -129,7 +129,8 @@ for (const [lang, path] of pages) {
   const html = await readFile(path, "utf8");
   const diary = diaryByLocale[lang];
   const diaryFactCount = diary.entries.reduce(
-    (total, entry) => total + entry.facts.length + (entry.noteLayout === "activity-report"
+    (total, entry) => total + entry.facts.length + (entry.notePresentation || [])
+      .reduce((count, block) => count + (block.kind === "metrics" ? block.facts.length : 0), 0) + (entry.noteLayout === "activity-report"
       ? (entry.note.match(/^•\s+\d+\s+(?:км|km)$/gmu) || []).length
       : 0),
     0,

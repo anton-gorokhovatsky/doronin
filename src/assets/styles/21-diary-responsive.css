@@ -24,6 +24,44 @@
   border-top: 0;
 }
 
+.diary__facts.diary__facts--report {
+  grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+  margin-top: var(--space-group);
+}
+
+.diary__subheading + .diary__facts--report {
+  margin-top: var(--space-stack);
+  padding-top: 0;
+  border-top: 0;
+}
+
+.diary__facts--report + .diary__note {
+  margin-top: var(--space-stack);
+}
+
+.diary__facts--report .diary__metric-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15em;
+}
+
+.diary__facts--report .diary__metric-atom {
+  max-width: 100%;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+}
+
+.diary__metric-unit,
+.diary__metric-prefix {
+  font-family: var(--body);
+  font-size: var(--type-service-strong);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
 @media (min-width: 961px) {
   :root:not(.text-enlarged) .diary__facts--summary {
     grid-template-columns: repeat(3, minmax(0, 1fr));

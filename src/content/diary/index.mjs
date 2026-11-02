@@ -15,6 +15,7 @@ import september28 from "./2026-09-28.mjs";
 import october06 from "./2026-10-06.mjs";
 import october19 from "./2026-10-19.mjs";
 import october26 from "./2026-10-26.mjs";
+import november02 from "./2026-11-02.mjs";
 
 const entries = [
   march10,
@@ -34,6 +35,7 @@ const entries = [
   october06,
   october19,
   october26,
+  november02,
 ].sort((first, second) => second.date.localeCompare(first.date));
 
 const localeCopy = {
@@ -237,6 +239,18 @@ function validateEntries() {
       for (const field of requiredContentFields) {
         if (typeof localized?.[field] !== "string" || !localized[field]) {
           throw new Error(`Diary entry ${entry.date} is missing ${lang}.${field}.`);
+        }
+      }
+      if (localized.notePresentation !== undefined) {
+        if (!Array.isArray(localized.notePresentation) || !localized.notePresentation.length) {
+          throw new Error(`Diary entry ${entry.date} has an empty ${lang} presentation.`);
+        }
+        for (const block of localized.notePresentation) {
+          const valid = block.kind === "metrics"
+            ? Array.isArray(block.facts) && block.facts.length && block.facts.every((fact) =>
+                typeof fact.value === "string" && fact.value && typeof fact.label === "string" && fact.label)
+            : ["text", "heading"].includes(block.kind) && typeof block.text === "string" && block.text;
+          if (!valid) throw new Error(`Diary entry ${entry.date} has an invalid ${lang} presentation block.`);
         }
       }
       if (entry.video) {
