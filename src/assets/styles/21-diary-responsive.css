@@ -35,7 +35,7 @@
   border-top: 0;
 }
 
-.diary__subheading--after-intro,
+/* Start the subsection as a separate group; keep its first metric close. */
 .diary__subheading--after-intro + .diary__facts--report {
   margin-top: var(--space-pair);
 }

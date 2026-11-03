@@ -227,6 +227,20 @@
   white-space: nowrap;
 }
 
+/* Align the ink of Commissioner descenders with Micra digits in daily rates.
+   These font-relative corrections follow the visible д / y, not line boxes. */
+.calendar-program__row--base {
+  --calendar-unit-ink-shift: -0.12em;
+}
+
+.calendar-program__row--base:lang(en) {
+  --calendar-unit-ink-shift: -0.18em;
+}
+
+.calendar-program__row--base .calendar-program__distance > span {
+  translate: 0 var(--calendar-unit-ink-shift);
+}
+
 .calendar-program__row--special .calendar-program__distance > strong {
   font-size: clamp(2rem, calc(1.25rem + 2vw), 3.4rem);
 }
