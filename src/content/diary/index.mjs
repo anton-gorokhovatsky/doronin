@@ -250,7 +250,8 @@ function validateEntries() {
             ? Array.isArray(block.facts) && block.facts.length && block.facts.every((fact) =>
                 typeof fact.value === "string" && fact.value && typeof fact.label === "string" && fact.label)
             : ["text", "heading"].includes(block.kind) && typeof block.text === "string" && block.text;
-          if (!valid) throw new Error(`Diary entry ${entry.date} has an invalid ${lang} presentation block.`);
+          const validIntro = block.afterIntro === undefined || (block.kind === "heading" && typeof block.afterIntro === "boolean");
+          if (!valid || !validIntro) throw new Error(`Diary entry ${entry.date} has an invalid ${lang} presentation block.`);
         }
       }
       if (entry.video) {

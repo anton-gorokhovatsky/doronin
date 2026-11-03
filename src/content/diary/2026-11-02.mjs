@@ -64,6 +64,7 @@ export default {
         },
         {
           "kind": "heading",
+          "afterIntro": true,
           "text": "Шоссейные тренировки"
         },
         {
@@ -187,6 +188,7 @@ export default {
         },
         {
           "kind": "heading",
+          "afterIntro": true,
           "text": "Road rides"
         },
         {

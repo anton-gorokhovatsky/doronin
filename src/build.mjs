@@ -1317,7 +1317,7 @@ function renderDiaryNote(entry) {
   if (!entry.notePresentation) return renderDiaryText(entry.note, "diary__note", entry.noteLayout);
   return entry.notePresentation.map((block) => {
     if (block.kind === "heading") {
-      return `<h4 class="diary__subheading" data-author-copy>${block.text}</h4>`;
+      return `<h4 class="diary__subheading${block.afterIntro ? " diary__subheading--after-intro" : ""}" data-author-copy>${block.text}</h4>`;
     }
     if (block.kind === "metrics") {
       return `<div class="diary__facts diary__facts--rides diary__facts--report">${renderMetrics(block.facts.map((fact) => [fact.value, fact.label]), "diary__fact", true)}</div>`;

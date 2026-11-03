@@ -35,6 +35,11 @@
   border-top: 0;
 }
 
+.diary__subheading--after-intro,
+.diary__subheading--after-intro + .diary__facts--report {
+  margin-top: var(--space-pair);
+}
+
 .diary__facts--report + .diary__note {
   margin-top: var(--space-pair);
 }
