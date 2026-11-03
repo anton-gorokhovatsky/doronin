@@ -59,10 +59,6 @@ export default {
           "text": "Турция продолжает удивлять: солнце, горы, море, неожиданный холод и совершенно непредсказуемая погода."
         },
         {
-          "kind": "text",
-          "text": "Небольшая статистика:"
-        },
-        {
           "kind": "heading",
           "afterIntro": true,
           "text": "Шоссейные тренировки"
@@ -181,10 +177,6 @@ export default {
         {
           "kind": "text",
           "text": "Turkey keeps surprising us: sunshine, mountains, the sea, unexpected cold and completely unpredictable weather."
-        },
-        {
-          "kind": "text",
-          "text": "A few stats:"
         },
         {
           "kind": "heading",
