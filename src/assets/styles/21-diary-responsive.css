@@ -36,7 +36,11 @@
 }
 
 .diary__facts--report + .diary__note {
-  margin-top: var(--space-stack);
+  margin-top: var(--space-pair);
+}
+
+.diary__facts--report .diary__fact > span {
+  max-width: var(--measure-copy);
 }
 
 .diary__facts--report .diary__metric-value {
