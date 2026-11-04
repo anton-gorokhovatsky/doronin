@@ -99,7 +99,7 @@ const episodePanels = [...document.querySelectorAll('[data-episode]')];
 const episodeChoices = [...document.querySelectorAll('[data-episode-choice]')];
 const galleryStates = new Map();
 let selectedEpisode = '02';
-const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduced = () => document.documentElement.dataset.reduceMotion === 'true' || matchMedia('(prefers-reduced-motion: reduce)').matches;
 const lightbox = document.querySelector('[data-start-lightbox]');
 let modalGallery;
 let modalIndex = 0;
@@ -204,10 +204,7 @@ function selectFromHash({scroll = false, focus = false} = {}) {
       target.focus({preventScroll:true});
     }
     if (scroll) {
-      const scrollTarget = location.hash.startsWith('#race-day-')
-        ? document.querySelector('.episode-switcher')
-        : target;
-      scrollTarget.scrollIntoView({block:'start', behavior:'instant'});
+      target.scrollIntoView({block:'start', behavior:reduced() ? 'instant' : 'smooth'});
     }
   }
 }
