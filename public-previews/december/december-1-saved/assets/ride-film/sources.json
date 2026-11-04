@@ -1,0 +1,75 @@
+{
+  "source": "https://disk.yandex.ru/d/rsNJOp0jgMmnug/1111%20-%204k.mov",
+  "original": "1111 - 4k.mov",
+  "originalSha256": "26d1581047d4fb27978c8a765d628790c41e4fb5a5dff6bef77a44ba7b9e53ca",
+  "historicalYear": 2024,
+  "note": "Editorial scenes by time of day, not frames synchronized to GPS positions. Each MP4 contains its own original sound from the identical source interval.",
+  "supersededClips": [
+    {
+      "file": "day-road.mp4",
+      "startSeconds": 1138,
+      "durationSeconds": 9,
+      "audio": "Original sound from the same source interval; AAC 128 kb/s, synchronized within this MP4"
+    },
+    {
+      "file": "night-close.mp4",
+      "startSeconds": 1198,
+      "durationSeconds": 10,
+      "audio": "Original sound from the same source interval; AAC 128 kb/s, synchronized within this MP4"
+    },
+    {
+      "file": "night-city.mp4",
+      "startSeconds": 1617.4,
+      "durationSeconds": 3,
+      "audio": "Original sound from the same source interval; AAC 128 kb/s, synchronized within this MP4"
+    },
+    {
+      "file": "day-return.mp4",
+      "startSeconds": 1918,
+      "durationSeconds": 10,
+      "audio": "Original sound from the same source interval; AAC 128 kb/s, synchronized within this MP4"
+    },
+    {
+      "file": "day-hands.mp4",
+      "startSeconds": 2070,
+      "durationSeconds": 6,
+      "audio": "Original sound from the same source interval; AAC 128 kb/s, synchronized within this MP4"
+    },
+    {
+      "file": "night-return.mp4",
+      "startSeconds": 2248,
+      "durationSeconds": 10,
+      "audio": "Original sound from the same source interval; AAC 128 kb/s, synchronized within this MP4"
+    }
+  ],
+  "montage": {
+    "file": "ride-montage.mp4",
+    "frameRate": 24,
+    "totalFrames": 2780,
+    "audio": "Each cut retains the sound of the identical source interval. No external soundtrack, speed changes or loops.",
+    "ending": "The final continuous interval shows the rider arriving at the team at the end of the cycling leg. This is an editorial ending, not a claim of frame-level GPS synchronization.",
+    "chapters": [
+      { "phase": 0, "startFrame": 0, "endFrame": 580, "rideStartSeconds": 0, "rideEndSeconds": 28980.895 },
+      { "phase": 1, "startFrame": 580, "endFrame": 1487, "rideStartSeconds": 28980.895, "rideEndSeconds": 74367.033 },
+      { "phase": 2, "startFrame": 1487, "endFrame": 2308, "rideStartSeconds": 74367.033, "rideEndSeconds": 115388.434 },
+      { "phase": 3, "startFrame": 2308, "endFrame": 2780, "rideStartSeconds": 115388.434, "rideEndSeconds": 138980 }
+    ],
+    "clips": [
+      { "id": "first-day-road", "phase": 0, "sourceStartSeconds": 1138, "frames": 580, "focal": 52, "mobileFocal": 53, "role": "Riding through the road section into evening light" },
+      { "id": "first-night-close", "phase": 1, "sourceStartSeconds": 1198, "frames": 408, "focal": 42, "mobileFocal": 36, "role": "Rider and team at night" },
+      { "id": "first-night-food", "phase": 1, "sourceStartSeconds": 1288, "frames": 192, "role": "Food during the first night" },
+      { "id": "first-night-recovery", "phase": 1, "sourceStartSeconds": 1490, "frames": 240, "role": "Short pause on the ground" },
+      { "id": "first-night-city", "phase": 1, "sourceStartSeconds": 1617.4, "frames": 67, "role": "Night city establishes the transition to the next day" },
+      { "id": "second-day-road", "phase": 2, "sourceStartSeconds": 1918, "frames": 108, "role": "Riding during the second day" },
+      { "id": "second-day-recovery", "phase": 2, "sourceStartSeconds": 1975, "frames": 312, "role": "Physical effort and a recovery pause" },
+      { "id": "second-day-food", "phase": 2, "sourceStartSeconds": 2070, "frames": 96, "role": "Preparing food" },
+      { "id": "second-day-return", "phase": 2, "sourceStartSeconds": 2090, "frames": 305, "role": "Back on the road before the second night" },
+      { "id": "second-night-arrival", "phase": 3, "sourceStartSeconds": 2332, "frames": 472, "role": "Arrival at the team and the end of the cycling leg" }
+    ]
+  },
+  "cover": {
+    "file": "cover.jpg",
+    "sourceAsset": "src/assets/distance-bike-presence.jpg",
+    "note": "Existing approved frame from the 2024 film"
+  }
+}

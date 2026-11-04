@@ -49,6 +49,9 @@ jobs:
       - name: Build and check site
         run: pnpm gate
 
+      - name: Add separate December preview
+        run: node scripts/publish-december-preview.mjs
+
       - name: Setup Pages
         uses: actions/configure-pages@v6
 

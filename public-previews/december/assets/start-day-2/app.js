@@ -1,0 +1,1698 @@
+const requestParameters = new URLSearchParams(window.location.search);
+const requestedTheme = requestParameters.get("theme");
+const requestedPhase = "active";
+const requestedCalendar = requestParameters.get("calendar");
+const requestedTextScale = requestParameters.get("text");
+const phaseFixtureDates = {
+  before: "2026-07-31T12:00:00+03:00",
+  near: "2026-11-15T12:00:00+03:00",
+  active: "2026-12-02T09:20:00+04:00",
+  finished: "2027-01-02T12:00:00+03:00",
+};
+const localFixtureHost = /^(?:127(?:\.\d{1,3}){3}|localhost|\[::1\])$/i.test(
+  window.location.hostname,
+);
+// Service visits never load the counter or send goals, including when a
+// browser preference is switched on. Release/UTM links remain audience visits.
+const publishedPreview = Boolean(document.documentElement.dataset.startPreviewDate);
+const serviceVisit = publishedPreview || localFixtureHost || navigator.webdriver === true ||
+  requestParameters.get("service") === "check" ||
+  ["phase", "calendar", "text", "theme", "film", "browser-regression"]
+    .some(key => requestParameters.has(key));
+const phaseFixture =
+  (localFixtureHost || publishedPreview) && Object.hasOwn(phaseFixtureDates, requestedPhase)
+    ? requestedPhase
+    : null;
+const calendarFixture =
+  localFixtureHost && ["open", "confirmed"].includes(requestedCalendar)
+    ? requestedCalendar
+    : null;
+if (localFixtureHost && requestedTextScale === "200") {
+  document.documentElement.dataset.textFixture = "200";
+  document.documentElement.classList.add("text-enlarged");
+}
+
+function syncTextEnlargement() {
+  const rootFontSize = Number.parseFloat(
+    getComputedStyle(document.documentElement).fontSize,
+  );
+  document.documentElement.classList.toggle(
+    "text-enlarged",
+    document.documentElement.dataset.textFixture === "200" ||
+      (Number.isFinite(rootFontSize) && rootFontSize >= 24),
+  );
+}
+
+syncTextEnlargement();
+window.addEventListener("resize", syncTextEnlargement, { passive: true });
+
+const supportedThemes = new Set(["auto", "light", "dark"]);
+const storedTheme = document.documentElement.dataset.theme;
+let activeTheme = supportedThemes.has(requestedTheme)
+  ? requestedTheme
+  : supportedThemes.has(storedTheme) ? storedTheme : "auto";
+
+function syncResolvedTheme() {
+  const root = document.documentElement;
+  const resolvedTheme = activeTheme === "auto"
+    ? root.dataset.solarTheme || "light" : activeTheme;
+  root.classList.toggle(
+    "theme-dark",
+    resolvedTheme === "dark",
+  );
+  root.classList.toggle("theme-light", resolvedTheme === "light");
+  const favicon = document.querySelector("[data-favicon]");
+  if (favicon) favicon.href = resolvedTheme === "dark"
+    ? favicon.dataset.darkHref : favicon.dataset.lightHref;
+  for (const meta of document.querySelectorAll("[data-theme-color]")) {
+    meta.media = meta.dataset.themeColor === resolvedTheme ? "all" : "not all";
+  }
+}
+
+function applyTheme(theme, persist = true) {
+  activeTheme = supportedThemes.has(theme) ? theme : "auto";
+  document.documentElement.dataset.theme = activeTheme;
+  syncResolvedTheme();
+  for (const button of document.querySelectorAll("[data-theme-option]")) {
+    button.setAttribute("aria-pressed", String(button.dataset.themeOption === activeTheme));
+  }
+  if (persist) {
+    try {
+      if (activeTheme === "auto") localStorage.removeItem("theme");
+      else localStorage.setItem("theme", activeTheme);
+    } catch { /* The controls still work without persistence. */ }
+  }
+}
+
+applyTheme(activeTheme, false);
+document.addEventListener("dubai-light-change", syncResolvedTheme);
+
+const supportedMotionPreferences = new Set(["system", "reduced"]);
+const systemReducedMotionQuery = window.matchMedia(
+  "(prefers-reduced-motion: reduce)",
+);
+let storedMotionPreference = "system";
+
+try {
+  storedMotionPreference = localStorage.getItem("motion") || "system";
+} catch {}
+
+let activeMotionPreference = supportedMotionPreferences.has(
+  storedMotionPreference,
+)
+  ? storedMotionPreference
+  : "system";
+const motionChangeListeners = new Set();
+const reducedMotion = {
+  get matches() {
+    return (
+      activeMotionPreference === "reduced" ||
+      (activeMotionPreference === "system" && systemReducedMotionQuery.matches)
+    );
+  },
+  addEventListener(type, listener) {
+    if (type === "change") motionChangeListeners.add(listener);
+  },
+  removeEventListener(type, listener) {
+    if (type === "change") motionChangeListeners.delete(listener);
+  },
+};
+
+function emitMotionPreferenceChange() {
+  const event = { matches: reducedMotion.matches };
+
+  for (const listener of motionChangeListeners) {
+    listener(event);
+  }
+}
+
+function syncMotionPreference() {
+  document.documentElement.dataset.reduceMotion = String(reducedMotion.matches);
+  document.documentElement.classList.toggle(
+    "motion-reduced",
+    reducedMotion.matches,
+  );
+
+  for (const button of document.querySelectorAll("[data-motion-option]")) {
+    button.setAttribute(
+      "aria-pressed",
+      String(button.dataset.motionOption === activeMotionPreference),
+    );
+  }
+}
+
+function applyMotionPreference(preference, persist = true) {
+  const wasReduced = reducedMotion.matches;
+  activeMotionPreference = supportedMotionPreferences.has(preference)
+    ? preference
+    : "system";
+  syncMotionPreference();
+
+  if (persist) {
+    try {
+      if (activeMotionPreference === "system") {
+        localStorage.removeItem("motion");
+      } else {
+        localStorage.setItem("motion", activeMotionPreference);
+      }
+    } catch {}
+  }
+
+  if (wasReduced !== reducedMotion.matches) {
+    emitMotionPreferenceChange();
+  }
+}
+
+applyMotionPreference(activeMotionPreference, false);
+
+systemReducedMotionQuery.addEventListener?.("change", () => {
+  if (activeMotionPreference === "system") {
+    syncMotionPreference();
+    emitMotionPreferenceChange();
+  }
+});
+
+function syncOpticalStart(element) {
+  if (!element) {
+    return;
+  }
+
+  const leading = element.textContent.trim().charAt(0);
+
+  if (leading) {
+    element.dataset.opticalLeading = leading;
+  } else {
+    delete element.dataset.opticalLeading;
+  }
+}
+
+const analyticsRegistryNode = document.querySelector(
+  "#analytics-goal-registry",
+);
+let analyticsRegistry = { counterId: 111159425, goals: [] };
+
+try {
+  analyticsRegistry = JSON.parse(analyticsRegistryNode?.textContent || "{}");
+} catch {}
+
+const analyticsGoals = new Map(
+  Array.isArray(analyticsRegistry.goals)
+    ? analyticsRegistry.goals.map((goal) => [goal.id, goal])
+    : [],
+);
+const analyticsSafeValue = /^[a-z0-9_-]{1,48}$/i;
+let analyticsEnabled = true;
+let analyticsInitialized = false;
+
+try {
+  analyticsEnabled = localStorage.getItem("analytics") !== "off";
+} catch {}
+
+function syncAnalyticsPreference() {
+  for (const button of document.querySelectorAll("[data-analytics-option]")) {
+    button.setAttribute(
+      "aria-pressed",
+      String(
+        button.dataset.analyticsOption === (analyticsEnabled ? "on" : "off"),
+      ),
+    );
+  }
+}
+
+function initializeAnalytics() {
+  if (serviceVisit || !analyticsEnabled || analyticsInitialized) {
+    return;
+  }
+
+  if (typeof window.ym !== "function") {
+    window.ym = function (...args) {
+      (window.ym.a ||= []).push(args);
+    };
+    window.ym.l = Date.now();
+  }
+
+  if (!document.querySelector("[data-analytics-loader]")) {
+    const loader = document.createElement("script");
+    loader.async = true;
+    loader.dataset.analyticsLoader = "";
+    loader.src = `https://mc.yandex.ru/metrika/tag.js?id=${analyticsRegistry.counterId}`;
+    document.head.append(loader);
+  }
+
+  window.ym(analyticsRegistry.counterId, "init", {
+    ssr: true,
+    webvisor: true,
+    clickmap: true,
+    ecommerce: "dataLayer",
+    referrer: document.referrer,
+    url: window.location.href,
+    accurateTrackBounce: true,
+    trackLinks: true,
+  });
+  analyticsInitialized = true;
+}
+
+function applyAnalyticsPreference(preference, persist = true) {
+  const shouldEnable = preference !== "off";
+
+  if (!shouldEnable && analyticsInitialized && typeof window.ym === "function") {
+    window.ym(analyticsRegistry.counterId, "destruct");
+    analyticsInitialized = false;
+  }
+
+  analyticsEnabled = shouldEnable;
+
+  if (persist) {
+    try {
+      if (analyticsEnabled) {
+        localStorage.removeItem("analytics");
+      } else {
+        localStorage.setItem("analytics", "off");
+      }
+    } catch {}
+  }
+
+  syncAnalyticsPreference();
+
+  if (analyticsEnabled) {
+    initializeAnalytics();
+  }
+}
+
+applyAnalyticsPreference(analyticsEnabled ? "on" : "off", false);
+
+function reachGoal(goal, params = {}) {
+  const definition = analyticsGoals.get(goal);
+
+  if (serviceVisit || !analyticsEnabled || !definition || typeof window.ym !== "function") {
+    return;
+  }
+
+  const safeParams = Object.fromEntries(
+    (definition.params || [])
+      .filter((key) => analyticsSafeValue.test(String(params[key] || "")))
+      .map((key) => [key, String(params[key])]),
+  );
+
+  window.ym(
+    analyticsRegistry.counterId,
+    "reachGoal",
+    goal,
+    safeParams,
+  );
+}
+
+for (const element of document.querySelectorAll("[data-optical-start]")) {
+  syncOpticalStart(element);
+}
+
+for (const button of document.querySelectorAll("[data-theme-option]")) {
+  button.addEventListener("click", () => {
+    reachGoal("theme_change", { theme: button.dataset.themeOption });
+    applyTheme(button.dataset.themeOption);
+  });
+}
+
+for (const button of document.querySelectorAll("[data-motion-option]")) {
+  button.addEventListener("click", () => {
+    applyMotionPreference(button.dataset.motionOption);
+  });
+}
+
+for (const button of document.querySelectorAll("[data-analytics-option]")) {
+  button.addEventListener("click", () => {
+    applyAnalyticsPreference(button.dataset.analyticsOption);
+  });
+}
+
+const proofSources = document.querySelector(".proof-sources");
+
+if (proofSources) {
+  for (const link of document.querySelectorAll('a[href="#proof-sources"]')) {
+    link.addEventListener("click", () => {
+      proofSources.open = true;
+    });
+  }
+
+  const revealProofSourcesTarget = () => {
+    if (window.location.hash === "#proof-sources") proofSources.open = true;
+  };
+  window.addEventListener("hashchange", revealProofSourcesTarget);
+  revealProofSourcesTarget();
+
+  const proofSourcesSummary = proofSources.querySelector("summary");
+  let proofSourcesRestoreFrame = 0;
+  let proofSourcesPreviousOverflowAnchor = null;
+  let proofSourcesPreviousScrollBehavior = null;
+
+  function stopProofSourcesRestoration({ restoreOverflowAnchor = true } = {}) {
+    if (proofSourcesRestoreFrame) {
+      cancelAnimationFrame(proofSourcesRestoreFrame);
+      proofSourcesRestoreFrame = 0;
+    }
+
+    if (proofSourcesPreviousScrollBehavior !== null) {
+      document.documentElement.style.scrollBehavior =
+        proofSourcesPreviousScrollBehavior;
+      proofSourcesPreviousScrollBehavior = null;
+    }
+
+    if (
+      restoreOverflowAnchor &&
+      proofSourcesPreviousOverflowAnchor !== null
+    ) {
+      document.documentElement.style.overflowAnchor =
+        proofSourcesPreviousOverflowAnchor;
+      proofSourcesPreviousOverflowAnchor = null;
+    }
+  }
+
+  proofSourcesSummary?.addEventListener("click", (event) => {
+    event.preventDefault();
+    if (!proofSources.open) {
+      reachGoal("proof_open");
+    }
+
+    const anchorTop = proofSourcesSummary.getBoundingClientRect().top;
+    const root = document.documentElement;
+    const restoreUntil = performance.now() + 320;
+
+    stopProofSourcesRestoration();
+    proofSourcesPreviousScrollBehavior = root.style.scrollBehavior;
+    proofSourcesPreviousOverflowAnchor = root.style.overflowAnchor;
+    root.style.scrollBehavior = "auto";
+    root.style.overflowAnchor = "none";
+    proofSources.open = !proofSources.open;
+
+    function restoreProofSourcesPosition() {
+      proofSourcesRestoreFrame = 0;
+
+      const offset = proofSourcesSummary.getBoundingClientRect().top - anchorTop;
+
+      if (Math.abs(offset) > 0.5) {
+        window.scrollBy(0, offset);
+      }
+
+      if (performance.now() < restoreUntil) {
+        proofSourcesRestoreFrame = requestAnimationFrame(
+          restoreProofSourcesPosition,
+        );
+      } else {
+        stopProofSourcesRestoration({
+          restoreOverflowAnchor: !proofSources.open,
+        });
+      }
+    }
+
+    restoreProofSourcesPosition();
+  });
+}
+
+setupHeroMedia(reducedMotion, reachGoal);
+
+const heroPeaks = document.querySelector(".hero-peaks");
+
+if (heroPeaks && !reducedMotion.matches) {
+  if ("IntersectionObserver" in window) {
+    const heroPeaksObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) {
+            continue;
+          }
+
+          entry.target.classList.add("is-peaks-entering");
+          heroPeaksObserver.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.25 },
+    );
+
+    heroPeaksObserver.observe(heroPeaks);
+  } else {
+    heroPeaks.classList.add("is-peaks-entering");
+  }
+}
+
+const sectionLabels = [...document.querySelectorAll(".section-label")];
+
+if (sectionLabels.length && !reducedMotion.matches) {
+  if ("IntersectionObserver" in window) {
+    const sectionLabelObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) {
+            continue;
+          }
+
+          entry.target.classList.add("is-rule-entering");
+          sectionLabelObserver.unobserve(entry.target);
+        }
+      },
+      { rootMargin: "0px 0px -10%", threshold: 0.55 },
+    );
+
+    for (const sectionLabel of sectionLabels) {
+      sectionLabelObserver.observe(sectionLabel);
+    }
+  }
+}
+
+const velocityCuts = [...document.querySelectorAll(".velocity-cut")];
+
+// CSS backgrounds have no native lazy loading. Prepare them shortly before
+// they enter the viewport, independently of the user's motion preference.
+if ("IntersectionObserver" in window) {
+  const velocityMediaObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add("is-velocity-loaded");
+      velocityMediaObserver.unobserve(entry.target);
+    }
+  }, { rootMargin: "600px 0px", threshold: 0 });
+  velocityCuts.forEach((cut) => velocityMediaObserver.observe(cut));
+} else {
+  velocityCuts.forEach((cut) => cut.classList.add("is-velocity-loaded"));
+}
+
+if (velocityCuts.length && !reducedMotion.matches) {
+  if ("IntersectionObserver" in window) {
+    const velocityCutObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) {
+            continue;
+          }
+
+          entry.target.classList.add("is-velocity-entering");
+          velocityCutObserver.unobserve(entry.target);
+        }
+      },
+      { rootMargin: "0px 0px -8%", threshold: 0.45 },
+    );
+
+    for (const velocityCut of velocityCuts) {
+      velocityCut.classList.add("is-velocity-prepared");
+      velocityCutObserver.observe(velocityCut);
+    }
+  }
+}
+
+for (const storyVideoFrame of document.querySelectorAll(
+  "[data-story-video-frame]",
+)) {
+  const storyVideo = storyVideoFrame.querySelector("[data-story-video]");
+  const storyVideoToggle = storyVideoFrame.querySelector(
+    "[data-story-video-toggle]",
+  );
+
+  if (!storyVideo || !storyVideoToggle) {
+    continue;
+  }
+
+  const storyVideoToggleLabel = storyVideoToggle.querySelector(
+    "[data-story-video-toggle-label]",
+  );
+  let storyVideoVisible = false;
+  let userPausedStoryVideo = false;
+  let userStartedStoryVideo = false;
+
+  function syncStoryVideoToggle() {
+    const isPlaying = !storyVideo.paused && !storyVideo.ended;
+    const label = isPlaying
+      ? storyVideoToggle.dataset.pauseLabel
+      : storyVideoToggle.dataset.playLabel;
+
+    storyVideoToggle.setAttribute("aria-pressed", String(isPlaying));
+    storyVideoToggle.setAttribute("aria-label", label);
+
+    if (storyVideoToggleLabel) {
+      storyVideoToggleLabel.textContent = label;
+    }
+  }
+
+  function syncStoryVideoPlayback() {
+    const shouldPlay =
+      storyVideoVisible &&
+      !userPausedStoryVideo &&
+      document.visibilityState === "visible" &&
+      (!reducedMotion.matches || userStartedStoryVideo);
+
+    if (shouldPlay) {
+      storyVideo.play().catch(syncStoryVideoToggle);
+    } else {
+      storyVideo.pause();
+    }
+  }
+
+  storyVideoToggle.addEventListener("click", () => {
+    if (storyVideo.paused) {
+      userPausedStoryVideo = false;
+      userStartedStoryVideo = true;
+      syncStoryVideoPlayback();
+    } else {
+      userPausedStoryVideo = true;
+      storyVideo.pause();
+    }
+  });
+
+  storyVideo.addEventListener("play", syncStoryVideoToggle);
+  storyVideo.addEventListener("pause", syncStoryVideoToggle);
+  storyVideo.addEventListener("ended", syncStoryVideoToggle);
+
+  if ("IntersectionObserver" in window) {
+    const storyVideoObserver = new IntersectionObserver(
+      ([entry]) => {
+        storyVideoVisible = entry.isIntersecting;
+        syncStoryVideoPlayback();
+      },
+      { threshold: 0.28 },
+    );
+
+    storyVideoObserver.observe(storyVideo);
+  } else {
+    storyVideoVisible = true;
+    syncStoryVideoPlayback();
+  }
+
+  reducedMotion.addEventListener?.("change", syncStoryVideoPlayback);
+  document.addEventListener("visibilitychange", syncStoryVideoPlayback);
+  syncStoryVideoToggle();
+}
+
+const eventStatus = document.querySelector("[data-event-status]");
+
+if (eventStatus) {
+  const start = new Date(eventStatus.dataset.start);
+  const end = new Date(eventStatus.dataset.end);
+  const now = phaseFixture
+    ? new Date(phaseFixtureDates[phaseFixture])
+    : new Date();
+  const value = eventStatus.querySelector("[data-status-value]");
+  const label = eventStatus.querySelector("[data-status-label]");
+  const update = eventStatus.querySelector("[data-status-update]");
+  const updateText = eventStatus.querySelector("[data-status-update-text]");
+  const updateSource = eventStatus.querySelector("[data-status-source]");
+  const railElement = eventStatus.querySelector(".event-status__rail");
+  const rail = [
+    ...eventStatus.querySelectorAll("[data-status-day]"),
+  ];
+  const day = 86_400_000;
+  let visibleSegments = 31;
+  let progressSegments = 0;
+  let statusTimeline = "project";
+  let showLiveUpdate = false;
+  let footerStatusText = "";
+  let footerCountValue = "";
+  let footerCountLabel = "";
+  let footerPrefixMode = "before";
+  let projectPhase = "before";
+  let calendarPhase = "far";
+
+  if (now < start) {
+    const days = Math.max(1, Math.ceil((start - now) / day));
+    const calendarDetails = document.querySelector("[data-calendar-details]");
+    const nearStartDays = Number.parseInt(
+      calendarDetails?.dataset.calendarNearDays || "30",
+      10,
+    );
+    calendarPhase = days <= nearStartDays ? "near" : "far";
+    visibleSegments = 12;
+    statusTimeline = "calendar";
+    progressSegments = Math.max(
+      0,
+      Math.min(
+        visibleSegments,
+        now.getFullYear() < start.getFullYear() ? 0 : now.getMonth() + 1,
+      ),
+    );
+    let form = eventStatus.dataset.beforeMany;
+
+    if (eventStatus.dataset.lang === "ru") {
+      const mod10 = days % 10;
+      const mod100 = days % 100;
+
+      if (mod10 === 1 && mod100 !== 11) {
+        form = eventStatus.dataset.beforeOne;
+      } else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+        form = eventStatus.dataset.beforeFew;
+      }
+    } else if (days === 1) {
+      form = eventStatus.dataset.beforeOne;
+    }
+
+    value.textContent = String(days);
+    label.textContent = form;
+    footerCountValue = String(days);
+    footerCountLabel = form.replace(
+      eventStatus.dataset.lang === "ru"
+        ? /\s+до\s+старта$/u
+        : /\s+to\s+start$/u,
+      "",
+    );
+    footerStatusText = `${footerCountValue} ${footerCountLabel}`;
+  } else if (now < end) {
+    const projectDay = Math.min(31, Math.floor((now - start) / day) + 1);
+    progressSegments = projectDay;
+    showLiveUpdate = true;
+    footerPrefixMode = "active";
+    projectPhase = "active";
+    calendarPhase = "active";
+    value.textContent = String(projectDay);
+    label.textContent = eventStatus.dataset.active;
+    footerCountValue = value.textContent;
+    footerCountLabel = label.textContent;
+    footerStatusText = `${footerCountValue} ${footerCountLabel}`;
+  } else {
+    progressSegments = 31;
+    showLiveUpdate = true;
+    footerPrefixMode = "finished";
+    projectPhase = "finished";
+    calendarPhase = "finished";
+    value.textContent = "31/31";
+    label.textContent = eventStatus.dataset.finished;
+    footerStatusText = label.textContent;
+  }
+
+  railElement?.style.setProperty(
+    "--status-segment-count",
+    String(visibleSegments),
+  );
+  if (railElement) {
+    railElement.dataset.statusTimeline = statusTimeline;
+  }
+
+  rail.forEach((segment, index) => {
+    segment.hidden = index >= visibleSegments;
+    segment.classList.toggle("is-elapsed", index < progressSegments);
+    segment.classList.toggle(
+      "is-current",
+      progressSegments > 0 && index === progressSegments - 1,
+    );
+  });
+
+  if (update && showLiveUpdate) {
+    if (eventStatus.dataset.liveVerified === "true") {
+      const locale = eventStatus.dataset.lang === "ru" ? "ru-RU" : "en-US";
+      const distance = new Intl.NumberFormat(locale, {
+        maximumFractionDigits: 2,
+      }).format(Number(eventStatus.dataset.liveDistance));
+      const updatedAt = new Intl.DateTimeFormat(locale, {
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(new Date(eventStatus.dataset.liveUpdated));
+      const parts = [
+        `${distance}\u00a0${eventStatus.dataset.liveUnit}`,
+        eventStatus.dataset.liveDiscipline,
+        updatedAt,
+        eventStatus.dataset.liveNote,
+      ].filter(Boolean);
+
+      updateText.textContent = `${eventStatus.dataset.latestUpdate}: ${parts.join(" · ")}`;
+      if (
+        updateSource &&
+        eventStatus.dataset.liveSourceLabel &&
+        eventStatus.dataset.liveSourceUrl
+      ) {
+        updateSource.textContent = `${eventStatus.dataset.sourceLabel}: ${eventStatus.dataset.liveSourceLabel}`;
+        updateSource.href = eventStatus.dataset.liveSourceUrl;
+        updateSource.hidden = false;
+      }
+    } else {
+      updateText.textContent = eventStatus.dataset.statusPending;
+      if (updateSource) updateSource.hidden = true;
+    }
+
+    update.hidden = false;
+  }
+
+  const partnerCountdown = document.querySelector("[data-partner-countdown]");
+
+  if (partnerCountdown) {
+    partnerCountdown.textContent = `${value.textContent}\u00a0${label.textContent}`;
+  }
+
+  for (const menuStatus of document.querySelectorAll("[data-menu-status]")) {
+    const menuValue = menuStatus.querySelector("[data-menu-status-value]");
+    const menuLabel = menuStatus.querySelector("[data-menu-status-label]");
+
+    const compactJourney = menuStatus.closest(".site-nav__journey");
+    if (menuValue) {
+      menuValue.textContent = projectPhase === "before" && compactJourney
+        ? `${footerCountValue}\u00a0${footerCountLabel}`
+        : `${eventStatus.dataset.lang === "ru" ? "День" : "Day"} ${value.textContent}`;
+      syncOpticalStart(menuValue);
+    }
+
+    if (menuLabel) {
+      menuLabel.textContent = projectPhase === "before" && compactJourney
+        ? eventStatus.dataset.lang === "ru" ? "до старта" : "to start"
+        : label.textContent;
+    }
+
+    menuStatus.setAttribute(
+      "aria-label",
+      `${eventStatus.dataset.lang === "ru" ? "День" : "Day"} ${value.textContent} ${label.textContent}`,
+    );
+  }
+
+  const headerProgress = Math.max(0, Math.min(31, Math.round((progressSegments / visibleSegments) * 31)));
+
+  for (const headerRail of document.querySelectorAll(".header-status__rail")) {
+    [...headerRail.children].forEach((segment, index) => {
+      segment.classList.toggle("is-elapsed", index < headerProgress);
+      segment.classList.toggle(
+        "is-current",
+        headerProgress > 0 && index === headerProgress - 1,
+      );
+    });
+  }
+
+  const footerCountdown = document.querySelector("[data-footer-countdown]");
+  const footerPrefix = document.querySelector("[data-footer-prefix]");
+
+  if (footerCountdown) {
+    footerCountdown.textContent = footerStatusText;
+    syncOpticalStart(footerCountdown);
+
+    const numericTarget = Number.parseInt(footerCountValue, 10);
+
+    if (Number.isFinite(numericTarget) && footerCountLabel) {
+      const countValue = document.createElement("span");
+      const countSizer = document.createElement("span");
+      const countLive = document.createElement("span");
+      const countLabel = document.createElement("span");
+      const countAccessible = document.createElement("span");
+      countValue.dataset.footerCountdownValue = "";
+      countSizer.dataset.footerCountdownSizer = "";
+      countLive.dataset.footerCountdownLive = "";
+      countLabel.dataset.footerCountdownLabel = "";
+      countValue.setAttribute("aria-hidden", "true");
+      countLabel.setAttribute("aria-hidden", "true");
+      countSizer.textContent = footerCountValue;
+      countLive.textContent = footerCountValue;
+      countLabel.textContent = footerCountLabel;
+      countAccessible.className = "sr-only";
+      countAccessible.textContent = footerStatusText;
+      countValue.append(countSizer, countLive);
+      footerCountdown.replaceChildren(countValue, countLabel, countAccessible);
+    }
+  }
+
+  if (footerPrefix) {
+    footerPrefix.textContent = footerPrefix.dataset[footerPrefixMode];
+  }
+
+  document.body.dataset.projectPhase = projectPhase;
+  document.body.dataset.calendarPhase = calendarPhase;
+  if (phaseFixture) {
+    document.body.dataset.phaseFixture = phaseFixture;
+  }
+  if (calendarFixture) {
+    document.body.dataset.calendarFixture = calendarFixture;
+  }
+
+  for (const phaseCopy of document.querySelectorAll("[data-phase-copy]")) {
+    const copy = phaseCopy.dataset[projectPhase];
+
+    if (copy) {
+      phaseCopy.textContent = copy;
+    }
+  }
+
+  for (const phaseItem of document.querySelectorAll(
+    "[data-project-phase-item]",
+  )) {
+    if (phaseItem.dataset.projectPhaseItem === projectPhase) {
+      phaseItem.setAttribute("aria-current", "step");
+    } else {
+      phaseItem.removeAttribute("aria-current");
+    }
+  }
+
+  const calendarDetails = document.querySelector("[data-calendar-details]");
+
+  if (calendarDetails) {
+    const calendarReady =
+      calendarDetails.dataset.calendarReady === "true" ||
+      calendarFixture === "confirmed";
+    const calendarSegments = [
+      ...calendarDetails.querySelectorAll("[data-calendar-start]"),
+    ];
+    const projectDate = new Intl.DateTimeFormat("en-CA", {
+      year: "numeric", month: "2-digit", day: "2-digit", timeZone: "Asia/Dubai",
+    }).format(now);
+    const currentSegment =
+      calendarPhase === "active"
+        ? calendarSegments.find(
+            (segment) =>
+              segment.dataset.calendarStart <= projectDate &&
+              segment.dataset.calendarEnd >= projectDate,
+          )
+        : null;
+    const shouldOpenCalendar =
+      calendarFixture === "open" ||
+      calendarPhase === "active" ||
+      calendarPhase === "finished" ||
+      calendarPhase === "near";
+
+    document.body.dataset.calendarReady = String(calendarReady);
+    calendarDetails.open = shouldOpenCalendar;
+
+    for (const phaseCopy of document.querySelectorAll(
+      "[data-calendar-phase-copy]",
+    )) {
+      const copy = phaseCopy.dataset[calendarPhase];
+
+      if (copy) {
+        phaseCopy.textContent = copy;
+      }
+    }
+
+    for (const segment of calendarSegments) {
+      const today = segment.querySelector("[data-calendar-today]");
+      if (today) today.hidden = segment !== currentSegment;
+      if (segment === currentSegment) {
+        segment.setAttribute("aria-current", "step");
+      } else {
+        segment.removeAttribute("aria-current");
+      }
+    }
+
+    const calendarCurrent = document.querySelector("[data-calendar-current]");
+
+    if (calendarCurrent) {
+      calendarCurrent.hidden = !currentSegment;
+
+      if (currentSegment) {
+        const currentLink = calendarCurrent.querySelector(
+          "[data-calendar-current-link]",
+        );
+        const currentDate = calendarCurrent.querySelector(
+          "[data-calendar-current-date]",
+        );
+        const currentTitle = calendarCurrent.querySelector(
+          "[data-calendar-current-title]",
+        );
+        const currentValue = calendarCurrent.querySelector(
+          "[data-calendar-current-value]",
+        );
+
+        if (currentLink) currentLink.href = `#${currentSegment.id}`;
+        if (currentDate) {
+          currentDate.textContent = currentSegment.dataset.calendarKind === "base"
+            ? new Intl.DateTimeFormat(eventStatus.dataset.lang === "ru" ? "ru-RU" : "en-GB", {
+              day: "numeric", month: "long", timeZone: "Asia/Dubai",
+            }).format(now).replace(/ /g, "\u00a0")
+            : currentSegment.dataset.calendarDate || "";
+        }
+        if (currentTitle) {
+          currentTitle.textContent = currentSegment.dataset.calendarKind === "base"
+            ? currentSegment.dataset.calendarDayLabel
+            : currentSegment.dataset.calendarLabel || "";
+        }
+        if (currentValue) {
+          currentValue.textContent = currentSegment.dataset.calendarValue || "";
+        }
+      }
+    }
+
+    const revealCalendarTarget = () => {
+      const targetId = window.location.hash.slice(1);
+      const target = targetId ? document.getElementById(targetId) : null;
+
+      if (target && calendarDetails.contains(target)) {
+        calendarDetails.open = true;
+      }
+    };
+    let calendarOpenTracked = false;
+
+    const calendarSummary = calendarDetails.querySelector("summary");
+    calendarSummary?.addEventListener("click", () => {
+      if (calendarDetails.open) return;
+      if (!calendarOpenTracked) {
+        reachGoal("calendar_open", { phase: calendarPhase });
+        calendarOpenTracked = true;
+      }
+      // Wait for the native disclosure to open. Automatic phase changes do not scroll.
+      requestAnimationFrame(() => {
+        if (!calendarDetails.open) return;
+        const headerClearance = Number.parseFloat(
+          getComputedStyle(document.documentElement).scrollPaddingTop,
+        ) || 0;
+        window.scrollTo({
+          top: calendarSummary.getBoundingClientRect().top + window.scrollY - headerClearance,
+          behavior: reducedMotion.matches ? "instant" : "smooth",
+        });
+      });
+    });
+    window.addEventListener("hashchange", revealCalendarTarget);
+    revealCalendarTarget();
+  }
+
+  syncOpticalStart(value);
+}
+
+for (const analyticsTarget of document.querySelectorAll(
+  "[data-analytics-goal]",
+)) {
+  analyticsTarget.addEventListener("click", () => {
+    reachGoal(analyticsTarget.dataset.analyticsGoal);
+  });
+}
+
+const diaryStories = document.querySelector("[data-diary-stories]");
+
+if (diaryStories) {
+  const diaryLinks = [...diaryStories.querySelectorAll("[data-diary-story-link]")];
+  const indexLinks = [...diaryStories.querySelectorAll("[data-diary-index-link]")];
+  const diaryPanels = [...diaryStories.querySelectorAll("[data-diary-story-panel]")];
+  const archiveRail = diaryStories.querySelector("[data-diary-archive-rail]");
+  const archiveControls = diaryStories.querySelector("[data-diary-archive-controls]");
+  const archiveNewer = diaryStories.querySelector("[data-diary-archive-newer]");
+  const archiveEarlier = diaryStories.querySelector("[data-diary-archive-earlier]");
+
+  const syncArchiveControls = () => {
+    if (!archiveRail || !archiveControls) return;
+    const lastPosition = archiveRail.scrollWidth - archiveRail.clientWidth;
+    archiveControls.hidden = lastPosition <= 2;
+    archiveNewer.disabled = archiveRail.scrollLeft <= 2;
+    archiveEarlier.disabled = archiveRail.scrollLeft >= lastPosition - 2;
+  };
+
+  const browseArchive = (direction) => {
+    const card = diaryLinks.find((link) => !link.hidden);
+    if (!archiveRail || !card) return;
+    const step = card.getBoundingClientRect().width + parseFloat(getComputedStyle(archiveRail).columnGap);
+    const visibleCards = Math.max(1, Math.floor((archiveRail.clientWidth + 1) / step));
+    archiveRail.scrollBy({
+      left: direction * step * visibleCards,
+      behavior: reducedMotion.matches ? "instant" : "smooth",
+    });
+  };
+
+  archiveNewer?.addEventListener("click", () => browseArchive(-1));
+  archiveEarlier?.addEventListener("click", () => browseArchive(1));
+  archiveRail?.addEventListener("focusin", (event) => {
+    const card = event.target.closest("[data-diary-story-link]");
+    if (!card?.matches(":focus-visible")) return;
+    const cardBounds = card.getBoundingClientRect();
+    const railBounds = archiveRail.getBoundingClientRect();
+    if (cardBounds.left < railBounds.left - 1 || cardBounds.right > railBounds.right + 1) {
+      archiveRail.scrollTo({
+        left: archiveRail.scrollLeft + cardBounds.left - railBounds.left,
+        behavior: "instant",
+      });
+    }
+  });
+  archiveRail?.addEventListener("scroll", syncArchiveControls, { passive: true });
+  if (archiveRail && "ResizeObserver" in window) {
+    new ResizeObserver(syncArchiveControls).observe(archiveRail);
+  }
+  window.addEventListener("resize", syncArchiveControls);
+
+  const showDiaryEntry = (id, { navigate = false } = {}) => {
+    const selected = diaryPanels.find((panel) => panel.id === id);
+    if (!selected) return;
+
+    for (const panel of diaryPanels) {
+      panel.hidden = panel !== selected;
+      if (panel.hidden) {
+        for (const video of panel.querySelectorAll("video")) video.pause();
+      }
+    }
+    for (const link of diaryLinks) link.hidden = link.hash === `#${id}`;
+    for (const link of indexLinks) {
+      const current = link.hash === `#${id}`;
+      if (current) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+      link.querySelector("[data-diary-index-current]").hidden = !current;
+    }
+    archiveRail?.scrollTo({ left: 0, behavior: "instant" });
+    syncArchiveControls();
+
+    if (navigate) {
+      selected.focus({ preventScroll: true });
+      selected.scrollIntoView({
+        block: "start",
+        behavior: reducedMotion.matches ? "instant" : "smooth",
+      });
+    }
+  };
+
+  for (const link of [...diaryLinks, ...indexLinks]) {
+    link.addEventListener("click", (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      history.pushState(null, "", link.hash);
+      showDiaryEntry(link.hash.slice(1), { navigate: true });
+    });
+  }
+
+  for (const link of document.querySelectorAll('a[href="#diary"]')) {
+    link.addEventListener("click", (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      showDiaryEntry(diaryPanels[0]?.id);
+    });
+  }
+
+  const revealDiaryHash = (navigate) => {
+    const id = window.location.hash.slice(1);
+    const target = diaryPanels.find((panel) => panel.id === id);
+    if (target) showDiaryEntry(target.id, { navigate });
+    else if (!id || ["diary", "diary-archive", "diary-index", "top"].includes(id)) showDiaryEntry(diaryPanels[0]?.id);
+  };
+
+  showDiaryEntry(diaryPanels[0]?.id);
+  revealDiaryHash(false);
+  diaryStories.classList.add("has-diary-stories");
+  window.addEventListener("hashchange", () => revealDiaryHash(true));
+}
+
+const diaryMediaGalleries = [
+  ...document.querySelectorAll("[data-diary-gallery]"),
+];
+
+for (const gallery of diaryMediaGalleries) {
+  const mediaTabs = [...gallery.querySelectorAll("[data-diary-media-tab]")];
+  const mediaPanels = [...gallery.querySelectorAll("[data-diary-media-panel]")];
+
+  if (!mediaTabs.length || mediaTabs.length !== mediaPanels.length) {
+    continue;
+  }
+
+  const mediaRail = gallery.querySelector("[data-diary-media-tabs]");
+  const mediaPrevious = gallery.querySelector("[data-diary-media-previous]");
+  const mediaNext = gallery.querySelector("[data-diary-media-next]");
+  const mediaPositionCurrent = gallery.querySelector(
+    "[data-diary-media-position-current]",
+  );
+  const mediaPosition = gallery.querySelector("[data-diary-media-position]");
+  const mediaKind = gallery.querySelector("[data-diary-media-kind]");
+  const mediaPositionTemplate =
+    mediaPosition?.dataset.diaryMediaPositionTemplate || "";
+  let activeMediaIndex = Math.max(
+    0,
+    mediaTabs.findIndex(
+      (tab) => tab.getAttribute("aria-selected") === "true",
+    ),
+  );
+
+  const revealMediaTab = (tab) => {
+    if (!mediaRail || !tab) return;
+
+    const tabStart = tab.offsetLeft;
+    const tabEnd = tabStart + tab.offsetWidth;
+    const visibleStart = mediaRail.scrollLeft;
+    const visibleEnd = visibleStart + mediaRail.clientWidth;
+
+    if (tabStart < visibleStart) {
+      mediaRail.scrollTo({ left: tabStart });
+    } else if (tabEnd > visibleEnd) {
+      mediaRail.scrollTo({
+        left: Math.max(0, tabEnd - mediaRail.clientWidth),
+      });
+    }
+  };
+
+  const syncMediaNavigation = (index) => {
+    const current = index + 1;
+    const total = mediaTabs.length;
+    const label = mediaTabs[index]?.dataset.diaryMediaLabel || "";
+
+    if (mediaPositionCurrent) {
+      mediaPositionCurrent.textContent = String(current).padStart(2, "0");
+    }
+    if (mediaKind) mediaKind.textContent = label;
+    if (mediaPosition) {
+      mediaPosition.textContent = mediaPositionTemplate
+        .replace("{current}", String(current))
+        .replace("{total}", String(total))
+        .replace("{label}", label);
+    }
+    if (mediaPrevious) mediaPrevious.disabled = index <= 0;
+    if (mediaNext) mediaNext.disabled = index >= total - 1;
+  };
+
+  const activateMedia = (
+    tab,
+    { focus = false, reveal = false } = {},
+  ) => {
+    const panelId = tab?.getAttribute("aria-controls");
+    if (!panelId) return;
+
+    for (const mediaTab of mediaTabs) {
+      const isActive = mediaTab === tab;
+      mediaTab.setAttribute("aria-selected", String(isActive));
+      mediaTab.tabIndex = isActive ? 0 : -1;
+    }
+
+    for (const panel of mediaPanels) {
+      const isActive = panel.id === panelId;
+      panel.hidden = !isActive;
+      if (!isActive) {
+        for (const video of panel.querySelectorAll("video")) {
+          video.pause();
+        }
+      }
+    }
+
+    activeMediaIndex = mediaTabs.indexOf(tab);
+    syncMediaNavigation(activeMediaIndex);
+    if (reveal) revealMediaTab(tab);
+    if (focus) tab.focus();
+  };
+
+  for (const [index, tab] of mediaTabs.entries()) {
+    tab.addEventListener("click", () => {
+      activateMedia(tab, { reveal: true });
+    });
+
+    tab.addEventListener("keydown", (event) => {
+      let nextIndex = null;
+
+      if (event.key === "ArrowRight") nextIndex = index + 1;
+      if (event.key === "ArrowLeft") nextIndex = index - 1;
+      if (event.key === "Home") nextIndex = 0;
+      if (event.key === "End") nextIndex = mediaTabs.length - 1;
+      if (nextIndex === null) return;
+
+      event.preventDefault();
+      const nextTab = mediaTabs.at(
+        (nextIndex + mediaTabs.length) % mediaTabs.length,
+      );
+      activateMedia(nextTab, { focus: true, reveal: true });
+    });
+  }
+
+  mediaPrevious?.addEventListener("click", () => {
+    const previousTab = mediaTabs[activeMediaIndex - 1];
+    if (previousTab) activateMedia(previousTab, { reveal: true });
+  });
+
+  mediaNext?.addEventListener("click", () => {
+    const nextTab = mediaTabs[activeMediaIndex + 1];
+    if (nextTab) activateMedia(nextTab, { reveal: true });
+  });
+
+  activateMedia(mediaTabs[activeMediaIndex]);
+  gallery.classList.add("has-media-gallery");
+}
+
+// Only hold media when at least half a screen of reading continues beyond it.
+// Short entries scroll as one composition; gallery controls stay in the measured group.
+if ("ResizeObserver" in window) {
+  const galleries = [...document.querySelectorAll(".diary-story > .diary__gallery")];
+  const syncDiaryGallery = (gallery) => {
+    const height = gallery.getBoundingClientRect().height;
+    const storyHeight = gallery.parentElement.getBoundingClientRect().height;
+    gallery.toggleAttribute("data-diary-sticky-ready", height > 0 && storyHeight - height > window.innerHeight / 2);
+    if (height > 0) gallery.style.setProperty("--diary-gallery-height", `${height}px`);
+  };
+  const diaryGallerySize = new ResizeObserver((entries) => {
+    const changed = new Set(entries.map(({ target }) => target.matches(".diary__gallery") ? target : target.querySelector(".diary__gallery")));
+    changed.forEach(syncDiaryGallery);
+  });
+  galleries.forEach((gallery) => {
+    diaryGallerySize.observe(gallery);
+    diaryGallerySize.observe(gallery.parentElement);
+  });
+  window.addEventListener("resize", () => galleries.forEach(syncDiaryGallery), { passive: true });
+}
+
+const diaryVideos = [...document.querySelectorAll("[data-diary-video]")];
+
+for (const diaryVideo of diaryVideos) {
+  const diaryVideoFrame =
+    diaryVideo.closest("[data-diary-media-panel]") ||
+    diaryVideo.closest(".diary__media");
+  const diaryVideoPlay = diaryVideoFrame?.querySelector(
+    "[data-diary-video-play]",
+  );
+  let diaryStarted = false;
+  let diaryCompleted = false;
+
+  if (diaryVideoPlay && diaryVideoFrame) {
+    diaryVideo.controls = false;
+    diaryVideoFrame.classList.add("has-custom-control");
+
+    diaryVideoPlay.addEventListener("click", async () => {
+      diaryVideo.controls = true;
+
+      try {
+        await diaryVideo.play();
+      } catch {
+        diaryVideo.controls = true;
+        diaryVideoFrame.classList.remove("has-custom-control");
+      }
+    });
+
+    diaryVideo.addEventListener("error", () => {
+      diaryVideo.controls = true;
+      diaryVideoFrame.classList.remove("has-custom-control");
+    });
+  }
+
+  diaryVideo.addEventListener("play", () => {
+    for (const otherVideo of diaryVideos) {
+      if (otherVideo !== diaryVideo) otherVideo.pause();
+    }
+
+    diaryVideoFrame?.classList.add("has-started");
+
+    if (!diaryStarted) {
+      reachGoal("diary_video_start");
+      diaryStarted = true;
+    }
+  });
+
+  diaryVideo.addEventListener("ended", () => {
+    diaryVideoFrame?.classList.remove("has-started");
+
+    if (!diaryCompleted) {
+      reachGoal("diary_video_complete");
+      diaryCompleted = true;
+    }
+  });
+}
+
+const desktopNavigation = window.matchMedia("(min-width: 961px)");
+const menuFocusableSelector = [
+  "summary",
+  "a[href]",
+  "button:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+const menuIsolationState = new Map();
+
+function getMenuFocusables(navigation) {
+  return [...navigation.querySelectorAll(menuFocusableSelector)].filter(
+    (element) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return (
+        !element.inert &&
+        style.display !== "none" &&
+        style.visibility !== "hidden" &&
+        rect.width > 0 &&
+        rect.height > 0
+      );
+    },
+  );
+}
+
+function syncMenuIsolation(navigation) {
+  const header = navigation.closest(".site-header");
+
+  if (navigation.open) {
+    const targets = [
+      ...[...document.body.children].filter(
+        (element) => element !== header && !["SCRIPT", "STYLE"].includes(element.tagName),
+      ),
+      ...[...(header?.children || [])].filter(
+        (element) => element !== navigation,
+      ),
+    ];
+
+    for (const target of targets) {
+      if (!menuIsolationState.has(target)) {
+        menuIsolationState.set(target, target.inert);
+      }
+      target.inert = true;
+    }
+    return;
+  }
+
+  for (const [target, wasInert] of menuIsolationState) {
+    target.inert = wasInert;
+  }
+  menuIsolationState.clear();
+}
+
+function syncNavigationMode() {
+  for (const navigation of document.querySelectorAll(".nav-shell")) {
+    navigation.removeAttribute("open");
+    const toggle = navigation.querySelector(".menu-toggle");
+    if (toggle?.dataset.menuOpenLabel) {
+      toggle.setAttribute("aria-label", toggle.dataset.menuOpenLabel);
+    }
+    syncMenuIsolation(navigation);
+  }
+}
+
+syncNavigationMode();
+desktopNavigation.addEventListener?.("change", syncNavigationMode);
+
+// Shared icon-motion token: critically damped (c = 2 * sqrt(k)), no bounce.
+const iconMorphSpring = Object.freeze({ stiffness: 900, damping: 60 });
+
+for (const navigation of document.querySelectorAll(".nav-shell")) {
+  const icon = navigation.querySelector("[data-menu-morph-src]");
+  if (icon) {
+    import(new URL(icon.dataset.menuMorphSrc, document.baseURI).href)
+      .then(({ createMorph }) => {
+        const path = icon.querySelector("path");
+        const closedPath = path.getAttribute("d");
+        const openPath = path.dataset.openPath;
+        const currentPath = () => navigation.open ? openPath : closedPath;
+        const morph = createMorph(path, currentPath(), { reducedMotion: "user" });
+        const syncIcon = () => {
+          if (reducedMotion.matches) morph.set(currentPath());
+          else morph.morphTo(currentPath(), iconMorphSpring);
+        };
+
+        navigation.addEventListener("toggle", syncIcon);
+        reducedMotion.addEventListener("change", syncIcon);
+        icon.setAttribute("data-morph-ready", "");
+      })
+      .catch(() => {
+        // Optional enhancement: native details and the CSS icon still work.
+      });
+  }
+
+  navigation.addEventListener("toggle", () => {
+    const toggle = navigation.querySelector(".menu-toggle");
+    const toggleLabel = navigation.open
+      ? toggle?.dataset.menuCloseLabel
+      : toggle?.dataset.menuOpenLabel;
+    if (toggle && toggleLabel) toggle.setAttribute("aria-label", toggleLabel);
+    syncMenuIsolation(navigation);
+
+    if (navigation.open) {
+      restoreMenuPreview();
+      reachGoal("menu_open", { location: "header" });
+    }
+  });
+
+  navigation.addEventListener("click", (event) => {
+    const link = event.target.closest("a");
+    if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    navigation.removeAttribute("open");
+    syncMenuIsolation(navigation);
+    if (link.getAttribute("href")?.startsWith("#")) {
+      const target = document.getElementById(link.hash.slice(1));
+      if (!target) return;
+      // Let the native link update the URL and scroll; place keyboard focus at its destination.
+      requestAnimationFrame(() => {
+        if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+        target.focus({ preventScroll: true });
+      });
+    }
+  });
+
+}
+
+document.addEventListener("keydown", (event) => {
+  const openNavigation = document.querySelector(".nav-shell[open]");
+
+  if (event.key === "Tab" && openNavigation) {
+    const focusables = getMenuFocusables(openNavigation);
+    const first = focusables[0];
+    const last = focusables.at(-1);
+    const active = document.activeElement;
+
+    if (!first || !last) {
+      event.preventDefault();
+      return;
+    }
+
+    if (!openNavigation.contains(active)) {
+      event.preventDefault();
+      first.focus();
+    } else if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  if (event.key === "Escape") {
+    for (const navigation of document.querySelectorAll(".nav-shell[open]")) {
+      navigation.removeAttribute("open");
+      syncMenuIsolation(navigation);
+      navigation.querySelector("summary")?.focus();
+    }
+  }
+
+});
+
+for (const languageSwitch of document.querySelectorAll("[data-language-switch]")) {
+  languageSwitch.addEventListener("click", () => {
+    reachGoal("language_switch", {
+      language: languageSwitch.hreflang,
+      location: languageSwitch.closest(".site-nav")
+        ? "menu"
+        : languageSwitch.closest("footer")
+          ? "footer"
+          : "header",
+    });
+
+    if (!window.location.hash) {
+      return;
+    }
+
+    const target = new URL(languageSwitch.href);
+    target.hash = window.location.hash;
+    languageSwitch.href = target.href;
+  });
+}
+
+const siteHeader = document.querySelector(".site-header");
+const heroSection = document.querySelector(".hero, .stage-article__header");
+
+if (heroSection?.querySelector(".hero__foot")) {
+  const heroContent = heroSection.querySelector(".hero__content");
+  const heroProfile = heroSection.querySelector(".hero__foot");
+  let heroFitFrame = 0;
+  const syncHeroProfileFit = () => {
+    heroFitFrame = 0;
+    const profileStyle = getComputedStyle(heroProfile);
+    // In the mobile flow the complete profile follows the first viewport.
+    if (profileStyle.display === "none" || profileStyle.position !== "absolute") {
+      heroSection.classList.remove("is-profile-hidden");
+      return;
+    }
+    // The absolute profile keeps its measurable size while hidden.
+    const reservedHeight = Number.parseFloat(profileStyle.minHeight) || 0;
+    const fullHeight = heroContent.getBoundingClientRect().height +
+      (heroSection.classList.contains("is-profile-hidden") ? reservedHeight : 0);
+    heroSection.classList.toggle("is-profile-hidden", fullHeight > window.innerHeight + 1);
+  };
+  const requestHeroProfileFit = () => {
+    if (!heroFitFrame) heroFitFrame = requestAnimationFrame(syncHeroProfileFit);
+  };
+  if ("ResizeObserver" in window) new ResizeObserver(requestHeroProfileFit).observe(heroContent);
+  window.addEventListener("resize", requestHeroProfileFit, { passive: true });
+  document.fonts?.ready.then(requestHeroProfileFit);
+  syncHeroProfileFit();
+}
+
+if (siteHeader && heroSection) {
+  const heroHeaderTrigger = heroSection.querySelector(".hero__kicker");
+  let heroHeaderFrame = 0;
+
+  function syncHeroHeaderState() {
+    heroHeaderFrame = 0;
+
+    if (!heroHeaderTrigger) {
+      siteHeader.classList.toggle(
+        "is-over-hero",
+        heroSection.getBoundingClientRect().bottom >
+          siteHeader.getBoundingClientRect().bottom,
+      );
+      return;
+    }
+
+    const headerBottom = siteHeader.getBoundingClientRect().bottom;
+    const visibleTrigger = document.documentElement.classList.contains("has-birthday-greeting")
+      ? heroSection.querySelector(".birthday-name") : heroHeaderTrigger;
+    const firstTextTop = visibleTrigger.getBoundingClientRect().top;
+
+    siteHeader.classList.toggle(
+      "is-over-hero",
+      firstTextTop > headerBottom + 12,
+    );
+  }
+
+  function requestHeroHeaderSync() {
+    if (!heroHeaderFrame) {
+      heroHeaderFrame = requestAnimationFrame(syncHeroHeaderState);
+    }
+  }
+
+  syncHeroHeaderState();
+  new MutationObserver(requestHeroHeaderSync).observe(document.documentElement, {
+    attributes: true, attributeFilter: ["class"],
+  });
+  window.addEventListener("scroll", requestHeroHeaderSync, { passive: true });
+  window.addEventListener("resize", requestHeroHeaderSync);
+}
+
+const headerNavigationLinks = [
+  ...document.querySelectorAll(".site-nav [data-nav-track]"),
+];
+const menuPreviewIndex = document.querySelector("[data-menu-preview-index]");
+const menuPreviewTitle = document.querySelector("[data-menu-preview-title]");
+const menuPreviewImage = document.querySelector("[data-menu-preview-image]");
+const menuPreviewLinks = headerNavigationLinks.filter(
+  (link) => link.dataset.navIndex,
+);
+const menuPreviewPointer = window.matchMedia(
+  "(hover: hover) and (pointer: fine)",
+);
+function syncMenuPreviewCopy(index, title) {
+  if (!menuPreviewIndex || !menuPreviewTitle) return;
+
+  menuPreviewIndex.dataset.currentIndex = index;
+  menuPreviewIndex.textContent = index;
+  menuPreviewTitle.textContent = title;
+}
+
+function syncMenuPreview(link) {
+  if (!link?.dataset.navIndex || !menuPreviewIndex || !menuPreviewTitle) return;
+
+  syncMenuPreviewCopy(
+    link.dataset.navIndex,
+    link.dataset.navTitle || link.textContent.trim(),
+  );
+
+  if (menuPreviewImage) {
+    const position = link.dataset.navPosition || "50% 50%";
+    menuPreviewImage.style.setProperty("--menu-preview-position", position);
+    menuPreviewImage.style.setProperty(
+      "--menu-preview-mobile-position",
+      link.dataset.navMobilePosition || position,
+    );
+  }
+
+  if (
+    menuPreviewImage &&
+    link.dataset.navImage &&
+    menuPreviewImage.getAttribute("src") !== link.dataset.navImage
+  ) {
+    menuPreviewImage.setAttribute("src", link.dataset.navImage);
+  }
+}
+
+function restoreMenuPreview() {
+  syncMenuPreview(
+    menuPreviewLinks.find((link) => link.getAttribute("aria-current") === "location") ||
+      menuPreviewLinks[0],
+  );
+}
+
+for (const link of menuPreviewLinks) {
+  link.addEventListener("pointerenter", () => {
+    if (menuPreviewPointer.matches) syncMenuPreview(link);
+  });
+  link.addEventListener("focus", () => {
+    if (link.matches(":focus-visible")) syncMenuPreview(link);
+  });
+}
+
+document.querySelector(".site-nav__primary")?.addEventListener(
+  "pointerleave",
+  restoreMenuPreview,
+);
+document.querySelector(".site-nav__primary")?.addEventListener("focusout", () => {
+  requestAnimationFrame(() => {
+    if (!document.querySelector(".site-nav__primary")?.contains(document.activeElement)) {
+      restoreMenuPreview();
+    }
+  });
+});
+
+for (const link of headerNavigationLinks) {
+  link.addEventListener("click", () => {
+    reachGoal("chapter_navigation", {
+      chapter: link.hash.slice(1) || "top",
+    });
+  });
+}
+const headerNavigationTargets = headerNavigationLinks
+  .map((link) => {
+    const target = document.querySelector(link.hash);
+    return target ? { link, target } : null;
+  })
+  .filter(Boolean);
+
+if (siteHeader && headerNavigationTargets.length) {
+  let headerNavigationFrame = 0;
+  let headerWasCondensed = false;
+
+  function syncHeaderNavigation() {
+    headerNavigationFrame = 0;
+
+    const scrollRange =
+      document.documentElement.scrollHeight - window.innerHeight;
+    const progress =
+      scrollRange > 0 ? Math.max(0.025, window.scrollY / scrollRange) : 0.025;
+    const readingLine = window.scrollY + window.innerHeight * 0.38;
+    let activeItem =
+      headerNavigationTargets.find(({ link }) => link.hash === "#top") ||
+      headerNavigationTargets[0];
+
+    const orderedTargets = [...headerNavigationTargets].sort(
+      (first, second) => first.target.getBoundingClientRect().top - second.target.getBoundingClientRect().top,
+    );
+
+    for (const item of orderedTargets) {
+      if (item.target.getBoundingClientRect().top + window.scrollY <= readingLine) {
+        activeItem = item;
+      }
+    }
+
+    const navigationIsOpen = Boolean(siteHeader.querySelector(".nav-shell[open]"));
+    const headerIsCondensed = navigationIsOpen
+      ? headerWasCondensed
+      : desktopNavigation.matches &&
+        window.scrollY > Math.min(220, window.innerHeight * 0.2);
+
+    siteHeader.style.setProperty("--header-progress", String(progress));
+    siteHeader.classList.toggle("is-condensed", headerIsCondensed);
+
+    headerWasCondensed = headerIsCondensed;
+
+    for (const item of headerNavigationTargets) {
+      if (item === activeItem) {
+        item.link.setAttribute("aria-current", "location");
+      } else {
+        item.link.removeAttribute("aria-current");
+      }
+    }
+
+    const currentChapter = siteHeader.querySelector("[data-current-chapter]");
+
+    if (currentChapter) {
+      currentChapter.textContent =
+        activeItem.link.dataset.navTitle || activeItem.link.textContent.trim();
+    }
+
+    const primaryNavigation = document.querySelector(".site-nav__primary");
+    const hasPointerPreview =
+      menuPreviewPointer.matches && primaryNavigation?.matches(":hover");
+    const hasKeyboardPreview =
+      primaryNavigation?.contains(document.activeElement) &&
+      document.activeElement?.matches?.(":focus-visible");
+
+    if (!hasPointerPreview && !hasKeyboardPreview) {
+      restoreMenuPreview();
+    }
+  }
+
+  function requestHeaderNavigationSync() {
+    if (!headerNavigationFrame) {
+      headerNavigationFrame = requestAnimationFrame(syncHeaderNavigation);
+    }
+  }
+
+  syncHeaderNavigation();
+  window.addEventListener("scroll", requestHeaderNavigationSync, {
+    passive: true,
+  });
+  window.addEventListener("resize", requestHeaderNavigationSync);
+}

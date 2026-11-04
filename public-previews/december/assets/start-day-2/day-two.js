@@ -1,0 +1,226 @@
+import { lightPalette } from '../../december-1-saved/assets/dubai-light.js';
+import { solarTheme } from '../../december-1-saved/assets/solar-clock.js';
+
+// Reuse the accepted solar palette, with a declared scenario date and no weather.
+const root = document.documentElement;
+const sceneDate = root.dataset.startPreviewDate;
+const sceneMinutes = Number(root.dataset.startPreviewMinutes);
+const light = lightPalette(sceneDate, sceneMinutes);
+for (const key of ['paper', 'dark', 'beam']) root.style.setProperty(`--dubai-${key}`, light[key].join(' '));
+for (const [key, value] of Object.entries({strength:light.strength, x:`${light.x}%`, y:`${light.y}%`, 'shadow-x':`${light.shadowX}px`, 'shadow-y':`${light.shadowY}px`, diffusion:`${light.diffusion}px`, 'wind-angle':`${light.windAngle}deg`, 'air-opacity':light.airOpacity, 'air-duration':`${light.airDuration}s`, 'air-x':`${light.airX}px`, 'air-y':`${light.airY}px`, 'media-saturation':light.mediaSaturation, 'media-contrast':light.mediaContrast})) root.style.setProperty(`--dubai-${key}`, String(value));
+root.dataset.dubaiLight = light.phase;
+root.dataset.dubaiMode = 'preview';
+root.dataset.solarTheme = solarTheme(sceneDate, sceneMinutes);
+document.dispatchEvent(new Event('dubai-light-change'));
+
+function initOpticalLines() {
+  const headings = [...document.querySelectorAll('[data-optical-lines]')]
+    .filter(element => !element.children.length)
+    .map(element => ({ element, text: element.textContent, signature: '' }));
+  if (!headings.length || !document.fonts) return;
+
+  const ink = document.createElement('canvas').getContext('2d');
+  let frame = 0;
+  function schedule(force = false) {
+    if (force) for (const heading of headings) heading.signature = '';
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      for (const heading of headings) {
+        const { element, text } = heading;
+        if (!element.isConnected || !element.getBoundingClientRect().width) continue;
+        const style = getComputedStyle(element);
+        // Keep the unmodified, readable fallback if the local Micra face failed.
+        if (style.fontFamily.includes("Micra") && !document.fonts.check(`${style.fontWeight} ${style.fontSize} "Micra"`, text)) continue;
+        const signature = [element.getBoundingClientRect().width, style.fontFamily,
+          style.fontSize, style.fontWeight, style.fontStyle, style.lineHeight,
+          style.letterSpacing, style.wordSpacing, style.textTransform,
+          style.textWrap, style.fontFeatureSettings, style.fontVariationSettings].join('|');
+        if (signature === heading.signature) continue;
+
+        // Measure the browser's own wrapping, including text-wrap: balance.
+        // The original stays visible; no duplicate or hidden measuring copy is used.
+        const textNode = document.createTextNode(text);
+        element.replaceChildren(textNode);
+        const range = document.createRange();
+        const starts = [0];
+        let offset = 0;
+        let lineTop;
+        for (const character of text) {
+          const next = offset + character.length;
+          if (!/\s/u.test(character)) {
+            range.setStart(textNode, offset);
+            range.setEnd(textNode, next);
+            const rect = range.getBoundingClientRect();
+            if (rect.height && lineTop !== undefined && Math.abs(rect.top - lineTop) > 1) {
+              starts.push(offset);
+            }
+            if (rect.height) lineTop = rect.top;
+          }
+          offset = next;
+        }
+        starts.push(text.length);
+        const fragment = document.createDocumentFragment();
+        if (ink) ink.font = `${style.fontWeight} 1000px ${style.fontFamily}`;
+        for (let index = 0; index < starts.length - 1; index += 1) {
+          const line = document.createElement('span');
+          line.textContent = text.slice(starts[index], starts[index + 1]);
+          line.dataset.opticalLine = '';
+          line.dataset.opticalStart = '';
+          line.dataset.opticalInk = '';
+          const leading = [...line.textContent.trimStart()][0] || '';
+          line.dataset.opticalLeading = style.textTransform === 'uppercase'
+            ? leading.toLocaleUpperCase(document.documentElement.lang || undefined) : leading;
+          const inkLeft = ink?.measureText(line.dataset.opticalLeading).actualBoundingBoxLeft;
+          if (Number.isFinite(inkLeft)) line.style.setProperty('--optical-start-shift', `${inkLeft / 1000}em`);
+          fragment.append(line);
+        }
+        element.replaceChildren(fragment);
+        heading.signature = signature;
+      }
+    });
+  }
+
+  document.fonts.ready.then(() => {
+    schedule();
+    if ('ResizeObserver' in window) {
+      const observer = new ResizeObserver(() => schedule());
+      for (const { element } of headings) observer.observe(element);
+    }
+    window.addEventListener('resize', () => schedule(), { passive: true });
+    document.fonts.addEventListener('loadingdone', () => schedule(true));
+  });
+}
+initOpticalLines();
+
+
+// The scenario date is fixed on the page. Reading an archived stage never changes it.
+const episodePanels = [...document.querySelectorAll('[data-episode]')];
+const episodeChoices = [...document.querySelectorAll('[data-episode-choice]')];
+const galleryStates = new Map();
+let selectedEpisode = '02';
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const lightbox = document.querySelector('[data-start-lightbox]');
+let modalGallery;
+let modalIndex = 0;
+let modalOpener;
+
+function showPhoto(index) {
+  if (!modalGallery) return;
+  modalIndex = Math.max(0, Math.min(modalGallery.links.length - 1, index));
+  const link = modalGallery.links[modalIndex];
+  const image = lightbox.querySelector('[data-start-photo-full]');
+  image.src = link.href;
+  image.alt = link.querySelector('img').alt;
+  lightbox.querySelector('[data-start-photo-position]').textContent = `${modalIndex + 1} / ${modalGallery.links.length}`;
+  lightbox.querySelector('[data-start-photo-prev]').disabled = modalIndex === 0;
+  lightbox.querySelector('[data-start-photo-next]').disabled = modalIndex === modalGallery.links.length - 1;
+}
+for (const panel of episodePanels) {
+  const strip = panel.querySelector('[data-start-photo-strip]');
+  const links = [...strip.querySelectorAll('[data-start-photo]')];
+  const prev = panel.querySelector('[data-start-strip-prev]');
+  const next = panel.querySelector('[data-start-strip-next]');
+  const count = panel.querySelector('[data-start-strip-count]');
+  const state = { panel, strip, links, index: 0 };
+  galleryStates.set(panel.dataset.episode, state);
+  const position = index => links[index].offsetLeft - links[0].offsetLeft;
+  function update() {
+    if (panel.hidden) return;
+    state.index = links.reduce((best, link, i) => Math.abs(position(i) - strip.scrollLeft) < Math.abs(position(best) - strip.scrollLeft) ? i : best, 0);
+    count.textContent = `${state.index + 1} / ${links.length}`;
+    prev.disabled = state.index === 0;
+    next.disabled = state.index === links.length - 1;
+  }
+  function go(index) {
+    const target = Math.max(0, Math.min(links.length - 1, index));
+    state.index = target;
+    strip.scrollTo({ left: position(target), behavior: reduced() ? 'instant' : 'smooth' });
+  }
+  state.restore = () => { strip.scrollTo({left: position(state.index), behavior:'instant'}); update(); };
+  prev.addEventListener('click', () => go(state.index - 1));
+  next.addEventListener('click', () => go(state.index + 1));
+  strip.addEventListener('scroll', update, {passive:true});
+  strip.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+    event.preventDefault(); go(state.index + (event.key === 'ArrowRight' ? 1 : -1));
+  });
+  for (const [index, link] of links.entries()) link.addEventListener('click', event => {
+    if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+    event.preventDefault(); modalGallery = state; modalOpener = link; showPhoto(index);
+    lightbox.showModal(); document.documentElement.classList.add('stage-photo-open');
+    lightbox.querySelector('[data-start-photo-close]').focus();
+  });
+  update();
+}
+lightbox.querySelector('[data-start-photo-prev]').addEventListener('click', () => showPhoto(modalIndex - 1));
+lightbox.querySelector('[data-start-photo-next]').addEventListener('click', () => showPhoto(modalIndex + 1));
+lightbox.querySelector('[data-start-photo-close]').addEventListener('click', () => lightbox.close());
+lightbox.addEventListener('close', () => {
+  document.documentElement.classList.remove('stage-photo-open');
+  modalOpener?.focus({preventScroll:true});
+});
+lightbox.addEventListener('keydown', event => {
+  if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+    event.preventDefault(); showPhoto(modalIndex + (event.key === 'ArrowRight' ? 1 : -1));
+  }
+});
+let touchStart;
+lightbox.addEventListener('touchstart', event => { const p = event.touches[0]; touchStart = {x:p.clientX, y:p.clientY}; }, {passive:true});
+lightbox.addEventListener('touchend', event => {
+  if (!touchStart) return;
+  const p = event.changedTouches[0], dx = p.clientX - touchStart.x, dy = p.clientY - touchStart.y;
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) showPhoto(modalIndex + (dx < 0 ? 1 : -1));
+  touchStart = null;
+}, {passive:true});
+
+function updateLanguageLinks() {
+  for (const link of document.querySelectorAll('a[hreflang]')) {
+    const url = new URL(link.href);
+    if (!url.pathname.endsWith('december-2.html')) continue;
+    url.hash = /^#(?:race-day|life-story)-0[12]$/.test(location.hash) ? location.hash : `#race-day-${selectedEpisode}`;
+    for (const name of ['theme','text']) {
+      const value = new URLSearchParams(location.search).get(name);
+      if (value) url.searchParams.set(name, value);
+    }
+    link.href = url.href;
+  }
+}
+function selectFromHash({scroll = false, focus = false} = {}) {
+  const match = /^#(?:race-day|life-story)-(0[12])$/.exec(location.hash);
+  if (match) selectedEpisode = match[1];
+  else if (!location.hash) selectedEpisode = '02';
+  for (const panel of episodePanels) panel.hidden = panel.dataset.episode !== selectedEpisode;
+  for (const choice of episodeChoices) {
+    if (choice.dataset.episodeChoice === selectedEpisode) choice.setAttribute('aria-current', 'true');
+    else choice.removeAttribute('aria-current');
+  }
+  galleryStates.get(selectedEpisode)?.restore();
+  updateLanguageLinks();
+  if (match && (scroll || focus)) {
+    const target = document.getElementById(location.hash.slice(1));
+    if (focus) {
+      if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex','-1');
+      target.focus({preventScroll:true});
+    }
+    if (scroll) {
+      const scrollTarget = location.hash.startsWith('#race-day-')
+        ? document.querySelector('.episode-switcher')
+        : target;
+      scrollTarget.scrollIntoView({block:'start', behavior:'instant'});
+    }
+  }
+}
+document.addEventListener('click', event => {
+  const link = event.target.closest('a[href]');
+  if (!link || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+  const url = new URL(link.href);
+  if (url.pathname !== location.pathname || !/^#(?:race-day|life-story)-0[12]$/.test(url.hash)) return;
+  event.preventDefault();
+  if (location.hash !== url.hash) history.pushState(null, '', url.hash);
+  selectFromHash({scroll:true, focus:true});
+});
+window.addEventListener('hashchange', () => selectFromHash({scroll:true}));
+window.addEventListener('popstate', () => selectFromHash({scroll:true}));
+selectFromHash();
+if (/^#(?:race-day|life-story)-0[12]$/.test(location.hash)) requestAnimationFrame(() => selectFromHash({scroll:true}));
