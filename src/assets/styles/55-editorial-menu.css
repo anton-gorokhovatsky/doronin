@@ -15,6 +15,26 @@
   width: fit-content;
 }
 
+/* Keep the control surfaces on the visible top of the header logo.
+   The logo's padded link and the controls retain their existing hit areas. */
+.site-header {
+  --header-control-optical-drop: 0.875rem;
+}
+
+.site-header :is(.menu-toggle, .header-actions) {
+  top: var(--header-control-optical-drop);
+}
+
+@media (max-width: 960px) {
+  .site-header {
+    --header-control-optical-drop: 6px;
+  }
+
+  :root.text-enlarged .site-header {
+    --header-control-optical-drop: 10px;
+  }
+}
+
 .menu-toggle > .menu-toggle__icon {
   position: relative;
   top: auto;
