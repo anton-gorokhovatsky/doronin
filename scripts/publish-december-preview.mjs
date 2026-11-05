@@ -30,7 +30,7 @@ for (const page of pages) {
     const resource = path.resolve(destination, path.dirname(page), href);
     if (resource !== destination && !resource.startsWith(`${destination}${path.sep}`)) throw new Error(`Preview escape: ${page}: ${href}`);
     await stat(resource);
-    if (/\/assets\/(?:start-day-2|five-days)\/[^/]+\.(?:js|css)$/.test(resource)) {
+    if (/\/assets\/(?:start-day|start-day-2|five-days)\/[^/]+\.(?:js|css)$/.test(resource)) {
       if (!versions.has(resource)) versions.set(resource, createHash('sha256').update(await readFile(resource)).digest('hex').slice(0, 10));
       html = html.replaceAll(`"${href}"`, `"${href}?v=${versions.get(resource)}"`);
     }

@@ -1,10 +1,11 @@
-// A photograph belongs to a published day. The row's real link remains the
-// keyboard/touch route to the same photographs and story.
+// Calendar rows and stage navigation share one photograph for a published day.
+// Their real links remain the keyboard/touch route to its photographs and story.
 const calendar = document.querySelector('[data-five-days] .december-calendar');
 const pointer = matchMedia('(hover: hover) and (pointer: fine)');
 const motion = matchMedia('(prefers-reduced-motion: reduce)');
 if (calendar) {
-  const rows = [...calendar.querySelectorAll('[data-calendar-preview]')];
+  const owners = [calendar, ...document.querySelectorAll('[data-five-days] .episode-pager')];
+  const rows = owners.flatMap(owner => [...owner.querySelectorAll('[data-calendar-preview]')]);
   const preview = document.createElement('figure');
   preview.className = 'calendar-preview';
   preview.setAttribute('aria-hidden', 'true');
@@ -25,7 +26,7 @@ if (calendar) {
     image.decoding = 'async';
     image.style.objectPosition = row.dataset.calendarPreviewPosition || '50% 50%';
     image.addEventListener('load', () => {
-      if (active === row && preview.firstElementChild === image) preview.dataset.visible = 'true';
+      if (active && preview.firstElementChild === image) move();
     }, {once: true});
     image.addEventListener('error', () => {
       if (preview.firstElementChild === image) preview.dataset.visible = 'false';
@@ -46,12 +47,24 @@ if (calendar) {
     let x = lastX + gap;
     if (x + rect.width > innerWidth - inset) x = lastX - rect.width - gap;
     x = Math.max(inset, Math.min(x, innerWidth - rect.width - inset));
-    const y = Math.max(inset, Math.min(lastY - rect.height * .54, innerHeight - rect.height - inset));
+    let y = Math.max(inset, Math.min(lastY - rect.height * .54, innerHeight - rect.height - inset));
+    if (active.closest('.episode-pager')) {
+      const target = active.closest('.episode-pager').getBoundingClientRect();
+      // Keep one clear band for the whole pager. Moving between neighbouring
+      // stories must not drag the photograph across the next destination.
+      if (target.top - gap - rect.height >= inset) y = target.top - gap - rect.height;
+      else if (target.bottom + gap + rect.height <= innerHeight - inset) y = target.bottom + gap;
+      else if (target.right + gap + rect.width <= innerWidth - inset) x = target.right + gap;
+      else if (target.left - gap - rect.width >= inset) x = target.left - gap - rect.width;
+      else { preview.dataset.visible = 'false'; return; }
+    }
     const delta = lastPointerX === undefined ? 0 : lastX - lastPointerX;
     const reduced = motion.matches || document.documentElement.dataset.reduceMotion === 'true';
     const angle = reduced ? 0 : Math.max(-3, Math.min(3, delta * .06));
     preview.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${angle}deg)`;
     lastPointerX = lastX;
+    const image = preview.firstElementChild;
+    preview.dataset.visible = String(Boolean(image?.complete && image.naturalWidth > 0));
   }
 
   function hide() {
@@ -62,14 +75,15 @@ if (calendar) {
     scheduled = 0;
   }
 
-  calendar.addEventListener('pointermove', event => {
+  document.addEventListener('pointermove', event => {
     if (event.pointerType === 'touch' || !pointer.matches) return;
-    const row = event.target.closest('[data-calendar-preview]');
-    if (!row) { hide(); return; }
+    const owner = event.target.closest('.december-calendar, .episode-pager');
+    const row = owners.includes(owner) ? event.target.closest('[data-calendar-preview]') : null;
+    if (!row || !owner.contains(row)) { hide(); return; }
     lastX = event.clientX;
     lastY = event.clientY;
     if (active !== row) {
-      const newlyOpened = !active;
+      const newlyOpened = !active || active.closest('.december-calendar, .episode-pager') !== owner;
       active = row;
       const image = frameFor(row);
       preview.replaceChildren(image);
@@ -84,9 +98,9 @@ if (calendar) {
     }
     if (!scheduled) scheduled = requestAnimationFrame(move);
   });
-  calendar.addEventListener('pointerleave', hide);
-  calendar.addEventListener('pointercancel', hide);
-  calendar.addEventListener('focusin', hide);
+  document.addEventListener('pointerleave', hide);
+  document.addEventListener('pointercancel', hide);
+  document.addEventListener('focusin', hide);
   window.addEventListener('scroll', hide, {passive: true});
   window.addEventListener('blur', hide);
   window.addEventListener('resize', hide, {passive: true});
@@ -150,6 +164,6 @@ if (calendar) {
       rows.forEach(frameFor);
       near.disconnect();
     }, {rootMargin: '200px'});
-    near.observe(calendar);
+    owners.forEach(owner => near.observe(owner));
   }
 }

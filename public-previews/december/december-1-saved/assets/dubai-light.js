@@ -130,6 +130,7 @@ export function readOutlook(payload, now = Date.now()) {
 function initDubaiLight() {
   const widget = document.querySelector('[data-dubai-controls]');
   if (!widget) return;
+  const weatherOnly = widget.hasAttribute('data-weather-only');
   const root = document.documentElement;
   const navigation = document.querySelector('.nav-shell');
   const menuWeather = navigation?.querySelector('[data-menu-weather]');
@@ -233,12 +234,14 @@ function initDubaiLight() {
   let requestInFlight = false;
   let timer;
   let disposed = false;
-  try {
-    const saved = JSON.parse(sessionStorage.getItem('11111-dubai-light'));
-    if (['preview', 'current'].includes(saved?.mode) && Number.isFinite(saved?.minutes)) {
-      mode = saved.mode; previewMinutes = clamp(saved.minutes, 0, 1439);
-    }
-  } catch { /* The experience works without storage. */ }
+  if (!weatherOnly) {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('11111-dubai-light'));
+      if (['preview', 'current'].includes(saved?.mode) && Number.isFinite(saved?.minutes)) {
+        mode = saved.mode; previewMinutes = clamp(saved.minutes, 0, 1439);
+      }
+    } catch { /* The experience works without storage. */ }
+  }
   try {
     const saved = JSON.parse(sessionStorage.getItem(WEATHER_CACHE_KEY));
     if (Number.isFinite(saved?.nextRequest) && saved.nextRequest > Date.now() && saved.nextRequest < Date.now() + 6 * 3600000) {
@@ -295,15 +298,18 @@ function initDubaiLight() {
     root.style.setProperty('--dubai-now-beam', nowLight.beam.join(' '));
     root.style.setProperty('--dubai-now-strength', String(nowLight.strength * 0.25));
     root.style.setProperty('--dubai-now-x', `${nowLight.x}%`);
-    for (const key of ['paper', 'dark', 'beam']) root.style.setProperty(`--dubai-${key}`, light[key].join(' '));
-    for (const [key, value] of Object.entries({ strength: light.strength, x: `${light.x}%`, y: `${light.y}%`, 'shadow-x': `${light.shadowX}px`, 'shadow-y': `${light.shadowY}px`, diffusion: `${light.diffusion}px`, 'wind-angle': `${light.windAngle}deg`, 'air-opacity': light.airOpacity, 'air-duration': `${light.airDuration}s`, 'air-x': `${light.airX}px`, 'air-y': `${light.airY}px`, 'media-saturation': light.mediaSaturation, 'media-contrast': light.mediaContrast })) {
-      root.style.setProperty(`--dubai-${key}`, String(value));
+    // A rehearsal scene keeps its fixed sunlight; the weather remains current.
+    if (!weatherOnly) {
+      for (const key of ['paper', 'dark', 'beam']) root.style.setProperty(`--dubai-${key}`, light[key].join(' '));
+      for (const [key, value] of Object.entries({ strength: light.strength, x: `${light.x}%`, y: `${light.y}%`, 'shadow-x': `${light.shadowX}px`, 'shadow-y': `${light.shadowY}px`, diffusion: `${light.diffusion}px`, 'wind-angle': `${light.windAngle}deg`, 'air-opacity': light.airOpacity, 'air-duration': `${light.airDuration}s`, 'air-x': `${light.airX}px`, 'air-y': `${light.airY}px`, 'media-saturation': light.mediaSaturation, 'media-contrast': light.mediaContrast })) {
+        root.style.setProperty(`--dubai-${key}`, String(value));
+      }
+      root.dataset.dubaiLight = light.phase;
+      root.dataset.dubaiMode = mode;
+      root.dataset.solarTheme = solarTheme(date, minutes);
+      document.dispatchEvent(new Event('dubai-light-change'));
+      root.style.setProperty('--dubai-dust-opacity', String(light.dustOpacity));
     }
-    root.dataset.dubaiLight = light.phase;
-    root.dataset.dubaiMode = mode;
-    root.dataset.solarTheme = solarTheme(date, minutes);
-    document.dispatchEvent(new Event('dubai-light-change'));
-    root.style.setProperty('--dubai-dust-opacity', String(light.dustOpacity));
     const dustRow = widget.querySelector('[data-dubai-dust]');
     if (dustRow) {
       dustRow.style.visibility = mode === 'current' ? 'visible' : 'hidden';
@@ -335,9 +341,11 @@ function initDubaiLight() {
     widget.hidden = false;
     if (menuWeather && navigation.open) {
       const hasForecast = weather && weather.temperature !== null;
+      const forecastClock = hasForecast ? dubaiClock(new Date(weather.timestamp)) : current;
+      const place = weatherOnly ? `${words.city} · ${dateLabel(forecastClock.date)}` : words.city;
       menuWeather.querySelector('[data-menu-weather-time]').textContent = hasForecast
-        ? `${words.city} · ${words.weather.toLowerCase()} ${clockFormat(dubaiClock(new Date(weather.timestamp)).minutes)}`
-        : words.city;
+        ? `${place} · ${words.weather.toLowerCase()} ${clockFormat(forecastClock.minutes)}`
+        : place;
       menuWeather.querySelector('[data-menu-weather-readings]').hidden = !hasForecast;
       const state = menuWeather.querySelector('[data-menu-weather-state]');
       state.hidden = Boolean(hasForecast);
@@ -370,14 +378,28 @@ function initDubaiLight() {
     const timeout = setTimeout(() => controller.abort(), 6500);
     try {
       const response = await fetch(endpoint, { signal: controller.signal, credentials: 'omit', referrerPolicy: 'no-referrer' });
-      if (!response.ok) throw new Error('Weather unavailable');
-      forecast = await response.json();
-      weather = readWeather(forecast);
       const expires = Date.parse(response.headers.get('Expires'));
       if (Number.isFinite(expires)) nextRequest = Math.max(nextRequest, expires);
+      if (!response.ok) throw new Error('Weather unavailable');
+      const next = await response.json();
+      if (!readWeather(next) && !readOutlook(next).some(point => point.reading)) throw new Error('No fresh forecast');
+      forecast = next;
+    } catch {
+      // The full product and the published compact backup carry their own model times.
+      // An old backup must never become a current reading just because this request succeeded.
+      try {
+        const backupUrl = new URL('dubai-weather.json', new URL(widget.dataset.dustUrl, document.baseURI));
+        const backup = await fetch(backupUrl, { credentials: 'omit', signal: AbortSignal.timeout(6500) });
+        const saved = backup.ok ? await backup.json() : null;
+        if (saved?.version === 1 && readWeather(saved.forecast)) forecast = saved.forecast;
+      } catch { /* paint() independently expires earlier data, if present. */ }
+    } finally {
+      clearTimeout(timeout);
+      weather = readWeather(forecast);
       try { sessionStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ forecast, nextRequest })); } catch { /* Optional cache. */ }
-    } catch { forecast = null; weather = null; }
-    finally { clearTimeout(timeout); requestInFlight = false; paint(); }
+      requestInFlight = false;
+      paint();
+    }
   }
 
   async function updateDust() {
@@ -388,8 +410,8 @@ function initDubaiLight() {
       const response = await fetch(widget.dataset.dustUrl, { credentials: 'omit', signal: AbortSignal.timeout(6500) });
       if (!response.ok) throw new Error('Dust unavailable');
       const payload = await response.json();
-      dustForecast = readDust(payload) ? payload : null;
-    } catch { dustForecast = null; }
+      if (readDust(payload)) dustForecast = payload;
+    } catch { /* paint() keeps the last valid point only for its original interval. */ }
     finally { dustRequestInFlight = false; paint(); }
   }
   function tick() { paint(); void updateWeather(); void updateDust(); }

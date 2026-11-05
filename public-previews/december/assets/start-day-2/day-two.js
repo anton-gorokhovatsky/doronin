@@ -1,4 +1,6 @@
-import { lightPalette } from '../../december-1-saved/assets/dubai-light.js';
+const lightModule = new URL('../../december-1-saved/assets/dubai-light.js', import.meta.url);
+lightModule.search = new URL(import.meta.url).search;
+const { lightPalette } = await import(lightModule.href);
 import { solarTheme } from '../../december-1-saved/assets/solar-clock.js';
 
 let useStageDeck = document.body.hasAttribute('data-five-days');
@@ -8,7 +10,7 @@ if (useStageDeck) {
   catch { useStageDeck = false; }
 }
 
-// Reuse the accepted solar palette, with a declared scenario date and no weather.
+// Keep the rehearsal sunlight fixed; the current forecast initializes separately.
 const root = document.documentElement;
 const sceneDate = root.dataset.startPreviewDate;
 const sceneMinutes = Number(root.dataset.startPreviewMinutes);

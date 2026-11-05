@@ -1,6 +1,7 @@
 /* Local December scenario. All type, colour and spacing roles belong to the site. */
 .start-day-preview .event-status,
-.start-day-preview :is(.menu-weather, #dubai-light) { display: none; }
+.start-day-preview:not([data-five-days]) .menu-weather,
+.start-day-preview #dubai-light:not([data-weather-only]) { display: none; }
 .start-day-preview .header-status__rail { display: grid; grid-template-columns: repeat(31, minmax(0, 1fr)); gap: 2px; min-height: .35rem; }
 .start-day-preview .site-nav__utility,
 .start-day-preview .site-nav__journey { grid-template-columns: minmax(0, 1fr); }

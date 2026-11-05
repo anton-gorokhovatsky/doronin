@@ -24,12 +24,13 @@ function pager(edition, days, lang) {
   const newer = days[days.indexOf(edition) + 1];
   const latest = days.at(-1);
   const en = lang === 'en';
+  const preview = target => `data-calendar-start="${iso(target.day)}" data-calendar-preview="${esc(target.preview.source)}" data-calendar-preview-position="${esc(target.preview.position)}"`;
   const link = (target, label, direction) =>
-    `<a class="episode-return" href="#race-day-${pad(target.day)}"><span>${label} · ${target.date}</span><strong>${esc(target.title)}</strong>${arrow(direction)}</a>`;
+    `<a class="episode-return" href="#race-day-${pad(target.day)}" ${preview(target)}><span>${label} · ${target.date}</span><strong>${esc(target.title)}</strong>${arrow(direction)}</a>`;
   return `<nav class="episode-pager" aria-label="${en ? 'Stage navigation' : 'Переходы между этапами'}">
     ${older ? link(older, en ? 'Previous stage' : 'Предыдущий этап', 'left') : ''}
     ${newer ? link(newer, newer === latest ? (en ? 'Current stage' : 'Текущий этап') : (en ? 'Next stage' : 'Следующий этап'), 'right') : ''}
-    ${newer && newer !== latest ? `<a class="episode-return episode-pager__today" href="#race-day-${pad(latest.day)}"><strong>${en ? 'Back to today' : 'К текущему этапу'}</strong>${arrow('up')}</a>` : ''}
+    ${newer && newer !== latest ? `<a class="episode-return episode-pager__today" href="#race-day-${pad(latest.day)}" ${preview(latest)}><strong>${en ? 'Back to today' : 'К текущему этапу'}</strong>${arrow('up')}</a>` : ''}
   </nav>`;
 }
 function episode(day, days, lang, mediaBase) {
@@ -69,6 +70,24 @@ function advancePeaks(html, today, dayLabel) {
     .replace(/<a class="hero-peaks__today"[^>]*>[^<]*<\/a>/, `<a class="hero-peaks__today" href="#calendar-day-${pad(today)}" aria-current="date">${dayLabel}</a>`);
 }
 
+// One selected frame for a stage, shared by its calendar row and pager links.
+function calendarPreview(day, media, base) {
+  if (day.old) {
+    const image = day.old.match(/<img\b[^>]*>/)?.[0] || '';
+    const file = image.match(/src="[^"]*\/([\w-]+)-original\.png"/)?.[1];
+    if (!file) throw new Error(`Missing preview frame for day ${day.day}.`);
+    return {source: `${base}thumbnails/${file}.jpg`, position: image.match(/object-position:([^;"]+)/)?.[1] || '50% 50%'};
+  }
+  const frames = media.find(item => item.day === day.day);
+  const photo = frames.items.find(item => item.file === frames.hero) ||
+    frames.items.find(item => item.file.includes('night-rider')) || frames.items[0];
+  return {source: `${base}media/${photo.file}`, position: photo.position};
+}
+function calendarPastStory(title) {
+  const cut = title.lastIndexOf(' ') + 1;
+  return `${esc(title.slice(0, cut))}<span class="calendar-past__tail">${esc(title.slice(cut))}${arrow('up')}</span>`;
+}
+
 function calendarValues(day, plan) {
   const date = iso(day.day);
   const segment = plan.segments.find(item => item.startDate <= date && date <= item.endDate);
@@ -83,10 +102,8 @@ function calendarPastLink(day, plan, lang) {
   const km = en ? 'km' : 'км';
   const {date, segment, amount, cumulative, id} = calendarValues(day, plan);
   return `<a class="december-row december-row--past calendar-past__item" id="${id}" href="#life-story-${pad(day.day)}" data-calendar-start="${date}" data-calendar-end="${date}" data-calendar-kind="${segment.kind}" data-calendar-preview="${esc(day.preview.source)}" data-calendar-preview-position="${esc(day.preview.position)}">
-    <span class="calendar-past__date"><time datetime="${date}">${day.date}</time><span>${day.type}</span></span>
-    <span class="calendar-past__story">${esc(day.title)}</span>
+    <span class="calendar-past__identity"><span class="calendar-past__story">${calendarPastStory(day.title)}</span><span class="calendar-past__date"><time datetime="${date}">${day.date}</time><span>${day.type}</span></span></span>
     <span class="calendar-past__metrics"><span>${en ? 'Planned' : 'План'} ${amount} ${km}</span><span>${en ? 'By this date' : 'К этой дате'} ${cumulative} ${km}</span></span>
-    ${arrow('up')}
   </a>`;
 }
 function calendarRow(day, plan, lang, latestDay) {
@@ -101,6 +118,31 @@ function calendarRow(day, plan, lang, latestDay) {
     <p class="december-row__total"><span>${en ? 'By ' : 'К '}${day.date} —</span><strong><span>${cumulative}</span><span> ${km}</span></strong></p>
     ${day.title ? calendarLink(day.day, day.title) : ''}
   </article>`;
+}
+
+function sectionEnd(html, start) {
+  const tags = /<\/?section\b[^>]*>/g;
+  tags.lastIndex = start;
+  let depth = 0;
+  for (let tag = tags.exec(html); tag; tag = tags.exec(html)) {
+    depth += tag[0].startsWith('</') ? -1 : 1;
+    if (depth === 0) return tags.lastIndex;
+  }
+  throw new Error('Unclosed section while restoring the course forecast.');
+}
+function restoreCourseWeather(html, lang) {
+  const start = html.indexOf('<section class="dubai-light"');
+  if (start < 0) throw new Error('Missing the existing Dubai forecast widget.');
+  const end = sectionEnd(html, start);
+  const widget = html.slice(start, end)
+    .replace('data-start-preview-light', 'data-dubai-controls data-weather-only')
+    .replace(/data-dust-url="[^"]*"/, 'data-dust-url="/assets/dubai-dust.json"')
+    .replace(/(<h3 id="dubai-light-title">)[^<]*/, `$1${lang === 'en' ? 'Weather on the Dubai course' : 'Погода на трассе в Дубае'}`);
+  html = html.slice(0, start) + html.slice(end);
+  const calendar = html.lastIndexOf('<section', html.indexOf('id="distance"'));
+  if (calendar < 0) throw new Error('Missing the course calendar for the forecast.');
+  const insertion = sectionEnd(html, calendar) - '</section>'.length;
+  return html.slice(0, insertion) + widget + html.slice(insertion);
 }
 
 export async function buildFiveDays(directory) {
@@ -123,7 +165,8 @@ export async function buildFiveDays(directory) {
       })),
       ...stories.map(s => ({day: s.day, ...s[lang], photos: media.find(m => m.day === s.day)?.items})),
     ].map(day => ({...day, date: dateLabel(day.day), type: day.day === 1
-      ? (en ? 'Special stage' : 'Специальный этап') : (en ? 'Base stage' : 'Базовый этап')}));
+      ? (en ? 'Special stage' : 'Специальный этап') : (en ? 'Base stage' : 'Базовый этап')}))
+      .map(day => ({...day, preview: calendarPreview(day, media, base)}));
     const latest = days.at(-1);
     if (days.some(d => !d.old && !d.photos?.length)) throw new Error('Every published stage needs its own photographs.');
     const currentId = pad(latest.day);
@@ -147,6 +190,8 @@ export async function buildFiveDays(directory) {
     const headDate = en ? 'December 5, 2026' : '5 декабря 2026';
     const todayLabel = (en ? 'Today, ' : 'Сегодня, ') + latest.date;
     const prepare = fragment => fragment
+      .replace(/<script\b[^>]*\bsrc="[^"]*\/assets\/dubai-light\.js[^"]*"[^>]*><\/script>/g, '')
+      .replace(/(<div class="site-nav__status"[^>]*>[\s\S]*?)<a class="stage-link"[^>]*>[\s\S]*?<\/a>(<\/div>)/, '$1$2')
       .replaceAll('href="#race-day-02"', `href="#race-day-${currentId}"`)
       .replace(/data-start-preview-date="[^"]+"/, `data-start-preview-date="${iso(latest.day)}"`)
       .replace('<body data-day-two-preview', '<body data-five-days data-day-two-preview')
@@ -171,7 +216,7 @@ export async function buildFiveDays(directory) {
       .replaceAll(canonical + 'december-2.html', canonical)
       .replaceAll('href="./en/december-2.html"', 'href="./en/"')
       .replaceAll('href="../december-2.html"', 'href="../"')
-      .replace('</head>', `<link rel="stylesheet" href="${base}five-days.css"><link rel="stylesheet" href="${base}../start-day-2/stage-gallery.css"><script src="${base}calendar-hover.js" defer></script></head>`);
+      .replace('</head>', `<link rel="stylesheet" href="${base}five-days.css"><link rel="stylesheet" href="${base}../start-day-2/stage-gallery.css"><link rel="stylesheet" href="${base}../start-day-2/menu-weather.css"><script src="${base}calendar-hover.js" defer></script></head>`);
     html = prepare(html.slice(0, firstPanel)) + episodes + prepare(html.slice(lastPanelEnd));
     // The total is one source value. At enlarged narrow widths, expose its
     // hours and minutes as labelled atoms instead of splitting after a colon.
@@ -179,33 +224,25 @@ export async function buildFiveDays(directory) {
       (_, opening, hours, minutes, closing) => `${opening}${hours}:${minutes}${closing}<span class="film-duration-parts"><span class="film-duration-part"><b data-optical-start>${hours}</b><small>${en ? 'hr' : 'ч'}</small></span><span class="film-duration-part"><b data-optical-start>${minutes}</b><small>${en ? 'min' : 'мин'}</small></span></span>`);
     html = advancePeaks(html, latest.day, todayLabel);
     const tomorrow = {day: 6, date: dateLabel(6), type: latest.type};
-    const previewDays = days.map(day => {
-      if (day.old) {
-        const image = day.old.match(/<img\b[^>]*>/)?.[0] || '';
-        const file = image.match(/src="[^"]*\/([\w-]+)-original\.png"/)?.[1];
-        if (!file) throw new Error(`Missing preview frame for day ${day.day}.`);
-        return {...day, preview: {source: `${base}thumbnails/${file}.jpg`, position: image.match(/object-position:([^;"]+)/)?.[1] || '50% 50%'}};
-      }
-      const frames = media.find(item => item.day === day.day);
-      const photo = frames.items.find(item => item.file === frames.hero) ||
-        frames.items.find(item => item.file.includes('night-rider')) || frames.items[0];
-      return {...day, preview: {source: `${base}media/${photo.file}`, position: photo.position}};
-    });
-    const previousDays = previewDays.filter(day => day.day < latest.day);
+    const previousDays = days.filter(day => day.day < latest.day);
     const pastRows = previousDays.map(day => calendarPastLink(day, plan, lang)).join('\n');
-    const rows = [previewDays.at(-1), tomorrow].map(day => calendarRow(day, plan, lang, latest.day)).join('\n');
+    const rows = [days.at(-1), tomorrow].map(day => calendarRow(day, plan, lang, latest.day)).join('\n');
     const columns = html.match(/<div class="december-calendar__columns"[^>]*>[\s\S]*?<\/div>/)?.[0];
     if (!columns) throw new Error('Missing calendar column labels.');
     const previousRange = en ? `December ${previousDays[0].day}–${previousDays.at(-1).day}`
       : `${previousDays[0].day}–${previousDays.at(-1).day} декабря`;
     const previous = `<details class="calendar-past" id="calendar-past" data-calendar-past>
-      <summary><span class="calendar-past__label"><span class="calendar-past__action--closed">${en ? 'Show previous stages' : 'Показать предыдущие этапы'}</span><span class="calendar-past__action--open">${en ? 'Hide previous stages' : 'Скрыть предыдущие этапы'}</span><span class="calendar-past__range">${previousRange}</span></span>${arrow('right')}</summary>
+      <summary><span class="calendar-past__label"><span class="calendar-past__command"><span class="calendar-past__action--closed">${en ? 'Show previous ' : 'Показать предыдущие '}</span><span class="calendar-past__action--open">${en ? 'Hide previous ' : 'Скрыть предыдущие '}</span><span class="calendar-past__tail">${en ? 'stages' : 'этапы'}${arrow('right')}</span></span><span class="calendar-past__range">${previousRange}</span></span></summary>
       <div class="calendar-past__rows">${pastRows}</div>
     </details>`;
     html = html.replace(/<span class="december-row__number">/g, '<span class="december-row__number" data-optical-start data-optical-ink>');
     html = html.replace(/<article class="december-row december-row--past"[^>]*id="calendar-segment-01"[\s\S]*?<\/article>\s*<article[^>]*id="calendar-segment-02"[\s\S]*?<\/article>/, rows);
     html = html.replace(columns, previous + columns);
     if (!html.includes('id="calendar-day-05"') || !html.includes('href="#race-day-05"')) throw new Error('Missing current stage');
+    html = restoreCourseWeather(html, lang);
+    const statusStart = html.indexOf('<div class="site-nav__status"');
+    const statusEnd = html.indexOf('<div class="menu-weather"', statusStart);
+    if (html.slice(statusStart, statusEnd).includes('<a ')) throw new Error('Unexpected distance link in the menu status.');
     await mkdir(localeDir, {recursive:true});
     await writeFile(path.join(localeDir, 'index.html'), html);
   }

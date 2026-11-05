@@ -66,8 +66,9 @@ async function assertSelectedPhotograph(page, deck, output, name) {
   await page.waitForFunction(element => element.dataset.turning !== 'true', await deck.elementHandle());
   await page.waitForTimeout(40);
   const source = await deck.locator('a[data-current="true"] img').evaluate(image => image.currentSrc || image.src);
-  const screenshot = await deck.screenshot();
-  const box = await deck.boundingBox();
+  const selected = deck.locator('a[data-current="true"]');
+  const screenshot = await selected.screenshot();
+  const box = await selected.boundingBox();
   // Render an independent flat image through the same browser rasterizer.
   // A direct 1600px ->32px canvas resize otherwise differs from WebKit's
   // 1600px ->CSS viewport ->32px resampling on detailed foliage/road frames.
@@ -81,7 +82,7 @@ async function assertSelectedPhotograph(page, deck, output, name) {
     await reference.decode();
   }, {source, box});
   let referenceScreenshot;
-  try { referenceScreenshot = await deck.screenshot(); }
+  try { referenceScreenshot = await selected.screenshot(); }
   finally { await page.locator('[data-gallery-reference]').evaluate(image => image.remove()); }
   const difference = await page.evaluate(async ({ referenceEncoded, encoded }) => {
     const expected = new Image(); expected.src = `data:image/png;base64,${referenceEncoded}`;
@@ -127,12 +128,55 @@ async function checkMixedInput(page, gallery, engine, output) {
   await next.click();
   assert.equal(await count.innerText(), '3 / 3');
   await assertSelectedPhotograph(page, deck, output, `${engine}-mouse-next-photo`);
-  // A resize restores the same selected face, then accepts the next mouse turn.
+  // A resize preserves the selected photograph, then accepts mouse navigation.
   await page.setViewportSize({width: 1360, height: 1000});
   await next.click();
   assert.equal(await count.innerText(), '1 / 3');
   await assertSelectedPhotograph(page, deck, output, `${engine}-resized-wrap-photo`);
   await page.setViewportSize({width: 1440, height: 1000});
+  await deck.focus();
+  await page.keyboard.press('Home');
+}
+
+async function checkPointerField(page, gallery, engine, output) {
+  const { deck, count } = gallery;
+  await deck.focus();
+  await page.keyboard.press('Home');
+  const box = await deck.boundingBox();
+  const y = box.y + box.height * .45;
+  await page.mouse.move(box.x - 10, y);
+  await page.mouse.move(box.x + box.width * .2, y);
+  // Entering and leaving without a horizontal command must not cancel a button.
+  await page.mouse.move(box.x - 10, y);
+  await gallery.next.evaluate(button => button.dispatchEvent(new MouseEvent('click', {bubbles:true, detail:1})));
+  await deck.dispatchEvent('pointerenter', {pointerType:'mouse', clientX:box.x + 20, clientY:y});
+  await deck.dispatchEvent('pointerleave', {pointerType:'mouse', clientX:box.x - 10, clientY:y});
+  assert.equal(await count.innerText(), '2 / 3');
+  await assertSelectedPhotograph(page, deck, output, `${engine}-button-after-pointer-entry`);
+  await deck.focus();
+  await page.keyboard.press('Home');
+  await page.mouse.move(box.x - 10, y);
+  await page.mouse.move(box.x + box.width * .2, y);
+  const original = await deck.locator('a[data-start-photo="0"]').getAttribute('style');
+  await page.mouse.move(box.x + box.width * .44, y, {steps: 5});
+  await page.waitForTimeout(30);
+  assert.notEqual(await deck.locator('a[data-start-photo="0"]').getAttribute('style'), original,
+    'A genuine mouse move browses the field without pressing a button');
+  await saveFrame(page, output, `${engine}-field-pointer-moving`);
+  await page.mouse.move(box.x - 10, y);
+  await assertSelectedPhotograph(page, deck, output, `${engine}-field-pointer-settled`);
+  const photographs = await deck.locator('a').evaluateAll(links => links.map(link => {
+    const rect = link.getBoundingClientRect();
+    const field = link.closest('.stage-deck').getBoundingClientRect();
+    return {visible: Math.max(0, Math.min(rect.right, field.right) - Math.max(rect.left, field.left)), current: link.dataset.current === 'true'};
+  }));
+  assert.equal(photographs.filter(photo => !photo.current && photo.visible > 8).length, 2,
+    'Both neighbouring photographs explain continuation at rest');
+  const beforeScroll = await count.innerText();
+  await page.mouse.wheel(0, 100);
+  await page.waitForTimeout(100);
+  assert.equal(await count.innerText(), beforeScroll, 'Reading vertically does not browse photographs');
+  await deck.scrollIntoViewIfNeeded();
   await deck.focus();
   await page.keyboard.press('Home');
 }
@@ -189,6 +233,7 @@ async function checkDesktop(browser, engine, base, output) {
     const { episode, deck, count, next } = gallery;
     await deck.scrollIntoViewIfNeeded();
     await checkMixedInput(page, gallery, engine, output);
+    await checkPointerField(page, gallery, engine, output);
     await next.click();
     assert.equal(await count.innerText(), "2 / 3");
     await next.click();
@@ -201,7 +246,7 @@ async function checkDesktop(browser, engine, base, output) {
     await deck.focus();
     await page.keyboard.press("Home");
 
-    // Commands cross the cycle boundary and reverse without a reset frame.
+    // Commands cross the flat field boundary and reverse without a reset frame.
     await episode.evaluate(element => {
       const previous = element.querySelector("[data-start-strip-prev]");
       const next = element.querySelector("[data-start-strip-next]");

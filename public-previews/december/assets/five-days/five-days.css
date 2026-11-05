@@ -152,7 +152,6 @@
 [data-five-days] .calendar-past > summary {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-stack);
   min-block-size: 2.75rem;
   padding-block: var(--space-pair);
@@ -168,14 +167,14 @@
   width: fit-content;
   font: 450 var(--type-service)/var(--leading-service) var(--body);
 }
+[data-five-days] .calendar-past__command { max-inline-size: 100%; }
 [data-five-days] .calendar-past__range { white-space: nowrap; }
 [data-five-days] .calendar-past__action--open { display: none; }
 [data-five-days] .calendar-past[open] .calendar-past__action--open { display: inline; }
 [data-five-days] .calendar-past[open] .calendar-past__action--closed { display: none; }
-[data-five-days] .calendar-past > summary > .icon { width: 1em; height: 1em; flex: none; }
-[data-five-days] .calendar-past[open] > summary > .icon { rotate: 90deg; }
+[data-five-days] .calendar-past[open] > summary .calendar-past__tail > .icon { rotate: 90deg; }
 [data-five-days] .calendar-past > summary:focus-visible { outline: none; }
-[data-five-days] .calendar-past > summary:focus-visible .calendar-past__label,
+[data-five-days] .calendar-past > summary:focus-visible .calendar-past__command,
 [data-five-days] .calendar-past__item:focus-visible .calendar-past__story {
   outline: 2px solid currentColor;
   outline-offset: 4px;
@@ -187,9 +186,7 @@
 }
 [data-five-days] .calendar-past__item {
   display: grid;
-  grid-template-columns: minmax(8rem, .8fr) minmax(0, 1.7fr) minmax(11rem, 1fr) auto;
   align-items: start;
-  column-gap: var(--space-stack);
   row-gap: var(--space-pair);
   min-block-size: 2.75rem;
   padding-block: var(--space-pair);
@@ -197,13 +194,27 @@
   color: inherit;
   text-decoration: none;
 }
+/* The archive inherits the same three column axes as .december-row below:
+   story/date, planned distance, cumulative plan. There is no icon track. */
+[data-five-days] .calendar-past__identity {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-pair);
+  min-inline-size: 0;
+}
 [data-five-days] .calendar-past__date,
 [data-five-days] .calendar-past__metrics {
-  display: grid;
-  gap: .25em;
   font: 400 var(--type-service)/var(--leading-service) var(--body);
 }
-[data-five-days] .calendar-past__metrics { font-variant-numeric: lining-nums tabular-nums; }
+[data-five-days] .calendar-past__date {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25em var(--space-stack);
+}
+[data-five-days] .calendar-past__metrics {
+  display: contents;
+  font-variant-numeric: lining-nums tabular-nums;
+}
 [data-five-days] .calendar-past__story {
   justify-self: start;
   max-inline-size: 100%;
@@ -211,17 +222,18 @@
   font: 500 var(--type-copy)/var(--leading-copy) var(--body);
   text-wrap: balance;
 }
-[data-five-days] .calendar-past__item > .icon {
-  width: var(--icon-inline-size);
-  height: var(--icon-inline-size);
-  align-self: start;
-  margin-top: .2em;
+[data-five-days] .calendar-past__tail { white-space: nowrap; }
+[data-five-days] .calendar-past__tail > .icon {
+  display: inline-block;
+  inline-size: var(--reading-arrow-size);
+  block-size: var(--reading-arrow-size);
+  margin-inline-start: .3em;
+  vertical-align: -.2em;
 }
 [data-five-days] .calendar-past__item:focus-visible { outline: none; }
 @supports (text-box: trim-start cap alphabetic) {
   [data-five-days] .calendar-past__story,
-  [data-five-days] .calendar-past__date > time,
-  [data-five-days] .calendar-past__metrics > :first-child {
+  [data-five-days] .calendar-past__metrics > span {
     text-box: trim-start cap alphabetic;
   }
 }
@@ -234,24 +246,18 @@
   [data-five-days] .calendar-past > summary:hover { color: var(--text-editorial); }
 }
 @media (max-width: 720px) {
-  [data-five-days] .calendar-past__item { grid-template-columns: minmax(0, 1fr) auto; }
-  [data-five-days] .calendar-past__story { grid-column: 1; grid-row: 1; }
-  [data-five-days] .calendar-past__item > .icon { grid-column: 2; grid-row: 1; }
-  [data-five-days] .calendar-past__date {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    display: flex;
-    flex-wrap: wrap;
-    gap: .25em var(--space-stack);
-  }
+  [data-five-days] .calendar-past__item { grid-template-columns: minmax(0, 1fr); }
   [data-five-days] .calendar-past__metrics {
-    grid-column: 1 / -1;
-    grid-row: 3;
     display: flex;
     flex-wrap: wrap;
     gap: .25em var(--space-stack);
   }
 }
+/* Totals use the same visible left axis as the archive and column heading;
+   a hidden six-digit slot must not indent shorter values. */
+[data-five-days] .december-row__total > strong { display: inline-flex; align-items: baseline; }
+[data-five-days] .december-row__total > strong > :first-child { text-align: start; }
+
 /* Highlight and rule belong to the same row; keep both on its real edges. */
 [data-five-days] .december-row--today::before { inset-inline: 0; }
 
