@@ -243,7 +243,10 @@ const locales = {
       specialLabel: "Специальный этап",
       baseLabel: "Межэтапный блок",
       baseDayLabel: "Базовый день",
-      plannedTotalLabel: "Плановый итог",
+      plannedTotalLabel: "Всего по плану",
+      calendarDateColumn: "Дата и этап",
+      calendarDistanceColumn: "Дистанция, км",
+      calendarTotalColumn: "План к этой дате, км",
       plannedMonthLabel: "По плану за декабрь",
       openStageLabel: "Открыть этап в календаре",
       finishLabel: "Фиксация результата",
@@ -668,6 +671,9 @@ const locales = {
       baseLabel: "Base block",
       baseDayLabel: "Base day",
       plannedTotalLabel: "Planned total",
+      calendarDateColumn: "Date and stage",
+      calendarDistanceColumn: "Distance, km",
+      calendarTotalColumn: "Planned total by date, km",
       plannedMonthLabel: "Planned for December",
       openStageLabel: "Open this stage in the calendar",
       finishLabel: "Result confirmation",
@@ -1201,14 +1207,7 @@ function renderCalendarSegments(plan, l) {
           : segment.kind === "base"
             ? l.distance.baseLabel
             : l.distance.finishLabel;
-      const detail =
-        segment.kind === "special"
-          ? segment.calendarDays > 1
-            ? l.distance.continuousLabel
-            : l.distance.oneDayLabel
-          : segment.kind === "base"
-            ? `${formatProjectNumber(segment.totalDistanceKm, l.lang)}\u00a0${l.distance.totalUnit} ${l.distance.totalBlockLabel}`
-            : "";
+      const continuous = segment.kind === "special" && segment.calendarDays > 1;
       const calendarDate = formatCalendarRange(segment, l.lang);
       const calendarValue =
         segment.kind === "finish"
@@ -1227,14 +1226,14 @@ function renderCalendarSegments(plan, l) {
           data-calendar-label="${escapeAttribute(typographText(label, l.lang))}"
           data-calendar-value="${escapeAttribute(typographText(calendarValue, l.lang))}"
         >
-          <time class="calendar-program__date" datetime="${segment.startDate}">${calendarDate}</time>
           <div class="calendar-program__event">
-            <p class="calendar-program__name">${label}</p>
-            ${detail ? `<p class="calendar-program__note">${detail}</p>` : ""}
+            <time class="calendar-program__date" datetime="${segment.startDate}">${calendarDate}</time>
+            <p class="calendar-program__name${segment.kind === "base" || continuous ? " sr-only" : ""}">${label}</p>
+            ${continuous ? `<p class="calendar-program__note">${l.distance.continuousLabel}</p>` : ""}
             <span class="calendar-program__today" data-calendar-today hidden>${l.distance.currentStageLabel}</span>
           </div>
-          ${segment.kind === "finish" ? "" : `<p class="calendar-program__distance"><strong data-optical-start>${value}</strong><span>${l.distance.totalUnit}${segment.kind === "base" ? ` ${l.distance.dailyLabel}` : ""}</span></p>`}
-          ${segment.kind === "finish" ? "" : `<p class="calendar-program__cumulative" data-plan-cumulative="${cumulativeDistance}"><span>${l.distance.plannedTotalLabel}</span><strong>${cumulative}\u00a0${l.distance.totalUnit}</strong></p>`}
+          ${segment.kind === "finish" ? "" : `<p class="calendar-program__distance"><strong${segment.kind === "special" ? " data-optical-start" : ""}>${value}</strong><span><span class="calendar-program__unit-measure">${l.distance.totalUnit}</span>${segment.kind === "base" ? ` ${l.distance.dailyLabel}` : ""}</span></p>`}
+          ${segment.kind === "finish" ? "" : `<p class="calendar-program__cumulative" data-plan-cumulative="${cumulativeDistance}"><span>${l.distance.plannedTotalLabel}</span><strong><span>${cumulative}</span><span class="calendar-program__total-unit">\u00a0${l.distance.totalUnit}</span></strong></p>`}
         </article>`;
     })
     .join("");
@@ -2322,6 +2321,11 @@ function renderPage(l) {
               </div>
             </div>
             <div class="calendar-program__list">
+              <div class="calendar-program__columns" aria-hidden="true">
+                <span>${l.distance.calendarDateColumn}</span>
+                <span>${l.distance.calendarDistanceColumn}</span>
+                <span>${l.distance.calendarTotalColumn}</span>
+              </div>
               ${renderCalendarSegments(projectPlan, l)}
             </div>
           </div>
