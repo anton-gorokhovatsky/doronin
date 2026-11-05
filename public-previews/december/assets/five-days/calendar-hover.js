@@ -111,6 +111,7 @@ if (calendar) {
       const url = new URL(location.href);
       if (past.open) url.searchParams.set('past', '1');
       else {
+        if (past.contains(document.activeElement) && document.activeElement !== summary) summary.focus({preventScroll: true});
         url.searchParams.delete('past');
         if (isPreviousTarget(hashTarget(url.hash))) url.hash = '#calendar-past';
       }
@@ -127,12 +128,6 @@ if (calendar) {
       if (scroll && previousTarget) requestAnimationFrame(() => target.scrollIntoView({block: 'start', behavior: 'instant'}));
     }
     past.addEventListener('toggle', writePastState);
-    past.querySelector('[data-calendar-past-close]').addEventListener('click', () => {
-      past.open = false;
-      writePastState();
-      summary.focus({preventScroll: true});
-      summary.scrollIntoView({block: 'start', behavior: 'instant'});
-    });
     // Expand before the browser resolves a real fragment link into the archive.
     document.addEventListener('click', event => {
       if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;

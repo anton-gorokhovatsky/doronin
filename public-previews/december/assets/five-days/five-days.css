@@ -143,11 +143,10 @@
   font: 450 var(--type-service)/var(--leading-service) var(--body);
 }
 
-/* Previous stages remain available as a compact chapter, so the current day
-   owns the first full calendar row. The numbers inside are still plan values. */
+/* An archived day is one link. Its story names the destination; dates and
+   planned distances are supporting information, with one disclosure owner. */
 [data-five-days] .calendar-past {
   margin-bottom: var(--space-stack);
-  border-top: 1px solid var(--line-dark);
   color: var(--text-editorial-muted);
 }
 [data-five-days] .calendar-past > summary {
@@ -169,62 +168,92 @@
   width: fit-content;
   font: 450 var(--type-service)/var(--leading-service) var(--body);
 }
-[data-five-days] .calendar-past__label strong { font-weight: 600; }
+[data-five-days] .calendar-past__range { white-space: nowrap; }
+[data-five-days] .calendar-past__action--open { display: none; }
+[data-five-days] .calendar-past[open] .calendar-past__action--open { display: inline; }
+[data-five-days] .calendar-past[open] .calendar-past__action--closed { display: none; }
 [data-five-days] .calendar-past > summary > .icon { width: 1em; height: 1em; flex: none; }
 [data-five-days] .calendar-past[open] > summary > .icon { rotate: 90deg; }
 [data-five-days] .calendar-past > summary:focus-visible { outline: none; }
 [data-five-days] .calendar-past > summary:focus-visible .calendar-past__label,
-[data-five-days] .calendar-past__close:focus-visible > span {
+[data-five-days] .calendar-past__item:focus-visible .calendar-past__story {
   outline: 2px solid currentColor;
   outline-offset: 4px;
 }
-[data-five-days] .calendar-past__columns {
+[data-five-days] .calendar-past__rows {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, .8fr);
-  gap: var(--space-pair) var(--space-group);
-  padding-block: var(--space-pair);
-  font: 450 var(--type-service)/1.5 var(--body);
-}
-[data-five-days] .calendar-past .december-row {
-  padding-block: var(--space-pair);
-  row-gap: var(--space-pair);
-}
-[data-five-days] .calendar-past .december-row__event {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: .25em var(--space-pair);
-}
-[data-five-days] .calendar-past .december-row__date { font: 600 var(--type-service)/1.4 var(--body); }
-[data-five-days] .calendar-past .december-row__type { margin: 0 !important; }
-[data-five-days] .calendar-past :is(.december-row__distance, .december-row__total) {
-  font: 450 var(--type-service)/1.4 var(--body);
-}
-[data-five-days] .calendar-past .december-row__number { translate: none; }
-[data-five-days] .calendar-past .december-row__unit { padding-left: .25em; font: inherit; }
-[data-five-days] .calendar-past .december-row__total > strong { font-weight: 450; }
-[data-five-days] .calendar-past .stage-link { margin-top: 0; font-size: var(--type-service); }
-[data-five-days] .calendar-past__close {
-  display: inline-flex;
-  align-items: center;
   gap: var(--space-pair);
+  padding-block: var(--space-pair) var(--space-stack);
+}
+[data-five-days] .calendar-past__item {
+  display: grid;
+  grid-template-columns: minmax(8rem, .8fr) minmax(0, 1.7fr) minmax(11rem, 1fr) auto;
+  align-items: start;
+  column-gap: var(--space-stack);
+  row-gap: var(--space-pair);
   min-block-size: 2.75rem;
-  padding: 0;
+  padding-block: var(--space-pair);
   border: 0;
-  background: transparent;
   color: inherit;
-  font: 550 var(--type-service)/var(--leading-service) var(--body);
-  cursor: pointer;
+  text-decoration: none;
 }
-[data-five-days] .calendar-past__close > span { text-decoration: underline; text-underline-offset: .22em; }
-[data-five-days] .calendar-past__close > .icon { width: 1em; height: 1em; flex: none; }
-[data-five-days] .calendar-past__close:focus-visible { outline: none; }
-@media (max-width: 640px) {
-  [data-five-days] .calendar-past__columns { display: none; }
+[data-five-days] .calendar-past__date,
+[data-five-days] .calendar-past__metrics {
+  display: grid;
+  gap: .25em;
+  font: 400 var(--type-service)/var(--leading-service) var(--body);
 }
-:root.text-enlarged [data-five-days] .calendar-past__columns { display: none; }
-[data-five-days] .calendar-past__close { max-inline-size: 100%; }
-[data-five-days] .calendar-past__close > span { min-inline-size: 0; }
+[data-five-days] .calendar-past__metrics { font-variant-numeric: lining-nums tabular-nums; }
+[data-five-days] .calendar-past__story {
+  justify-self: start;
+  max-inline-size: 100%;
+  color: var(--text-editorial);
+  font: 500 var(--type-copy)/var(--leading-copy) var(--body);
+  text-wrap: balance;
+}
+[data-five-days] .calendar-past__item > .icon {
+  width: var(--icon-inline-size);
+  height: var(--icon-inline-size);
+  align-self: start;
+  margin-top: .2em;
+}
+[data-five-days] .calendar-past__item:focus-visible { outline: none; }
+@supports (text-box: trim-start cap alphabetic) {
+  [data-five-days] .calendar-past__story,
+  [data-five-days] .calendar-past__date > time,
+  [data-five-days] .calendar-past__metrics > :first-child {
+    text-box: trim-start cap alphabetic;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  [data-five-days] .calendar-past__item:hover .calendar-past__story {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: .2em;
+  }
+  [data-five-days] .calendar-past > summary:hover { color: var(--text-editorial); }
+}
+@media (max-width: 720px) {
+  [data-five-days] .calendar-past__item { grid-template-columns: minmax(0, 1fr) auto; }
+  [data-five-days] .calendar-past__story { grid-column: 1; grid-row: 1; }
+  [data-five-days] .calendar-past__item > .icon { grid-column: 2; grid-row: 1; }
+  [data-five-days] .calendar-past__date {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25em var(--space-stack);
+  }
+  [data-five-days] .calendar-past__metrics {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25em var(--space-stack);
+  }
+}
+/* Highlight and rule belong to the same row; keep both on its real edges. */
+[data-five-days] .december-row--today::before { inset-inline: 0; }
 
 /* Stage navigation shares a metadata row and the visible first title line.
    The direct return uses the same reading role as the neighbouring stories. */
