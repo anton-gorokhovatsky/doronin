@@ -274,12 +274,13 @@
 [data-five-days] .episode-pager > .episode-return {
   grid-column: auto;
   grid-row: span 2;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: subgrid;
   align-self: stretch;
   align-content: start;
   min-inline-size: 0;
   inline-size: fit-content;
-  column-gap: var(--space-stack);
+  column-gap: 0;
   row-gap: inherit;
 }
 [data-five-days] .episode-pager > .episode-return > span { grid-row: 1; }
@@ -288,17 +289,9 @@
   overflow-wrap: break-word;
   hyphens: auto;
 }
-[data-five-days] .episode-pager > .episode-return > .icon {
-  grid-row: 2;
-  align-self: start;
-  font-size: var(--type-copy);
-}
 @supports (text-box: trim-start cap alphabetic) {
   [data-five-days] .episode-pager > .episode-return > :is(span, strong) {
     text-box: trim-start cap alphabetic;
-  }
-  [data-five-days] .episode-pager > .episode-return > .icon {
-    margin-block-start: calc((1cap - var(--reading-arrow-size)) / 2);
   }
 }
 @media (max-width: 720px) {
@@ -316,7 +309,7 @@
   [data-five-days] .episode-pager > .episode-pager__today {
     grid-template-rows: auto;
   }
-  [data-five-days] .episode-pager > .episode-pager__today > :is(strong, .icon) {
+  [data-five-days] .episode-pager > .episode-pager__today > strong {
     grid-row: 1;
   }
 }

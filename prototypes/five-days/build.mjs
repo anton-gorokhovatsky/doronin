@@ -26,11 +26,11 @@ function pager(edition, days, lang) {
   const en = lang === 'en';
   const preview = target => `data-calendar-start="${iso(target.day)}" data-calendar-preview="${esc(target.preview.source)}" data-calendar-preview-position="${esc(target.preview.position)}"`;
   const link = (target, label, direction) =>
-    `<a class="episode-return" href="#race-day-${pad(target.day)}" ${preview(target)}><span>${label} · ${target.date}</span><strong>${esc(target.title)}</strong>${arrow(direction)}</a>`;
+    `<a class="episode-return" href="#race-day-${pad(target.day)}" ${preview(target)}><span>${label} · ${target.date}</span><strong>${calendarPastStory(target.title, direction)}</strong></a>`;
   return `<nav class="episode-pager" aria-label="${en ? 'Stage navigation' : 'Переходы между этапами'}">
     ${older ? link(older, en ? 'Previous stage' : 'Предыдущий этап', 'left') : ''}
     ${newer ? link(newer, newer === latest ? (en ? 'Current stage' : 'Текущий этап') : (en ? 'Next stage' : 'Следующий этап'), 'right') : ''}
-    ${newer && newer !== latest ? `<a class="episode-return episode-pager__today" href="#race-day-${pad(latest.day)}" ${preview(latest)}><strong>${en ? 'Back to today' : 'К текущему этапу'}</strong>${arrow('up')}</a>` : ''}
+    ${newer && newer !== latest ? `<a class="episode-return episode-pager__today" href="#race-day-${pad(latest.day)}" ${preview(latest)}><strong>${calendarPastStory(en ? 'Back to today' : 'К текущему этапу', 'up')}</strong></a>` : ''}
   </nav>`;
 }
 function episode(day, days, lang, mediaBase) {
@@ -83,9 +83,9 @@ function calendarPreview(day, media, base) {
     frames.items.find(item => item.file.includes('night-rider')) || frames.items[0];
   return {source: `${base}media/${photo.file}`, position: photo.position};
 }
-function calendarPastStory(title) {
+function calendarPastStory(title, direction = 'up') {
   const cut = title.lastIndexOf(' ') + 1;
-  return `${esc(title.slice(0, cut))}<span class="calendar-past__tail">${esc(title.slice(cut))}${arrow('up')}</span>`;
+  return `${esc(title.slice(0, cut))}<span class="calendar-past__tail">${esc(title.slice(cut))}${arrow(direction)}</span>`;
 }
 
 function calendarValues(day, plan) {

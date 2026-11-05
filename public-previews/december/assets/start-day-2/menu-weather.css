@@ -74,3 +74,18 @@ body[data-five-days] [data-weather-only] .dubai-forecast__list[aria-hidden="true
 :root.text-enlarged body[data-five-days] .site-nav__journey {
   grid-template-columns: minmax(0, 1fr);
 }
+/* The source now belongs to an editorial surface, in either theme. */
+body[data-five-days] [data-weather-only] .dubai-forecast__source a {
+  color: var(--text-editorial);
+}
+body[data-five-days] [data-weather-only] .dubai-forecast__source a:is(:hover, :focus-visible) {
+  color: var(--text-editorial);
+  text-decoration-color: currentColor;
+}
+
+/* Keep the glass gradients and photograph over one continuous menu surface. */
+@media (min-width: 961px) {
+  body[data-five-days] .nav-shell[open] .site-nav {
+    background-color: var(--ink);
+  }
+}
