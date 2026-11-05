@@ -96,9 +96,13 @@ initOpticalLines();
 
 // The scenario date is fixed on the page. Reading an archived stage never changes it.
 const episodePanels = [...document.querySelectorAll('[data-episode]')];
-const episodeChoices = [...document.querySelectorAll('[data-episode-choice]')];
 const galleryStates = new Map();
-let selectedEpisode = '02';
+const currentEpisode = sceneDate.slice(-2);
+let selectedEpisode = currentEpisode;
+function linkedEpisode(hash) {
+  const id = /^#(?:race-day|life-story)-(\d{2})$/.exec(hash)?.[1];
+  return id && galleryStates.has(id) ? id : null;
+}
 const reduced = () => document.documentElement.dataset.reduceMotion === 'true' || matchMedia('(prefers-reduced-motion: reduce)').matches;
 const lightbox = document.querySelector('[data-start-lightbox]');
 let modalGallery;
@@ -175,10 +179,9 @@ lightbox.addEventListener('touchend', event => {
 }, {passive:true});
 
 function updateLanguageLinks() {
-  for (const link of document.querySelectorAll('a[hreflang]')) {
+  for (const link of document.querySelectorAll('[data-language-switch]')) {
     const url = new URL(link.href);
-    if (!url.pathname.endsWith('december-2.html')) continue;
-    url.hash = /^#(?:race-day|life-story)-0[12]$/.test(location.hash) ? location.hash : `#race-day-${selectedEpisode}`;
+    url.hash = location.hash;
     for (const name of ['theme','text']) {
       const value = new URLSearchParams(location.search).get(name);
       if (value) url.searchParams.set(name, value);
@@ -187,14 +190,10 @@ function updateLanguageLinks() {
   }
 }
 function selectFromHash({scroll = false, focus = false} = {}) {
-  const match = /^#(?:race-day|life-story)-(0[12])$/.exec(location.hash);
-  if (match) selectedEpisode = match[1];
-  else if (!location.hash) selectedEpisode = '02';
+  const match = linkedEpisode(location.hash);
+  if (match) selectedEpisode = match;
+  else if (!location.hash) selectedEpisode = currentEpisode;
   for (const panel of episodePanels) panel.hidden = panel.dataset.episode !== selectedEpisode;
-  for (const choice of episodeChoices) {
-    if (choice.dataset.episodeChoice === selectedEpisode) choice.setAttribute('aria-current', 'true');
-    else choice.removeAttribute('aria-current');
-  }
   galleryStates.get(selectedEpisode)?.restore();
   updateLanguageLinks();
   if (match && (scroll || focus)) {
@@ -212,12 +211,11 @@ document.addEventListener('click', event => {
   const link = event.target.closest('a[href]');
   if (!link || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
   const url = new URL(link.href);
-  if (url.pathname !== location.pathname || !/^#(?:race-day|life-story)-0[12]$/.test(url.hash)) return;
+  if (url.origin !== location.origin || url.pathname !== location.pathname || !linkedEpisode(url.hash)) return;
   event.preventDefault();
   if (location.hash !== url.hash) history.pushState(null, '', url.hash);
   selectFromHash({scroll:true, focus:true});
 });
 window.addEventListener('hashchange', () => selectFromHash({scroll:true}));
-window.addEventListener('popstate', () => selectFromHash({scroll:true}));
 selectFromHash();
-if (/^#(?:race-day|life-story)-0[12]$/.test(location.hash)) requestAnimationFrame(() => selectFromHash({scroll:true}));
+if (linkedEpisode(location.hash)) requestAnimationFrame(() => selectFromHash({scroll:true}));

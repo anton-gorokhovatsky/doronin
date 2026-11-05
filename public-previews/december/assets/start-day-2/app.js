@@ -6,7 +6,7 @@ const requestedTextScale = requestParameters.get("text");
 const phaseFixtureDates = {
   before: "2026-07-31T12:00:00+03:00",
   near: "2026-11-15T12:00:00+03:00",
-  active: "2026-12-02T09:20:00+04:00",
+  active: document.documentElement.dataset.startPreviewDate + "T09:20:00+04:00",
   finished: "2027-01-02T12:00:00+03:00",
 };
 const localFixtureHost = /^(?:127(?:\.\d{1,3}){3}|localhost|\[::1\])$/i.test(

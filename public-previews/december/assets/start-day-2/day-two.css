@@ -7,6 +7,47 @@
 .episode-return > svg { grid-column: 2; grid-row: 2; align-self: center; }
 .episode-return:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 [data-day-two-preview] .start-hero .hero__media img { object-position: 56% 60%; }
+/* Keep the film frame in its original light. Only the route along its foot
+   needs a backdrop; the sky, jersey and road carry the rest of the scene. */
+[data-day-two-preview] .start-hero .hero__veil {
+  background: transparent;
+  box-shadow: none;
+}
+[data-day-two-preview] .start-hero .hero__veil::before { content: none; }
+[data-day-two-preview] .start-hero .hero__veil::after {
+  background: linear-gradient(to bottom, transparent 62%, rgb(6 23 20 / .35) 79%, var(--ink) 100%);
+}
+[data-day-two-preview] .start-hero :is(.hero__kicker, .start-hero__planned, .stage-link) {
+  text-shadow: 0 1px 3px rgb(0 0 0 / .72);
+}
+@media (prefers-contrast: more) {
+  [data-day-two-preview] .start-hero :is(.hero__kicker, .hero__title, .start-hero__plan, .stage-link) {
+    text-shadow: 0 1px 2px black, 0 0 .18em black;
+  }
+}
+
+/* An arrow in running type belongs to its line. Size it from that type,
+   leaving the hit area and the standalone gallery controls at their usual size. */
+[data-day-two-preview] { --reading-arrow-size: .87em; }
+[data-day-two-preview] :is(.stage-link__tail, .text-link, .button, .episode-return) > .icon {
+  width: var(--reading-arrow-size);
+  height: var(--reading-arrow-size);
+  flex: none;
+}
+[data-day-two-preview] .stage-link__tail {
+  display: inline;
+}
+[data-day-two-preview] .stage-link__tail > .icon {
+  display: inline-block;
+  vertical-align: -.2em;
+  margin-inline-start: .34em;
+}
+[data-day-two-preview] .text-link > .icon { translate: 0 .07em; }
+[data-day-two-preview] .episode-return > .icon {
+  align-self: start;
+  font-size: var(--type-copy);
+  margin-block-start: calc((var(--leading-copy) * 1em - var(--reading-arrow-size)) / 2);
+}
 [data-day-two-preview] .stage-episode:focus { outline: none; }
 [data-day-two-preview] .stage-story { scroll-margin-top: var(--space-group); }
 [data-day-two-preview] .stage-episode__media { align-self: start; }

@@ -1,0 +1,99 @@
+[
+  {
+    "day": 3,
+    "items": [
+      {
+        "file": "day-03-crest.jpg",
+        "ru": "Виктор появляется на гребне подъёма, за ним видны городские высотки.",
+        "en": "Viktor crests a rise with city towers behind him.",
+        "position": "43% 50%",
+        "source": "«1111», 2024. 00:19:02.500 исходного фильма. Локальный файл day-road.mp4, +4.5 с. https://disk.yandex.ru/d/rsNJOp0jgMmnug/1111%20-%204k.mov",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "file": "day-03-underpass.jpg",
+        "ru": "Виктор въезжает в тень под путепроводом. На асфальте видны белые стрелки.",
+        "en": "Viktor rides into the shade of an underpass. White arrows mark the road.",
+        "position": "78% 50%",
+        "source": "«1111», 2024. 00:19:05.500 исходного фильма. Локальный файл day-road.mp4, +7.5 с. https://disk.yandex.ru/d/rsNJOp0jgMmnug/1111%20-%204k.mov",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "file": "day-03-sunset.jpg",
+        "ru": "Низкое солнце освещает дорогу между деревьями.",
+        "en": "Low sun falls across the tree-lined road.",
+        "position": "51% 50%",
+        "source": "«1111», 2024. 00:19:20.000 исходного фильма. Локальный файл ride-montage.mp4, +22 с. https://disk.yandex.ru/d/rsNJOp0jgMmnug/1111%20-%204k.mov",
+        "width": 1280,
+        "height": 720
+      }
+    ]
+  },
+  {
+    "day": 4,
+    "items": [
+      {
+        "file": "day-04-night-city.jpg",
+        "ru": "За тёмной трассой светятся башни ночного Дубая.",
+        "en": "Lit towers rise beyond the dark road in Dubai.",
+        "position": "54% 50%",
+        "source": "«1111», 2024. 00:26:58.900 исходного фильма. Локальный файл night-city.mp4, +1.5 с. https://disk.yandex.ru/d/rsNJOp0jgMmnug/1111%20-%204k.mov",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "file": "day-04-night-rider.jpg",
+        "ru": "Виктор в оранжевом шлеме. За его плечом видны ночные огни.",
+        "en": "Viktor in his orange helmet, with lights glowing behind him.",
+        "position": "62% 50%",
+        "source": "«1111», 2024. 00:20:03.000 исходного фильма. Локальный файл night-close.mp4, +5 с. https://disk.yandex.ru/d/rsNJOp0jgMmnug/1111%20-%204k.mov",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "file": "day-04-night-stop.jpg",
+        "ru": "На ночной остановке Виктор сидит на коврике, рядом лежат телефон и шлем.",
+        "en": "Viktor sits on a mat during a night stop, with his phone and helmet beside him.",
+        "position": "44% 50%",
+        "source": "«1111», 2024. 00:24:54.833 исходного фильма. Локальный файл ride-montage.mp4, +54 с. https://disk.yandex.ru/d/rsNJOp0jgMmnug/1111%20-%204k.mov",
+        "width": 1280,
+        "height": 720
+      }
+    ]
+  },
+  {
+    "day": 5,
+    "items": [
+      {
+        "file": "day-05-hands.jpg",
+        "ru": "Во время остановки Виктор держит в руках небольшой чёрный флакон.",
+        "en": "Viktor holds a small black bottle during a stop.",
+        "position": "61% 50%",
+        "source": "«1111», 2024. 00:34:31.500 исходного фильма. Локальный файл day-hands.mp4, +1.5 с. https://disk.yandex.ru/d/rsNJOp0jgMmnug/1111%20-%204k.mov",
+        "width": 1600,
+        "height": 900
+      },
+      {
+        "file": "day-05-pursuit.jpg",
+        "ru": "Виктор в оранжевом шлеме едет в низкой посадке. Фон размыт движением камеры.",
+        "en": "Viktor leans into his aero bars. The background blurs as the camera follows him.",
+        "position": "66% 45%",
+        "source": "«1111», 2024. Оригинальный стоп-кадр FINAL_MAIN_00_16_20_11.png. https://disk.yandex.ru/d/rsNJOp0jgMmnug/%D1%81%D1%82%D0%B8%D0%BB%D1%8B%20%D0%B4%D0%BE%D1%80%D0%BE%D0%BD%D0%B8%D0%BD%20%D1%84%D0%B8%D0%BB%D1%8C%D0%BC/FINAL_MAIN_00_16_20_11.png",
+        "width": 2560,
+        "height": 1440
+      },
+      {
+        "file": "day-05-bend.jpg",
+        "ru": "Виктор уезжает от камеры по дороге, которая поворачивает между деревьями.",
+        "en": "Viktor rides away from the camera as the road bends between trees.",
+        "position": "52% 50%",
+        "source": "«1111», 2024. 00:32:00.750 исходного фильма. Локальный файл day-return.mp4, +2.75 с. https://disk.yandex.ru/d/rsNJOp0jgMmnug/1111%20-%204k.mov",
+        "width": 1600,
+        "height": 900
+      }
+    ],
+    "hero": "day-05-pursuit.jpg"
+  }
+]
