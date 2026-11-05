@@ -82,9 +82,9 @@ function calendarRow(day, plan, lang, latestDay) {
   // Preserve the two existing fragment addresses. The rest of this block now
   // has a distinct row for each date, including tomorrow's unpublished stage.
   const id = day.day < 3 ? `calendar-segment-${pad(day.day)}` : `calendar-day-${pad(day.day)}`;
-  return `<article class="december-row${state}" id="${id}" data-calendar-start="${date}" data-calendar-end="${date}" data-calendar-kind="${segment.kind}"${today ? ' aria-current="step"' : ''}>
+  return `<article class="december-row${state}" id="${id}" data-calendar-start="${date}" data-calendar-end="${date}" data-calendar-kind="${segment.kind}"${day.preview ? ` data-calendar-preview="${esc(day.preview.source)}" data-calendar-preview-position="${esc(day.preview.position)}"` : ''}${today ? ' aria-current="step"' : ''}>
     <div class="december-row__event"><p class="december-row__date"><time datetime="${date}">${day.date}</time>${today ? `<span class="december-row__today" data-calendar-today>${en?'Today':'Сегодня'}</span>` : ''}</p><p class="december-row__type">${day.type}</p></div>
-    <p class="december-row__distance"><span class="december-row__number">${amount}</span><span class="december-row__unit">${km}</span></p>
+    <p class="december-row__distance"><span class="december-row__number" data-optical-start data-optical-ink>${amount}</span><span class="december-row__unit">${km}</span></p>
     <p class="december-row__total"><span>${en ? 'By ' : 'К '}${day.date} —</span><strong><span>${cumulative}</span><span> ${km}</span></strong></p>
     ${day.title ? calendarLink(day.day, day.title) : ''}
   </article>`;
@@ -116,6 +116,8 @@ export async function buildFiveDays(directory) {
     const currentId = pad(latest.day);
     const heroFile = media.find(m => m.day === latest.day).hero;
     const hero = base + 'media/' + heroFile;
+    const stagesPhoto = media.find(m => m.day === 3).items.find(photo => photo.file === 'day-03-crest.jpg');
+    if (!stagesPhoto) throw new Error('Missing the road photograph for the stages menu link.');
     const episodes = days.toReversed().map(day => {
       if (!day.old) return episode(day, days, lang, base + 'media/');
       const result = day.old.replace(/<a class="episode-return"[\s\S]*?<\/a>/g, '')
@@ -143,7 +145,12 @@ export async function buildFiveDays(directory) {
       .replace(/(<span data-menu-status-label[^>]*>)[^<]*/g, `$1${en ? 'of 31' : 'из 31'}`)
       .replace(/(<span class="event-status__value"[^>]*>)[^<]*/, `$1${latest.day}`)
       .replace(/(<span class="event-status__label"[^>]*>)[^<]*/, `$1${en ? 'of 31' : 'из 31'}`)
-      .replace(/(href="#race-day-05" data-nav-index="01"[^>]*?data-nav-image=")[^"]+/, `$1${hero}`)
+      .replace(/<img\b[^>]*\bdata-menu-preview-image[^>]*>/, tag => tag
+        .replace(/src="[^"]+"/, `src="${hero}"`))
+      .replace(/(href="#race-day-\d+" data-nav-index="01"[^>]*?data-nav-image=")[^"]+/, `$1${hero}`)
+      .replace(/<a class="site-nav__link" href="#distance"[^>]*\bdata-nav-image="[^"]+"[^>]*>/, tag => tag
+        .replace(/data-nav-image="[^"]+"/, `data-nav-image="${base}media/${stagesPhoto.file}"`)
+        .replace(/(data-nav-(?:mobile-)?position=")[^"]+/g, `$1${stagesPhoto.position}`))
       .replace(/(<title>)[^<]*/, `$1${latest.date} · ${heading} — ${en ? '11,111' : '11 111'}`)
       .replace(/(<meta (?:name="description"|property="og:description"|name="twitter:description") content=")[^"]*/g, `$1${description}`)
       .replace(/(<meta (?:property="og:title"|name="twitter:title") content=")[^"]*/g, `$1${latest.date} · ${heading} — ${en ? '11,111' : '11 111'}`)
@@ -151,11 +158,28 @@ export async function buildFiveDays(directory) {
       .replaceAll(canonical + 'december-2.html', canonical)
       .replaceAll('href="./en/december-2.html"', 'href="./en/"')
       .replaceAll('href="../december-2.html"', 'href="../"')
-      .replace('</head>', `<link rel="stylesheet" href="${base}five-days.css"></head>`);
+      .replace('</head>', `<link rel="stylesheet" href="${base}five-days.css"><link rel="stylesheet" href="${base}../start-day-2/stage-gallery.css"><script src="${base}calendar-hover.js" defer></script></head>`);
     html = prepare(html.slice(0, firstPanel)) + episodes + prepare(html.slice(lastPanelEnd));
+    // The total is one source value. At enlarged narrow widths, expose its
+    // hours and minutes as labelled atoms instead of splitting after a colon.
+    html = html.replace(/(<strong\b[^>]*\bdata-film-total\b[^>]*>)(\d+):(\d+)(<\/strong>)/,
+      (_, opening, hours, minutes, closing) => `${opening}${hours}:${minutes}${closing}<span class="film-duration-parts"><span class="film-duration-part"><b data-optical-start>${hours}</b><small>${en ? 'hr' : 'ч'}</small></span><span class="film-duration-part"><b data-optical-start>${minutes}</b><small>${en ? 'min' : 'мин'}</small></span></span>`);
     html = advancePeaks(html, latest.day, todayLabel);
     const tomorrow = {day: 6, date: dateLabel(6), type: latest.type};
-    const rows = [...days, tomorrow].map(d => calendarRow(d, plan, lang, latest.day)).join('\n');
+    const previewDays = days.map(day => {
+      if (day.old) {
+        const image = day.old.match(/<img\b[^>]*>/)?.[0] || '';
+        const file = image.match(/src="[^"]*\/([\w-]+)-original\.png"/)?.[1];
+        if (!file) throw new Error(`Missing preview frame for day ${day.day}.`);
+        return {...day, preview: {source: `${base}thumbnails/${file}.jpg`, position: image.match(/object-position:([^;"]+)/)?.[1] || '50% 50%'}};
+      }
+      const frames = media.find(item => item.day === day.day);
+      const photo = frames.items.find(item => item.file === frames.hero) ||
+        frames.items.find(item => item.file.includes('night-rider')) || frames.items[0];
+      return {...day, preview: {source: `${base}media/${photo.file}`, position: photo.position}};
+    });
+    const rows = [...previewDays, tomorrow].map(d => calendarRow(d, plan, lang, latest.day)).join('\n');
+    html = html.replace(/<span class="december-row__number">/g, '<span class="december-row__number" data-optical-start data-optical-ink>');
     html = html.replace(/<article class="december-row december-row--past"[^>]*id="calendar-segment-01"[\s\S]*?<\/article>\s*<article[^>]*id="calendar-segment-02"[\s\S]*?<\/article>/, rows);
     if (!html.includes('id="calendar-day-05"') || !html.includes('href="#race-day-05"')) throw new Error('Missing current stage');
     await mkdir(localeDir, {recursive:true});

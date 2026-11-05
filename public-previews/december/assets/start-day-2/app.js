@@ -1380,8 +1380,10 @@ for (const navigation of document.querySelectorAll(".nav-shell")) {
     if (toggle && toggleLabel) toggle.setAttribute("aria-label", toggleLabel);
     syncMenuIsolation(navigation);
 
+    pointerMenuLink = null;
     if (navigation.open) {
-      restoreMenuPreview();
+      updateMenuPreview();
+      if (menuPreviewPointer.matches) menuPreviewLinks.forEach(getMenuFrame);
       reachGoal("menu_open", { location: "header" });
     }
   });
@@ -1407,27 +1409,15 @@ for (const navigation of document.querySelectorAll(".nav-shell")) {
 document.addEventListener("keydown", (event) => {
   const openNavigation = document.querySelector(".nav-shell[open]");
 
-  if (event.key === "Tab" && openNavigation) {
+  if (event.key === "Tab" && openNavigation && !event.ctrlKey && !event.metaKey) {
     const focusables = getMenuFocusables(openNavigation);
-    const first = focusables[0];
-    const last = focusables.at(-1);
-    const active = document.activeElement;
-
-    if (!first || !last) {
-      event.preventDefault();
-      return;
-    }
-
-    if (!openNavigation.contains(active)) {
-      event.preventDefault();
-      first.focus();
-    } else if (event.shiftKey && active === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && active === last) {
-      event.preventDefault();
-      first.focus();
-    }
+    const index = focusables.indexOf(document.activeElement);
+    const next = event.shiftKey
+      ? focusables[index - 1] || focusables.at(-1)
+      : focusables[index + 1] || focusables[0];
+    // WebKit can keep native Tab on the summary of an open details element.
+    event.preventDefault();
+    next?.focus();
   }
 
   if (event.key === "Escape") {
@@ -1537,74 +1527,85 @@ const headerNavigationLinks = [
 ];
 const menuPreviewIndex = document.querySelector("[data-menu-preview-index]");
 const menuPreviewTitle = document.querySelector("[data-menu-preview-title]");
-const menuPreviewImage = document.querySelector("[data-menu-preview-image]");
+const firstMenuFrame = document.querySelector("[data-menu-preview-image]");
+const menuPreviewMedia = firstMenuFrame?.parentElement;
+const menuPrimary = document.querySelector(".site-nav__primary");
 const menuPreviewLinks = headerNavigationLinks.filter(
   (link) => link.dataset.navIndex,
 );
 const menuPreviewPointer = window.matchMedia(
   "(hover: hover) and (pointer: fine)",
 );
-function syncMenuPreviewCopy(index, title) {
-  if (!menuPreviewIndex || !menuPreviewTitle) return;
+const menuFrames = new Map();
+if (firstMenuFrame) menuFrames.set(firstMenuFrame.getAttribute("src"), firstMenuFrame);
+let pointerMenuLink = null;
 
-  menuPreviewIndex.dataset.currentIndex = index;
-  menuPreviewIndex.textContent = index;
-  menuPreviewTitle.textContent = title;
-}
-
-function syncMenuPreview(link) {
-  if (!link?.dataset.navIndex || !menuPreviewIndex || !menuPreviewTitle) return;
-
-  syncMenuPreviewCopy(
-    link.dataset.navIndex,
-    link.dataset.navTitle || link.textContent.trim(),
+// Give each photograph its own image. Reassigning src on the visible image
+// lets the browser paint the previous pixels under the next chapter's title.
+function getMenuFrame(link) {
+  const source = link.dataset.navImage;
+  if (!firstMenuFrame || !source) return null;
+  const cached = menuFrames.get(source);
+  if (cached && !(cached.complete && !cached.naturalWidth)) return cached;
+  const frame = new Image(
+    Number(firstMenuFrame.getAttribute("width")),
+    Number(firstMenuFrame.getAttribute("height")),
   );
+  frame.alt = "";
+  frame.dataset.menuPreviewImage = "";
+  frame.addEventListener("error", () => {
+    frame.style.visibility = "hidden";
+  }, { once: true });
+  frame.src = source;
+  menuFrames.set(source, frame);
+  return frame;
+}
 
-  if (menuPreviewImage) {
-    const position = link.dataset.navPosition || "50% 50%";
-    menuPreviewImage.style.setProperty("--menu-preview-position", position);
-    menuPreviewImage.style.setProperty(
-      "--menu-preview-mobile-position",
-      link.dataset.navMobilePosition || position,
-    );
+function updateMenuPreview() {
+  if (!menuPrimary?.closest(".nav-shell")?.open || !menuPreviewIndex || !menuPreviewTitle) return;
+  const link = pointerMenuLink || menuPrimary.querySelector("[data-nav-index]:focus-visible") ||
+    menuPrimary.querySelector('[aria-current="location"]') || menuPreviewLinks[0];
+  if (!link) return;
+  const frame = getMenuFrame(link);
+  if (menuPreviewIndex.dataset.currentIndex === link.dataset.navIndex &&
+      menuPreviewMedia?.firstElementChild === frame) return;
+  menuPreviewIndex.dataset.currentIndex = link.dataset.navIndex;
+  menuPreviewIndex.textContent = link.dataset.navIndex;
+  menuPreviewTitle.textContent = link.dataset.navTitle || link.textContent.trim();
+  if (!frame) return;
+  const position = link.dataset.navPosition || "50% 50%";
+  frame.style.setProperty("--menu-preview-position", position);
+  frame.style.setProperty("--menu-preview-mobile-position", link.dataset.navMobilePosition || position);
+  if (menuPreviewMedia.firstElementChild !== frame) menuPreviewMedia.replaceChildren(frame);
+}
+
+function previewUnderPointer(event) {
+  if (event.pointerType === "touch" || !menuPreviewPointer.matches) return;
+  const link = event.target.closest("[data-nav-index]");
+  if (pointerMenuLink !== link) {
+    pointerMenuLink = link;
+    updateMenuPreview();
   }
-
-  if (
-    menuPreviewImage &&
-    link.dataset.navImage &&
-    menuPreviewImage.getAttribute("src") !== link.dataset.navImage
-  ) {
-    menuPreviewImage.setAttribute("src", link.dataset.navImage);
-  }
 }
 
-function restoreMenuPreview() {
-  syncMenuPreview(
-    menuPreviewLinks.find((link) => link.getAttribute("aria-current") === "location") ||
-      menuPreviewLinks[0],
-  );
+function releaseMenuPointer() {
+  pointerMenuLink = null;
+  updateMenuPreview();
 }
 
-for (const link of menuPreviewLinks) {
-  link.addEventListener("pointerenter", () => {
-    if (menuPreviewPointer.matches) syncMenuPreview(link);
+if (menuPrimary) {
+  menuPrimary.addEventListener("pointerover", previewUnderPointer);
+  menuPrimary.addEventListener("pointermove", previewUnderPointer);
+  menuPrimary.addEventListener("pointerleave", releaseMenuPointer);
+  menuPrimary.addEventListener("pointercancel", releaseMenuPointer);
+  menuPrimary.addEventListener("focusin", (event) => {
+    if (event.target.matches(":focus-visible")) releaseMenuPointer();
   });
-  link.addEventListener("focus", () => {
-    if (link.matches(":focus-visible")) syncMenuPreview(link);
+  menuPrimary.addEventListener("keydown", (event) => {
+    if (event.key === "Tab") releaseMenuPointer();
   });
+  menuPrimary.addEventListener("focusout", () => queueMicrotask(updateMenuPreview));
 }
-
-document.querySelector(".site-nav__primary")?.addEventListener(
-  "pointerleave",
-  restoreMenuPreview,
-);
-document.querySelector(".site-nav__primary")?.addEventListener("focusout", () => {
-  requestAnimationFrame(() => {
-    if (!document.querySelector(".site-nav__primary")?.contains(document.activeElement)) {
-      restoreMenuPreview();
-    }
-  });
-});
 
 for (const link of headerNavigationLinks) {
   link.addEventListener("click", () => {
@@ -1672,16 +1673,7 @@ if (siteHeader && headerNavigationTargets.length) {
         activeItem.link.dataset.navTitle || activeItem.link.textContent.trim();
     }
 
-    const primaryNavigation = document.querySelector(".site-nav__primary");
-    const hasPointerPreview =
-      menuPreviewPointer.matches && primaryNavigation?.matches(":hover");
-    const hasKeyboardPreview =
-      primaryNavigation?.contains(document.activeElement) &&
-      document.activeElement?.matches?.(":focus-visible");
-
-    if (!hasPointerPreview && !hasKeyboardPreview) {
-      restoreMenuPreview();
-    }
+    updateMenuPreview();
   }
 
   function requestHeaderNavigationSync() {

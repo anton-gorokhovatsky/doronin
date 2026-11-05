@@ -1,0 +1,91 @@
+/* Whole film frames, with the next photograph waiting below the leading sheet. */
+[data-five-days] .stage-deck {
+  display: block;
+  position: relative;
+  isolation: isolate;
+  aspect-ratio: 16 / 9.2;
+  overflow: hidden;
+  scrollbar-width: none;
+  scroll-snap-type: none;
+  perspective: 1000px;
+  cursor: grab;
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
+  -webkit-user-select: none;
+}
+[data-five-days] .stage-deck::after { content: none; }
+[data-five-days] .stage-deck .start-photos__open {
+  position: absolute;
+  inset: 0 7% auto 0;
+  aspect-ratio: 16 / 9;
+  min-width: 0;
+  overflow: hidden;
+  transform-origin: 50% 75%;
+  transition: transform calc(var(--duration-feedback) * 1.5) var(--ease-enter);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  cursor: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+[data-five-days] .stage-deck img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  filter: none;
+  pointer-events: none;
+}
+[data-five-days] .stage-deck .start-photos__open[aria-hidden="true"] { pointer-events: none; }
+[data-five-days] .stage-deck.is-dragging { cursor: grabbing; }
+[data-five-days] .stage-deck.is-dragging .start-photos__open,
+[data-five-days] .stage-deck[data-motion="instant"] .start-photos__open { transition: none; }
+[data-five-days] .stage-deck + .start-photo-controls { margin-top: 0; }
+[data-five-days] .stage-deck:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  [data-five-days] .stage-deck .start-photos__open { transition: none; }
+}
+
+@media (max-width: 960px) {
+  [data-five-days] .stage-episode__narrative { margin-block-start: var(--space-group); }
+}
+
+/* A delayed original never leaves another photograph under the new counter. */
+[data-five-days] .start-lightbox > [data-start-photo-full] { grid-area: 2 / 1; }
+[data-five-days] .start-lightbox__feedback {
+  grid-area: 2 / 1;
+  z-index: 1;
+  align-self: end;
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-pair) var(--space-stack);
+  max-width: 100%;
+  padding: var(--space-pair) var(--space-stack);
+  background: var(--ink);
+  color: var(--paper);
+  font: 450 var(--type-service)/var(--leading-service) var(--body);
+}
+[data-five-days] .start-lightbox__feedback p { margin: 0; }
+[data-five-days] .start-lightbox__feedback button {
+  width: auto;
+  min-height: 2.75rem;
+  padding-inline: var(--space-stack);
+  font: inherit;
+}
+
+/* On a narrow screen the loading/error message follows the photograph,
+   rather than covering its subject when text is enlarged. */
+@media (max-width: 720px) {
+  [data-five-days] .start-lightbox[open]:has(.start-lightbox__feedback:not([hidden])) {
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+  }
+  [data-five-days] .start-lightbox:has(.start-lightbox__feedback:not([hidden])) .start-lightbox__feedback {
+    grid-area: 3 / 1;
+    align-self: start;
+  }
+  [data-five-days] .start-lightbox:has(.start-lightbox__feedback:not([hidden])) .start-lightbox__bottom {
+    grid-area: 4 / 1;
+  }
+}

@@ -1,0 +1,393 @@
+import assert from "node:assert/strict";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { chromium, webkit } from "playwright";
+import { startSiteServer } from "./lib/site-server.mjs";
+
+function readOptions(args) {
+  const failuresOnly = args.includes("--failures-only");
+  args = args.filter(argument => argument !== "--failures-only");
+  if (args[0] === "--url") {
+    if (args.length !== 2) throw new Error("--url requires one explicit public base URL");
+    const publicUrl = new URL(args[1]);
+    if (!/^https?:$/.test(publicUrl.protocol)) {
+      throw new Error("Public check requires an HTTP URL");
+    }
+    return { publicUrl: publicUrl.href, failuresOnly };
+  }
+  if (args.length > 1 || args[0]?.startsWith("--")) {
+    throw new Error("Usage: node scripts/december-gallery-check.mjs [site-directory | --url public-base-url] [--failures-only]");
+  }
+  return { directory: path.resolve(args[0] || "site"), failuresOnly };
+}
+
+function pageUrl(base, route) {
+  const url = new URL(base);
+  const destination = new URL(route, "http://check.invalid");
+  url.pathname = url.pathname.replace(/\/$/, "") + destination.pathname;
+  url.searchParams.set("codexQa", "1");
+  url.hash = destination.hash;
+  return url.href;
+}
+
+function galleryFor(page, day) {
+  const episode = page.locator(`[data-episode="${day}"]`);
+  return {
+    episode,
+    deck: episode.locator(".stage-deck"),
+    count: episode.locator("[data-start-strip-count]"),
+    next: episode.locator("[data-start-strip-next]"),
+    previous: episode.locator("[data-start-strip-prev]"),
+  };
+}
+
+async function saveFrame(page, output, name) {
+  await page.screenshot({ path: path.join(output, `${name}.jpg`) });
+}
+
+async function checkFullPhoto(page, deck) {
+  const photo = deck.locator("a:not([inert])");
+  await photo.click();
+  const dialog = page.locator("[data-start-lightbox]");
+  assert.equal(await dialog.evaluate(element => element.open), true);
+  assert.equal(await dialog.locator("img").getAttribute("src"), await photo.evaluate(element => element.href));
+  await page.keyboard.press("Escape");
+  assert.equal(await dialog.evaluate(element => element.open), false);
+  assert.equal(await photo.evaluate(element => element === document.activeElement), true);
+}
+
+async function checkMouseGestures(page, gallery, engine, output) {
+  const { deck, count, next, previous } = gallery;
+  await deck.focus();
+  await page.keyboard.press("Home");
+  const box = await deck.boundingBox();
+  assert.ok(box, "The gallery has a visible drag surface");
+  const x = box.x + box.width * 0.65;
+  const y = box.y + box.height * 0.45;
+
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x - box.width * 0.38, y + 8, { steps: 7 });
+  await saveFrame(page, output, `${engine}-gallery-drag`);
+  await page.mouse.up();
+  assert.equal(await count.innerText(), "2 / 3");
+  assert.equal(await page.locator("[data-start-lightbox]").evaluate(element => element.open), false);
+
+  await page.waitForTimeout(300);
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x - 18, y + 1, { steps: 5 });
+  await page.waitForTimeout(130);
+  await page.mouse.up();
+  assert.equal(await count.innerText(), "2 / 3");
+
+  await previous.click();
+  await next.click({ delay: 10 });
+  await previous.click({ delay: 10 });
+  assert.equal(await count.innerText(), "1 / 3");
+  await page.waitForTimeout(300);
+  await saveFrame(page, output, `${engine}-gallery-rest`);
+}
+
+async function checkDesktop(browser, engine, base, output) {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  const errors = [];
+  page.on("pageerror", error => errors.push(error.message));
+  try {
+    await page.goto(pageUrl(base, "/december/"));
+    await page.locator(".stage-deck").first().waitFor();
+    await page.evaluate(() => document.fonts.ready);
+
+    assert.equal(await page.locator("[data-episode]").count(), 5);
+    for (let day = 1; day <= 5; day += 1) {
+      const { deck } = galleryFor(page, String(day).padStart(2, "0"));
+      assert.equal(await deck.locator("[data-start-photo]").count(), 3);
+    }
+
+    const gallery = galleryFor(page, "05");
+    const { episode, deck, count, next } = gallery;
+    await deck.scrollIntoViewIfNeeded();
+    await next.click();
+    assert.equal(await count.innerText(), "2 / 3");
+    await next.click();
+    assert.equal(await count.innerText(), "3 / 3");
+    assert.equal(await next.isDisabled(), true);
+
+    // A reversal during the transition must use the latest requested frame.
+    await episode.evaluate(element => {
+      const previous = element.querySelector("[data-start-strip-prev]");
+      const next = element.querySelector("[data-start-strip-next]");
+      previous.click();
+      previous.click();
+      next.click();
+      previous.click();
+    });
+    assert.equal(await count.innerText(), "1 / 3");
+
+    await deck.focus();
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowLeft");
+    assert.equal(await count.innerText(), "2 / 3");
+    assert.equal(await deck.locator("a:not([inert])").count(), 1);
+    await checkFullPhoto(page, deck);
+    await checkMouseGestures(page, gallery, engine, output);
+
+    await next.click();
+    await episode.locator('a[href="#race-day-04"]').click();
+    assert.equal(await galleryFor(page, "04").episode.isVisible(), true);
+    await galleryFor(page, "04").episode.locator('a[href="#race-day-05"]').click();
+    assert.equal(await count.innerText(), "2 / 3");
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+
+    // The rehearsal interaction must not replace the real pre-start homepage.
+    await page.goto(pageUrl(base, "/"));
+    assert.equal(await page.locator(".stage-deck").count(), 0);
+    assert.equal(await page.locator("[data-five-days]").count(), 0);
+    assert.equal(errors.length, 0, errors.join("\n"));
+  } finally {
+    await page.close();
+  }
+}
+
+async function touchDrag(page, client, box, dx, dy) {
+  assert.ok(box, "The gallery has a visible touch surface");
+  const x = box.x + box.width * 0.6;
+  const y = box.y + box.height * 0.45;
+  await client.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y }] });
+  try {
+    for (let step = 1; step <= 8; step += 1) {
+      await client.send("Input.dispatchTouchEvent", {
+        type: "touchMove",
+        touchPoints: [{ x: x + dx * step / 8, y: y + dy * step / 8 }],
+      });
+      await page.waitForTimeout(16);
+    }
+  } finally {
+    await client.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  }
+}
+
+async function checkTrustedTouch(page, gallery) {
+  const { deck, count } = gallery;
+  const client = await page.context().newCDPSession(page);
+  try {
+    await page.keyboard.press("Home");
+    await touchDrag(page, client, await deck.boundingBox(), -180, 3);
+    assert.equal(await count.innerText(), "2 / 3", "Trusted touch swipe advances");
+    assert.equal(await page.locator("[data-start-lightbox]").evaluate(element => element.open), false, "A swipe never opens the full photo");
+
+    await touchDrag(page, client, await deck.boundingBox(), 160, 2);
+    assert.equal(await count.innerText(), "1 / 3", "Touch reversal returns");
+
+    const before = await page.evaluate(() => scrollY);
+    await touchDrag(page, client, await deck.boundingBox(), 2, -120);
+    assert.ok(await page.evaluate(() => scrollY) > before + 25, "Vertical page scrolling remains native");
+    assert.equal(await count.innerText(), "1 / 3");
+    await deck.scrollIntoViewIfNeeded();
+  } finally {
+    await client.detach();
+  }
+}
+
+async function checkPhone(browser, engine, base, output) {
+  const page = await browser.newPage({
+    viewport: { width: 390, height: 844 },
+    isMobile: true,
+    hasTouch: true,
+    reducedMotion: "reduce",
+  });
+  try {
+    await page.goto(pageUrl(base, "/december/en/#race-day-03"));
+    const gallery = galleryFor(page, "03");
+    const { episode, deck, count } = gallery;
+    await deck.waitFor();
+    assert.equal(await episode.isVisible(), true);
+    await deck.scrollIntoViewIfNeeded();
+    await deck.focus();
+    await page.keyboard.press("ArrowRight");
+    assert.equal(await count.innerText(), "2 / 3");
+
+    // CDP dispatches trusted touch input; synthetic DOM events cannot prove scrolling.
+    if (engine === "chromium") await checkTrustedTouch(page, gallery);
+    await saveFrame(page, output, `${engine}-gallery-en-phone`);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+  } finally {
+    await page.close();
+  }
+}
+
+
+async function checkFullPhotoFailures(browser, base, output) {
+  const page = await browser.newPage({
+    viewport: { width: 1440, height: 1000 },
+    reducedMotion: "reduce",
+  });
+  const errors = [];
+  page.on("pageerror", error => errors.push(error.message));
+  let heldSecond;
+  try {
+    await page.goto(pageUrl(base, "/december/en/#race-day-01"));
+    const { deck } = galleryFor(page, "01");
+    await deck.waitFor();
+    const photos = await deck.locator("[data-start-photo]").evaluateAll(links => links.map(link => ({
+      full: link.href,
+      preview: link.querySelector("img").currentSrc || link.querySelector("img").src,
+      alt: link.querySelector("img").alt,
+    })));
+    const second = photos[1];
+    const third = photos[2];
+    assert.notEqual(second.full, second.preview, "Day one exercises a separate full-size source");
+    assert.notEqual(third.full, third.preview, "The retry also exercises a separate full-size source");
+
+    await page.route(second.full, route => { heldSecond = route; });
+    const awaitingSecond = page.waitForRequest(second.full);
+    let failThird = true;
+    await page.route(third.full, route => failThird ? route.abort() : route.continue());
+
+    await deck.scrollIntoViewIfNeeded();
+    await deck.focus();
+    await page.keyboard.press("ArrowRight");
+    await deck.locator("a:not([inert])").click();
+    await awaitingSecond;
+    const dialog = page.locator("[data-start-lightbox]");
+    const image = dialog.locator("[data-start-photo-full]");
+    const position = dialog.locator("[data-start-photo-position]");
+    const feedback = dialog.locator(".start-lightbox__feedback");
+    const status = feedback.getByRole("status");
+    const retry = feedback.getByRole("button", { name: "Retry loading" });
+
+    assert.equal(await position.innerText(), "2 / 3");
+    assert.equal(await image.evaluate(element => element.src), second.preview);
+    assert.equal(await image.getAttribute("alt"), second.alt);
+    assert.equal(await image.getAttribute("aria-busy"), "true");
+    assert.equal(await status.innerText(), "Loading the full photograph…");
+    assert.equal(await feedback.isVisible(), true);
+    assert.equal(await retry.isHidden(), true);
+    await image.evaluate(element => element.decode());
+    await page.waitForFunction(() => getComputedStyle(document.querySelector("[data-start-photo-full]")).visibility === "visible");
+    await saveFrame(page, output, "chromium-full-photo-loading-second");
+
+    await dialog.locator("[data-start-photo-next]").click();
+    await retry.waitFor({ state: "visible" });
+    assert.equal(await position.innerText(), "3 / 3");
+    assert.equal(await image.evaluate(element => element.src), third.preview);
+    assert.equal(await image.getAttribute("alt"), third.alt);
+    assert.equal(await image.getAttribute("aria-busy"), "false");
+    assert.equal(await status.innerText(), "The full photograph could not load");
+    await image.evaluate(element => element.decode());
+    await page.waitForFunction(() => getComputedStyle(document.querySelector("[data-start-photo-full]")).visibility === "visible");
+    await saveFrame(page, output, "chromium-full-photo-error-third");
+
+    const lateResponse = page.waitForResponse(response => response.url() === second.full);
+    await heldSecond.continue();
+    heldSecond = null;
+    const response = await lateResponse;
+    assert.equal(response.ok(), true, "The stale full-size request really succeeds");
+    assert.equal(await response.finished(), null);
+    // Let the original load/decode callback settle before checking its stale token.
+    await page.waitForTimeout(200);
+    assert.equal(await position.innerText(), "3 / 3");
+    assert.equal(await image.evaluate(element => element.src), third.preview);
+    assert.equal(await status.innerText(), "The full photograph could not load");
+    assert.equal(await retry.isVisible(), true);
+    await saveFrame(page, output, "chromium-full-photo-late-second");
+
+    failThird = false;
+    await retry.click();
+    await feedback.waitFor({ state: "hidden" });
+    assert.equal(await position.innerText(), "3 / 3");
+    assert.equal(await image.evaluate(element => element.src), third.full);
+    assert.equal(await image.getAttribute("aria-busy"), "false");
+    await image.evaluate(element => element.decode());
+    await saveFrame(page, output, "chromium-full-photo-retry-third");
+    assert.deepEqual(errors, []);
+    return { second, third };
+  } finally {
+    if (heldSecond) await heldSecond.abort().catch(() => {});
+    await page.close();
+  }
+}
+
+async function checkModuleFallback(browser, base, output) {
+  const page = await browser.newPage({
+    viewport: { width: 390, height: 844 },
+    isMobile: true,
+    hasTouch: true,
+    reducedMotion: "reduce",
+  });
+  const errors = [];
+  page.on("pageerror", error => errors.push(error.message));
+  let abortedModule = false;
+  try {
+    await page.route("**/stage-gallery.js*", route => {
+      abortedModule = true;
+      return route.abort();
+    });
+    await page.goto(pageUrl(base, "/december/en/#race-day-03"));
+    const { episode } = galleryFor(page, "03");
+    await episode.waitFor();
+    const strip = episode.locator("[data-start-photo-strip]");
+    const count = episode.locator("[data-start-strip-count]");
+    await count.waitFor();
+    assert.equal(abortedModule, true, "The gallery module really failed to load");
+    assert.equal(await page.locator(".stage-deck").count(), 0);
+    assert.equal(await strip.locator("[data-start-photo]").count(), 3);
+    assert.equal(await strip.locator("a:not([inert])").count(), 3);
+    assert.equal(await strip.evaluate(element => element.scrollWidth > element.clientWidth), true, "The ordinary photo strip still scrolls");
+
+    await strip.scrollIntoViewIfNeeded();
+    await episode.locator("[data-start-strip-next]").click();
+    await page.waitForFunction(() => document.querySelector('[data-episode="03"] [data-start-strip-count]').textContent === "2 / 3");
+    assert.ok(await strip.evaluate(element => element.scrollLeft) > 0);
+    await episode.locator('a[href="#race-day-02"]').click();
+    assert.equal(await galleryFor(page, "02").episode.isVisible(), true);
+    await galleryFor(page, "02").episode.locator('a[href="#race-day-03"]').click();
+    assert.equal(await episode.isVisible(), true);
+    await strip.scrollIntoViewIfNeeded();
+    await saveFrame(page, output, "chromium-gallery-module-fallback");
+    assert.deepEqual(errors, []);
+  } finally {
+    await page.close();
+  }
+}
+
+const options = readOptions(process.argv.slice(2));
+const output = path.resolve(process.env.DECEMBER_CHECK_OUTPUT || "artifacts/december-gallery");
+await mkdir(output, { recursive: true });
+const server = options.publicUrl ? null : await startSiteServer(options.directory);
+const base = options.publicUrl || server.origin;
+const results = [];
+try {
+  const engines = options.failuresOnly ? { chromium } : { chromium, webkit };
+  for (const [engine, type] of Object.entries(engines)) {
+    const browser = await type.launch();
+    try {
+      if (!options.failuresOnly) {
+        console.log(`[december-gallery] ${engine} desktop`);
+        await checkDesktop(browser, engine, base, output);
+        results.push({ engine, kind: "desktop", passed: true });
+
+        console.log(`[december-gallery] ${engine} phone / reduced motion`);
+        await checkPhone(browser, engine, base, output);
+        results.push({ engine, kind: "phone/reduced", passed: true });
+      }
+      if (engine === "chromium") {
+        console.log("[december-gallery] chromium full photograph / failure and retry");
+        const sources = await checkFullPhotoFailures(browser, base, output);
+        results.push({ engine, kind: "full-photo/failure-retry", passed: true, sources });
+
+        console.log("[december-gallery] chromium gallery module / native fallback");
+        await checkModuleFallback(browser, base, output);
+        results.push({ engine, kind: "module-fallback", passed: true });
+      }
+    } finally {
+      await browser.close();
+    }
+  }
+} finally {
+  await server?.close();
+}
+const report = { root: base.replace(/\/$/, ""), results };
+await writeFile(path.join(output, "gallery-checks.json"), JSON.stringify(report, null, 2));
+console.log(JSON.stringify(report, null, 2));

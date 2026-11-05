@@ -208,7 +208,6 @@
 .start-photos::after { content: ""; flex: 0 0 max(0px, calc(100% - min(74vw, 18rem) - var(--space-pair))); }
 .start-photos__open:focus-visible { outline-offset: -3px !important; }
 .start-day-preview .site-nav__setting { border: 0; }
-.start-day-preview .site-nav__settings { border-top: 1px solid var(--line-light); padding-top: var(--space-stack); }
 @media (max-width: 640px) {
   .start-photos__open { flex-basis: 86%; }
   .start-photos::after { flex-basis: calc(14% - var(--space-pair)); }

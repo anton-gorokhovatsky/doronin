@@ -1,6 +1,13 @@
 import { lightPalette } from '../../december-1-saved/assets/dubai-light.js';
 import { solarTheme } from '../../december-1-saved/assets/solar-clock.js';
 
+let useStageDeck = document.body.hasAttribute('data-five-days');
+let createStageDeck;
+if (useStageDeck) {
+  try { ({ createStageDeck } = await import('./stage-gallery.js' + new URL(import.meta.url).search)); }
+  catch { useStageDeck = false; }
+}
+
 // Reuse the accepted solar palette, with a declared scenario date and no weather.
 const root = document.documentElement;
 const sceneDate = root.dataset.startPreviewDate;
@@ -109,24 +116,83 @@ let modalGallery;
 let modalIndex = 0;
 let modalOpener;
 
+let photoRequest = 0;
+const photoFeedback = useStageDeck ? document.createElement('div') : null;
+let photoStatus;
+let photoRetry;
+if (photoFeedback) {
+  photoFeedback.className = 'start-lightbox__feedback';
+  photoFeedback.hidden = true;
+  photoStatus = document.createElement('p');
+  photoStatus.setAttribute('role', 'status');
+  photoRetry = document.createElement('button');
+  photoRetry.type = 'button';
+  photoRetry.textContent = document.documentElement.lang === 'en' ? 'Retry loading' : 'Повторить загрузку';
+  photoRetry.addEventListener('click', () => showPhoto(modalIndex));
+  photoFeedback.append(photoStatus, photoRetry);
+  lightbox.append(photoFeedback);
+}
 function showPhoto(index) {
   if (!modalGallery) return;
   modalIndex = Math.max(0, Math.min(modalGallery.links.length - 1, index));
   const link = modalGallery.links[modalIndex];
   const image = lightbox.querySelector('[data-start-photo-full]');
-  image.src = link.href;
   image.alt = link.querySelector('img').alt;
   lightbox.querySelector('[data-start-photo-position]').textContent = `${modalIndex + 1} / ${modalGallery.links.length}`;
   lightbox.querySelector('[data-start-photo-prev]').disabled = modalIndex === 0;
   lightbox.querySelector('[data-start-photo-next]').disabled = modalIndex === modalGallery.links.length - 1;
+  if (!useStageDeck) { image.src = link.href; return; }
+
+  const request = ++photoRequest;
+  const en = document.documentElement.lang === 'en';
+  let fullReady = false;
+  // Clear the old pixels before assigning a new source. Some browsers keep
+  // painting the old decoded frame while currentSrc is already empty.
+  image.style.visibility = 'hidden';
+  image.removeAttribute('src');
+  image.setAttribute('aria-busy', 'true');
+  photoStatus.textContent = en ? 'Loading the full photograph…' : 'Загружаем полный снимок…';
+  photoRetry.hidden = true;
+  photoFeedback.hidden = false;
+
+  const thumbnail = link.querySelector('img');
+  const previewSource = thumbnail.currentSrc || thumbnail.src;
+  image.src = previewSource;
+  image.decode().then(() => {
+    if (request === photoRequest && !fullReady && image.src === previewSource) {
+      image.style.visibility = 'visible';
+    }
+  }).catch(() => {});
+  const full = new Image();
+  full.decoding = 'async';
+  full.addEventListener('load', async () => {
+    try { await full.decode(); } catch { /* A loaded image can still be shown. */ }
+    if (request !== photoRequest) return;
+    fullReady = true;
+    image.src = full.src;
+    image.style.visibility = 'visible';
+    image.setAttribute('aria-busy', 'false');
+    photoFeedback.hidden = true;
+  }, { once: true });
+  full.addEventListener('error', () => {
+    if (request !== photoRequest) return;
+    image.setAttribute('aria-busy', 'false');
+    photoStatus.textContent = en ? 'The full photograph could not load' : 'Не удалось загрузить полный снимок';
+    photoRetry.hidden = false;
+  }, { once: true });
+  full.src = link.href;
 }
+
 for (const panel of episodePanels) {
   const strip = panel.querySelector('[data-start-photo-strip]');
   const links = [...strip.querySelectorAll('[data-start-photo]')];
   const prev = panel.querySelector('[data-start-strip-prev]');
   const next = panel.querySelector('[data-start-strip-next]');
   const count = panel.querySelector('[data-start-strip-count]');
-  const state = { panel, strip, links, index: 0 };
+  const state = useStageDeck
+    ? createStageDeck({ strip, links, prev, next, count, reduced })
+    : { strip, links, index: 0 };
+  state.panel = panel;
   galleryStates.set(panel.dataset.episode, state);
   const position = index => links[index].offsetLeft - links[0].offsetLeft;
   function update() {
@@ -141,26 +207,30 @@ for (const panel of episodePanels) {
     state.index = target;
     strip.scrollTo({ left: position(target), behavior: reduced() ? 'instant' : 'smooth' });
   }
-  state.restore = () => { strip.scrollTo({left: position(state.index), behavior:'instant'}); update(); };
-  prev.addEventListener('click', () => go(state.index - 1));
-  next.addEventListener('click', () => go(state.index + 1));
-  strip.addEventListener('scroll', update, {passive:true});
-  strip.addEventListener('keydown', event => {
-    if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
-    event.preventDefault(); go(state.index + (event.key === 'ArrowRight' ? 1 : -1));
-  });
+  if (!useStageDeck) {
+    state.restore = () => { strip.scrollTo({left: position(state.index), behavior:'instant'}); update(); };
+    prev.addEventListener('click', () => go(state.index - 1));
+    next.addEventListener('click', () => go(state.index + 1));
+    strip.addEventListener('scroll', update, {passive:true});
+    strip.addEventListener('keydown', event => {
+      if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+      event.preventDefault(); go(state.index + (event.key === 'ArrowRight' ? 1 : -1));
+    });
+  }
   for (const [index, link] of links.entries()) link.addEventListener('click', event => {
     if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
     event.preventDefault(); modalGallery = state; modalOpener = link; showPhoto(index);
     lightbox.showModal(); document.documentElement.classList.add('stage-photo-open');
     lightbox.querySelector('[data-start-photo-close]').focus();
   });
-  update();
+  if (!useStageDeck) update();
 }
 lightbox.querySelector('[data-start-photo-prev]').addEventListener('click', () => showPhoto(modalIndex - 1));
 lightbox.querySelector('[data-start-photo-next]').addEventListener('click', () => showPhoto(modalIndex + 1));
 lightbox.querySelector('[data-start-photo-close]').addEventListener('click', () => lightbox.close());
 lightbox.addEventListener('close', () => {
+  photoRequest += 1;
+  if (photoFeedback) photoFeedback.hidden = true;
   document.documentElement.classList.remove('stage-photo-open');
   modalOpener?.focus({preventScroll:true});
 });

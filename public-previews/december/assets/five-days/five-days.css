@@ -35,3 +35,110 @@
   .episode-pager { flex-direction: column; }
   .episode-pager__today { align-self: start; }
 }
+
+/* The distance is the first line of its column. Its caption follows the
+   number, leaving the two large Micra lines on a common visible top. */
+@media (min-width: 961px) {
+  :root:not(.text-enlarged) [data-five-days] .start-hero__plan {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: var(--space-pair);
+  }
+  :root:not(.text-enlarged) [data-five-days] .start-hero__measure { order: -1; }
+  :root:not(.text-enlarged) [data-five-days] .start-hero__planned { margin: 0; }
+}
+
+/* Every row begins at the column's visible left edge, including four-digit
+   stages. The number/unit pair keeps its baseline and never uses a padded
+   hidden digit as an alignment axis. */
+[data-five-days] .december-row__distance {
+  display: flex;
+  align-items: baseline;
+  justify-content: start;
+}
+[data-five-days] .december-row__number { text-align: start; }
+/* Micra's digit bearings, in em. Leading 1 uses the site's canonical token;
+   these additional contours extend the same optical-start family. */
+[data-five-days] .december-row__number[data-optical-leading="5"] { --optical-start-shift: -.079em; }
+[data-five-days] .december-row__number[data-optical-leading="7"] { --optical-start-shift: -.098em; }
+[data-five-days] .december-row__number[data-optical-leading="9"] { --optical-start-shift: -.1em; }
+
+/* The pager already has its own interval. A full-width line could travel
+   through the neighbouring sticky photographs while the page scrolls. */
+[data-five-days] .episode-pager { border-top: 0; }
+
+/* This duplicate preview is decorative; the row's link owns navigation. */
+[data-five-days] .calendar-preview {
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 20;
+  width: min(calc(100vw - 40px), clamp(19rem, 32vw, 30rem));
+  aspect-ratio: 16 / 10;
+  margin: 0;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transform-origin: center;
+  transition: transform var(--duration-feedback) var(--ease-move),
+    opacity var(--duration-feedback) var(--ease-enter);
+}
+[data-five-days] .calendar-preview[data-visible="true"] {
+  visibility: visible;
+  opacity: 1;
+}
+[data-five-days] .calendar-preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-five-days] .calendar-preview { transition: none; }
+}
+:root[data-reduce-motion="true"] [data-five-days] .calendar-preview { transition: none; }
+@media (hover: none), (pointer: coarse) {
+  [data-five-days] .calendar-preview { display: none; }
+}
+
+/* Keep the existing film control inside its track at 320 px / 200% text. */
+[data-five-days] .ride-film__transport { min-inline-size: 0; flex-wrap: wrap; }
+[data-five-days] .ride-film__play { max-inline-size: 100%; min-inline-size: 0; }
+[data-five-days] .ride-film__play [data-film-play-label] { white-space: normal; }
+
+/* At enlarged narrow widths the map and its reading become consecutive
+   groups. Keep the existing type ranks; let the clock and display duration
+   reflow instead of squeezing their text into the map's second column. */
+@media (max-width: 720px) {
+  :root.text-enlarged [data-five-days] .ride-film__position {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+  :root.text-enlarged [data-five-days] .ride-film__position p { grid-column: 1; inline-size: 100%; }
+  :root.text-enlarged [data-five-days] .ride-film__position [data-film-clock] { white-space: normal; }
+  :root.text-enlarged [data-five-days] .ride-film__duration > strong { display: none; }
+  :root.text-enlarged [data-five-days] .ride-film__duration .film-duration-parts { display: grid; }
+  :root.text-enlarged [data-five-days] .ride-film__title {
+    min-inline-size: 0;
+    inline-size: 100%;
+    align-self: stretch;
+  }
+}
+
+/* Reflow the same total as two labelled metrics, from the existing type scale. */
+[data-five-days] .ride-film__duration .film-duration-parts {
+  display: none;
+  gap: var(--space-pair);
+}
+[data-five-days] .ride-film__duration .film-duration-part {
+  display: flex;
+  align-items: baseline;
+  gap: .3em;
+  width: fit-content;
+  white-space: nowrap;
+  font: 700 var(--type-number-proof)/1.1 var(--display);
+}
+[data-five-days] .ride-film__duration .film-duration-part b { font: inherit; }
+[data-five-days] .ride-film__duration .film-duration-part small {
+  font: 450 var(--type-service)/var(--leading-service) var(--body);
+}
