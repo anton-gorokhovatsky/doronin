@@ -88,6 +88,39 @@ const readControlGeometry = page => page.evaluate(() => {
   });
 });
 const settleLayout = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+async function checkDustRefresh(browser) {
+  const page = await createWeatherPage(browser, { viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+  await page.clock.setFixedTime(new Date(now));
+  const dust = {
+    version: 1, source: 'NASA GEOS-FP', issuedAt: new Date(now - 3600000).toISOString(),
+    grid: { latitude: 25.25, longitude: 55.3125 }, intervalMinutes: 180,
+    points: [{ time: new Date(now).toISOString(), dustUgM3: 42, opticalDepth: 0.1 }],
+  };
+  let reply = 'fresh';
+  await page.route('https://api.met.no/**', route => route.fulfill({ json: fresh }));
+  await page.route('**/dubai-dust.json', route => {
+    if (reply === 'offline') return route.abort();
+    const data = reply === 'fresh' ? dust : { ...dust, issuedAt: new Date(now - 86400000 * 4).toISOString() };
+    return route.fulfill({ json: data });
+  });
+  await page.goto(`${server.origin}/#dubai-light`, { waitUntil: 'domcontentloaded' });
+  const label = page.locator('[data-dubai-dust-value]');
+  await page.waitForFunction(() => document.querySelector('[data-dubai-dust-value]').textContent.includes('42'));
+  const initial = await label.innerText();
+  for (const [minutes, nextReply] of [[31, 'offline'], [62, 'stale'], [180, 'offline']]) {
+    reply = nextReply;
+    await page.clock.setFixedTime(new Date(now + minutes * 60000));
+    const settled = reply === 'offline'
+      ? page.waitForEvent('requestfailed', req => req.url().endsWith('/dubai-dust.json'))
+      : page.waitForResponse(response => response.url().endsWith('/dubai-dust.json')).then(response => response.finished());
+    await page.locator('button[data-dubai-mode="current"]').click();
+    await settled;
+    await settleLayout(page);
+    assert.equal(await label.innerText(), minutes < 180 ? initial : 'Прогноз пыли недоступен',
+      `Dust interval at +${minutes} minutes after a ${nextReply} response`);
+  }
+  await page.close();
+}
 const settleInitialLayout = page => page.evaluate(async () => {
   await Promise.all([
     document.fonts.load('700 32px Micra', 'ДA1'),
@@ -260,12 +293,19 @@ try {
           await context.close();
         }
       }
-      for (const failure of ['network', 'stale', 'storage']) {
+      for (const failure of ['network', 'stale', 'storage', 'truncated']) {
         console.log(`${engineName}: weather fallback (${failure})`);
         const page = await createWeatherPage(browser, { viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
         await page.clock.setFixedTime(new Date(now));
         if (failure === 'storage') await page.addInitScript(() => Object.defineProperty(window, 'sessionStorage', { get() { throw new Error('Storage disabled'); } }));
-        await page.route('https://api.met.no/**', route => failure === 'network' ? route.abort() : route.fulfill({ json: failure === 'storage' ? fresh : withSeries([forecastAt(now - 7200000)]) }));
+        await page.route('https://api.met.no/**', route => {
+          if (failure === 'network') return route.abort();
+          if (failure === 'truncated') return route.fulfill({ contentType: 'application/json', body: '{"properties":{"meta":' });
+          return route.fulfill({ json: failure === 'storage' ? fresh : withSeries([forecastAt(now - 7200000)]) });
+        });
+        const backup = failure === 'truncated' ? fresh : withSeries([forecastAt(now - 7200000)]);
+        await page.route('**/dubai-weather.json', route => route.fulfill({ json: { version: 1, forecast: backup } }));
+        const available = failure === 'storage' || failure === 'truncated';
         // Reproduce a stalled third-party script without contacting the network.
         // Component readiness must not wait for this request or window.load.
         const stalledScriptUrl = `${server.origin}/service-stalled-script.js`;
@@ -281,20 +321,21 @@ try {
         await page.goto(`${server.origin}/#dubai-light`, { waitUntil: 'domcontentloaded' });
         await page.locator('[data-dubai-controls]').waitFor({ state: 'visible' });
         await page.locator('button[data-dubai-mode="current"]').click();
-        await page.waitForFunction(expected => document.querySelector('[data-dubai-controls]').dataset.weather === expected, failure === 'storage' ? 'fresh' : 'unavailable');
+        await page.waitForFunction(expected => document.querySelector('[data-dubai-controls]').dataset.weather === expected, available ? 'fresh' : 'unavailable');
         if (stalledRequest) {
           await stalledRequest;
           assert.notEqual(await page.evaluate(() => document.readyState), 'complete', 'Weather fallback is ready while an unrelated script still blocks the load event');
         }
         assert.equal(await page.locator('[data-dubai-clock]').textContent(), '13:00');
         assert(await page.locator('h1').isVisible());
-        assert.equal(await page.locator('[data-dubai-source-link]').isVisible(), failure === 'storage');
+        assert.equal(await page.locator('[data-dubai-source-link]').isVisible(), available);
         assert.equal(await page.locator('[data-outlook-state]').isVisible(), true, 'A missing future series has an explicit state even when current weather exists');
         await page.locator('.menu-toggle').click();
         await page.locator('[data-menu-weather]').waitFor({ state: 'visible' });
-        assert.equal(await page.locator('[data-menu-weather-readings]').isVisible(), failure === 'storage');
+        assert.equal(await page.locator('[data-menu-weather-readings]').isVisible(), available);
         await page.close();
       }
+      await checkDustRefresh(browser);
       // Loading, missing fields and the date boundary must not move the footer.
       const delayed = await createWeatherPage(browser, { viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
       await delayed.clock.setFixedTime(new Date(midnight));

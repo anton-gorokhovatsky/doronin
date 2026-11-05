@@ -42,12 +42,15 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Refresh dust forecast
-        if: github.event_name == 'schedule'
         run: node scripts/update-dust.mjs
         continue-on-error: true
 
       - name: Build and check site
         run: pnpm gate
+
+      - name: Refresh MET forecast backup
+        run: node scripts/update-weather.mjs site/assets/dubai-weather.json
+        continue-on-error: true
 
       - name: Add separate December preview
         run: node scripts/publish-december-preview.mjs

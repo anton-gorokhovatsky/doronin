@@ -370,14 +370,28 @@ function initDubaiLight() {
     const timeout = setTimeout(() => controller.abort(), 6500);
     try {
       const response = await fetch(endpoint, { signal: controller.signal, credentials: 'omit', referrerPolicy: 'no-referrer' });
-      if (!response.ok) throw new Error('Weather unavailable');
-      forecast = await response.json();
-      weather = readWeather(forecast);
       const expires = Date.parse(response.headers.get('Expires'));
       if (Number.isFinite(expires)) nextRequest = Math.max(nextRequest, expires);
+      if (!response.ok) throw new Error('Weather unavailable');
+      const next = await response.json();
+      if (!readWeather(next) && !readOutlook(next).some(point => point.reading)) throw new Error('No fresh forecast');
+      forecast = next;
+    } catch {
+      // The full product and the published compact backup carry their own model times.
+      // An old backup must never become a current reading just because this request succeeded.
+      try {
+        const backupUrl = new URL('dubai-weather.json', new URL(widget.dataset.dustUrl, document.baseURI));
+        const backup = await fetch(backupUrl, { credentials: 'omit', signal: AbortSignal.timeout(6500) });
+        const saved = backup.ok ? await backup.json() : null;
+        if (saved?.version === 1 && readWeather(saved.forecast)) forecast = saved.forecast;
+      } catch { /* paint() independently expires earlier data, if present. */ }
+    } finally {
+      clearTimeout(timeout);
+      weather = readWeather(forecast);
       try { sessionStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ forecast, nextRequest })); } catch { /* Optional cache. */ }
-    } catch { forecast = null; weather = null; }
-    finally { clearTimeout(timeout); requestInFlight = false; paint(); }
+      requestInFlight = false;
+      paint();
+    }
   }
 
   async function updateDust() {
@@ -388,8 +402,8 @@ function initDubaiLight() {
       const response = await fetch(widget.dataset.dustUrl, { credentials: 'omit', signal: AbortSignal.timeout(6500) });
       if (!response.ok) throw new Error('Dust unavailable');
       const payload = await response.json();
-      dustForecast = readDust(payload) ? payload : null;
-    } catch { dustForecast = null; }
+      if (readDust(payload)) dustForecast = payload;
+    } catch { /* paint() keeps the last valid point only for its original interval. */ }
     finally { dustRequestInFlight = false; paint(); }
   }
   function tick() { paint(); void updateWeather(); void updateDust(); }
