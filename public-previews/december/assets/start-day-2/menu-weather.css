@@ -85,7 +85,20 @@ body[data-five-days] [data-weather-only] .dubai-forecast__source a:is(:hover, :f
 
 /* Keep the glass gradients and photograph over one continuous menu surface. */
 @media (min-width: 961px) {
-  body[data-five-days] .nav-shell[open] .site-nav {
+  :root body[data-five-days] .nav-shell[open] .site-nav {
     background-color: var(--ink);
+  }
+}
+
+/* An enlarged index keeps its own width beside the title's first line. */
+@media (max-width: 960px) {
+  :root.text-enlarged body[data-five-days] .site-nav__primary > .site-nav__link {
+    grid-template-columns: max-content minmax(0, 1fr);
+    column-gap: var(--space-pair);
+    align-items: start;
+  }
+  :root.text-enlarged body[data-five-days] .site-nav__primary > .site-nav__link::after {
+    /* Existing row padding plus half the first title line, rather than the row. */
+    top: calc(.62rem + .5lh);
   }
 }
