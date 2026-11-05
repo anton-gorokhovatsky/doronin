@@ -29,7 +29,7 @@ function pager(edition, days, lang) {
   return `<nav class="episode-pager" aria-label="${en ? 'Stage navigation' : 'Переходы между этапами'}">
     ${older ? link(older, en ? 'Previous stage' : 'Предыдущий этап', 'left') : ''}
     ${newer ? link(newer, newer === latest ? (en ? 'Current stage' : 'Текущий этап') : (en ? 'Next stage' : 'Следующий этап'), 'right') : ''}
-    ${newer && newer !== latest ? `<a class="stage-link episode-pager__today" href="#race-day-${pad(latest.day)}"><span class="stage-link__copy">${en ? 'Back to today' : 'К текущему этапу'}</span></a>` : ''}
+    ${newer && newer !== latest ? `<a class="episode-return episode-pager__today" href="#race-day-${pad(latest.day)}"><strong>${en ? 'Back to today' : 'К текущему этапу'}</strong>${arrow('up')}</a>` : ''}
   </nav>`;
 }
 function episode(day, days, lang, mediaBase) {
@@ -178,9 +178,22 @@ export async function buildFiveDays(directory) {
         frames.items.find(item => item.file.includes('night-rider')) || frames.items[0];
       return {...day, preview: {source: `${base}media/${photo.file}`, position: photo.position}};
     });
-    const rows = [...previewDays, tomorrow].map(d => calendarRow(d, plan, lang, latest.day)).join('\n');
+    const previousDays = previewDays.filter(day => day.day < latest.day);
+    const pastRows = previousDays.map(day => calendarRow(day, plan, lang, latest.day)).join('\n');
+    const rows = [previewDays.at(-1), tomorrow].map(day => calendarRow(day, plan, lang, latest.day)).join('\n');
+    const columns = html.match(/<div class="december-calendar__columns"[^>]*>[\s\S]*?<\/div>/)?.[0];
+    if (!columns) throw new Error('Missing calendar column labels.');
+    const previousRange = en ? `December ${previousDays[0].day}–${previousDays.at(-1).day}`
+      : `${previousDays[0].day}–${previousDays.at(-1).day} декабря`;
+    const previous = `<details class="calendar-past" id="calendar-past" data-calendar-past>
+      <summary><span class="calendar-past__label"><strong>${en ? 'Previous stages' : 'Предыдущие этапы'}</strong><span>${previousRange}</span></span>${arrow('right')}</summary>
+      ${columns.replace('december-calendar__columns', 'calendar-past__columns')}
+      <div class="calendar-past__rows">${pastRows}</div>
+      <button class="calendar-past__close" type="button" data-calendar-past-close><span>${en ? 'Collapse previous stages' : 'Свернуть предыдущие этапы'}</span>${arrow('up')}</button>
+    </details>`;
     html = html.replace(/<span class="december-row__number">/g, '<span class="december-row__number" data-optical-start data-optical-ink>');
     html = html.replace(/<article class="december-row december-row--past"[^>]*id="calendar-segment-01"[\s\S]*?<\/article>\s*<article[^>]*id="calendar-segment-02"[\s\S]*?<\/article>/, rows);
+    html = html.replace(columns, previous + columns);
     if (!html.includes('id="calendar-day-05"') || !html.includes('href="#race-day-05"')) throw new Error('Missing current stage');
     await mkdir(localeDir, {recursive:true});
     await writeFile(path.join(localeDir, 'index.html'), html);

@@ -51,9 +51,90 @@ async function checkFullPhoto(page, deck) {
   const dialog = page.locator("[data-start-lightbox]");
   assert.equal(await dialog.evaluate(element => element.open), true);
   assert.equal(await dialog.locator("img").getAttribute("src"), await photo.evaluate(element => element.href));
+  await page.keyboard.press("ArrowRight");
+  assert.equal(await dialog.locator("[data-start-photo-position]").innerText(), "3 / 3");
+  await page.keyboard.press("ArrowRight");
+  assert.equal(await dialog.locator("[data-start-photo-position]").innerText(), "1 / 3", "The full viewer also cycles forward");
+  await page.keyboard.press("ArrowLeft");
+  assert.equal(await dialog.locator("[data-start-photo-position]").innerText(), "3 / 3", "The full viewer also cycles backward");
   await page.keyboard.press("Escape");
   assert.equal(await dialog.evaluate(element => element.open), false);
   assert.equal(await photo.evaluate(element => element === document.activeElement), true);
+}
+
+async function assertSelectedPhotograph(page, deck, output, name) {
+  await page.waitForFunction(element => element.dataset.turning !== 'true', await deck.elementHandle());
+  await page.waitForTimeout(40);
+  const source = await deck.locator('a[data-current="true"] img').evaluate(image => image.currentSrc || image.src);
+  const screenshot = await deck.screenshot();
+  const box = await deck.boundingBox();
+  // Render an independent flat image through the same browser rasterizer.
+  // A direct 1600px ->32px canvas resize otherwise differs from WebKit's
+  // 1600px ->CSS viewport ->32px resampling on detailed foliage/road frames.
+  await page.evaluate(async ({ source, box }) => {
+    const reference = document.createElement('img');
+    reference.dataset.galleryReference = '';
+    reference.alt = '';
+    reference.style.cssText = `position:fixed;left:${box.x}px;top:${box.y}px;width:${box.width}px;height:${box.height}px;object-fit:contain;z-index:2147483647;margin:0;padding:0;border:0;filter:none;opacity:1;transform:none;pointer-events:none`;
+    reference.src = source;
+    document.body.append(reference);
+    await reference.decode();
+  }, {source, box});
+  let referenceScreenshot;
+  try { referenceScreenshot = await deck.screenshot(); }
+  finally { await page.locator('[data-gallery-reference]').evaluate(image => image.remove()); }
+  const difference = await page.evaluate(async ({ referenceEncoded, encoded }) => {
+    const expected = new Image(); expected.src = `data:image/png;base64,${referenceEncoded}`;
+    const actual = new Image(); actual.src = `data:image/png;base64,${encoded}`;
+    await Promise.all([expected.decode(), actual.decode()]);
+    const canvas = document.createElement('canvas');
+    canvas.width = 32; canvas.height = 18;
+    const context = canvas.getContext('2d', {willReadFrequently: true});
+    context.drawImage(expected, 0, 0, 32, 18);
+    const reference = context.getImageData(0, 0, 32, 18).data;
+    context.clearRect(0, 0, 32, 18);
+    context.drawImage(actual, 0, 0, 32, 18);
+    const rendered = context.getImageData(0, 0, 32, 18).data;
+    let total = 0, samples = 0;
+    // Ignore the one-pixel edge rounding of a fractional CSS viewport.
+    for (let y = 1; y < 17; y++) for (let x = 1; x < 31; x++) {
+      const offset = (y * 32 + x) * 4;
+      for (let channel = 0; channel < 3; channel++) {
+        total += Math.abs(reference[offset + channel] - rendered[offset + channel]);
+        samples++;
+      }
+    }
+    return total / samples;
+  }, {referenceEncoded: referenceScreenshot.toString('base64'), encoded: screenshot.toString('base64')});
+  await writeFile(path.join(output, `${name}.png`), screenshot);
+  assert.ok(difference < 8, `The rendered full frame matches the selected photograph (${name}, RGB error ${difference})`);
+  return difference;
+}
+
+async function checkMixedInput(page, gallery, engine, output) {
+  const { deck, next, count } = gallery;
+  await deck.focus();
+  await page.keyboard.press('End');
+  await assertSelectedPhotograph(page, deck, output, `${engine}-keyboard-last-photo`);
+  await next.click();
+  assert.equal(await count.innerText(), '1 / 3');
+  await assertSelectedPhotograph(page, deck, output, `${engine}-mouse-wrap-photo`);
+  await deck.focus();
+  await page.keyboard.press('Home');
+  for (let step = 0; step < 7; step++) await page.keyboard.press('ArrowRight');
+  assert.equal(await count.innerText(), '2 / 3');
+  await assertSelectedPhotograph(page, deck, output, `${engine}-keyboard-many-photo`);
+  await next.click();
+  assert.equal(await count.innerText(), '3 / 3');
+  await assertSelectedPhotograph(page, deck, output, `${engine}-mouse-next-photo`);
+  // A resize restores the same selected face, then accepts the next mouse turn.
+  await page.setViewportSize({width: 1360, height: 1000});
+  await next.click();
+  assert.equal(await count.innerText(), '1 / 3');
+  await assertSelectedPhotograph(page, deck, output, `${engine}-resized-wrap-photo`);
+  await page.setViewportSize({width: 1440, height: 1000});
+  await deck.focus();
+  await page.keyboard.press('Home');
 }
 
 async function checkMouseGestures(page, gallery, engine, output) {
@@ -107,13 +188,20 @@ async function checkDesktop(browser, engine, base, output) {
     const gallery = galleryFor(page, "05");
     const { episode, deck, count, next } = gallery;
     await deck.scrollIntoViewIfNeeded();
+    await checkMixedInput(page, gallery, engine, output);
     await next.click();
     assert.equal(await count.innerText(), "2 / 3");
     await next.click();
     assert.equal(await count.innerText(), "3 / 3");
-    assert.equal(await next.isDisabled(), true);
+    assert.equal(await next.isDisabled(), false);
+    await next.click();
+    assert.equal(await count.innerText(), "1 / 3", "The last photograph advances to the first");
+    await gallery.previous.click();
+    assert.equal(await count.innerText(), "3 / 3", "The first photograph returns to the last");
+    await deck.focus();
+    await page.keyboard.press("Home");
 
-    // A reversal during the transition must use the latest requested frame.
+    // Commands cross the cycle boundary and reverse without a reset frame.
     await episode.evaluate(element => {
       const previous = element.querySelector("[data-start-strip-prev]");
       const next = element.querySelector("[data-start-strip-next]");
@@ -122,9 +210,10 @@ async function checkDesktop(browser, engine, base, output) {
       next.click();
       previous.click();
     });
-    assert.equal(await count.innerText(), "1 / 3");
+    assert.equal(await count.innerText(), "2 / 3");
 
     await deck.focus();
+    await page.keyboard.press("Home");
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowLeft");
@@ -179,6 +268,11 @@ async function checkTrustedTouch(page, gallery) {
 
     await touchDrag(page, client, await deck.boundingBox(), 160, 2);
     assert.equal(await count.innerText(), "1 / 3", "Touch reversal returns");
+
+    await touchDrag(page, client, await deck.boundingBox(), 160, 2);
+    assert.equal(await count.innerText(), "3 / 3", "Touch cycles backward from first to last");
+    await touchDrag(page, client, await deck.boundingBox(), -180, 2);
+    assert.equal(await count.innerText(), "1 / 3", "Touch cycles forward from last to first");
 
     const before = await page.evaluate(() => scrollY);
     await touchDrag(page, client, await deck.boundingBox(), 2, -120);

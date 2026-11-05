@@ -94,6 +94,61 @@ if (calendar) {
   pointer.addEventListener('change', hide);
   document.addEventListener('visibilitychange', hide);
 
+  const past = calendar.querySelector('[data-calendar-past]');
+  if (past) {
+    const summary = past.querySelector('summary');
+    const hashTarget = hash => document.getElementById(hash.slice(1));
+    const isPreviousTarget = target => target && past.contains(target) && target !== past;
+    function syncPastLanguageLinks() {
+      for (const link of document.querySelectorAll('[data-language-switch]')) {
+        const url = new URL(link.href);
+        if (past.open) url.searchParams.set('past', '1');
+        else url.searchParams.delete('past');
+        link.href = url.href;
+      }
+    }
+    function writePastState() {
+      const url = new URL(location.href);
+      if (past.open) url.searchParams.set('past', '1');
+      else {
+        url.searchParams.delete('past');
+        if (isPreviousTarget(hashTarget(url.hash))) url.hash = '#calendar-past';
+      }
+      if (url.href !== location.href) history.replaceState(history.state, '', url);
+      syncPastLanguageLinks();
+      hide();
+    }
+    function restorePastState({scroll = false} = {}) {
+      const target = hashTarget(location.hash);
+      const previousTarget = isPreviousTarget(target);
+      past.open = new URLSearchParams(location.search).get('past') === '1' || previousTarget;
+      if (!past.open && past.contains(document.activeElement)) summary.focus({preventScroll: true});
+      syncPastLanguageLinks();
+      if (scroll && previousTarget) requestAnimationFrame(() => target.scrollIntoView({block: 'start', behavior: 'instant'}));
+    }
+    past.addEventListener('toggle', writePastState);
+    past.querySelector('[data-calendar-past-close]').addEventListener('click', () => {
+      past.open = false;
+      writePastState();
+      summary.focus({preventScroll: true});
+      summary.scrollIntoView({block: 'start', behavior: 'instant'});
+    });
+    // Expand before the browser resolves a real fragment link into the archive.
+    document.addEventListener('click', event => {
+      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+      const link = event.target.closest('a[href]');
+      if (!link) return;
+      const url = new URL(link.href);
+      if (url.origin === location.origin && url.pathname === location.pathname && isPreviousTarget(hashTarget(url.hash))) {
+        past.open = true;
+        writePastState();
+      }
+    }, {capture: true});
+    window.addEventListener('hashchange', () => restorePastState({scroll: true}));
+    window.addEventListener('popstate', () => restorePastState({scroll: true}));
+    restorePastState({scroll: true});
+  }
+
   if ('IntersectionObserver' in window) {
     const near = new IntersectionObserver(entries => {
       if (!pointer.matches || !entries.some(entry => entry.isIntersecting)) return;

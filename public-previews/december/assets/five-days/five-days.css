@@ -142,3 +142,160 @@
 [data-five-days] .ride-film__duration .film-duration-part small {
   font: 450 var(--type-service)/var(--leading-service) var(--body);
 }
+
+/* Previous stages remain available as a compact chapter, so the current day
+   owns the first full calendar row. The numbers inside are still plan values. */
+[data-five-days] .calendar-past {
+  margin-bottom: var(--space-stack);
+  border-top: 1px solid var(--line-dark);
+  color: var(--text-editorial-muted);
+}
+[data-five-days] .calendar-past > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-stack);
+  min-block-size: 2.75rem;
+  padding-block: var(--space-pair);
+  cursor: pointer;
+  list-style: none;
+}
+[data-five-days] .calendar-past > summary::-webkit-details-marker { display: none; }
+[data-five-days] .calendar-past__label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-pair) var(--space-stack);
+  width: fit-content;
+  font: 450 var(--type-service)/var(--leading-service) var(--body);
+}
+[data-five-days] .calendar-past__label strong { font-weight: 600; }
+[data-five-days] .calendar-past > summary > .icon { width: 1em; height: 1em; flex: none; }
+[data-five-days] .calendar-past[open] > summary > .icon { rotate: 90deg; }
+[data-five-days] .calendar-past > summary:focus-visible { outline: none; }
+[data-five-days] .calendar-past > summary:focus-visible .calendar-past__label,
+[data-five-days] .calendar-past__close:focus-visible > span {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+[data-five-days] .calendar-past__columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, .8fr);
+  gap: var(--space-pair) var(--space-group);
+  padding-block: var(--space-pair);
+  font: 450 var(--type-service)/1.5 var(--body);
+}
+[data-five-days] .calendar-past .december-row {
+  padding-block: var(--space-pair);
+  row-gap: var(--space-pair);
+}
+[data-five-days] .calendar-past .december-row__event {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .25em var(--space-pair);
+}
+[data-five-days] .calendar-past .december-row__date { font: 600 var(--type-service)/1.4 var(--body); }
+[data-five-days] .calendar-past .december-row__type { margin: 0 !important; }
+[data-five-days] .calendar-past :is(.december-row__distance, .december-row__total) {
+  font: 450 var(--type-service)/1.4 var(--body);
+}
+[data-five-days] .calendar-past .december-row__number { translate: none; }
+[data-five-days] .calendar-past .december-row__unit { padding-left: .25em; font: inherit; }
+[data-five-days] .calendar-past .december-row__total > strong { font-weight: 450; }
+[data-five-days] .calendar-past .stage-link { margin-top: 0; font-size: var(--type-service); }
+[data-five-days] .calendar-past__close {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-pair);
+  min-block-size: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: 550 var(--type-service)/var(--leading-service) var(--body);
+  cursor: pointer;
+}
+[data-five-days] .calendar-past__close > span { text-decoration: underline; text-underline-offset: .22em; }
+[data-five-days] .calendar-past__close > .icon { width: 1em; height: 1em; flex: none; }
+[data-five-days] .calendar-past__close:focus-visible { outline: none; }
+@media (max-width: 640px) {
+  [data-five-days] .calendar-past__columns { display: none; }
+}
+:root.text-enlarged [data-five-days] .calendar-past__columns { display: none; }
+[data-five-days] .calendar-past__close { max-inline-size: 100%; }
+[data-five-days] .calendar-past__close > span { min-inline-size: 0; }
+
+/* Stage navigation shares a metadata row and the visible first title line.
+   The direct return uses the same reading role as the neighbouring stories. */
+[data-five-days] .episode-pager {
+  display: grid;
+  grid-template-rows: auto auto;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  align-items: start;
+  row-gap: var(--space-pair);
+}
+[data-five-days] .episode-pager > .episode-return {
+  grid-column: auto;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  align-self: stretch;
+  align-content: start;
+  min-inline-size: 0;
+  inline-size: fit-content;
+  column-gap: var(--space-stack);
+  row-gap: inherit;
+}
+[data-five-days] .episode-pager > .episode-return > span { grid-row: 1; }
+[data-five-days] .episode-pager > .episode-return > strong {
+  grid-row: 2;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+[data-five-days] .episode-pager > .episode-return > .icon {
+  grid-row: 2;
+  align-self: start;
+  font-size: var(--type-copy);
+}
+@supports (text-box: trim-start cap alphabetic) {
+  [data-five-days] .episode-pager > .episode-return > :is(span, strong) {
+    text-box: trim-start cap alphabetic;
+  }
+  [data-five-days] .episode-pager > .episode-return > .icon {
+    margin-block-start: calc((1cap - var(--reading-arrow-size)) / 2);
+  }
+}
+@media (max-width: 720px) {
+  [data-five-days] .episode-pager {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-auto-flow: row;
+    row-gap: var(--space-stack);
+  }
+  [data-five-days] .episode-pager > .episode-return {
+    grid-row: auto;
+    grid-template-rows: auto auto;
+    row-gap: var(--space-pair);
+  }
+  [data-five-days] .episode-pager > .episode-pager__today {
+    grid-template-rows: auto;
+  }
+  [data-five-days] .episode-pager > .episode-pager__today > :is(strong, .icon) {
+    grid-row: 1;
+  }
+}
+/* A one-line return keeps the family's touch target without moving its text. */
+[data-five-days] .episode-pager > .episode-return { min-block-size: 2.75rem; }
+/* Constrain the sticky photographs to the story row, before stage navigation.
+   The outer grid cell supplies that boundary; the existing photo group sticks. */
+@media (min-width: 961px) {
+  [data-five-days] .stage-episode__media {
+    position: static;
+    align-self: stretch;
+  }
+  [data-five-days] .stage-episode__media > .stage-photos {
+    position: sticky;
+    top: var(--space-group);
+  }
+}

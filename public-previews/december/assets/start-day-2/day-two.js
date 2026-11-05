@@ -134,13 +134,15 @@ if (photoFeedback) {
 }
 function showPhoto(index) {
   if (!modalGallery) return;
-  modalIndex = Math.max(0, Math.min(modalGallery.links.length - 1, index));
+  modalIndex = useStageDeck
+    ? ((index % modalGallery.links.length) + modalGallery.links.length) % modalGallery.links.length
+    : Math.max(0, Math.min(modalGallery.links.length - 1, index));
   const link = modalGallery.links[modalIndex];
   const image = lightbox.querySelector('[data-start-photo-full]');
   image.alt = link.querySelector('img').alt;
   lightbox.querySelector('[data-start-photo-position]').textContent = `${modalIndex + 1} / ${modalGallery.links.length}`;
-  lightbox.querySelector('[data-start-photo-prev]').disabled = modalIndex === 0;
-  lightbox.querySelector('[data-start-photo-next]').disabled = modalIndex === modalGallery.links.length - 1;
+  lightbox.querySelector('[data-start-photo-prev]').disabled = !useStageDeck && modalIndex === 0;
+  lightbox.querySelector('[data-start-photo-next]').disabled = !useStageDeck && modalIndex === modalGallery.links.length - 1;
   if (!useStageDeck) { image.src = link.href; return; }
 
   const request = ++photoRequest;
