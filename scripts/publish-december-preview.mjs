@@ -17,7 +17,21 @@ await mkdir(destination, { recursive: true });
 await cp(source, destination, { recursive: true });
 await buildFiveDays(destination);
 
+// The entry passes its version to dynamic imports. Its digest must therefore
+// include those children, otherwise a controller-only change reuses an old URL.
+const entry = path.join(destination, 'assets/start-day-2/day-two.js');
+const entryDependencies = [
+  path.join(destination, 'assets/start-day-2/stage-gallery.js'),
+  path.join(destination, 'december-1-saved/assets/dubai-light.js'),
+];
 const versions = new Map();
+async function resourceVersion(resource) {
+  const hash = createHash('sha256').update(await readFile(resource));
+  if (resource === entry) {
+    for (const dependency of entryDependencies) hash.update(await readFile(dependency));
+  }
+  return hash.digest('hex').slice(0, 10);
+}
 for (const page of pages) {
   const pageFile = path.join(destination, page);
   let html = await readFile(pageFile, 'utf8');
@@ -31,7 +45,7 @@ for (const page of pages) {
     if (resource !== destination && !resource.startsWith(`${destination}${path.sep}`)) throw new Error(`Preview escape: ${page}: ${href}`);
     await stat(resource);
     if (/\/assets\/(?:start-day|start-day-2|five-days)\/[^/]+\.(?:js|css)$/.test(resource)) {
-      if (!versions.has(resource)) versions.set(resource, createHash('sha256').update(await readFile(resource)).digest('hex').slice(0, 10));
+      if (!versions.has(resource)) versions.set(resource, await resourceVersion(resource));
       html = html.replaceAll(`"${href}"`, `"${href}?v=${versions.get(resource)}"`);
     }
   }

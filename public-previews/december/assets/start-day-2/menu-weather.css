@@ -10,30 +10,41 @@ body[data-five-days] .site-nav__status {
   align-self: start;
   max-inline-size: 20rem;
 }
-body[data-five-days] .site-nav__journey .site-nav__status-reading strong,
-body[data-five-days] .menu-weather__forecast-link > span {
+body[data-five-days] .site-nav__journey .site-nav__status-reading strong {
   text-box: trim-start cap alphabetic;
 }
 body[data-five-days] .menu-weather {
-  display: block;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
   align-self: start;
+  gap: .4rem var(--weather-column-gap);
   min-inline-size: 0;
 }
 body[data-five-days] .menu-weather[hidden] { display: none; }
 body[data-five-days] .menu-weather__forecast-link {
+  display: block;
+  flex: 0 1 auto;
   min-block-size: 2.75rem;
-  align-items: start;
 }
-body[data-five-days] .menu-weather__forecast-link > .icon {
-  align-self: start;
-  margin-block-start: .12em;
+body[data-five-days] .menu-weather__caption-tail { white-space: nowrap; }
+body[data-five-days] .menu-weather__caption-tail > .icon {
+  display: inline-block;
+  inline-size: var(--reading-arrow-size);
+  block-size: var(--reading-arrow-size);
+  margin-inline-start: .45em;
+  /* The centred SVG contour shares the cap-height centre of its own text. */
+  vertical-align: calc((1cap - var(--reading-arrow-size)) / 2);
 }
 body[data-five-days] .menu-weather__readings {
   display: flex;
+  flex: 0 1 auto;
+  min-inline-size: 0;
   flex-wrap: wrap;
   gap: .4rem var(--weather-column-gap);
   overflow: clip;
 }
+body[data-five-days] .menu-weather__readings > div { white-space: nowrap; }
 body[data-five-days] .menu-weather__readings[hidden] { display: none; }
 body[data-five-days] .menu-weather__state { margin-block-start: 0; }
 body[data-five-days] .site-header:not(:has(.nav-shell[open])) .menu-toggle:focus-visible {

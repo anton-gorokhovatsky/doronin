@@ -134,6 +134,19 @@ function initDubaiLight() {
   const root = document.documentElement;
   const navigation = document.querySelector('.nav-shell');
   const menuWeather = navigation?.querySelector('[data-menu-weather]');
+  const menuCaption = menuWeather?.querySelector('[data-menu-weather-time]');
+  const menuArrow = menuWeather?.querySelector('.menu-weather__forecast-link > .icon');
+  let menuCaptionText;
+  function paintMenuCaption(value) {
+    if (!menuCaption || menuCaptionText === value) return;
+    menuCaptionText = value;
+    if (!weatherOnly || !menuArrow) { menuCaption.textContent = value; return; }
+    const cut = value.lastIndexOf(' ') + 1;
+    const tail = document.createElement('span');
+    tail.className = 'menu-weather__caption-tail';
+    tail.append(value.slice(cut), menuArrow);
+    menuCaption.replaceChildren(document.createTextNode(value.slice(0, cut)), tail);
+  }
   const heroVideo = document.querySelector('[data-hero-video]');
   const syncAirMotion = () => root.style.setProperty('--dubai-air-play', !document.hidden && heroVideo && !heroVideo.paused ? 'running' : 'paused');
   heroVideo?.addEventListener('play', syncAirMotion);
@@ -343,9 +356,9 @@ function initDubaiLight() {
       const hasForecast = weather && weather.temperature !== null;
       const forecastClock = hasForecast ? dubaiClock(new Date(weather.timestamp)) : current;
       const place = weatherOnly ? `${words.city} · ${dateLabel(forecastClock.date)}` : words.city;
-      menuWeather.querySelector('[data-menu-weather-time]').textContent = hasForecast
+      paintMenuCaption(hasForecast
         ? `${place} · ${words.weather.toLowerCase()} ${clockFormat(forecastClock.minutes)}`
-        : place;
+        : place);
       menuWeather.querySelector('[data-menu-weather-readings]').hidden = !hasForecast;
       const state = menuWeather.querySelector('[data-menu-weather-state]');
       state.hidden = Boolean(hasForecast);

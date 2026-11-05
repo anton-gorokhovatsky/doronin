@@ -258,8 +258,94 @@
 [data-five-days] .december-row__total > strong { display: inline-flex; align-items: baseline; }
 [data-five-days] .december-row__total > strong > :first-child { text-align: start; }
 
-/* Highlight and rule belong to the same row; keep both on its real edges. */
-[data-five-days] .december-row--today::before { inset-inline: 0; }
+/* The date and Today badge identify the current day without decorating its row. */
+[data-five-days] .december-row--today::before { content: none; }
+
+/* The ordinary days support the five special rides. They use the reading
+   face and a quieter data rank; today's distance retains the display role. */
+[data-five-days] .december-row:not(.calendar-past__item) .december-row__date { font-weight: 500; }
+[data-five-days] .december-row--today .december-row__date { font-weight: 650; }
+[data-five-days] .december-row[data-calendar-kind="base"]:not(.december-row--today):not(.calendar-past__item) {
+  padding-block: var(--space-stack);
+  align-items: baseline;
+}
+[data-five-days] .december-row[data-calendar-kind="base"]:not(.december-row--today) .december-row__distance {
+  font: 500 var(--type-copy)/1.4 var(--body);
+}
+[data-five-days] .december-row:not(.december-row--today) .december-row__total {
+  color: var(--text-editorial-muted);
+}
+[data-five-days] .december-row__total > strong { font-weight: 450; }
+[data-five-days] .december-row__total > span { font-weight: 400; }
+[data-five-days] .december-row--today .december-row__total > strong { font-weight: 550; }
+
+/* The story belongs to its date, within the first cell, like the archive.
+   Its arrow and compact keyboard focus identify the whole reading action. */
+[data-five-days] .december-row__event > .stage-link {
+  display: block;
+  margin-top: var(--space-pair);
+  min-block-size: 2.75rem;
+  font: 500 var(--type-copy)/var(--leading-copy) var(--body);
+}
+[data-five-days] .december-row__event > .stage-link .stage-link__copy { text-decoration: none; }
+@media (hover: hover) and (pointer: fine) {
+  [data-five-days] .december-row__event > .stage-link:hover .stage-link__copy {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: .2em;
+  }
+}
+
+/* A shared unit belongs in the wide column heading. Keep it in every row's
+   accessible text, and restore it visibly when the table becomes a list. */
+@media (min-width: 721px) {
+  :root:not(.text-enlarged) [data-five-days] :is(.december-row__unit-measure, .december-row__total-unit, .december-row__total > span) {
+    display: inline;
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@media (max-width: 720px) {
+  [data-five-days] .december-calendar__columns { display: none; }
+  [data-five-days] .december-row { grid-template-columns: minmax(0, 1fr); }
+  [data-five-days] .december-row__total {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .3em;
+    font-size: var(--type-service);
+  }
+  [data-five-days] .december-row__total > span { display: inline; color: var(--text-editorial-muted); }
+  [data-five-days] .december-row--today .december-row__distance { margin-top: var(--space-pair); }
+}
+:root.text-enlarged [data-five-days] .december-calendar__columns { display: none; }
+:root.text-enlarged [data-five-days] .december-row__total {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3em;
+  font-size: var(--type-service);
+}
+:root.text-enlarged [data-five-days] .december-row__total > span { display: inline; color: var(--text-editorial-muted); }
+
+/* The final date is one event, outside the calendar's distance comparison. */
+[data-five-days] .december-row[data-calendar-kind="finish"] .december-row__event {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  gap: var(--space-pair) var(--space-stack);
+}
+[data-five-days] .december-row[data-calendar-kind="finish"] .december-row__event > p { margin: 0 !important; }
+[data-five-days] .december-row[data-calendar-kind="finish"] .december-row__date { display: block; }
+@supports (text-box: trim-start cap alphabetic) {
+  [data-five-days] .december-row[data-calendar-kind="finish"] .december-row__event > p {
+    text-box: trim-start cap alphabetic;
+  }
+}
 
 /* Stage navigation shares a metadata row and the visible first title line.
    The direct return uses the same reading role as the neighbouring stories. */

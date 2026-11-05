@@ -103,7 +103,7 @@ function calendarPastLink(day, plan, lang) {
   const {date, segment, amount, cumulative, id} = calendarValues(day, plan);
   return `<a class="december-row december-row--past calendar-past__item" id="${id}" href="#life-story-${pad(day.day)}" data-calendar-start="${date}" data-calendar-end="${date}" data-calendar-kind="${segment.kind}" data-calendar-preview="${esc(day.preview.source)}" data-calendar-preview-position="${esc(day.preview.position)}">
     <span class="calendar-past__identity"><span class="calendar-past__story">${calendarPastStory(day.title)}</span><span class="calendar-past__date"><time datetime="${date}">${day.date}</time><span>${day.type}</span></span></span>
-    <span class="calendar-past__metrics"><span>${en ? 'Planned' : 'План'} ${amount} ${km}</span><span>${en ? 'By this date' : 'К этой дате'} ${cumulative} ${km}</span></span>
+    <span class="calendar-past__metrics"><span>${en ? 'Planned' : 'План'} ${amount} ${km}</span><span>${en ? 'Planned total' : 'Всего по плану'} ${cumulative} ${km}</span></span>
   </a>`;
 }
 function calendarRow(day, plan, lang, latestDay) {
@@ -111,13 +111,42 @@ function calendarRow(day, plan, lang, latestDay) {
   const en = lang === 'en';
   const km = en ? 'km' : 'км';
   const state = today ? ' december-row--today' : day.day < latestDay ? ' december-row--past' : '';
-  const {date, segment, amount, cumulative, id} = calendarValues(day, plan);
-  return `<article class="december-row${state}" id="${id}" data-calendar-start="${date}" data-calendar-end="${date}" data-calendar-kind="${segment.kind}"${day.preview ? ` data-calendar-preview="${esc(day.preview.source)}" data-calendar-preview-position="${esc(day.preview.position)}"` : ''}${today ? ' aria-current="step"' : ''}>
-    <div class="december-row__event"><p class="december-row__date"><time datetime="${date}">${day.date}</time>${today ? `<span class="december-row__today" data-calendar-today>${en?'Today':'Сегодня'}</span>` : ''}</p><p class="december-row__type">${day.type}</p></div>
-    <p class="december-row__distance"><span class="december-row__number" data-optical-start data-optical-ink>${amount}</span><span class="december-row__unit">${km}</span></p>
-    <p class="december-row__total"><span>${en ? 'By ' : 'К '}${day.date} —</span><strong><span>${cumulative}</span><span> ${km}</span></strong></p>
-    ${day.title ? calendarLink(day.day, day.title) : ''}
+  const values = calendarValues(day, plan);
+  const {date, segment, amount, cumulative, id} = {...values, ...day.values};
+  const dateEnd = day.endDate || date;
+  const format = value => value < 10000 ? String(value) : String(value).replace(/\B(?=(\d{3})+(?!\d))/g, en ? ',' : ' ');
+  const description = segment.kind === 'finish' ? (en ? 'Project finish' : 'Финиш проекта')
+    : segment.kind === 'special' ? (dateEnd !== date ? (en ? 'Continuous ride' : 'Непрерывный заезд') : (en ? 'Special stage' : 'Специальный этап')) : '';
+  const event = `<div class="december-row__event"><p class="december-row__date"><time datetime="${date}">${day.date}</time>${today ? `<span class="december-row__today" data-calendar-today>${en?'Today':'Сегодня'}</span>` : ''}</p>${description ? `<p class="december-row__type">${description}</p>` : ''}${day.title ? calendarLink(day.day, day.title) : ''}${segment.kind === 'finish' ? `<p class="december-row__note">${en ? 'Recording the final result' : 'Фиксация результата'}</p>` : ''}</div>`;
+  return `<article class="december-row${state}" id="${id}" data-calendar-start="${date}" data-calendar-end="${dateEnd}" data-calendar-kind="${segment.kind}"${day.preview ? ` data-calendar-preview="${esc(day.preview.source)}" data-calendar-preview-position="${esc(day.preview.position)}"` : ''}${today ? ' aria-current="step"' : ''}>
+    ${event}
+    ${segment.kind === 'finish' ? '' : `<p class="december-row__distance"><span class="december-row__number" data-optical-start data-optical-ink>${format(amount)}</span><span class="december-row__unit"><span class="december-row__unit-measure">${km}</span>${segment.kind === 'base' && dateEnd !== date ? ` <span>${en ? 'per day' : 'в день'}</span>` : ''}</span></p>
+    <p class="december-row__total"><span>${en ? 'Planned total' : 'Всего по плану'}</span><strong><span>${format(cumulative)}</span><span class="december-row__total-unit"> ${km}</span></strong></p>`}
   </article>`;
+}
+
+// The rehearsal changes the calendar's current date, not the plan. Render the
+// remaining rows from the same canonical segments, clipping only the base
+// block which contains today. A two-date continuous ride remains one row.
+function remainingCalendarRows(latest, plan, lang) {
+  const today = iso(latest.day);
+  let cumulative = 0;
+  const rows = [calendarRow(latest, plan, lang, latest.day)];
+  for (const [index, segment] of plan.segments.entries()) {
+    cumulative += segment.totalDistanceKm;
+    if (segment.endDate <= today) continue;
+    if (segment.startDate <= today && segment.kind !== 'base') throw new Error('A continuous ride cannot be split into daily calendar rows.');
+    const firstDay = segment.startDate <= today ? latest.day + 1 : Number(segment.startDate.slice(-2));
+    const lastDay = Number(segment.endDate.slice(-2));
+    const en = lang === 'en';
+    const range = firstDay === lastDay ? String(firstDay) : `${firstDay}–${lastDay}`;
+    const date = en ? `December ${range}` : `${range} декабря`;
+    rows.push(calendarRow({day: firstDay, date, endDate: segment.endDate,
+      values: {date: iso(firstDay), segment, amount: segment.dailyDistanceKm || segment.totalDistanceKm,
+        cumulative, id: segment.startDate <= today ? `calendar-day-${pad(firstDay)}` : `calendar-segment-${pad(index + 1)}`}},
+    plan, lang, latest.day));
+  }
+  return rows.join('\n');
 }
 
 function sectionEnd(html, start) {
@@ -165,7 +194,7 @@ export async function buildFiveDays(directory) {
       })),
       ...stories.map(s => ({day: s.day, ...s[lang], photos: media.find(m => m.day === s.day)?.items})),
     ].map(day => ({...day, date: dateLabel(day.day), type: day.day === 1
-      ? (en ? 'Special stage' : 'Специальный этап') : (en ? 'Base stage' : 'Базовый этап')}))
+      ? (en ? 'Special stage' : 'Специальный этап') : (en ? 'Base day' : 'Базовый день')}))
       .map(day => ({...day, preview: calendarPreview(day, media, base)}));
     const latest = days.at(-1);
     if (days.some(d => !d.old && !d.photos?.length)) throw new Error('Every published stage needs its own photographs.');
@@ -223,10 +252,9 @@ export async function buildFiveDays(directory) {
     html = html.replace(/(<strong\b[^>]*\bdata-film-total\b[^>]*>)(\d+):(\d+)(<\/strong>)/,
       (_, opening, hours, minutes, closing) => `${opening}${hours}:${minutes}${closing}<span class="film-duration-parts"><span class="film-duration-part"><b data-optical-start>${hours}</b><small>${en ? 'hr' : 'ч'}</small></span><span class="film-duration-part"><b data-optical-start>${minutes}</b><small>${en ? 'min' : 'мин'}</small></span></span>`);
     html = advancePeaks(html, latest.day, todayLabel);
-    const tomorrow = {day: 6, date: dateLabel(6), type: latest.type};
     const previousDays = days.filter(day => day.day < latest.day);
     const pastRows = previousDays.map(day => calendarPastLink(day, plan, lang)).join('\n');
-    const rows = [days.at(-1), tomorrow].map(day => calendarRow(day, plan, lang, latest.day)).join('\n');
+    const rows = remainingCalendarRows(latest, plan, lang);
     const columns = html.match(/<div class="december-calendar__columns"[^>]*>[\s\S]*?<\/div>/)?.[0];
     if (!columns) throw new Error('Missing calendar column labels.');
     const previousRange = en ? `December ${previousDays[0].day}–${previousDays.at(-1).day}`
@@ -235,9 +263,13 @@ export async function buildFiveDays(directory) {
       <summary><span class="calendar-past__label"><span class="calendar-past__command"><span class="calendar-past__action--closed">${en ? 'Show previous ' : 'Показать предыдущие '}</span><span class="calendar-past__action--open">${en ? 'Hide previous ' : 'Скрыть предыдущие '}</span><span class="calendar-past__tail">${en ? 'stages' : 'этапы'}${arrow('right')}</span></span><span class="calendar-past__range">${previousRange}</span></span></summary>
       <div class="calendar-past__rows">${pastRows}</div>
     </details>`;
-    html = html.replace(/<span class="december-row__number">/g, '<span class="december-row__number" data-optical-start data-optical-ink>');
-    html = html.replace(/<article class="december-row december-row--past"[^>]*id="calendar-segment-01"[\s\S]*?<\/article>\s*<article[^>]*id="calendar-segment-02"[\s\S]*?<\/article>/, rows);
-    html = html.replace(columns, previous + columns);
+    const calendarStart = html.lastIndexOf('<section', html.indexOf('id="distance"'));
+    const columnStart = html.indexOf(columns, calendarStart);
+    const calendarEnd = sectionEnd(html, calendarStart) - '</section>'.length;
+    const headings = `<div class="december-calendar__columns" aria-hidden="true"><span>${en ? 'Date and stage' : 'Дата и этап'}</span><span>${en ? 'Distance, km' : 'Дистанция, км'}</span><span>${en ? 'Planned total, km' : 'План к этой дате, км'}</span></div>`;
+    html = html.slice(0, columnStart) + previous + headings + rows + '\n' + html.slice(calendarEnd);
+    html = html.replace(/(<header class="december-calendar__heading">)[\s\S]*?<\/header>/,
+      header => header.replaceAll('базовые этапы', 'базовые дни').replaceAll('base stages', 'base days').replaceAll('Base stages', 'Base days'));
     if (!html.includes('id="calendar-day-05"') || !html.includes('href="#race-day-05"')) throw new Error('Missing current stage');
     html = restoreCourseWeather(html, lang);
     const statusStart = html.indexOf('<div class="site-nav__status"');
