@@ -25,6 +25,29 @@ export function createStageDeck({ strip, links, prev, next, count, reduced }) {
   let suppressClickUntil = 0;
   let selected = -1;
 
+  // The series stays visible while the large photograph is being considered.
+  // These are the same frames and the same selection, not a second gallery.
+  const series = document.createElement('div');
+  series.className = 'stage-deck__series';
+  series.setAttribute('role', 'group');
+  const english = document.documentElement.lang === 'en';
+  series.setAttribute('aria-label', english ? 'Choose a photograph' : 'Выбрать снимок');
+  const thumbnails = links.map((link, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.setAttribute('aria-label', english
+      ? `Photograph ${index + 1} of ${links.length}` : `Снимок ${index + 1} из ${links.length}`);
+    const image = link.querySelector('img').cloneNode(false);
+    image.alt = '';
+    image.loading = 'lazy';
+    image.draggable = false;
+    button.append(image);
+    button.addEventListener('click', event => go(phaseForIndex(index), { instant: event.detail === 0 }));
+    series.append(button);
+    return button;
+  });
+  (strip.parentElement.querySelector('.start-photo-controls') || strip).after(series);
+
   function ease(progress) {
     if (curve.length !== 4) return progress;
     const sample = (a, b, t) => 3 * (1 - t) ** 2 * t * a + 3 * (1 - t) * t ** 2 * b + t ** 3;
@@ -48,6 +71,7 @@ export function createStageDeck({ strip, links, prev, next, count, reduced }) {
       link.tabIndex = current ? 0 : -1;
       link.setAttribute('aria-hidden', String(!current));
       link.dataset.current = String(current);
+      thumbnails[i].setAttribute('aria-pressed', String(current));
     }
   }
   function paint(value) {
@@ -112,7 +136,9 @@ export function createStageDeck({ strip, links, prev, next, count, reduced }) {
   function paintPointer() {
     pointerFrame = 0;
     if (!pointer || gesture || reduced()) return;
-    phase = pointer.phase + (pointer.lastX - pointer.x) / bounds.width * links.length;
+    // Browse at the photograph's own scale. Crossing the column moves about
+    // one frame, so ordinary inspection does not wind through the whole set.
+    phase = pointer.phase + (pointer.lastX - pointer.x) / stride;
     targetPhase = phase;
     select(phase);
     paint(phase);
@@ -184,6 +210,8 @@ export function createStageDeck({ strip, links, prev, next, count, reduced }) {
   }
   strip.addEventListener('pointerdown', event => {
     if (!event.isPrimary || event.button !== 0) return;
+    // A new press is a new instruction, not the click emitted by the last drag.
+    suppressClickUntil = 0;
     clearPointer();
     measure();
     gesture = { pointerId: event.pointerId, x: event.clientX, y: event.clientY,
@@ -217,7 +245,7 @@ export function createStageDeck({ strip, links, prev, next, count, reduced }) {
   });
   strip.addEventListener('dragstart', event => event.preventDefault());
   strip.addEventListener('click', event => {
-    if (performance.now() < suppressClickUntil) {
+    if (event.detail !== 0 && performance.now() < suppressClickUntil) {
       event.preventDefault(); event.stopImmediatePropagation();
     }
   }, true);
@@ -232,6 +260,12 @@ export function createStageDeck({ strip, links, prev, next, count, reduced }) {
   };
   window.addEventListener('scroll', stopBrowsing, { passive: true });
   window.addEventListener('blur', stopBrowsing);
+  state.select = (index, { instant = true } = {}) => go(phaseForIndex(index), { instant });
+  state.focusCurrent = () => {
+    const thumbnail = thumbnails[state.index];
+    thumbnail.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' });
+    thumbnail.focus({ preventScroll: true });
+  };
   state.restore = () => { gesture = null; measure(); go(Math.round(targetPhase), { instant: true }); };
   for (const link of links) {
     link.draggable = false;

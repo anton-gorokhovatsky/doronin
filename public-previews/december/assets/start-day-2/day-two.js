@@ -117,6 +117,9 @@ const lightbox = document.querySelector('[data-start-lightbox]');
 let modalGallery;
 let modalIndex = 0;
 let modalOpener;
+function currentPhotoIndex() {
+  return useStageDeck && modalGallery ? modalGallery.index : modalIndex;
+}
 
 let photoRequest = 0;
 const photoFeedback = useStageDeck ? document.createElement('div') : null;
@@ -130,21 +133,25 @@ if (photoFeedback) {
   photoRetry = document.createElement('button');
   photoRetry.type = 'button';
   photoRetry.textContent = document.documentElement.lang === 'en' ? 'Retry loading' : 'Повторить загрузку';
-  photoRetry.addEventListener('click', () => showPhoto(modalIndex));
+  photoRetry.addEventListener('click', () => showPhoto(currentPhotoIndex()));
   photoFeedback.append(photoStatus, photoRetry);
   lightbox.append(photoFeedback);
 }
 function showPhoto(index) {
   if (!modalGallery) return;
-  modalIndex = useStageDeck
-    ? ((index % modalGallery.links.length) + modalGallery.links.length) % modalGallery.links.length
-    : Math.max(0, Math.min(modalGallery.links.length - 1, index));
-  const link = modalGallery.links[modalIndex];
+  if (useStageDeck) {
+    const selected = ((index % modalGallery.links.length) + modalGallery.links.length) % modalGallery.links.length;
+    modalGallery.select(selected, { instant: true });
+  } else {
+    modalIndex = Math.max(0, Math.min(modalGallery.links.length - 1, index));
+  }
+  const selected = currentPhotoIndex();
+  const link = modalGallery.links[selected];
   const image = lightbox.querySelector('[data-start-photo-full]');
   image.alt = link.querySelector('img').alt;
-  lightbox.querySelector('[data-start-photo-position]').textContent = `${modalIndex + 1} / ${modalGallery.links.length}`;
-  lightbox.querySelector('[data-start-photo-prev]').disabled = !useStageDeck && modalIndex === 0;
-  lightbox.querySelector('[data-start-photo-next]').disabled = !useStageDeck && modalIndex === modalGallery.links.length - 1;
+  lightbox.querySelector('[data-start-photo-position]').textContent = `${selected + 1} / ${modalGallery.links.length}`;
+  lightbox.querySelector('[data-start-photo-prev]').disabled = !useStageDeck && selected === 0;
+  lightbox.querySelector('[data-start-photo-next]').disabled = !useStageDeck && selected === modalGallery.links.length - 1;
   if (!useStageDeck) { image.src = link.href; return; }
 
   const request = ++photoRequest;
@@ -229,18 +236,19 @@ for (const panel of episodePanels) {
   });
   if (!useStageDeck) update();
 }
-lightbox.querySelector('[data-start-photo-prev]').addEventListener('click', () => showPhoto(modalIndex - 1));
-lightbox.querySelector('[data-start-photo-next]').addEventListener('click', () => showPhoto(modalIndex + 1));
+lightbox.querySelector('[data-start-photo-prev]').addEventListener('click', () => showPhoto(currentPhotoIndex() - 1));
+lightbox.querySelector('[data-start-photo-next]').addEventListener('click', () => showPhoto(currentPhotoIndex() + 1));
 lightbox.querySelector('[data-start-photo-close]').addEventListener('click', () => lightbox.close());
 lightbox.addEventListener('close', () => {
   photoRequest += 1;
   if (photoFeedback) photoFeedback.hidden = true;
   document.documentElement.classList.remove('stage-photo-open');
-  modalOpener?.focus({preventScroll:true});
+  if (useStageDeck) modalGallery?.focusCurrent();
+  else modalOpener?.focus({preventScroll:true});
 });
 lightbox.addEventListener('keydown', event => {
   if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-    event.preventDefault(); showPhoto(modalIndex + (event.key === 'ArrowRight' ? 1 : -1));
+    event.preventDefault(); showPhoto(currentPhotoIndex() + (event.key === 'ArrowRight' ? 1 : -1));
   }
 });
 let touchStart;
@@ -248,7 +256,7 @@ lightbox.addEventListener('touchstart', event => { const p = event.touches[0]; t
 lightbox.addEventListener('touchend', event => {
   if (!touchStart) return;
   const p = event.changedTouches[0], dx = p.clientX - touchStart.x, dy = p.clientY - touchStart.y;
-  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) showPhoto(modalIndex + (dx < 0 ? 1 : -1));
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) showPhoto(currentPhotoIndex() + (dx < 0 ? 1 : -1));
   touchStart = null;
 }, {passive:true});
 

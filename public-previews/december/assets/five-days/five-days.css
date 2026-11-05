@@ -336,16 +336,11 @@
   grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
-  align-items: start;
+  align-items: baseline;
   gap: var(--space-pair) var(--space-stack);
 }
 [data-five-days] .december-row[data-calendar-kind="finish"] .december-row__event > p { margin: 0 !important; }
 [data-five-days] .december-row[data-calendar-kind="finish"] .december-row__date { display: block; }
-@supports (text-box: trim-start cap alphabetic) {
-  [data-five-days] .december-row[data-calendar-kind="finish"] .december-row__event > p {
-    text-box: trim-start cap alphabetic;
-  }
-}
 
 /* Stage navigation shares a metadata row and the visible first title line.
    The direct return uses the same reading role as the neighbouring stories. */

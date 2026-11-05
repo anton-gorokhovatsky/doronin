@@ -22,19 +22,10 @@ body[data-five-days] .menu-weather {
   min-inline-size: 0;
 }
 body[data-five-days] .menu-weather[hidden] { display: none; }
-body[data-five-days] .menu-weather__forecast-link {
-  display: block;
+body[data-five-days] .menu-weather__caption {
   flex: 0 1 auto;
-  min-block-size: 2.75rem;
-}
-body[data-five-days] .menu-weather__caption-tail { white-space: nowrap; }
-body[data-five-days] .menu-weather__caption-tail > .icon {
-  display: inline-block;
-  inline-size: var(--reading-arrow-size);
-  block-size: var(--reading-arrow-size);
-  margin-inline-start: .45em;
-  /* The centred SVG contour shares the cap-height centre of its own text. */
-  vertical-align: calc((1cap - var(--reading-arrow-size)) / 2);
+  margin: 0;
+  color: var(--paper-dim);
 }
 body[data-five-days] .menu-weather__readings {
   display: flex;
@@ -52,15 +43,17 @@ body[data-five-days] .site-header:not(:has(.nav-shell[open])) .menu-toggle:focus
   transition: none;
 }
 
-/* The current forecast is part of the course calendar, independent of its date. */
+/* One current forecast lives directly in the menu, independent of the rehearsal date. */
 body[data-five-days] #dubai-light[data-weather-only]:not([hidden]) {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-stack);
-  margin: var(--space-heading) 0 0;
-  color: var(--text-editorial);
+  gap: var(--space-pair);
+  flex: 1 1 100%;
+  min-inline-size: 0;
+  margin: var(--space-pair) 0 0;
+  color: var(--paper);
 }
-body[data-five-days] [data-weather-only] > .dubai-light__intro { grid-column: 1; }
+body[data-five-days] [data-weather-only] > .dubai-light__intro { display: none; }
 body[data-five-days] [data-weather-only] :is(#dubai-hint, .dubai-light__modes, .dubai-light__controls) {
   display: none;
 }
@@ -70,10 +63,53 @@ body[data-five-days] [data-weather-only] .dubai-forecast {
   border: 0;
 }
 body[data-five-days] [data-weather-only] .dubai-forecast :is(.dubai-forecast__heading p, .dubai-forecast__source, .dubai-forecast__state, .dubai-forecast__day, .dubai-forecast__metrics dt) {
-  color: var(--text-editorial-muted);
+  color: var(--paper-dim);
 }
 body[data-five-days] [data-weather-only] .dubai-forecast__list[aria-hidden="true"] {
   display: none;
+}
+/* One service summary: its place and scope lead to three comparable readings. */
+body[data-five-days] [data-weather-only] .dubai-forecast__heading {
+  gap: var(--space-pair) var(--space-stack);
+  margin-bottom: var(--space-pair);
+}
+body[data-five-days] [data-weather-only] .dubai-forecast__heading h4 {
+  color: var(--paper-dim);
+  font-size: var(--type-copy);
+  font-weight: 600;
+}
+body[data-five-days] [data-weather-only] .dubai-forecast__period { gap: var(--space-pair); }
+body[data-five-days] [data-weather-only] .dubai-forecast__reading {
+  grid-template-columns: max-content max-content;
+  align-items: baseline;
+  column-gap: var(--space-pair);
+}
+body[data-five-days] [data-weather-only] .dubai-forecast__temperature {
+  grid-column: 2;
+  grid-row: 1;
+  margin-top: 0;
+}
+body[data-five-days] [data-weather-only] .dubai-forecast__day {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+body[data-five-days] [data-weather-only] .dubai-forecast__source {
+  display: grid;
+  margin-top: var(--space-pair);
+}
+body[data-five-days] [data-weather-only] .dubai-forecast__source > .dubai-forecast__reserve { display: none; }
+body[data-five-days] [data-weather-only] .dubai-forecast__source:has([data-dubai-source-link][hidden]) { display: none; }
+
+/* The complete service remains reachable inside the native menu at every size. */
+:root body[data-five-days] .nav-shell[open] .site-nav {
+  grid-template-rows: auto auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+@media (min-width: 961px) {
+  body[data-five-days] .site-nav__chapters { min-block-size: min-content; }
+  body[data-five-days] .site-nav__navigation { overflow: visible; }
 }
 @media (max-width: 960px) {
   body[data-five-days] .site-nav__journey {
@@ -85,12 +121,12 @@ body[data-five-days] [data-weather-only] .dubai-forecast__list[aria-hidden="true
 :root.text-enlarged body[data-five-days] .site-nav__journey {
   grid-template-columns: minmax(0, 1fr);
 }
-/* The source now belongs to an editorial surface, in either theme. */
+/* The source belongs to the same dark menu surface in either page theme. */
 body[data-five-days] [data-weather-only] .dubai-forecast__source a {
-  color: var(--text-editorial);
+  color: var(--paper);
 }
 body[data-five-days] [data-weather-only] .dubai-forecast__source a:is(:hover, :focus-visible) {
-  color: var(--text-editorial);
+  color: var(--paper);
   text-decoration-color: currentColor;
 }
 

@@ -59,7 +59,14 @@ async function checkFullPhoto(page, deck) {
   assert.equal(await dialog.locator("[data-start-photo-position]").innerText(), "3 / 3", "The full viewer also cycles backward");
   await page.keyboard.press("Escape");
   assert.equal(await dialog.evaluate(element => element.open), false);
-  assert.equal(await photo.evaluate(element => element === document.activeElement), true);
+  assert.equal(await deck.getAttribute('data-photo-index'), '2', 'Closing keeps the last photograph selected in the full viewer');
+  const selectedThumbnail = deck.locator('..').locator('.stage-deck__series button[aria-pressed="true"]');
+  assert.equal(await selectedThumbnail.evaluate(element => element === document.activeElement), true,
+    'Focus returns to the selected photograph in the visible series');
+  assert.equal(await selectedThumbnail.evaluate(element => {
+    const rect = element.getBoundingClientRect();
+    return rect.top >= 0 && rect.bottom <= innerHeight;
+  }), true, 'The returned keyboard focus is inside the viewport');
 }
 
 async function assertSelectedPhotograph(page, deck, output, name) {

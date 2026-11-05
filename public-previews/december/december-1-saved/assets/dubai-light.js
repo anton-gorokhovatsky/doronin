@@ -161,6 +161,7 @@ function initDubaiLight() {
     loading: 'Солнечный свет · уточняем погоду', fallback: 'Солнечный свет · погода недоступна',
     weather: 'Прогноз на', sunrise: 'Восход', sunsetLabel: 'Закат',
     forecastLoading: 'Уточняем прогноз', forecastUnavailable: 'Прогноз недоступен', windUnit: 'м/с',
+    currentUnavailable: 'Нет данных на текущий час',
     heat: 'Жара',
     today: 'Сегодня', tomorrow: 'Завтра', updated: 'Обновлён',
     outlookMissing: 'Нет прогноза', outlookLoading: 'Уточняем прогноз на ближайшие часы',
@@ -174,6 +175,7 @@ function initDubaiLight() {
     loading: 'Sunlight · checking the weather', fallback: 'Sunlight · weather unavailable',
     weather: 'Forecast for', sunrise: 'Sunrise', sunsetLabel: 'Sunset',
     forecastLoading: 'Checking the forecast', forecastUnavailable: 'Forecast unavailable', windUnit: 'm/s',
+    currentUnavailable: 'No data for the current hour',
     heat: 'Heat',
     today: 'Today', tomorrow: 'Tomorrow', updated: 'Updated',
     outlookMissing: 'Unavailable', outlookLoading: 'Checking the next few hours',
@@ -362,7 +364,7 @@ function initDubaiLight() {
       menuWeather.querySelector('[data-menu-weather-readings]').hidden = !hasForecast;
       const state = menuWeather.querySelector('[data-menu-weather-state]');
       state.hidden = Boolean(hasForecast);
-      state.textContent = requestInFlight ? words.forecastLoading : words.forecastUnavailable;
+      state.textContent = requestInFlight ? words.forecastLoading : weatherOnly ? words.currentUnavailable : words.forecastUnavailable;
       if (hasForecast) {
         menuWeather.querySelector('[data-menu-weather-air]').textContent = temperatureFormat(weather.temperature);
         const heatLabel = menuWeather.querySelector('[data-menu-weather-heat]');

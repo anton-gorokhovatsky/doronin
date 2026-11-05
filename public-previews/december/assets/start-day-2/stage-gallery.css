@@ -46,6 +46,53 @@
 }
 :root[data-reduce-motion="true"] [data-five-days] .stage-deck { cursor: grab; }
 
+/* The large frame and a quiet contact strip belong to one photographic series. */
+[data-five-days] .stage-deck .start-photos__open[data-current="true"] { cursor: zoom-in; }
+[data-five-days] .stage-deck.is-dragging .start-photos__open { cursor: grabbing; }
+[data-five-days] .stage-deck__series {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-pair);
+  margin-block: var(--space-stack);
+  padding-block-end: var(--space-pair);
+}
+[data-five-days] .stage-deck__series > button {
+  position: relative;
+  display: block;
+  min-inline-size: 0;
+  min-block-size: 44px;
+  scroll-margin-block: var(--space-pair);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+[data-five-days] .stage-deck__series img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  filter: none;
+}
+[data-five-days] .stage-deck__series > button::after {
+  position: absolute;
+  inset-block-end: calc(-1 * var(--space-pair));
+  inset-inline-start: 0;
+  inline-size: var(--space-stack);
+  block-size: 2px;
+  background: transparent;
+  content: '';
+}
+[data-five-days] .stage-deck__series > button[aria-pressed="true"]::after { background: var(--acid); }
+[data-five-days] .stage-deck__series > button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
 /* A delayed original never leaves another photograph under the new counter. */
 [data-five-days] .start-lightbox > [data-start-photo-full] { grid-area: 2 / 1; }
 [data-five-days] .start-lightbox__feedback {

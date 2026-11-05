@@ -111,19 +111,72 @@ if (calendar) {
   const past = calendar.querySelector('[data-calendar-past]');
   if (past) {
     const summary = past.querySelector('summary');
+    let expanded = past.open;
+    let disclosureMotion = null;
+    let motionRevision = 0;
+    const noMotion = () => motion.matches || document.documentElement.dataset.reduceMotion === 'true';
+    const setDisclosureLabels = () => {
+      summary.querySelector('.calendar-past__action--closed').style.display = expanded ? 'none' : 'inline';
+      summary.querySelector('.calendar-past__action--open').style.display = expanded ? 'inline' : 'none';
+      summary.querySelector('.icon').style.rotate = expanded ? '90deg' : '0deg';
+      summary.setAttribute('aria-expanded', String(expanded));
+    };
+    function settleDisclosure(open = expanded) {
+      ++motionRevision;
+      disclosureMotion?.cancel();
+      disclosureMotion = null;
+      expanded = open;
+      past.open = open;
+      past.style.removeProperty('height');
+      past.style.removeProperty('overflow');
+      for (const label of summary.querySelectorAll('.calendar-past__action--closed, .calendar-past__action--open')) label.style.removeProperty('display');
+      summary.querySelector('.icon').style.removeProperty('rotate');
+      summary.removeAttribute('aria-expanded');
+      past.querySelector('.calendar-past__rows').inert = !open;
+    }
+    function setDisclosure(open, animate = false) {
+      const from = past.getBoundingClientRect().height;
+      const revision = ++motionRevision;
+      disclosureMotion?.cancel();
+      disclosureMotion = null;
+      expanded = open;
+      if (!animate || noMotion() || typeof past.animate !== 'function') {
+        settleDisclosure(open);
+        writePastState();
+        return;
+      }
+      // A closing native details remains open only while its measured box
+      // contracts. Intent owns the label, URL and focus during that interval.
+      past.open = true;
+      past.style.removeProperty('height');
+      const to = open ? past.getBoundingClientRect().height : summary.getBoundingClientRect().height;
+      past.style.height = `${from}px`;
+      past.style.overflow = 'clip';
+      past.querySelector('.calendar-past__rows').inert = !open;
+      setDisclosureLabels();
+      writePastState();
+      const style = getComputedStyle(past);
+      const duration = Number.parseFloat(style.getPropertyValue('--duration-feedback')) || 180;
+      const easing = style.getPropertyValue('--ease-move').trim() || 'ease-in-out';
+      disclosureMotion = past.animate([{height: `${from}px`}, {height: `${to}px`}], {duration, easing, fill: 'forwards'});
+      disclosureMotion.finished.then(() => {
+        if (revision !== motionRevision) return;
+        settleDisclosure(open);
+      }).catch(() => {});
+    }
     const hashTarget = hash => document.getElementById(hash.slice(1));
     const isPreviousTarget = target => target && past.contains(target) && target !== past;
     function syncPastLanguageLinks() {
       for (const link of document.querySelectorAll('[data-language-switch]')) {
         const url = new URL(link.href);
-        if (past.open) url.searchParams.set('past', '1');
+        if (expanded) url.searchParams.set('past', '1');
         else url.searchParams.delete('past');
         link.href = url.href;
       }
     }
     function writePastState() {
       const url = new URL(location.href);
-      if (past.open) url.searchParams.set('past', '1');
+      if (expanded) url.searchParams.set('past', '1');
       else {
         if (past.contains(document.activeElement) && document.activeElement !== summary) summary.focus({preventScroll: true});
         url.searchParams.delete('past');
@@ -136,12 +189,29 @@ if (calendar) {
     function restorePastState({scroll = false} = {}) {
       const target = hashTarget(location.hash);
       const previousTarget = isPreviousTarget(target);
-      past.open = new URLSearchParams(location.search).get('past') === '1' || previousTarget;
-      if (!past.open && past.contains(document.activeElement)) summary.focus({preventScroll: true});
+      settleDisclosure(new URLSearchParams(location.search).get('past') === '1' || previousTarget);
+      if (!expanded && past.contains(document.activeElement)) summary.focus({preventScroll: true});
       syncPastLanguageLinks();
       if (scroll && previousTarget) requestAnimationFrame(() => target.scrollIntoView({block: 'start', behavior: 'instant'}));
     }
-    past.addEventListener('toggle', writePastState);
+    past.addEventListener('toggle', () => {
+      if (disclosureMotion) return;
+      expanded = past.open;
+      past.querySelector('.calendar-past__rows').inert = !expanded;
+      writePastState();
+    });
+    summary.addEventListener('click', event => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      setDisclosure(!expanded, event.detail > 0);
+    });
+    past.addEventListener('focusin', event => {
+      if (disclosureMotion && expanded && event.target !== summary) settleDisclosure(true);
+    });
+    const settleForReducedMotion = () => { if (disclosureMotion && noMotion()) settleDisclosure(); };
+    motion.addEventListener('change', settleForReducedMotion);
+    new MutationObserver(settleForReducedMotion).observe(document.documentElement, {attributes: true, attributeFilter: ['data-reduce-motion']});
+    window.addEventListener('resize', () => { if (disclosureMotion) settleDisclosure(); }, {passive: true});
     // Expand before the browser resolves a real fragment link into the archive.
     document.addEventListener('click', event => {
       if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
@@ -149,7 +219,7 @@ if (calendar) {
       if (!link) return;
       const url = new URL(link.href);
       if (url.origin === location.origin && url.pathname === location.pathname && isPreviousTarget(hashTarget(url.hash))) {
-        past.open = true;
+        settleDisclosure(true);
         writePastState();
       }
     }, {capture: true});

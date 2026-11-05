@@ -168,10 +168,19 @@ function restoreCourseWeather(html, lang) {
     .replace(/data-dust-url="[^"]*"/, 'data-dust-url="/assets/dubai-dust.json"')
     .replace(/(<h3 id="dubai-light-title">)[^<]*/, `$1${lang === 'en' ? 'Weather on the Dubai course' : 'Погода на трассе в Дубае'}`);
   html = html.slice(0, start) + html.slice(end);
-  const calendar = html.lastIndexOf('<section', html.indexOf('id="distance"'));
-  if (calendar < 0) throw new Error('Missing the course calendar for the forecast.');
-  const insertion = sectionEnd(html, calendar) - '</section>'.length;
-  return html.slice(0, insertion) + widget + html.slice(insertion);
+  const menu = html.indexOf('<div class="menu-weather"');
+  if (menu < 0) throw new Error('Missing the menu forecast container.');
+  const divs = /<\/?div\b[^>]*>/g;
+  divs.lastIndex = menu;
+  let depth = 0;
+  for (let tag = divs.exec(html); tag; tag = divs.exec(html)) {
+    depth += tag[0].startsWith('</') ? -1 : 1;
+    if (depth === 0) {
+      const insertion = tag.index;
+      return html.slice(0, insertion) + widget + html.slice(insertion);
+    }
+  }
+  throw new Error('Unclosed menu forecast container.');
 }
 
 export async function buildFiveDays(directory) {
@@ -220,6 +229,8 @@ export async function buildFiveDays(directory) {
     const todayLabel = (en ? 'Today, ' : 'Сегодня, ') + latest.date;
     const prepare = fragment => fragment
       .replace(/<script\b[^>]*\bsrc="[^"]*\/assets\/dubai-light\.js[^"]*"[^>]*><\/script>/g, '')
+      .replace(/<a class="menu-weather__forecast-link"[^>]*>[\s\S]*?<\/a>/,
+        '<p class="menu-weather__caption"><span data-menu-weather-time></span></p>')
       .replace(/(<div class="site-nav__status"[^>]*>[\s\S]*?)<a class="stage-link"[^>]*>[\s\S]*?<\/a>(<\/div>)/, '$1$2')
       .replaceAll('href="#race-day-02"', `href="#race-day-${currentId}"`)
       .replace(/data-start-preview-date="[^"]+"/, `data-start-preview-date="${iso(latest.day)}"`)
