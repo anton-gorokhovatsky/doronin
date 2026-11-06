@@ -9,10 +9,12 @@ export function createStageDeck(options) {
  const field=document.createElement('div');field.className='stage-scene__field';
  field.append(...links);strip.append(field);
  const media=links.map(link=>link.querySelector('img,video'));
- const controls=next.closest('.start-photo-controls');if(controls)strip.before(controls);
+ const controls=next.closest('.start-photo-controls');if(controls)strip.after(controls);
+ strip.removeAttribute('tabindex');
+ prev.tabIndex=next.tabIndex=0;
  const tokens=getComputedStyle(document.documentElement);
- const durationToken=tokens.getPropertyValue('--duration-feedback').trim();
- const duration=parseFloat(durationToken)*(durationToken.endsWith('ms')?1:1000)||180;
+ const durationToken=tokens.getPropertyValue('--duration-media').trim();
+ const duration=parseFloat(durationToken)*(durationToken.endsWith('ms')?1:1000)||480;
  const easeNumbers=tokens.getPropertyValue('--ease-move').match(/[\d.]+/g)?.map(Number)||[.65,0,.35,1];
  const wrap=n=>(n%links.length+links.length)%links.length;
  const english=document.documentElement.lang==='en';
@@ -35,15 +37,15 @@ export function createStageDeck(options) {
    laterScale=Math.max(minimum(later),laterScale*shrink);
    const nextWidth=sizes[following].w*nextScale,laterWidth=sizes[later].w*laterScale;
    const free=Math.max(0,width-main.w-nextWidth-laterWidth-2*gap);
-   nextPose={x:main.w+gap+free*.5,y:main.h*.38,s:nextScale};
-   laterPose={x:width-laterWidth,y:main.h*.72,s:laterScale};
+   nextPose={x:main.w+gap+free*.5,y:main.h-sizes[following].h*nextScale,s:nextScale};
+   laterPose={x:width-laterWidth,y:main.h-sizes[later].h*laterScale,s:laterScale};
   }else{
    const right=main.w+gap,available=width-right;
    nextScale=Math.min(available/sizes[following].w,nextScale);
    const nextHeight=sizes[following].h*nextScale;
    laterScale=Math.min(available/sizes[later].w,Math.max(minimum(later),Math.min(main.h*.30,nextHeight*.62)/sizes[later].h));
    nextPose={x:right,y:main.h*.08,s:nextScale};
-   laterPose={x:width-sizes[later].w*laterScale,y:Math.max(main.h*.62,nextPose.y+nextHeight+gap),s:laterScale};
+   laterPose={x:width-sizes[later].w*laterScale,y:main.h-sizes[later].h*laterScale,s:laterScale};
   }
   const poses=new Map([[current,{x:0,y:0,s:1}],[following,nextPose],[later,laterPose]]);
   const bottom=Math.max(main.h+main.extra,...[...poses].filter(([i])=>i!==current).map(([i,p])=>p.y+sizes[i].h*p.s));

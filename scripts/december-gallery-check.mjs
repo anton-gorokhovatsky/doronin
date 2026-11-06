@@ -122,13 +122,13 @@ async function assertSelectedPhotograph(page, deck, output, name) {
 
 async function checkMixedInput(page, gallery, engine, output) {
   const { deck, next, count } = gallery;
-  await deck.focus();
+  await deck.locator('[data-current="true"]').focus();
   await page.keyboard.press('End');
   await assertSelectedPhotograph(page, deck, output, `${engine}-keyboard-last-photo`);
   await next.click();
   assert.equal(await count.innerText(), '1 / 3');
   await assertSelectedPhotograph(page, deck, output, `${engine}-mouse-wrap-photo`);
-  await deck.focus();
+  await deck.locator('[data-current="true"]').focus();
   await page.keyboard.press('Home');
   for (let step = 0; step < 7; step++) await page.keyboard.press('ArrowRight');
   assert.equal(await count.innerText(), '2 / 3');
@@ -142,13 +142,13 @@ async function checkMixedInput(page, gallery, engine, output) {
   assert.equal(await count.innerText(), '1 / 3');
   await assertSelectedPhotograph(page, deck, output, `${engine}-resized-wrap-photo`);
   await page.setViewportSize({width: 1440, height: 1000});
-  await deck.focus();
+  await deck.locator('[data-current="true"]').focus();
   await page.keyboard.press('Home');
 }
 
 async function checkPointerField(page, gallery, engine, output) {
   const { deck, count } = gallery;
-  await deck.focus();
+  await deck.locator('[data-current="true"]').focus();
   await page.keyboard.press('Home');
   const box = await deck.boundingBox();
   const y = box.y + box.height * .45;
@@ -187,7 +187,7 @@ async function checkPointerField(page, gallery, engine, output) {
     return {ratio:r.width/r.height, native:img.naturalWidth/img.naturalHeight};
   });
   assert.ok(Math.abs(native.ratio - native.native) < .01, 'The frame keeps its original aspect ratio');
-  await deck.focus();
+  await deck.locator('[data-current="true"]').focus();
   await page.keyboard.press('Home');
   assert.equal(await count.innerText(), '1 / 3');
   assert.equal(await deck.getAttribute('data-turning'), 'false', 'Keyboard selection is immediate');
@@ -196,13 +196,13 @@ async function checkPointerField(page, gallery, engine, output) {
   await page.waitForTimeout(100);
   assert.equal(await count.innerText(), beforeScroll, 'Reading vertically does not browse photographs');
   await deck.scrollIntoViewIfNeeded();
-  await deck.focus();
+  await deck.locator('[data-current="true"]').focus();
   await page.keyboard.press('Home');
 }
 
 async function checkMouseGestures(page, gallery, engine, output) {
   const { deck, count, next, previous } = gallery;
-  await deck.focus();
+  await deck.locator('[data-current="true"]').focus();
   await page.keyboard.press("Home");
   const box = await deck.boundingBox();
   assert.ok(box, "The gallery has a visible drag surface");
@@ -262,7 +262,7 @@ async function checkDesktop(browser, engine, base, output) {
     assert.equal(await count.innerText(), "1 / 3", "The last photograph advances to the first");
     await gallery.previous.click();
     assert.equal(await count.innerText(), "3 / 3", "The first photograph returns to the last");
-    await deck.focus();
+    await deck.locator('[data-current="true"]').focus();
     await page.keyboard.press("Home");
 
     // Commands cycle the native media window without resetting the selected source.
@@ -276,7 +276,7 @@ async function checkDesktop(browser, engine, base, output) {
     });
     assert.equal(await count.innerText(), "2 / 3");
 
-    await deck.focus();
+    await deck.locator('[data-current="true"]').focus();
     await page.keyboard.press("Home");
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowRight");
@@ -427,7 +427,7 @@ async function checkPhone(browser, engine, base, output) {
     await deck.waitFor();
     assert.equal(await episode.isVisible(), true);
     await deck.scrollIntoViewIfNeeded();
-    await deck.focus();
+    await deck.locator('[data-current="true"]').focus();
     await page.keyboard.press("ArrowRight");
     assert.equal(await count.innerText(), "2 / 3");
 
@@ -480,7 +480,7 @@ async function checkFullPhotoFailures(browser, base, output) {
     await page.route(third.full, route => failThird ? route.abort() : route.continue());
 
     await deck.scrollIntoViewIfNeeded();
-    await deck.focus();
+    await deck.locator('[data-current="true"]').focus();
     await page.keyboard.press("ArrowRight");
     await deck.locator('a[data-current="true"]').click();
     await awaitingSecond;

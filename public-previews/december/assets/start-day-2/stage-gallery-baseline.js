@@ -5,12 +5,14 @@ export function createStageDeck({ strip, links, prev, next, count, reduced, onSe
   field.className = 'stage-scene__field';
   field.append(...links); strip.append(field);
   const controls = next.closest('.start-photo-controls');
-  if (controls) strip.before(controls);
+  if (controls) strip.after(controls);
+  strip.removeAttribute('tabindex');
+  prev.tabIndex = next.tabIndex = 0;
   const media = links.map(link => link.querySelector('img, video'));
   const english = document.documentElement.lang === 'en';
   const tokens = getComputedStyle(document.documentElement);
-  const token = tokens.getPropertyValue('--duration-feedback').trim();
-  const duration = parseFloat(token) * (token.endsWith('ms') ? 1 : 1000) || 180;
+  const token = tokens.getPropertyValue('--duration-media').trim();
+  const duration = parseFloat(token) * (token.endsWith('ms') ? 1 : 1000) || 480;
   const wrap = n => (n % links.length + links.length) % links.length;
   let gesture, animation, animationRequest = 0, suppressClickUntil = 0, signature = '';
 

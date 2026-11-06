@@ -1,3 +1,5 @@
+:root { --duration-media: 480ms; }
+
 /* A delayed original never leaves another photograph under the new counter. */
 [data-five-days] .start-lightbox > [data-start-photo-full] { grid-area: 2 / 1; }
 [data-five-days] .start-lightbox__feedback {
@@ -117,23 +119,12 @@ html:not(.js) [data-five-days] [data-start-media-open] { display: none; }
 }
 [data-five-days] .stage-scene video { touch-action: auto; user-select: auto; scroll-margin-block: var(--space-pair); }
 [data-five-days] .stage-photos > .start-photo-controls {
-  justify-content: flex-start;
+  justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--space-pair);
-  margin-block: 0 var(--space-pair);
+  margin-block: var(--space-pair);
 }
 [data-five-days] .stage-photos > .start-photo-controls > span { min-inline-size: 4ch; }
-@media (min-width: 961px) {
-  :root:not(.text-enlarged) [data-five-days] .stage-episode__media > .stage-photos {
-    top: calc(var(--space-group) + var(--stage-toolbar-block) + var(--space-pair));
-  }
-  :root:not(.text-enlarged) [data-five-days] .stage-photos > .start-photo-controls {
-    position: absolute;
-    inset-block-end: calc(100% + var(--space-pair));
-    inset-inline-start: 0;
-    margin: 0;
-  }
-}
 [data-five-days] .stage-scene a.start-photos__open:focus-visible {
   outline: 2px solid var(--paper);
   outline-offset: -4px;
@@ -182,6 +173,7 @@ html:not(.js) [data-five-days] [data-start-media-open] { display: none; }
   object-fit: contain;
 }
 @media (max-width: 960px) {
+  [data-five-days] .stage-context { margin-block-end: var(--space-pair); }
   [data-five-days] .stage-episode__media { margin-block-end: var(--space-group); }
 }
 

@@ -425,9 +425,31 @@
 [data-five-days] .stage-story h2 {
   font: 600 var(--type-copy)/1.3 var(--body);
   text-wrap: balance;
+  text-box: trim-start cap alphabetic;
 }
 [data-five-days] .stage-story__body {
   font: 400 var(--type-copy)/var(--leading-copy) var(--body);
+}
+/* The archived ride and the next planned day stay with their media group. */
+[data-five-days] .stage-editorial {
+  max-width: var(--measure-copy);
+  margin-block-start: var(--space-group);
+  font: 400 var(--type-copy)/var(--leading-copy) var(--body);
+}
+[data-five-days] .stage-editorial h2 {
+  margin: 0 0 var(--space-stack);
+  font: 600 var(--type-copy)/1.3 var(--body);
+  text-wrap: balance;
+}
+[data-five-days] .stage-editorial p { margin: 0 0 var(--space-stack); }
+[data-five-days] .stage-editorial .stage-editorial__source {
+  margin: 0;
+  color: var(--text-editorial-muted);
+  font: 400 var(--type-service)/var(--leading-service) var(--body);
+}
+[data-five-days] .stage-editorial__source a {
+  color: inherit;
+  text-underline-offset: .22em;
 }
 @media (min-width: 961px) {
   :root:not(.text-enlarged) [data-five-days] .stage-episode__media { grid-column: 1 / span 8; }

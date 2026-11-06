@@ -1,6 +1,7 @@
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import midsummer from '../../src/content/diary/2026-07-06.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const json = async file => JSON.parse(await readFile(file, 'utf8'));
@@ -60,7 +61,26 @@ export function renderStageMedia(items, lang, mediaBase = '') {
     return `<a class="start-photos__open" href="${source}" ${attributes}><img src="${esc(href(item.thumb || file))}" width="${item.thumbWidth || item.width}" height="${item.thumbHeight || item.height}" alt="${esc(alt)}"${position} loading="lazy" decoding="async"></a>`;
   }).join('');
 }
-function episode(day, days, lang, mediaBase) {
+function dayFiveContext(day, plan, lang) {
+  if (day.day !== 5) return '';
+  const en = lang === 'en';
+  const today = calendarValues(day, plan);
+  const tomorrow = calendarValues({day: day.day + 1}, plan);
+  const nextSpecial = plan.segments.find(segment => segment.kind === 'special' && segment.startDate > tomorrow.date);
+  const date = value => Number(value.slice(-2));
+  const distance = midsummer.facts[0].value[lang];
+  const speed = midsummer.facts[1].value[lang];
+  const title = en ? 'Back on the road tomorrow' : 'Завтра снова на трассу';
+  const archive = en
+    ? `In the earlier Midsummer 300+ ride, the plan was to cover 300+ km at an average of 35 km/h. The group stopped every 50\u2060–\u206060 km in the first half of the route and roughly every 40 km nearer the finish. They covered ${distance}; the average speed across the main part of the route was ${speed}.`
+    : `На Midsummer 300+ планировали проехать более 300 км со средней 35 км/ч. Группа делала остановки каждые 50\u2060–\u206060 км в первой половине маршрута и примерно каждые 40 км ближе к финишу. Итог — ${distance}; средняя основной части маршрута — ${speed}.`;
+  const schedule = en
+    ? `The December plan calls for ${today.amount} km on December ${date(today.date)} and ${tomorrow.amount} km on December ${date(tomorrow.date)}, then ${nextSpecial.totalDistanceKm} km on December ${date(nextSpecial.startDate)}. December means riding a long distance day after day. How should Victor pace today’s effort so he can get back on the road tomorrow?`
+    : `В декабрьском плане ${date(today.date)} декабря — ${today.amount} км, ${date(tomorrow.date)} декабря — ${tomorrow.amount} км, а ${date(nextSpecial.startDate)} декабря — ${nextSpecial.totalDistanceKm} км. Декабрьская задача — повторять длинную дистанцию. Как распределить силы сегодня, чтобы завтра снова выйти на трассу?`;
+  const source = en ? 'Diary, July 6, 2026' : 'Дневник, 6 июля 2026';
+  return `<div class="stage-editorial" data-stage-editorial aria-labelledby="stage-editorial-title-${pad(day.day)}"><h2 id="stage-editorial-title-${pad(day.day)}">${title}</h2><p>${esc(archive)}</p><p>${esc(schedule)}</p><p class="stage-editorial__source"><a href="${esc(midsummer.href)}" target="_blank" rel="noopener noreferrer">${source}</a></p></div>`;
+}
+function episode(day, days, lang, mediaBase, plan) {
   const en = lang === 'en';
   const id = pad(day.day);
   const mixed = day.photos.some(item => item.kind === 'video');
@@ -75,6 +95,7 @@ function episode(day, days, lang, mediaBase) {
     <div class="stage-episode__media"><div class="stage-photos">
       <nav class="start-photo-controls" aria-label="${group}"><span data-start-strip-count aria-live="polite">1 / ${day.photos.length}</span><div><button type="button" data-start-strip-prev disabled aria-label="${previous}">${arrow('left')}</button><button type="button" data-start-strip-next aria-label="${next}">${arrow('right')}</button></div></nav>
       <div class="start-photos" tabindex="0" role="group" aria-label="${group}"${day.mediaSource ? ` aria-describedby="${sourceId}"` : ''} data-start-photo-strip>${photos}</div>${day.mediaSource ? `\n      <p class="stage-stamp stage-media-source" id="${sourceId}" data-stage-media-source>${esc(day.mediaSource)}</p>` : ''}
+      ${dayFiveContext(day, plan, lang)}
     </div></div>
     <div class="stage-episode__narrative"><div class="stage-story" id="life-story-${id}"><h2 id="life-story-title-${id}">${esc(day.title)}</h2><div class="stage-story__body">${day.paragraphs.map(p => `<p>${esc(p)}</p>`).join('')}</div></div></div>
     ${pager(day, days, lang)}
@@ -277,7 +298,7 @@ export async function buildFiveDays(directory) {
     const stagesPhoto = media.find(m => m.day === 3).items.find(photo => photo.file === 'day-03-crest.jpg');
     if (!stagesPhoto) throw new Error('Missing the road photograph for the stages menu link.');
     const episodes = days.toReversed().map(day => {
-      if (!day.old) return episode(day, days, lang, base + 'media/');
+      if (!day.old) return episode(day, days, lang, base + 'media/', plan);
       const result = day.old.replace(/<a class="episode-return"[\s\S]*?<\/a>/g, '')
         .replace(/<p class="stage-episode__bridge">[\s\S]*?<\/p>/, '')
         .replace(/(<time datetime="2026-12-0[12]">)[^<]*/, `$1${day.date}`)

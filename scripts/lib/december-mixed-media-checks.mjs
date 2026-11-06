@@ -248,7 +248,7 @@ async function checkHeldDrag(page, strip, output, name) {
   assert.equal(released.nearest.index, held.nearest.index,
     'Release settles the nearest visible original instead of rebounding to the previous item');
   const releasedFrame = await frame(page, output, name + '-released');
-  await strip.focus(); await page.keyboard.press('Home'); await settle(page, strip, 0);
+  await strip.locator('[data-current="true"]').focus(); await page.keyboard.press('Home'); await settle(page, strip, 0);
   return { held, released, screenshots: [path.join(output, name + '-held.png'), releasedFrame] };
 }
 
@@ -491,7 +491,7 @@ async function checkMediaSequences(browser, engine, base, output, { fixture }) {
       assert.equal(await media.evaluate(element => element.src), six[index].src);
       windows.push(await assertThreeVisible(strip, index));
     }
-    await strip.focus(); await queue.page.keyboard.press('End'); await settle(queue.page, strip, 5);
+    await strip.locator('[data-current="true"]').focus(); await queue.page.keyboard.press('End'); await settle(queue.page, strip, 5);
     await queue.page.keyboard.press('ArrowRight'); await settle(queue.page, strip, 0);
     assert.deepEqual(queue.errors, []);
     results.push({ profile: 'six-source-neighbours', passed: true, htmlFixture: true, windows,
