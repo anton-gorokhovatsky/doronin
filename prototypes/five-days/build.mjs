@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -52,10 +52,9 @@ export function renderStageMedia(items, lang, mediaBase = '') {
     if (kind === 'video') {
       if (!item.poster) throw new Error(`Missing stage video poster ${index + 1} (${lang}).`);
       const poster = ` poster="${esc(href(item.poster))}"`;
-      const open = en ? 'Open full video' : 'Открыть видео целиком';
-      const openText = en ? 'Full screen' : 'На весь экран';
       const fallback = en ? 'Open video file' : 'Открыть файл видео';
-      return `<div class="start-photos__open start-media--video" ${attributes}><video src="${source}" width="${item.width}" height="${item.height}" controls playsinline preload="none" tabindex="0"${poster} aria-label="${esc(alt)}"><a href="${source}">${fallback}</a></video><div class="start-media__actions"><button type="button" data-start-media-open aria-label="${open} ${index + 1} ${en ? 'of' : 'из'} ${items.length}. ${esc(alt)}">${openText}</button><a href="${source}" data-start-media-file>${fallback}</a></div><p class="start-media__error" role="status" hidden>${en ? 'The video could not load' : 'Не удалось загрузить видео'}</p></div>`;
+      const retry = en ? 'Retry loading' : 'Повторить загрузку';
+      return `<div class="start-photos__open start-media--video" ${attributes}><video src="${source}" width="${item.width}" height="${item.height}" controls playsinline preload="none" tabindex="0"${poster} aria-label="${esc(alt)}"><a href="${source}">${fallback}</a></video><div class="start-media__actions"><button type="button" data-start-media-retry hidden>${retry}</button><a href="${source}" data-start-media-file>${fallback}</a></div><p class="start-media__error" role="status" hidden>${en ? 'The video could not load' : 'Не удалось загрузить видео'}</p></div>`;
     }
     const position = item.position ? ` style="object-position:${esc(item.position)}"` : '';
     return `<a class="start-photos__open" href="${source}" ${attributes}><img src="${esc(href(item.thumb || file))}" width="${item.thumbWidth || item.width}" height="${item.thumbHeight || item.height}" alt="${esc(alt)}"${position} loading="lazy" decoding="async"></a>`;
@@ -65,7 +64,9 @@ function episode(day, days, lang, mediaBase) {
   const en = lang === 'en';
   const id = pad(day.day);
   const mixed = day.photos.some(item => item.kind === 'video');
-  const group = en ? `${mixed ? 'Media' : 'Photographs'} from December ${day.day}` : `${mixed ? 'Фото и видео' : 'Фотографии'} этапа ${day.day} декабря`;
+  const group = day.mediaSource ? (en ? 'Photographs and video' : 'Фото и видео')
+    : en ? `${mixed ? 'Media' : 'Photographs'} from December ${day.day}` : `${mixed ? 'Фото и видео' : 'Фотографии'} этапа ${day.day} декабря`;
+  const sourceId = `stage-media-source-${id}`;
   const photos = renderStageMedia(day.photos, lang, mediaBase);
   const previous = en ? (mixed ? 'Previous item' : 'Previous photograph') : (mixed ? 'Предыдущий материал' : 'Предыдущая фотография');
   const next = en ? (mixed ? 'Next item' : 'Next photograph') : (mixed ? 'Следующий материал' : 'Следующая фотография');
@@ -73,7 +74,7 @@ function episode(day, days, lang, mediaBase) {
     <p class="stage-context"><time datetime="${iso(day.day)}">${day.date}</time> · ${day.type}</p>
     <div class="stage-episode__media"><div class="stage-photos">
       <nav class="start-photo-controls" aria-label="${group}"><span data-start-strip-count aria-live="polite">1 / ${day.photos.length}</span><div><button type="button" data-start-strip-prev disabled aria-label="${previous}">${arrow('left')}</button><button type="button" data-start-strip-next aria-label="${next}">${arrow('right')}</button></div></nav>
-      <div class="start-photos" tabindex="0" role="group" aria-label="${group}" data-start-photo-strip>${photos}</div>
+      <div class="start-photos" tabindex="0" role="group" aria-label="${group}"${day.mediaSource ? ` aria-describedby="${sourceId}"` : ''} data-start-photo-strip>${photos}</div>${day.mediaSource ? `\n      <p class="stage-stamp stage-media-source" id="${sourceId}" data-stage-media-source>${esc(day.mediaSource)}</p>` : ''}
     </div></div>
     <div class="stage-episode__narrative"><div class="stage-story" id="life-story-${id}"><h2 id="life-story-title-${id}">${esc(day.title)}</h2><div class="stage-story__body">${day.paragraphs.map(p => `<p>${esc(p)}</p>`).join('')}</div></div></div>
     ${pager(day, days, lang)}
@@ -107,13 +108,26 @@ function calendarPreview(day, media, base) {
     return {source: `${base}thumbnails/${file}.jpg`, position: image.match(/object-position:([^;"]+)/)?.[1] || '50% 50%'};
   }
   const frames = media.find(item => item.day === day.day);
-  const photo = frames.items.find(item => (item.file || item.src) === frames.hero) ||
+  const cover = frames.items.find(item => (item.file || item.src) === frames.hero);
+  // A story's accepted cover can stay in the hero/calendar when its illustrative
+  // series changes. The source files and cover are retained independently.
+  if (frames.hero && !cover) {
+    return {source: /^(?:[a-z][a-z\d+.-]*:|\/)/i.test(frames.hero) ? frames.hero : `${base}media/${frames.hero}`,
+      position: frames.heroPosition || '50% 50%'};
+  }
+  const photo = cover ||
     frames.items.find(item => (item.file || item.src || '').includes('night-rider')) || frames.items[0];
   const file = photo.kind === 'video' ? photo.poster : (photo.file || photo.src);
   if (!file) throw new Error(`Missing preview image or video poster for day ${day.day}.`);
   return {source: /^(?:[a-z][a-z\d+.-]*:|\/)/i.test(file) ? file : `${base}media/${file}`, position: photo.position || '50% 50%'};
 }
 function calendarPastStory(title, direction = 'up') {
+  if (direction === 'left') {
+    const firstSpace = title.indexOf(' ');
+    const head = firstSpace < 0 ? title : title.slice(0, firstSpace);
+    const rest = firstSpace < 0 ? '' : title.slice(firstSpace);
+    return `<span class="calendar-past__head">${arrow(direction)}${esc(head)}</span>${esc(rest)}`;
+  }
   const cut = title.lastIndexOf(' ') + 1;
   return `${esc(title.slice(0, cut))}<span class="calendar-past__tail">${esc(title.slice(cut))}${arrow(direction)}</span>`;
 }
@@ -227,6 +241,12 @@ export async function buildFiveDays(directory) {
     json(path.join(here, '../../src/project-plan.json')),
   ]);
   if (stories.map(s => s.day).join() !== '3,4,5') throw new Error('Expected three new stories, in order.');
+  const mediaDirectory = path.join(directory, 'assets/five-days/media');
+  await mkdir(mediaDirectory, { recursive: true });
+  for (const file of new Set(media.flatMap(stage => stage.diarySource?.files || []))) {
+    if (path.basename(file) !== file) throw new Error(`Invalid diary media filename: ${file}`);
+    await copyFile(path.join(here, '../../src/assets', file), path.join(mediaDirectory, file));
+  }
   for (const lang of ['ru', 'en']) {
     const en = lang === 'en';
     const localeDir = en ? path.join(directory, 'en') : directory;
@@ -239,7 +259,10 @@ export async function buildFiveDays(directory) {
       ...old.reverse().map(([markup, day]) => ({
         day: Number(day), old: markup, title: markup.match(/<h2 id="life-story-title-\d+">([^<]+)<\/h2>/)[1],
       })),
-      ...stories.map(s => ({day: s.day, ...s[lang], photos: media.find(m => m.day === s.day)?.items})),
+      ...stories.map(s => {
+        const stageMedia = media.find(m => m.day === s.day);
+        return {day: s.day, ...s[lang], photos: stageMedia?.items, mediaSource: stageMedia?.diarySource?.[lang]};
+      }),
     ].map(day => ({...day, date: dateLabel(day.day), type: day.day === 1
       ? (en ? 'Special stage' : 'Специальный этап') : (en ? 'Base day' : 'Базовый день')}))
       .map(day => ({...day, preview: calendarPreview(day, media, base)}));

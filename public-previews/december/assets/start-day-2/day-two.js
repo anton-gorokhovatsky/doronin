@@ -118,6 +118,7 @@ let modalGallery;
 let modalIndex = 0;
 let modalOpener;
 const mediaVideos = new WeakMap();
+const videoStates = new WeakMap();
 let modalVideo;
 let modalVideoHome;
 function currentPhotoIndex() {
@@ -146,6 +147,31 @@ const photoFeedback = useStageDeck ? document.createElement('div') : null;
 let photoStatus;
 let photoRetry;
 let videoFileLink;
+function reloadVideo(video) {
+  const state = videoStates.get(video);
+  if (!state || state.pending) return;
+  state.pending = true;
+  state.resumeTime ??= video.currentTime;
+  if (state.onMetadata) video.removeEventListener('loadedmetadata', state.onMetadata);
+  state.onMetadata = () => {
+    state.onMetadata = null;
+    if (Number.isFinite(state.resumeTime) && state.resumeTime > 0 && state.resumeTime <= video.duration) video.currentTime = state.resumeTime;
+  };
+  video.addEventListener('loadedmetadata', state.onMetadata, { once: true });
+  const message = document.documentElement.lang === 'en' ? 'Loading the video…' : 'Загружаем видео…';
+  state.status.textContent = message;
+  state.status.hidden = false;
+  if (state.retry) state.retry.disabled = true;
+  if (modalVideo === video && photoFeedback) {
+    photoFeedback.hidden = false;
+    photoStatus.textContent = message;
+    photoRetry.disabled = true;
+  }
+  video.setAttribute('aria-busy', 'true');
+  video.pause();
+  video.preload = 'metadata';
+  video.load();
+}
 if (photoFeedback) {
   photoFeedback.className = 'start-lightbox__feedback';
   photoFeedback.hidden = true;
@@ -154,18 +180,10 @@ if (photoFeedback) {
   photoRetry = document.createElement('button');
   photoRetry.type = 'button';
   photoRetry.textContent = document.documentElement.lang === 'en' ? 'Retry loading' : 'Повторить загрузку';
-  photoRetry.addEventListener('click', () => {
+  photoRetry.addEventListener('click', event => {
     if (!modalVideo) { showPhoto(currentPhotoIndex()); return; }
-    const video = modalVideo;
-    const time = video.currentTime;
-    video.addEventListener('loadedmetadata', () => {
-      if (Number.isFinite(time) && time <= video.duration) video.currentTime = time;
-    }, { once: true });
-    video.pause();
-    video.preload = 'metadata';
-    video.load();
-    photoStatus.textContent = document.documentElement.lang === 'en' ? 'Loading the video…' : 'Загружаем видео…';
-    photoRetry.hidden = true;
+    if (event.detail === 0 || document.activeElement === photoRetry) modalVideo.focus({ preventScroll: true });
+    reloadVideo(modalVideo);
   });
   videoFileLink = document.createElement('a');
   videoFileLink.textContent = document.documentElement.lang === 'en' ? 'Open video file' : 'Открыть файл видео';
@@ -210,9 +228,12 @@ function showPhoto(index) {
     video.setAttribute('data-start-media-full', '');
     lightbox.insertBefore(video, image);
     if (photoFeedback) {
-      photoFeedback.hidden = !video.error;
-      photoStatus.textContent = en ? 'The video could not load' : 'Не удалось загрузить видео';
+      const pending = videoStates.get(video)?.pending;
+      photoFeedback.hidden = !video.error && !pending;
+      photoStatus.textContent = pending ? (en ? 'Loading the video…' : 'Загружаем видео…')
+        : (en ? 'The video could not load' : 'Не удалось загрузить видео');
       photoRetry.hidden = false;
+      photoRetry.disabled = Boolean(pending);
       videoFileLink.href = video.currentSrc || video.src;
       videoFileLink.hidden = false;
     }
@@ -233,6 +254,7 @@ function showPhoto(index) {
   image.removeAttribute('src');
   image.setAttribute('aria-busy', 'true');
   photoStatus.textContent = en ? 'Loading the full photograph…' : 'Загружаем полный снимок…';
+  photoRetry.disabled = false;
   photoRetry.hidden = true;
   videoFileLink.hidden = true;
   photoFeedback.hidden = false;
@@ -318,6 +340,18 @@ for (const panel of episodePanels) {
   for (const [index, link] of links.entries()) {
     const video = mediaVideos.get(link);
     if (video) {
+      const status = link.querySelector('.start-media__error');
+      const retry = link.querySelector('[data-start-media-retry]');
+      const loading = { status, retry, pending: false, resumeTime: undefined, onMetadata: null };
+      videoStates.set(video, loading);
+      retry?.addEventListener('click', event => {
+        if (state.index !== index) return;
+        if (event.detail === 0 || document.activeElement === retry) {
+          if (useStageDeck) state.focusCurrent();
+          else video.focus({ preventScroll: true });
+        }
+        reloadVideo(video);
+      });
       videoVisibility?.observe(video);
       video.addEventListener('play', () => {
         const visible = video.getBoundingClientRect();
@@ -332,22 +366,36 @@ for (const panel of episodePanels) {
       });
       video.addEventListener('error', () => {
         video.pause();
-        link.querySelector('.start-media__error').hidden = false;
+        loading.pending = false;
+        if (loading.onMetadata) video.removeEventListener('loadedmetadata', loading.onMetadata);
+        loading.onMetadata = null;
+        video.setAttribute('aria-busy', 'false');
+        status.textContent = document.documentElement.lang === 'en' ? 'The video could not load' : 'Не удалось загрузить видео';
+        status.hidden = false;
+        if (retry) { retry.hidden = false; retry.disabled = false; }
         if (modalVideo === video && photoFeedback) {
           photoStatus.textContent = document.documentElement.lang === 'en' ? 'The video could not load' : 'Не удалось загрузить видео';
           photoRetry.hidden = false;
+          photoRetry.disabled = false;
           videoFileLink.hidden = false;
           photoFeedback.hidden = false;
         }
       });
-      video.addEventListener('loadeddata', () => {
-        link.querySelector('.start-media__error').hidden = true;
-        if (modalVideo === video && photoFeedback) photoFeedback.hidden = true;
-      });
+      const loaded = () => {
+        if (video.error || video.readyState < 2 || video.seeking) return;
+        loading.pending = false;
+        loading.resumeTime = undefined;
+        video.setAttribute('aria-busy', 'false');
+        status.hidden = true;
+        if (retry) { retry.hidden = true; retry.disabled = false; }
+        if (modalVideo === video && photoFeedback) { photoFeedback.hidden = true; photoRetry.disabled = false; }
+      };
+      video.addEventListener('loadeddata', loaded);
+      video.addEventListener('seeked', loaded);
     }
     link.addEventListener('click', event => {
       if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
-      if (video && !event.target.closest('[data-start-media-open]')) return;
+      if (video) return;
       event.preventDefault(); modalGallery = state; modalOpener = link; showPhoto(index);
       lightbox.showModal(); document.documentElement.classList.add('stage-photo-open');
       lightbox.querySelector('[data-start-photo-close]').focus();

@@ -226,11 +226,20 @@
   text-wrap: balance;
 }
 [data-five-days] .calendar-past__tail { white-space: nowrap; }
+[data-five-days] .calendar-past__head { white-space: nowrap; }
 [data-five-days] .calendar-past__tail > .icon {
   display: inline-block;
   inline-size: var(--reading-arrow-size);
   block-size: var(--reading-arrow-size);
   margin-inline-start: .3em;
+  vertical-align: -.2em;
+}
+[data-five-days] .calendar-past__head > .icon {
+  display: inline-block;
+  inline-size: var(--reading-arrow-size);
+  block-size: var(--reading-arrow-size);
+  margin-inline-start: 0;
+  margin-inline-end: .3em;
   vertical-align: -.2em;
 }
 [data-five-days] .calendar-past__item:focus-visible { outline: none; }
@@ -410,4 +419,20 @@
     position: sticky;
     top: var(--space-group);
   }
+}
+
+/* The stage is the main event; its memory remains a quiet reading column. */
+[data-five-days] .stage-story h2 {
+  font: 600 var(--type-copy)/1.3 var(--body);
+  text-wrap: balance;
+}
+[data-five-days] .stage-story__body {
+  font: 400 var(--type-copy)/var(--leading-copy) var(--body);
+}
+@media (min-width: 961px) {
+  :root:not(.text-enlarged) [data-five-days] .stage-episode__media { grid-column: 1 / span 8; }
+  :root:not(.text-enlarged) [data-five-days] .stage-episode__narrative { grid-column: 9 / -1; }
+}
+@media (max-width: 960px) {
+  [data-five-days] .stage-episode__media { margin-block-end: var(--space-group); }
 }

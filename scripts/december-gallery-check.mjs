@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, webkit } from "playwright";
 import { startSiteServer } from "./lib/site-server.mjs";
-import { checkMixedMedia } from "./lib/december-mixed-media-checks.mjs";
+import { assertThreeVisible, checkCurrentMixedMedia, checkMixedMedia } from "./lib/december-mixed-media-checks.mjs";
 
 function readOptions(args) {
   const failuresOnly = args.includes("--failures-only");
@@ -161,13 +161,23 @@ async function checkPointerField(page, gallery, engine, output) {
   assert.equal(await count.innerText(), '1 / 3');
   const photos = deck.locator('[data-start-photo]');
   assert.equal(await photos.count(), 3);
+  await assertThreeVisible(deck, 0);
   assert.equal(await deck.locator('img').count(), 3, 'Each original exists once in the photographic scene');
   assert.equal(await deck.locator('..').locator('.stage-deck__series').count(), 0, 'There is no duplicated thumbnail row');
-  const targets = await photos.evaluateAll(links => links.map(link => ({inert:link.inert, hidden:link.hidden,tab:link.tabIndex})));
-  assert.equal(targets.filter(target => !target.inert && !target.hidden && target.tab === 0).length, 1,
-    'Only the current media window belongs to the visible focus order');
+  const targets = await photos.evaluateAll(links => links.map(link => ({
+    inert: link.inert, hidden: link.hidden, tab: link.tabIndex,
+    current: link.dataset.current === 'true', following: link.dataset.following === 'true', later: link.dataset.later === 'true',
+  })));
+  const current = targets.filter(target => target.current);
+  assert.equal(current.length, 1, 'The series has one current photograph');
+  assert.ok(!current[0].inert && !current[0].hidden && current[0].tab === 0,
+    'The current photograph remains available to the keyboard');
+  assert.ok(targets.filter(target => !target.current && !target.inert && !target.hidden && target.tab >= 0)
+    .every(target => target.following || target.later), 'The two following previews may be separate selection commands');
   await gallery.next.click();
   assert.equal(await count.innerText(), '2 / 3');
+  await page.waitForFunction(element => element.dataset.turning !== 'true', await deck.elementHandle());
+  await assertThreeVisible(deck, 1);
   assert.equal(await page.locator('[data-start-lightbox]').evaluate(element => element.open), false,
     'Changing media leaves full view under explicit control');
   await assertSelectedPhotograph(page, deck, output, `${engine}-native-window-photo`);
@@ -228,8 +238,9 @@ async function checkDesktop(browser, engine, base, output) {
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
   try {
-    await page.goto(pageUrl(base, "/december/"));
-    await page.locator(".stage-scene").first().waitFor();
+    await page.goto(pageUrl(base, "/december/#race-day-04"));
+    const gallery = galleryFor(page, "04");
+    await gallery.deck.waitFor();
     await page.evaluate(() => document.fonts.ready);
 
     assert.equal(await page.locator("[data-episode]").count(), 5);
@@ -238,7 +249,6 @@ async function checkDesktop(browser, engine, base, output) {
       assert.equal(await deck.locator("[data-start-photo]").count(), 3);
     }
 
-    const gallery = galleryFor(page, "05");
     const { episode, deck, count, next } = gallery;
     await deck.scrollIntoViewIfNeeded();
     await checkMixedInput(page, gallery, engine, output);
@@ -272,14 +282,14 @@ async function checkDesktop(browser, engine, base, output) {
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowLeft");
     assert.equal(await count.innerText(), "2 / 3");
-    assert.equal(await deck.locator('a:not([inert])').count(), 1);
+    assert.equal(await deck.locator('a[data-current="true"]:not([inert])').count(), 1);
     await checkFullPhoto(page, deck);
     await checkMouseGestures(page, gallery, engine, output);
 
     await next.click();
-    await episode.locator('a[href="#race-day-04"]').click();
-    assert.equal(await galleryFor(page, "04").episode.isVisible(), true);
-    await galleryFor(page, "04").episode.locator('a[href="#race-day-05"]').click();
+    await episode.locator('a[href="#race-day-03"]').click();
+    assert.equal(await galleryFor(page, "03").episode.isVisible(), true);
+    await galleryFor(page, "03").episode.locator('a[href="#race-day-04"]').click();
     assert.equal(await count.innerText(), "2 / 3");
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
 
@@ -356,6 +366,53 @@ async function checkTrustedTouch(page, gallery) {
   }
 }
 
+async function checkCurrentTrustedTouch(browser, base, output) {
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  let client;
+  try {
+    await page.goto(pageUrl(base, '/december/en/#race-day-05'));
+    const { deck, count } = galleryFor(page, '05');
+    await deck.waitFor(); await deck.scrollIntoViewIfNeeded();
+    assert.equal(await count.innerText(), '1 / 3');
+    const first = deck.locator('[data-start-photo="0"] img');
+    await page.waitForFunction(image => image.complete && image.naturalWidth > 0, await first.elementHandle());
+    await first.evaluate(image => image.decode());
+    client = await page.context().newCDPSession(page);
+    const photo = await first.boundingBox();
+    assert.ok(photo, 'The real first portrait supplies the touch surface');
+    await touchDrag(page, client, photo, -photo.width * .65, 2);
+    await page.waitForFunction(element => element.dataset.photoIndex === '1' && element.dataset.turning !== 'true', await deck.elementHandle());
+    assert.equal(await count.innerText(), '2 / 3');
+    const video = deck.locator('[data-start-photo="1"] video');
+    assert.equal(await video.evaluate(video => video.controls), true);
+    // Include the compatibility-click window, rather than sampling only the
+    // touchend callback before a generated click could reach the new player.
+    await page.waitForTimeout(350);
+    const dialog = page.locator('[data-start-lightbox]');
+    assert.equal(await dialog.evaluate(element => element.open), false, 'A trusted photo-to-video swipe never ghost-opens the viewer');
+    assert.equal(await video.evaluate(video => video.paused), true, 'A series swipe never autoplays the next video');
+    await video.scrollIntoViewIfNeeded();
+    await video.focus(); await page.keyboard.press('Space');
+    await page.waitForFunction(video => !video.paused && video.currentTime > .15, await video.elementHandle());
+    await page.keyboard.press('Space');
+    assert.equal(await video.evaluate(video => video.paused), true);
+    const native = await video.boundingBox();
+    assert.ok(native, 'The loaded native player supplies its own control surface');
+    await touchDrag(page, client, { ...native, y: native.y + native.height - 28, height: 20 },
+      -Math.min(100, native.width * .3), 1);
+    assert.equal(await count.innerText(), '2 / 3', 'A native video gesture stays with the player');
+    assert.equal(await dialog.evaluate(element => element.open), false);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+    assert.deepEqual(errors, []);
+    await saveFrame(page, output, 'chromium-current-mixed-trusted-touch');
+  } finally {
+    await client?.detach();
+    await page.close();
+  }
+}
+
 async function checkPhone(browser, engine, base, output) {
   const page = await browser.newPage({
     viewport: { width: 390, height: 844 },
@@ -364,8 +421,8 @@ async function checkPhone(browser, engine, base, output) {
     reducedMotion: "reduce",
   });
   try {
-    await page.goto(pageUrl(base, "/december/en/#race-day-03"));
-    const gallery = galleryFor(page, "03");
+    await page.goto(pageUrl(base, "/december/en/#race-day-04"));
+    const gallery = galleryFor(page, "04");
     const { episode, deck, count } = gallery;
     await deck.waitFor();
     assert.equal(await episode.isVisible(), true);
@@ -536,8 +593,30 @@ async function checkNoJavaScript(browser, base, output) {
     await page.goto(pageUrl(base, '/december/'));
     const episode = page.locator('[data-episode="05"]');
     assert.equal(await episode.isVisible(), true, 'The authored current story remains visible without JavaScript');
-    const photos = episode.locator('[data-start-photo]');
-    assert.equal(await photos.count(), 3);
+    const strip = episode.locator('[data-start-photo-strip]');
+    assert.equal(await strip.locator('[data-start-photo]').count(), 3);
+    const photos = strip.locator('a[data-start-photo]');
+    assert.equal(await photos.count(), 2, 'The actual current series contains two native photo links');
+    assert.deepEqual(await photos.evaluateAll(links => links.map(link => new URL(link.href).pathname.split('/').pop())),
+      ['diary-2026-07-06-02-poster.jpg', 'diary-2026-07-06-08.jpg']);
+    const video = strip.locator('video');
+    assert.equal(await video.count(), 1);
+    assert.ok(await video.evaluate(video => video.controls && video.playsInline && !video.autoplay && video.preload === 'none'));
+    assert.equal(await video.getAttribute('width'), '720');
+    assert.equal(await video.getAttribute('height'), '1280');
+    assert.ok((await video.evaluate(video => video.poster)).endsWith('/diary-2026-07-06-03-poster.jpg'));
+    assert.ok(await video.getAttribute('aria-label'));
+    const file = strip.locator('[data-start-media-file]');
+    assert.equal(await file.count(), 1);
+    assert.equal(await file.evaluate(link => link.href), await video.evaluate(video => video.src));
+    await file.scrollIntoViewIfNeeded();
+    assert.equal(await file.isVisible(), true, 'The video file remains a visible native fallback without scripts');
+    assert.ok((await page.request.head(await file.evaluate(link => link.href))).ok());
+    const source = episode.locator('[data-stage-media-source]');
+    assert.equal((await source.innerText()).replace(/\s+/g, ' '), 'Материалы дневника, 6 июля 2026');
+    assert.equal(await strip.getAttribute('aria-describedby'), await source.getAttribute('id'));
+    await source.scrollIntoViewIfNeeded();
+    await saveFrame(page, output, 'chromium-gallery-no-javascript-media');
     assert.equal(await page.locator('.stage-scene').count(), 0);
     const href = await photos.first().evaluate(link => link.href);
     await photos.first().click();
@@ -565,6 +644,13 @@ try {
         console.log(`[december-gallery] ${engine} phone / reduced motion`);
         await checkPhone(browser, engine, base, output);
         results.push({ engine, kind: "phone/reduced", passed: true });
+        console.log(`[december-gallery] ${engine} actual current mixed-media series`);
+        const currentMixed = await checkCurrentMixedMedia(browser, engine, base, output);
+        results.push(...currentMixed.map(result => ({ engine, kind: "current-mixed-media", ...result })));
+        if (engine === 'chromium') {
+          await checkCurrentTrustedTouch(browser, base, output);
+          results.push({ engine, kind: 'current-mixed-media/trusted-touch', passed: true });
+        }
         console.log(`[december-gallery] ${engine} native portrait photographs and video`);
         const mixed = await checkMixedMedia(browser, engine, base, output);
         if (Array.isArray(mixed)) results.push(...mixed.map(result => ({ engine, kind: "mixed-media", ...result })));

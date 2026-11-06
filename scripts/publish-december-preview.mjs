@@ -22,6 +22,7 @@ await buildFiveDays(destination);
 const entry = path.join(destination, 'assets/start-day-2/day-two.js');
 const entryDependencies = [
   path.join(destination, 'assets/start-day-2/stage-gallery.js'),
+  path.join(destination, 'assets/start-day-2/stage-gallery-baseline.js'),
   path.join(destination, 'december-1-saved/assets/dubai-light.js'),
 ];
 const versions = new Map();

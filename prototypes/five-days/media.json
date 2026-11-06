@@ -67,33 +67,46 @@
     "day": 5,
     "items": [
       {
-        "file": "day-05-hands.jpg",
-        "ru": "Во время остановки Виктор держит в руках небольшой чёрный флакон.",
-        "en": "Victor holds a small black bottle during a stop.",
-        "position": "61% 50%",
-        "source": "«1111», 2024. 00:34:31.500 исходного фильма. Локальный файл day-hands.mp4, +1.5 с. https://disk.yandex.ru/d/rsNJOp0jgMmnug/1111%20-%204k.mov",
-        "width": 1600,
-        "height": 900
+        "kind": "image",
+        "sourceKind": "video-still",
+        "file": "diary-2026-07-06-02-poster.jpg",
+        "width": 540,
+        "height": 960,
+        "ru": "Кадр видео Midsummer 300+: загородная дорога впереди велосипедной группы.",
+        "en": "A still from the Midsummer 300+ video: a country road ahead of the cycling group."
       },
       {
-        "file": "day-05-pursuit.jpg",
-        "ru": "Виктор в оранжевом шлеме едет в низкой посадке. Фон размыт движением камеры.",
-        "en": "Victor leans into his aero bars. The background blurs as the camera follows him.",
-        "position": "66% 45%",
-        "source": "«1111», 2024. Оригинальный стоп-кадр FINAL_MAIN_00_16_20_11.png. https://disk.yandex.ru/d/rsNJOp0jgMmnug/%D1%81%D1%82%D0%B8%D0%BB%D1%8B%20%D0%B4%D0%BE%D1%80%D0%BE%D0%BD%D0%B8%D0%BD%20%D1%84%D0%B8%D0%BB%D1%8C%D0%BC/FINAL_MAIN_00_16_20_11.png",
-        "width": 2560,
-        "height": 1440
+        "kind": "video",
+        "file": "diary-2026-07-06-03.mp4",
+        "poster": "diary-2026-07-06-03-poster.jpg",
+        "width": 720,
+        "height": 1280,
+        "ru": "Видео с маршрута Midsummer 300+: участники едут группой по загородной трассе.",
+        "en": "Video from the Midsummer 300+ route: the riders move as a group along a country road."
       },
       {
-        "file": "day-05-bend.jpg",
-        "ru": "Виктор уезжает от камеры по дороге, которая поворачивает между деревьями.",
-        "en": "Victor rides away from the camera as the road bends between trees.",
-        "position": "52% 50%",
-        "source": "«1111», 2024. 00:32:00.750 исходного фильма. Локальный файл day-return.mp4, +2.75 с. https://disk.yandex.ru/d/rsNJOp0jgMmnug/1111%20-%204k.mov",
-        "width": 1600,
-        "height": 900
+        "kind": "image",
+        "file": "diary-2026-07-06-08.jpg",
+        "width": 600,
+        "height": 800,
+        "ru": "Участники заезда отдыхают в бассейне.",
+        "en": "Ride participants relax in a swimming pool."
       }
     ],
-    "hero": "day-05-pursuit.jpg"
+    "hero": "day-05-pursuit.jpg",
+    "heroPosition": "66% 45%",
+    "diarySource": {
+      "date": "2026-07-06",
+      "url": "https://t.me/doroninvdele/829",
+      "entry": "src/content/diary/2026-07-06.mjs",
+      "ru": "Материалы дневника, 6 июля 2026",
+      "en": "From the diary, July 6, 2026",
+      "files": [
+        "diary-2026-07-06-02-poster.jpg",
+        "diary-2026-07-06-03.mp4",
+        "diary-2026-07-06-03-poster.jpg",
+        "diary-2026-07-06-08.jpg"
+      ]
+    }
   }
 ]
