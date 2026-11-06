@@ -49,7 +49,7 @@ After the main block, I added another <strong>1 hour 23 minutes</strong> of easy
 • <strong>180 km</strong>
 • <strong>1217 m of elevation gain</strong>`,
       externalLabel:
-        "Opens Viktor’s September 12 training diary entry on Telegram",
+        "Opens Victor’s September 12 training diary entry on Telegram",
     },
   },
 };

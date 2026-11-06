@@ -656,8 +656,8 @@ for (const [lang, path] of pages) {
     expect(
       headerNavigation.includes('href="#diary"') &&
         visibleText.includes("Training diary") &&
-        !html.includes(">Viktor’s training diary<"),
-      "en: the live diary and after-credits route must express the journey without repeating Viktor’s name",
+        !html.includes(">Victor’s training diary<"),
+      "en: the live diary and after-credits route must express the journey without repeating Victor’s name",
     );
     expect(
       visibleText.includes("≈1.3M") &&
@@ -666,13 +666,13 @@ for (const [lang, path] of pages) {
       "en: series and film views must be current and dated",
     );
     expect(
-      visibleText.includes("About Viktor") &&
+      visibleText.includes("About Victor") &&
         visibleText.includes("Community") &&
         visibleText.includes("Motion") &&
         visibleText.includes("Together") &&
         visibleText.includes("Photography — Zhenya Khanai") &&
         normalizedVisibleText.includes("June 19, 2026"),
-      "en: the Viktor photo story must preserve the approved chapters, credit and dates",
+      "en: the Victor photo story must preserve the approved chapters, credit and dates",
     );
   }
 

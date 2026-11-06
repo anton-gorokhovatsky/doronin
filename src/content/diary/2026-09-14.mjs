@@ -43,9 +43,9 @@ export default {
     "en": {
       "tabLabel": "78 days until the 11,111 km challenge",
       "title": "78 days until the 11,111 km challenge",
-      "imageAlt": "Viktor beside a mountain river beneath a bridge",
+      "imageAlt": "Victor beside a mountain river beneath a bridge",
       "note": "Another week of preparation for the “Five Ones” challenge has flown by.\n\nAnd you know what I keep coming back to? <strong>It’s the people who matter most.</strong>\n\nSome came to race, some for trail-running camps, some headed into the mountains with a backpack, and others are simply riding down by Sirius. Somehow, we all end up in one big kaleidoscope.\n\nSome I hadn’t seen in a year. Others suddenly “fell from the sky” and were a lovely surprise. Some just happened to be nearby — we talked, laughed and went on our way.\n\nThose meetings, conversations, chance encounters and training sessions together are what make a training camp truly valuable. Sport is sport, but <strong>people fill the days with far more emotion than kilometres and elevation gain.</strong>\n\nEven a recovery walk along a mountain trail in the Olympic Village unexpectedly became a vivid memory of its own.\n\n<strong>Krasnaya Polyana really is like a kaleidoscope:</strong> look, and every day brings a new colour.\n\nMeanwhile, we’re getting ready for “Five Ones”.\n\nTraining, spending time together and trying not to forget why we started all this in the first place. 🙂",
-      "externalLabel": "Opens Viktor’s September 14 diary entry on Telegram"
+      "externalLabel": "Opens Victor’s September 14 diary entry on Telegram"
     }
   },
   "factsPlacement": "after-note"

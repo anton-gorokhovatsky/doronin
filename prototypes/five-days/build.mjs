@@ -232,7 +232,7 @@ export async function buildFiveDays(directory) {
     const lastPanelEnd = html.indexOf(old[0][0]) + old[0][0].length;
     const canonical = 'https://11111.life/december/';
     const heading = en ? 'Fifth stage' : 'Пятый этап';
-    const description = en ? 'Viktor Doronin’s first five stages. Photographs and stories from his life.' : 'Первые пять этапов Виктора Доронина. Фотографии и истории из его жизни.';
+    const description = en ? 'Victor Doronin’s first five stages. Photographs and stories from his life.' : 'Первые пять этапов Виктора Доронина. Фотографии и истории из его жизни.';
     const headDate = en ? 'December 5, 2026' : '5 декабря 2026';
     const todayLabel = (en ? 'Today, ' : 'Сегодня, ') + latest.date;
     const prepare = fragment => fragment

@@ -47,7 +47,7 @@ export default {
       "imageAlt": "The shadow of a cyclist in an aero position on a sunlit road, with a leg and part of the bike visible on the left",
       "lead": "Last week’s longest tempo session covered 95 kilometres.\n\nThe main goal wasn’t speed or distance, but working on my aero position. Throughout the session, I made small adjustments, tried different options and looked for the best position for riding comfortably for as long as possible.\n\nTraining stats:",
       "note": "Today, I’d rate my position 7 out of 10. It’s already quite good, but there’s still work to do.\n\nWe keep experimenting, making adjustments and searching for those extra few percentage points of comfort and efficiency. The work continues.",
-      "externalLabel": "Opens Viktor’s September 28 diary entry on Telegram"
+      "externalLabel": "Opens Victor’s September 28 diary entry on Telegram"
     }
   }
 };

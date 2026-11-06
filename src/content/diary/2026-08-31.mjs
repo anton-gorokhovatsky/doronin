@@ -23,11 +23,11 @@ export default {
       tabLabel: "Focus on rest",
       title: "Focus on rest",
       imageAlt:
-        "Viktor Doronin holds a Mega-Vita bar towards the camera on an athletics track",
+        "Victor Doronin holds a Mega-Vita bar towards the camera on an athletics track",
       lead: "Last week:\n• Cycling: ~800 km over the week. Tour to Kamyshin (6 rides) + a bike test ride with friends.\n• Running: around 3 hours, at an easy pace.",
       note: "Recovery is the focus: the main thing is to give my body time to absorb the load and make sure I get enough sleep.\n\n• Nutrition: no fanaticism in daily life. On the bike — I’ve cut out solid food, only carbohydrate mixes with an isotonic drink. My formula: ~100 g of carbohydrate per hour.\n• Tests: done, everything is fully in balance.\n\nTakeaway: invest in your body ahead of time; don’t wait for deficiencies!",
       externalLabel:
-        "Opens Viktor’s August 31 training diary entry on Telegram",
+        "Opens Victor’s August 31 training diary entry on Telegram",
     },
   },
 };

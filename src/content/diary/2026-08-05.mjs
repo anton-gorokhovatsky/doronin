@@ -16,7 +16,7 @@ export default {
       aspect: "4 / 5",
       alt: {
         ru: "Виктор Доронин бежит к финишу дистанции 3000 метров на Битве Беговых Клубов",
-        en: "Viktor Doronin runs towards the finish of the 3000-metre race at the Battle of Running Clubs",
+        en: "Victor Doronin runs towards the finish of the 3000-metre race at the Battle of Running Clubs",
       },
     },
     {
@@ -29,7 +29,7 @@ export default {
       position: "47% 50%",
       alt: {
         ru: "Виктор Доронин бежит вдоль трибун на дистанции 3000 метров",
-        en: "Viktor Doronin runs past the stands during the 3000-metre race",
+        en: "Victor Doronin runs past the stands during the 3000-metre race",
       },
     },
   ],
@@ -60,11 +60,11 @@ export default {
       tabLabel: "Battle of Running Clubs: 3000 metres",
       title: "August\u00a01\u00a0— Battle of Running Clubs",
       imageAlt:
-        "Viktor Doronin runs towards the finish of the 3000-metre race at the Battle of Running Clubs",
+        "Victor Doronin runs towards the finish of the 3000-metre race at the Battle of Running Clubs",
       lead: "Well, it’s time to announce the contest results!",
       note: "I’ll be honest: hardly anyone knew that I flew in from Vladivostok for the Battle of Running Clubs literally on the night before the start.\n\nThe jet lag was so bad that my body was living somewhere between time zones, and my last running session was back in the previous week. But, as they say, that’s all just excuses.\n\nThe final time on the board was 10:39.37, and the closest prediction came from Stepan Zaytsev <a href=\"https://t.me/zaytsev_stepan\" target=\"_blank\" rel=\"noopener noreferrer\">@zaytsev_stepan</a>, who guessed 10:40.\n\nStyopa isn’t just anyone - he’s our friend, a like-minded member of Gastrodynamics and a regular on our Sunday long runs. Congratulations!\n\nA T-shirt from the new merch collection is already waiting for its owner.\n\nAnd yes, we’ll change the format of the 11,111 challenge over 31 days in December a little, to make it even more interesting.\n\nThanks to everyone who guessed, cared and cheered us on - it’s little stories like these that make our running community truly alive.",
       externalLabel:
-        "Opens Viktor’s August 5 training diary entry on Telegram",
+        "Opens Victor’s August 5 training diary entry on Telegram",
     },
   },
 };

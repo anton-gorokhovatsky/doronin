@@ -45,7 +45,7 @@ export default {
       "title": "56 days until the 11,111 challenge",
       "imageAlt": "A cyclist’s hand beside a bike saddle against a brick wall",
       "note": "To sum up last week’s training: Whoop said it all for me.\n\nMy body doesn’t seem to be falling apart, I don’t have a fever, and there aren’t any serious after-effects of being ill either. But saying I’m full of energy and ready to conquer my training plans would be a huge exaggeration. My immune system is busy doing its job right now, so I’ve decided to stay out of its way.\n\nJust two easy activities all week, and even those were more like a research expedition: aero position, new saddle, I pedalled for an hour and drew my conclusions. The experiment gets 3 out of 10.\n\nMy fitness doesn’t seem to have gone anywhere. It’s just decided to take a little break from me. And perhaps that’s a useful skill too: sometimes the best sporting result of the week is not forcing yourself to train at any cost, but recognising in time that your body needs a little peace and quiet right now, not another FTP test.\n\nSo no heroics this week.\n\nMy immune system is doing its job; I’m staying out of the way. Meanwhile, the bike just sits there, silently judging me.",
-      "externalLabel": "Opens Viktor’s October 6 diary entry on Telegram"
+      "externalLabel": "Opens Victor’s October 6 diary entry on Telegram"
     }
   }
 };

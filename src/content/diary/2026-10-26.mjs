@@ -19,9 +19,9 @@ export default {
     "en": {
       "tabLabel": "36 days until the 11,111 km challenge",
       "title": "36 days until the 11,111 km challenge",
-      "imageAlt": "Viktor in an orange sports shirt by the sea at sunset, with a lifeguard tower behind him",
+      "imageAlt": "Victor in an orange sports shirt by the sea at sunset, with a lifeguard tower behind him",
       "note": "Last week felt comfortably active — no overload, but plenty of movement and enjoyable experiences.\n\n🏃 Running\nA few runs and three one-hour runs just for fun — at an easy, comfortable pace.\n\n🌊 The sea\nGot out for a dip in the sea — another enjoyable activity during the week.\n\n🏞️ Hiking\nWent on a great hike through the canyons. Probably one of the highlights of the week: beautiful, interesting and simply wonderful.\n\n🚴 Cycling\nThree rides over different distances:\n\n• 36 km\n• 67 km\n• 100 km\n\nA total of 203 km on the bike.\n\nTo sum up the week: lots of different movement, a few running sessions, three bike rides, the sea and a great hike. There was plenty going on, but it all felt easy and comfortable — exactly the kind of activity you enjoy.",
-      "externalLabel": "Opens Viktor’s October 26 diary entry on Telegram"
+      "externalLabel": "Opens Victor’s October 26 diary entry on Telegram"
     }
   }
 };

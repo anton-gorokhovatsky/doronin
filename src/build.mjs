@@ -604,10 +604,10 @@ const locales = {
     alternateLabel: "RU",
     canonical: "https://11111.life/en/",
     alternateCanonical: "https://11111.life/",
-    title: "11,111 km by bike in 31 days — Viktor Doronin",
-    description: "Viktor Doronin will ride 11,111 km in 31 days: from a 333 km base rhythm to a final 1111 km stage.",
-    socialImage: "https://11111.life/assets/share-en-bike-20260817-3.jpg",
-    socialAlt: "11,111 km by bike in 31 days. Viktor Doronin. Starts December 1, 2026.",
+    title: "11,111 km by bike in 31 days — Victor Doronin",
+    description: "Victor Doronin will ride 11,111 km in 31 days: from a 333 km base rhythm to a final 1111 km stage.",
+    socialImage: "https://11111.life/assets/share-en-bike-20261106-victor.jpg",
+    socialAlt: "11,111 km by bike in 31 days. Victor Doronin. Starts December 1, 2026.",
     skip: "Skip to content",
     homeLabel: "11 111 — home",
     menu: "Menu",
@@ -616,12 +616,12 @@ const locales = {
     navLiveLabel: "Diary",
     navRouteKicker: "Sections",
     navDiaryLabel: "Road-to-start diary",
-    navDiaryNote: "The remaining days, Viktor’s training and decisions",
+    navDiaryNote: "The remaining days, Victor’s training and decisions",
     nav: [
       ["#top", "Project"],
       ["#distance", "Calendar"],
       ["#diary", "Diary"],
-      ["#viktor", "About Viktor"],
+      ["#viktor", "About Victor"],
       ["#proof", "Film “1111”"],
       ["#adventures", "Challenges"],
       ["#interviews", "Interviews"],
@@ -634,8 +634,8 @@ const locales = {
       lineTwo: ["31", "days"],
       accent: "BY BIKE",
       intro:
-        "In December 2024, Viktor covered 1111 km across three disciplines without sleep. A new challenge lies ahead.",
-      imageAlt: "Viktor Doronin riding at speed during a cycling event",
+        "In December 2024, Victor covered 1111 km across three disciplines without sleep. A new challenge lies ahead.",
+      imageAlt: "Victor Doronin riding at speed during a cycling event",
       videoPlay: "Play video",
       videoPause: "Pause",
       primaryCta: "December plan",
@@ -663,7 +663,7 @@ const locales = {
       eyebrow: "December 2026 · 31 days",
       title: "Each stage is longer",
       intro:
-        "Between special stages, Viktor continues his daily base rides. The three longest stages are separate continuous rides, without overnight sleep or division into daily legs.",
+        "Between special stages, Victor continues his daily base rides. The three longest stages are separate continuous rides, without overnight sleep or division into daily legs.",
       totalLabel: "Total distance",
       totalValue: "11,111",
       totalUnit: "km",
@@ -687,7 +687,7 @@ const locales = {
       rideSummary: "30 days in motion",
       rhythmTitle: "The rhythm before the final stage",
       rhythmText:
-        "Twenty base days cover 333 km each; two more cover 338 km. Before the final stage, Viktor reaches exactly 10,000 km. The final stage is a continuous 1111 km ride.",
+        "Twenty base days cover 333 km each; two more cover 338 km. Before the final stage, Victor reaches exactly 10,000 km. The final stage is a continuous 1111 km ride.",
       calendarFarTitle: "Full December calendar",
       calendarFarMeta: "December 1–31",
       calendarNearTitle: "December plan",
@@ -703,11 +703,11 @@ const locales = {
       formulaResult: "11,111",
     },
     viktor: {
-      eyebrow: "About Viktor",
-      title: "Viktor Doronin",
+      eyebrow: "About Victor",
+      title: "Victor Doronin",
       lead: "47. He doesn’t craft an image — he lives it.",
       body: `A driving force behind the <a href="${shared.dustyDumbbellsHref}" target="_blank" rel="noopener noreferrer">Dusty Dumbbells</a> and&nbsp;<a href="${shared.gastrodinamikaHref}" target="_blank" rel="noopener noreferrer">Gastrodinamika</a> communities, a friend, a source of motivation and one of the strongest amateur triathletes.`,
-      imageAlt: "Viktor Doronin racing through the desert",
+      imageAlt: "Victor Doronin racing through the desert",
       achievements: [
         ["4×", "Ironman World Championship Kona participant"],
         ["252.8 km", "Marathon des Sables in the Sahara"],
@@ -726,7 +726,7 @@ const locales = {
           image: "story-leads-community.jpg",
           width: "1800",
           height: "1200",
-          alt: "Viktor Doronin stands with his back to the camera before a large group of runners on a track",
+          alt: "Victor Doronin stands with his back to the camera before a large group of runners on a track",
           caption: "Community",
           date: "2026-06-02",
           dateLabel: "June 2, 2026",
@@ -735,7 +735,7 @@ const locales = {
           image: "story-pace-close.jpg",
           width: "1400",
           height: "1800",
-          alt: "Viktor Doronin runs with a group along a sunlit track",
+          alt: "Victor Doronin runs with a group along a sunlit track",
           caption: "Pace",
           date: "2026-05-22",
           dateLabel: "May 22, 2026",
@@ -745,14 +745,14 @@ const locales = {
           video: "story-recovery.mp4",
           width: "1600",
           height: "900",
-          alt: "Viktor Doronin recovering immediately after a hard effort",
+          alt: "Victor Doronin recovering immediately after a hard effort",
           caption: "The cost of effort",
         },
         {
           image: "story-support.jpg",
           width: "1400",
           height: "1800",
-          alt: "A smiling Viktor Doronin clasps hands with people after training",
+          alt: "A smiling Victor Doronin clasps hands with people after training",
           caption: "Support",
           date: "2026-05-31",
           dateLabel: "May 31, 2026",
@@ -761,7 +761,7 @@ const locales = {
           image: "story-motion-city-1800.jpg",
           width: "1800",
           height: "1200",
-          alt: "Viktor Doronin runs alongside other athletes on a sunlit path",
+          alt: "Victor Doronin runs alongside other athletes on a sunlit path",
           caption: "Motion",
           date: "2026-06-19",
           dateLabel: "June 19, 2026",
@@ -770,7 +770,7 @@ const locales = {
           image: "story-community-wide.jpg",
           width: "1800",
           height: "1200",
-          alt: "Viktor Doronin and a large training group pose together on a track",
+          alt: "Victor Doronin and a large training group pose together on a track",
           caption: "Together",
           date: "2026-06-02",
           dateLabel: "June 2, 2026",
@@ -781,14 +781,14 @@ const locales = {
       eyebrow: "Documentary · 2024",
       title: "“1111. The Other Side”",
       body:
-        "In December 2024, Viktor swam 10 km, cycled 1001 km and ran 100 km — in 58 hours without sleep. The film follows the challenge from the inside and the people alongside him.",
+        "In December 2024, Victor swam 10 km, cycled 1001 km and ran 100 km — in 58 hours without sleep. The film follows the challenge from the inside and the people alongside him.",
       metrics: [
         ["≈1.3M", "views across five episodes and the film"],
-        ["+310%", "growth in Viktor’s audience"],
+        ["+310%", "growth in Victor’s audience"],
         ["25+", "federal media outlets"],
       ],
       filmCta: "Watch the film",
-      filmAlt: "Viktor in a swimming cap and goggles at the pool edge — a still from the film “1111”",
+      filmAlt: "Victor in a swimming cap and goggles at the pool edge — a still from the film “1111”",
       filmPlatform: "VK Video · opens in a new tab",
       resultsLabel: "Strava records and race results",
       reachTitle: "The audience for “1111”",
@@ -800,7 +800,7 @@ const locales = {
         {
           title: "1111 km without sleep · December 2024",
           body:
-            "Viktor’s Strava records from December 24–26, 2024 document the distances of all three legs. The film “1111” tells the story of completing them without sleep.",
+            "Victor’s Strava records from December 24–26, 2024 document the distances of all three legs. The film “1111” tells the story of completing them without sleep.",
           linkLabel: "Strava records",
           links: [
             ["Swim · 10 km", shared.project1111Activities.swim],
@@ -826,7 +826,7 @@ const locales = {
         {
           title: "Marathon des Sables · 2024",
           body:
-            "Viktor completed the 38th Marathon des Sables: 252.8 km in 34:07:29, placing 81st overall.",
+            "Victor completed the 38th Marathon des Sables: 252.8 km in 34:07:29, placing 81st overall.",
           linkLabel: "Race result",
           stackLinks: true,
           links: [["MDS 2024 · UTMB Index", shared.raceResults.mds2024]],
@@ -834,7 +834,7 @@ const locales = {
         {
           title: "IRONMAN · Kona",
           body:
-            "Viktor has crossed the finish line at the IRONMAN World Championship in Kona four times: in 2016, 2017, 2018 and 2024.",
+            "Victor has crossed the finish line at the IRONMAN World Championship in Kona four times: in 2016, 2017, 2018 and 2024.",
           linkLabel: "Results archives",
           stackLinks: true,
           links: [
@@ -847,7 +847,7 @@ const locales = {
         {
           title: "Double Everesting · 2021",
           body:
-            "Double Everesting means twice the height of Everest: 17,696 metres of elevation gain in a single ride. Viktor started in Krasnaya Polyana on October 10, 2021 at 23:50; Strava recorded 17,758 metres of elevation gain.",
+            "Double Everesting means twice the height of Everest: 17,696 metres of elevation gain in a single ride. Victor started in Krasnaya Polyana on October 10, 2021 at 23:50; Strava recorded 17,758 metres of elevation gain.",
           stackLinks: true,
           links: [
             ["Ride on Strava", shared.everestingActivityHref],
@@ -871,7 +871,7 @@ const locales = {
     },
     adventures: {
       eyebrow: "Not his first limit",
-      title: "What Viktor has already completed",
+      title: "What Victor has already completed",
       watch: "Watch on YouTube",
       items: [
         {
@@ -882,7 +882,7 @@ const locales = {
         },
         {
           title: "Tour de Kamyshin 2024",
-          meta: "Viktor Doronin and superheroes · 500 km by bike",
+          meta: "Victor Doronin and superheroes · 500 km by bike",
           image: "adventure-kamyshin.jpg",
           href: "https://www.youtube.com/watch?v=TtEKqOWKDV0",
         },
@@ -956,10 +956,10 @@ const locales = {
     partners: {
       eyebrow: "For partners",
       title: "Take the journey together",
-      imageAlt: "Viktor Doronin among runners before the start.",
+      imageAlt: "Victor Doronin among runners before the start.",
       lead: "Not an integration.<br>A shared journey.",
       body:
-        "11,111 km begin long before the first kilometre. We invite those who want to do more than watch from the sidelines — to follow this story with Viktor before the start, through all 31 days and beyond the finish.",
+        "11,111 km begin long before the first kilometre. We invite those who want to do more than watch from the sidelines — to follow this story with Victor before the start, through all 31 days and beyond the finish.",
       formatsLabel: "Ways to participate",
       formats: [
         [
@@ -1016,7 +1016,7 @@ const locales = {
       telegramCta: "Message on Telegram",
       partnerCta: "Discuss a partnership",
       languageCta: "Русская версия",
-      legal: "2026 · Sole proprietor Viktor Doronin · TIN 344 406 202 270",
+      legal: "2026 · Sole proprietor Victor Doronin · TIN 344 406 202 270",
       authorName: "Anton Gorokhovatsky",
       designCredit: "Design and development",
       top: "Back to top",
@@ -1987,7 +1987,7 @@ function renderBirthdayGreeting(l, diaryHref = "#diary") {
   return `<div class="birthday-stage birthday-greeting">
         <span class="birthday-film-credit">${l.lang === 'ru' ? 'Из фильма «1111» · 2024' : 'From the film “1111” · 2024'}</span>
         <div id="birthday-title" class="birthday-title" role="heading" aria-level="1">
-          <span class="birthday-name">${l.lang === 'ru' ? 'Витя,' : 'Vitya,'}</span>
+          <span class="birthday-name">${l.lang === 'ru' ? 'Витя,' : 'Victor,'}</span>
           <span class="birthday-salute">${l.lang === 'ru' ? 'с днём рождения!' : 'happy birthday!'}</span>
         </div>
         <div class="birthday-message">
@@ -1995,7 +1995,7 @@ function renderBirthdayGreeting(l, diaryHref = "#diary") {
           <button class="birthday-replay" type="button" data-birthday-replay hidden><span>${l.lang === 'ru' ? 'Больше праздника!' : 'More celebration!'}</span>${birthdayIcon}</button>
         </div>
         <div class="birthday-context">
-          <p><b>${l.lang === 'ru' ? '11 111 км на велосипеде' : '11,111 km by bike'}</b><span>${l.lang === 'ru' ? '1–31 декабря 2026 · Виктор Доронин' : '1–31 December 2026 · Viktor Doronin'}</span></p>
+          <p><b>${l.lang === 'ru' ? '11 111 км на велосипеде' : '11,111 km by bike'}</b><span>${l.lang === 'ru' ? '1–31 декабря 2026 · Виктор Доронин' : '1–31 December 2026 · Victor Doronin'}</span></p>
           <a class="birthday-diary" href="${diaryHref}" data-analytics-goal="diary_explore"><span>${l.lang === 'ru' ? 'Читать дневник' : 'Read the diary'}</span>${diaryHref === "#diary" ? icons.down : icons.earlier}</a>
         </div>
       </div>`;
@@ -2721,7 +2721,7 @@ function renderBirthdayPage(l) {
   const homeHref = ru ? "/" : "/en/";
   const canonical = `https://11111.life${homeHref}birthday/`;
   const alternateHref = ru ? "/en/birthday/" : "/birthday/";
-  const title = ru ? "Витя, с днём рождения! · 11 111" : "Happy birthday, Vitya! · 11 111";
+  const title = ru ? "Витя, с днём рождения! · 11 111" : "Happy birthday, Victor! · 11 111";
   const description = ru
     ? "Пусть здоровья и сил хватает на большие замыслы, а рядом всегда будут свои люди. 5 октября 2026."
     : "May you have the health and strength for your biggest plans, with your people always by your side. 5 October 2026.";
@@ -2745,7 +2745,7 @@ function renderBirthdayPage(l) {
   <meta property="og:description" content="${description}">
   <meta property="og:url" content="${canonical}">
   <meta property="og:image" content="https://11111.life/assets/birthday-2026-film.jpg?v=${birthdayVideoVersion}">
-  <meta property="og:image:alt" content="${ru ? 'Витю встречают и обнимают. Кадр из фильма «1111», 2024' : 'Vitya is welcomed with hugs. A frame from the film “1111”, 2024'}">
+  <meta property="og:image:alt" content="${ru ? 'Витю встречают и обнимают. Кадр из фильма «1111», 2024' : 'Victor is welcomed with hugs. A frame from the film “1111”, 2024'}">
   <meta property="og:locale" content="${ru ? 'ru_RU' : 'en_US'}">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="${l.assetBase}assets/favicon-adaptive.svg" type="image/svg+xml">

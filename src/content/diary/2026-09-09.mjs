@@ -66,9 +66,9 @@ export default {
       tabLabel: "Listen to your body in time",
       title: "Listen to your body in time",
       imageAlt:
-        "Viktor Doronin, wearing cycling kit, does pull-ups on an outdoor bar; the video caption reads: “Why does progress sometimes mean knowing when to stop?”",
+        "Victor Doronin, wearing cycling kit, does pull-ups on an outdoor bar; the video caption reads: “Why does progress sometimes mean knowing when to stop?”",
       videoLabel:
-        "Viktor Doronin does pull-ups on an outdoor bar beside bicycles",
+        "Victor Doronin does pull-ups on an outdoor bar beside bicycles",
       videoPlayLabel: "Play the 14-second training diary video",
       note: `The numbers in Krasnaya Polyana are starting to look good.
 
@@ -110,7 +110,7 @@ Only then start adding more again.
 
 Because a serious injury very often starts with a little signal you chose to ignore.`,
       externalLabel:
-        "Opens Viktor’s September 9 training diary entry on Telegram",
+        "Opens Victor’s September 9 training diary entry on Telegram",
     },
   },
 };

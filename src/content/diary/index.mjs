@@ -86,7 +86,7 @@ const localeCopy = {
     ],
   },
   en: {
-    eyebrow: "Viktor’s updates",
+    eyebrow: "Victor’s updates",
     phaseBefore: "Road-to-start diary",
     phaseActive: "Distance diary",
     phaseFinished: "Story archive",
@@ -94,13 +94,13 @@ const localeCopy = {
     liveTitleActive: "Distance diary",
     liveTitleFinished: "Project archive",
     liveBodyBefore:
-      "Viktor writes about his training, how he feels and the decisions he makes during preparation.",
+      "Victor writes about his training, how he feels and the decisions he makes during preparation.",
     liveBodyActive:
-      "The diary records the distance, the team’s decisions and Viktor’s condition as verified updates become available.",
+      "The diary records the distance, the team’s decisions and Victor’s condition as verified updates become available.",
     liveBodyFinished:
       "The preparation and distance updates remain as the project’s chronology — from the first decisions to the recorded result.",
     latestLabel: "Latest entry",
-    followLabel: "Follow Viktor",
+    followLabel: "Follow Victor",
     telegramCta: "Diary on Telegram",
     stravaCta: "Rides on Strava",
     archiveLabel: "Diary archive",

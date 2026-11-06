@@ -57,7 +57,7 @@ export function renderRideFilm(l, record, timing, version, toggleIcon, externalI
         </div>
       </div>
       <footer class="ride-film__notes">
-        <div class="ride-film__context"><p>${ru ? 'Здесь прошёл велосипедный этап «1111». В декабре Виктор вернётся на эту трассу.' : 'This course hosted the cycling leg of “1111”. Viktor returns here in December.'}</p></div>
+        <div class="ride-film__context"><p>${ru ? 'Здесь прошёл велосипедный этап «1111». В декабре Виктор вернётся на эту трассу.' : 'This course hosted the cycling leg of “1111”. Victor returns here in December.'}</p></div>
         <div class="ride-film__provenance">
           <div class="ride-film__description" id="ride-film-description">
             <p>${ru ? 'Кадры из фильма «1111», 2024 год.' : 'Scenes from the film “1111”, 2024.'}</p>

@@ -24,12 +24,12 @@ export default {
     en: {
       tabLabel: "Before the start",
       title: "Recover to keep moving",
-      imageAlt: "Viktor Doronin recovers in a banya after a training camp in Krasnaya Polyana",
-      videoLabel: "Training diary video: Viktor Doronin talks about recovery before the next start",
+      imageAlt: "Victor Doronin recovers in a banya after a training camp in Krasnaya Polyana",
+      videoLabel: "Training diary video: Victor Doronin talks about recovery before the next start",
       videoPlayLabel: "Play the 9-second video about pre-race recovery",
       lead: "The training camp in Polyana is coming to an end - today it’s already time for the Three Mountains start and the trip home.",
       note: "Yesterday our group went to the banya.\n\nA Russian banya in the mountains during a training camp is something else. What could be more beautiful?\n\nWe went to <a href=\"https://t.me/russkiye_traditsii\" target=\"_blank\" rel=\"noopener noreferrer\">Russkiye Traditsii</a>, and I can say it’s one of the most enjoyable places to recover.\n\nHow do you recover before a race?",
-      externalLabel: "Opens Viktor’s May 9 training diary entry on Telegram",
+      externalLabel: "Opens Victor’s May 9 training diary entry on Telegram",
     },
   },
 };

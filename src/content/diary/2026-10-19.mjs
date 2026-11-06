@@ -18,9 +18,9 @@ export default {
     "en": {
       "tabLabel": "43 days until the 11,111 km challenge",
       "title": "43 days until the 11,111 km challenge",
-      "imageAlt": "Viktor in a bright sports shirt and white Crocs, sitting on a parapet with mountains behind him",
+      "imageAlt": "Victor in a bright sports shirt and white Crocs, sitting on a parapet with mountains behind him",
       "note": "A week of sunshine therapy and ‘running’ Crocs ☀️\n\nThe week in review: 5 runs in Crocs, 1 bike ride and a pleasant dip in the sea after almost every run.\n\nFor some people, preparing for a challenge means a strict plan, discipline, monitoring their heart rate and weighing every gram of food. I have a plan too. Mine just includes Crocs, the sea and trying not to miss a single ray of sunshine.\n\nRun. Ride. Swim in the sea. Repeat.\n\nFrom a psychological point of view, this is actually a pretty sensible strategy. Preparing for serious challenges depends not only on being able to endure, but also on knowing how to enjoy the process. If every workout turns into a little war with yourself, that romance won’t last long.",
-      "externalLabel": "Opens Viktor’s October 19 diary entry on Telegram"
+      "externalLabel": "Opens Victor’s October 19 diary entry on Telegram"
     }
   }
 };

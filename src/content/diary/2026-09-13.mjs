@@ -122,7 +122,7 @@ export default {
       "title": "Polyana is my place to recharge.",
       "imageAlt": "People by a railing on a sunny mountain terrace among fir trees",
       "note": "<strong>Everything comes together here:</strong>\n• Nature: the mountains and the sea nearby.\n• Excellent road surfaces and elevation gain for effective cycling training.\n• The people who live here and come here to train.\n\n<strong><em>Where is your place to recharge, and how often do you go there?</em></strong>",
-      "externalLabel": "Opens Viktor’s September 13 diary entry on Telegram"
+      "externalLabel": "Opens Victor’s September 13 diary entry on Telegram"
     }
   }
 };

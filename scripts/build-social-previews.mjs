@@ -2,8 +2,6 @@ import { chromium } from "playwright";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-import { startSiteServer } from "./lib/site-server.mjs";
-
 const previews = [
   {
     file: "share-ru-bike-20260817-3.jpg",
@@ -15,18 +13,23 @@ const previews = [
     line: "31 день на велосипеде",
   },
   {
-    file: "share-en-bike-20260817-3.jpg",
+    file: "share-en-bike-20261106-victor.jpg",
     lang: "en",
     date: "December 1–31, 2026",
-    name: "Viktor Doronin",
+    name: "Victor Doronin",
     distance: "11,111",
     unit: "km",
     line: "31 days by bike",
   },
 ];
+const requestedLocale = process.argv[2];
+const selectedPreviews = requestedLocale
+  ? previews.filter(preview => preview.lang === requestedLocale) : previews;
+if (!selectedPreviews.length) throw new Error(`Unknown social preview locale: ${requestedLocale}`);
 
-const server = await startSiteServer("src/assets");
 const browser = await chromium.launch({ headless: true });
+const photograph = (await readFile(resolve("src/assets/share-bike-source.jpg"))).toString("base64");
+const logo = (await readFile(resolve("src/assets/logo.svg"))).toString("base64");
 const commissionerCyrillic = (
   await readFile(resolve("src/assets/fonts/Commissioner-Cyrillic.woff2"))
 ).toString("base64");
@@ -38,13 +41,12 @@ const micra = (
 ).toString("base64");
 
 try {
-  for (const preview of previews) {
+  for (const preview of selectedPreviews) {
     const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
     await page.setContent(
       `<!doctype html>
       <html lang="${preview.lang}">
         <head>
-          <base href="${server.origin}/">
           <style>
             @font-face {
               font-family: "Commissioner";
@@ -81,7 +83,7 @@ try {
               height: 100%;
               padding: 42px 50px 44px;
               overflow: hidden;
-              background: url("share-bike-source.jpg") 50% 50% / cover no-repeat;
+              background: url("data:image/jpeg;base64,${photograph}") 50% 50% / cover no-repeat;
             }
             main::before {
               position: absolute;
@@ -137,7 +139,7 @@ try {
         <body>
           <main>
             <header>
-              <img src="logo.svg" alt="">
+              <img src="data:image/svg+xml;base64,${logo}" alt="">
               <p>${preview.date}</p>
             </header>
             <section>
@@ -172,5 +174,4 @@ try {
   }
 } finally {
   await browser.close();
-  await server.close();
 }

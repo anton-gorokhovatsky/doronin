@@ -16,7 +16,7 @@ export default {
       "aspect": "3 / 4",
       "alt": {
         "ru": "Виктор в велоформе и белом шлеме стоит с велосипедом у скал и каменного источника",
-        "en": "Viktor in cycling kit and a white helmet stands with his bicycle beside cliffs and a stone fountain"
+        "en": "Victor in cycling kit and a white helmet stands with his bicycle beside cliffs and a stone fountain"
       }
     },
     {
@@ -38,7 +38,7 @@ export default {
       "aspect": "3 / 4",
       "alt": {
         "ru": "Виктор отдыхает в кафе после велозаезда; на переднем плане белый шлем и зелёные ветви",
-        "en": "Viktor rests in a café after a ride, with a white helmet and green branches in the foreground"
+        "en": "Victor rests in a café after a ride, with a white helmet and green branches in the foreground"
       }
     }
   ],
@@ -167,7 +167,7 @@ export default {
     "en": {
       "tabLabel": "29 days until the 11,111 km challenge",
       "title": "29 days until the 11,111 km challenge",
-      "imageAlt": "Viktor in cycling kit and a white helmet stands with his bicycle beside cliffs and a stone fountain",
+      "imageAlt": "Victor in cycling kit and a white helmet stands with his bicycle beside cliffs and a stone fountain",
       "note": "It’s been an eventful week. And not just in terms of kilometres.\n\nTurkey keeps surprising us: sunshine, mountains, the sea, unexpected cold and completely unpredictable weather.\n\nA few stats:\n🚴 Road rides:\n• 35 km — a rainy ride from Antalya towards Kemer. Average speed was almost 37 km/h. Fogged-up glasses, a wet road, speed and utterly unforgettable sensations. But the weather proved too unpredictable, so we decided not to tempt fate and turned back.\n• 120 km with around 2050 m of climbing. A very scenic mountain loop from Antalya. My first proper mountain effort in a long time. Had to work hard and breathe hard.\n• 65 km with 1191 m of climbing. Another good workout for the legs. After the ride, a little reset: did some shopping, went for a swim and gave our legs a rest.\n• 5.5 km of easy city riding.\n• 37 km on the way from Antalya to Kaş. We’d originally planned a route higher up in the mountains, but temperatures at the summits were dropping to 4–5 degrees. We chose the safer option and rode along the coast.\n\n⛰ The week’s standout event was the ascent of Mount Tahtalı.\nThe summit is 2365 metres high. We were dropped off at around 950 metres, leaving about 9 km to cover with roughly 1300 metres of climbing.\n\nA completely different kind of effort, different sensations and incredible views.\n\nAnd, of course, a huge amount of walking. We’re strolling around towns, exploring the surroundings and chatting a lot.\n\nTo sum up the week: cycling, mountains, hiking, the sea and new experiences.",
       "notePresentation": [
         {
@@ -282,7 +282,7 @@ export default {
           "text": "To sum up the week: cycling, mountains, hiking, the sea and new experiences."
         }
       ],
-      "externalLabel": "Opens Viktor’s November 2 diary entry on Telegram"
+      "externalLabel": "Opens Victor’s November 2 diary entry on Telegram"
     }
   }
 };

@@ -16,7 +16,7 @@ export default {
       aspect: "9 / 16",
       alt: {
         ru: "Виктор Доронин в велошлеме стоит рядом с мужчиной на фоне гор Красной Поляны; поверх фотографии показаны показатели заезда",
-        en: "Viktor Doronin, wearing a cycling helmet, stands beside a man with the mountains of Krasnaya Polyana behind them; ride statistics are overlaid on the photo",
+        en: "Victor Doronin, wearing a cycling helmet, stands beside a man with the mountains of Krasnaya Polyana behind them; ride statistics are overlaid on the photo",
       },
     },
     {
@@ -69,11 +69,11 @@ export default {
       tabLabel: "First long ride on the TT bike",
       title: "First long ride on the TT bike",
       imageAlt:
-        "Viktor Doronin wearing a cycling helmet after a ride in Krasnaya Polyana",
+        "Victor Doronin wearing a cycling helmet after a ride in Krasnaya Polyana",
       note:
         "Well, what can I say? It wasn’t easy, but we hung in there.\n\nI rode with Pavel, and at the finish I ran into Anton from Dusty. Small world.\n\nDusty is here. Krasnaya Polyana is a place that gives you strength.",
       externalLabel:
-        "Opens Viktor’s September 5 training diary entry on Telegram",
+        "Opens Victor’s September 5 training diary entry on Telegram",
     },
   },
 };

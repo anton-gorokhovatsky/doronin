@@ -28,14 +28,14 @@ export default {
       tabLabel: "After the\ntests",
       title: "After the tests",
       imageAlt:
-        "Viktor Doronin runs on a track with a training group during a strength-and-speed session",
+        "Victor Doronin runs on a track with a training group during a strength-and-speed session",
       videoLabel:
-        "Training diary video: Viktor Doronin runs on a track with a training group",
+        "Training diary video: Victor Doronin runs on a track with a training group",
       videoPlayLabel: "Play the 5-second training diary video",
       lead: "I’m in a speed and strength block at the moment.",
       note: "After the tests, it became clear that I need to invest in three areas — strength, speed and endurance.\n\nThat’s what the current plan is built around: running for the key work sessions, cycling mainly for recovery.\n\nBy an interesting coincidence, a new coach has joined <a href=\"https://t.me/Dusty_Dumbbells\" target=\"_blank\" rel=\"noopener noreferrer\">Dusty</a> — <a href=\"https://t.me/mendaeva\" target=\"_blank\" rel=\"noopener noreferrer\">Lilia Mendaeva</a>, who coaches runners for 3000 m and is writing a plan for the group ahead of the <a href=\"https://t.me/DDeventRussia\" target=\"_blank\" rel=\"noopener noreferrer\">Battle of Running Clubs</a> on August 1. And it turns out that her work is a 90% match for what I need right now.\n\nSo our small experimental group is doing exactly these running sessions – a great example of how my current training fits into a new direction at Dusty.\n\nI also want to highlight the <a href=\"https://t.me/DDeventRussia\" target=\"_blank\" rel=\"noopener noreferrer\">3000 m training group</a> – it’s a strong format for anyone who wants to develop speed and running power, and get structured work on the track. And Lilia is a coach with a very precise approach to running goals and a good understanding of middle-distance training.\n\nIt’s a great combination: my current training block and the new group at Dusty are effectively heading in the same direction.\n\nIf you’re interested in speed work and training for 3000 m, this is a great time to join.",
       externalLabel:
-        "Opens Viktor’s April 23 training diary entry on Telegram",
+        "Opens Victor’s April 23 training diary entry on Telegram",
     },
   },
 };

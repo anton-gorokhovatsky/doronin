@@ -156,7 +156,7 @@ export async function checkCalendarAndPortrait({ page, testCase, prefix }) {
       stickyState.position === "sticky" &&
         near(stickyState.held.top, stickyState.topOffset, 2) &&
         stickyState.released.top < stickyState.topOffset - 20,
-      `${prefix}: Viktor portrait does not hold and release as a sticky chapter image (${JSON.stringify(stickyState)})`,
+      `${prefix}: Victor portrait does not hold and release as a sticky chapter image (${JSON.stringify(stickyState)})`,
     );
   }
 

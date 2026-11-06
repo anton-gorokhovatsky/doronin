@@ -28,14 +28,14 @@ export default {
       tabLabel: "Base phase",
       title: "Base phase complete",
       imageAlt:
-        "Viktor Doronin rides a bicycle on a road during base training",
+        "Victor Doronin rides a bicycle on a road during base training",
       videoLabel:
-        "Training diary video: Viktor Doronin trains on a bicycle",
+        "Training diary video: Victor Doronin trains on a bicycle",
       videoPlayLabel: "Play the 12-second training diary video",
       lead: "60 days in which my body remembered what discipline, regular training and working out even on the days when motivation got lost somewhere along the way feel like 🙂",
       note: "The main takeaway is simple. Base training builds the foundation that all your fitness will later rest on.\n\nThe task was clear. Stay injury-free, steadily develop zones one and two, and simply put in the miles to build endurance. No heroics. No trying to prove to the world that you’re the Terminator.\n\nFor anyone else, is base training mainly a battle not with the workload, but with the thought “I could skip today, couldn’t I”?\n\nI only ran at the beginning. After that I switched almost entirely to cycling. The final weeks were all about volume and long hours in the saddle.\n\nThe numbers are simple:\n203 hours 3 minutes\n4769 kilometres.\n46,987 metres of elevation gain.\n\nAnd the irony is that base training looks boring from the outside. No thrills, no records.\n\nBut it is precisely those “boring” sessions that later turn into the fitness everyone admires.\n\nCome on, admit it. Does your base period always feel endless too, or am I the only one whose every third session comes with the motto “right, this is definitely the last long ride”? 🙂",
       externalLabel:
-        "Opens Viktor’s March 10 training diary entry on Telegram",
+        "Opens Victor’s March 10 training diary entry on Telegram",
     },
   },
 };
