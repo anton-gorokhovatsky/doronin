@@ -43,73 +43,86 @@ body[data-five-days] .site-header:not(:has(.nav-shell[open])) .menu-toggle:focus
   transition: none;
 }
 
-/* One current forecast lives directly in the menu, independent of the rehearsal date. */
-body[data-five-days] #dubai-light[data-weather-only]:not([hidden]) {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-pair);
-  flex: 1 1 100%;
+/* A compact current reading shares the menu's one weather owner and source. */
+body[data-five-days] [data-weather-compact]:not([hidden]) { display: contents; }
+body[data-five-days] [data-weather-compact] :is(.dubai-light__intro, .dubai-light__modes, .dubai-light__controls) { display: none; }
+body[data-five-days] [data-weather-compact] .dubai-forecast__source {
+  display: flex;
+  flex: 0 1 auto;
   min-inline-size: 0;
-  margin: var(--space-pair) 0 0;
-  color: var(--paper);
-}
-body[data-five-days] [data-weather-only] > .dubai-light__intro { display: none; }
-body[data-five-days] [data-weather-only] :is(#dubai-hint, .dubai-light__modes, .dubai-light__controls) {
-  display: none;
-}
-body[data-five-days] [data-weather-only] .dubai-forecast {
   margin: 0;
-  padding: 0;
-  border: 0;
-}
-body[data-five-days] [data-weather-only] .dubai-forecast :is(.dubai-forecast__heading p, .dubai-forecast__source, .dubai-forecast__state, .dubai-forecast__day, .dubai-forecast__metrics dt) {
   color: var(--paper-dim);
+  font-size: var(--type-service);
+  line-height: 1.5;
 }
-body[data-five-days] [data-weather-only] .dubai-forecast__list[aria-hidden="true"] {
-  display: none;
+body[data-five-days] [data-weather-compact] .dubai-forecast__source-row {
+  min-block-size: 0;
+  gap: .25rem var(--weather-column-gap);
 }
-/* One service summary: its place and scope lead to three comparable readings. */
-body[data-five-days] [data-weather-only] .dubai-forecast__heading {
-  gap: var(--space-pair) var(--space-stack);
-  margin-bottom: var(--space-pair);
-}
-body[data-five-days] [data-weather-only] .dubai-forecast__heading h4 {
-  color: var(--paper-dim);
-  font-size: var(--type-copy);
-  font-weight: 600;
-}
-body[data-five-days] [data-weather-only] .dubai-forecast__period { gap: var(--space-pair); }
-body[data-five-days] [data-weather-only] .dubai-forecast__reading {
-  grid-template-columns: max-content max-content;
-  align-items: baseline;
-  column-gap: var(--space-pair);
-}
-body[data-five-days] [data-weather-only] .dubai-forecast__temperature {
-  grid-column: 2;
-  grid-row: 1;
-  margin-top: 0;
-}
-body[data-five-days] [data-weather-only] .dubai-forecast__day {
-  grid-column: 1 / -1;
-  grid-row: 2;
-}
-body[data-five-days] [data-weather-only] .dubai-forecast__source {
-  display: grid;
-  margin-top: var(--space-pair);
-}
-body[data-five-days] [data-weather-only] .dubai-forecast__source > .dubai-forecast__reserve { display: none; }
-body[data-five-days] [data-weather-only] .dubai-forecast__source:has([data-dubai-source-link][hidden]) { display: none; }
+body[data-five-days] [data-weather-compact] .dubai-forecast__source > .dubai-forecast__reserve { display: none; }
+body[data-five-days] [data-weather-compact] .dubai-forecast__source:has([data-dubai-source-link][hidden]) { display: none; }
+body[data-five-days] [data-weather-compact] .dubai-forecast__source a { min-block-size: 2.75rem; }
 
-/* The complete service remains reachable inside the native menu at every size. */
-:root body[data-five-days] .nav-shell[open] .site-nav {
-  grid-template-rows: auto auto;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
+/* Short desktop windows keep the native bounded navigation scroll region.
+   The service occupies its own row; text never paints behind it. */
 @media (min-width: 961px) {
-  body[data-five-days] .site-nav__chapters { min-block-size: min-content; }
-  body[data-five-days] .site-nav__navigation { overflow: visible; }
+  :root body[data-five-days] .nav-shell[open] .site-nav {
+    grid-template-rows: minmax(0, 1fr) auto;
+    overflow: hidden;
+  }
+  body[data-five-days] .site-nav__chapters { min-block-size: 0; }
+  body[data-five-days] .site-nav__navigation {
+    min-block-size: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-padding-block-start: clamp(5rem, 7vh, 6rem);
+  }
+  :root.text-enlarged body[data-five-days] .site-header:has(.nav-shell[open]) {
+    --menu-header-block-size: calc(4.5rem + var(--space-stack));
+    height: var(--menu-header-block-size);
+    padding-block: calc(var(--space-stack) * .5);
+    background: var(--ink);
+  }
+  :root.text-enlarged body[data-five-days] .nav-shell[open] .site-nav {
+    inset-block-start: var(--menu-header-block-size);
+    display: block;
+    height: calc(100svh - var(--menu-header-block-size));
+    max-height: calc(100svh - var(--menu-header-block-size));
+    overflow-y: auto;
+    scroll-padding-block-start: var(--space-stack);
+  }
+  :root.text-enlarged body[data-five-days] .site-nav__chapters {
+    display: block;
+  }
+  :root.text-enlarged body[data-five-days] .site-nav__navigation {
+    display: block;
+    overflow: visible;
+    padding-block-start: var(--space-stack);
+  }
+  :root.text-enlarged body[data-five-days] .site-nav__settings {
+    margin-block-start: var(--space-group);
+  }
+  :root.text-enlarged body[data-five-days] .site-nav__preview {
+    display: none;
+  }
+  :root.text-enlarged body[data-five-days] .site-nav__utility {
+    max-block-size: none;
+    overflow: visible;
+  }
+  :root.text-enlarged body[data-five-days] .site-nav__journey {
+    display: block;
+  }
+  :root.text-enlarged body[data-five-days] .menu-weather {
+    margin-block-start: var(--space-group);
+  }
+}
+@media (max-width: 960px) {
+  :root body[data-five-days] .nav-shell[open] .site-nav {
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
 }
 @media (max-width: 960px) {
   body[data-five-days] .site-nav__journey {

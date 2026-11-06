@@ -120,7 +120,7 @@ function calendarRow(day, plan, lang, latestDay) {
   const event = `<div class="december-row__event"><p class="december-row__date"><time datetime="${date}">${day.date}</time>${today ? `<span class="december-row__today" data-calendar-today>${en?'Today':'Сегодня'}</span>` : ''}</p>${description ? `<p class="december-row__type">${description}</p>` : ''}${day.title ? calendarLink(day.day, day.title) : ''}${segment.kind === 'finish' ? `<p class="december-row__note">${en ? 'Recording the final result' : 'Фиксация результата'}</p>` : ''}</div>`;
   return `<article class="december-row${state}" id="${id}" data-calendar-start="${date}" data-calendar-end="${dateEnd}" data-calendar-kind="${segment.kind}"${day.preview ? ` data-calendar-preview="${esc(day.preview.source)}" data-calendar-preview-position="${esc(day.preview.position)}"` : ''}${today ? ' aria-current="step"' : ''}>
     ${event}
-    ${segment.kind === 'finish' ? '' : `<p class="december-row__distance"><span class="december-row__number" data-optical-start data-optical-ink>${format(amount)}</span><span class="december-row__unit"><span class="december-row__unit-measure">${km}</span>${segment.kind === 'base' && dateEnd !== date ? ` <span>${en ? 'per day' : 'в день'}</span>` : ''}</span></p>
+    ${segment.kind === 'finish' ? '' : `<p class="december-row__distance"><span class="december-row__number" data-optical-start data-optical-ink>${format(amount)}</span><span class="december-row__unit"><span class="december-row__unit-measure"> ${km}</span>${segment.kind === 'base' && dateEnd !== date ? ` <span>${en ? 'per day' : 'в день'}</span>` : ''}</span></p>
     <p class="december-row__total"><span>${en ? 'Planned total' : 'Всего по плану'}</span><strong><span>${format(cumulative)}</span><span class="december-row__total-unit"> ${km}</span></strong></p>`}
   </article>`;
 }
@@ -163,10 +163,18 @@ function restoreCourseWeather(html, lang) {
   const start = html.indexOf('<section class="dubai-light"');
   if (start < 0) throw new Error('Missing the existing Dubai forecast widget.');
   const end = sectionEnd(html, start);
-  const widget = html.slice(start, end)
-    .replace('data-start-preview-light', 'data-dubai-controls data-weather-only')
+  let widget = html.slice(start, end)
+    .replace('data-start-preview-light', 'data-dubai-controls data-weather-only data-weather-compact')
     .replace(/data-dust-url="[^"]*"/, 'data-dust-url="/assets/dubai-dust.json"')
     .replace(/(<h3 id="dubai-light-title">)[^<]*/, `$1${lang === 'en' ? 'Weather on the Dubai course' : 'Погода на трассе в Дубае'}`);
+  // The compact menu uses the existing current-weather owner and source,
+  // without carrying a second, six-hour forecast presentation.
+  const outlook = widget.indexOf('<section class="dubai-forecast"');
+  if (outlook < 0) throw new Error('Missing forecast source for compact weather.');
+  const outlookEnd = sectionEnd(widget, outlook);
+  const source = widget.slice(outlook, outlookEnd).match(/<p class="dubai-forecast__source">[\s\S]*?<\/p>/)?.[0];
+  if (!source) throw new Error('Missing current forecast source.');
+  widget = widget.slice(0, outlook) + source + widget.slice(outlookEnd);
   html = html.slice(0, start) + html.slice(end);
   const menu = html.indexOf('<div class="menu-weather"');
   if (menu < 0) throw new Error('Missing the menu forecast container.');

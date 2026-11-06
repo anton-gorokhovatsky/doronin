@@ -46,7 +46,7 @@
 .calendar-poster__value {
   display: flex;
   align-items: baseline;
-  gap: clamp(0.55rem, calc(0.35rem + 0.7vw), 1.2rem);
+  gap: 0;
   min-width: 0;
   margin: 0;
   font-size: clamp(2.6rem, calc(1rem + var(--poster-scale) * 1cqi), var(--poster-cap));
@@ -55,6 +55,7 @@
 
 .calendar-poster__value > strong {
   --optical-start-shift: var(--micra-leading-glyph-shift);
+  margin-inline-end: var(--optical-start-shift);
   flex: 0 0 auto;
   font-family: var(--display);
   font-size: inherit;
@@ -224,9 +225,9 @@
 
 .calendar-program__distance {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: baseline;
-  gap: 0.6rem;
+  gap: 0;
   margin: 0;
   font-variant-numeric: lining-nums tabular-nums;
 }
@@ -237,6 +238,10 @@
   font-size: clamp(1.4rem, calc(0.95rem + 1.2vw), 2.1rem);
   line-height: 1.05;
   letter-spacing: -0.03em;
+}
+
+.calendar-program__distance > strong[data-optical-start] {
+  margin-inline-end: var(--optical-start-shift);
 }
 
 .calendar-program__distance > span {

@@ -131,6 +131,7 @@ function initDubaiLight() {
   const widget = document.querySelector('[data-dubai-controls]');
   if (!widget) return;
   const weatherOnly = widget.hasAttribute('data-weather-only');
+  const compactWeather = widget.hasAttribute('data-weather-compact');
   const root = document.documentElement;
   const navigation = document.querySelector('.nav-shell');
   const menuWeather = navigation?.querySelector('[data-menu-weather]');
@@ -270,6 +271,13 @@ function initDubaiLight() {
   };
 
   function paintOutlook(current) {
+    if (compactWeather) {
+      const issuedAt = forecastSeries(forecast, Date.now())?.issuedAt;
+      widget.querySelector('[data-outlook-issued]').textContent = issuedAt && weather
+        ? `${words.updated} ${issuedFormat.format(new Date(issuedAt))}` : '';
+      sourceLink.hidden = !weather;
+      return;
+    }
     const periods = readOutlook(forecast);
     const available = periods.some(period => period.reading);
     widget.querySelector('[data-outlook-date]').textContent = dateLabel(current.date);

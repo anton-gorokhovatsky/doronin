@@ -1232,7 +1232,7 @@ function renderCalendarSegments(plan, l) {
             ${continuous ? `<p class="calendar-program__note">${l.distance.continuousLabel}</p>` : ""}
             <span class="calendar-program__today" data-calendar-today hidden>${l.distance.currentStageLabel}</span>
           </div>
-          ${segment.kind === "finish" ? "" : `<p class="calendar-program__distance"><strong${segment.kind === "special" ? " data-optical-start" : ""}>${value}</strong><span><span class="calendar-program__unit-measure">${l.distance.totalUnit}</span>${segment.kind === "base" ? ` ${l.distance.dailyLabel}` : ""}</span></p>`}
+          ${segment.kind === "finish" ? "" : `<p class="calendar-program__distance"><strong${segment.kind === "special" ? " data-optical-start" : ""}>${value}</strong><span><span class="calendar-program__unit-measure"> ${l.distance.totalUnit}</span>${segment.kind === "base" ? ` ${l.distance.dailyLabel}` : ""}</span></p>`}
           ${segment.kind === "finish" ? "" : `<p class="calendar-program__cumulative" data-plan-cumulative="${cumulativeDistance}"><span>${l.distance.plannedTotalLabel}</span><strong><span>${cumulative}</span><span class="calendar-program__total-unit">\u00a0${l.distance.totalUnit}</span></strong></p>`}
         </article>`;
     })
@@ -1247,7 +1247,7 @@ function renderSpecialSequence(plan, l) {
       (stage, index) => `
         <li class="calendar-poster__row${index === stages.length - 1 ? ' calendar-poster__row--final' : ''}" style="--poster-scale:${5 + index * 2.25};--poster-cap:${5 + index * 2}rem">
           <a class="calendar-poster__date" href="#calendar-segment-${String(plan.segments.indexOf(stage) + 1).padStart(2, '0')}" aria-label="${escapeAttribute(`${formatCalendarRange(stage, l.lang)}. ${l.distance.openStageLabel}: ${stage.totalDistanceKm} ${l.distance.totalUnit}`)}"><time datetime="${stage.startDate}">${formatCalendarRange(stage, l.lang)}</time></a>
-          <p class="calendar-poster__value"><strong data-optical-start>${formatProjectNumber(stage.totalDistanceKm, l.lang)}</strong><span>${l.distance.totalUnit}</span></p>
+          <p class="calendar-poster__value"><strong data-optical-start>${formatProjectNumber(stage.totalDistanceKm, l.lang)}</strong><span> ${l.distance.totalUnit}</span></p>
         </li>`,
     )
     .join("");
@@ -1259,9 +1259,9 @@ function renderMetrics(items, className, separateUnit = false) {
       ([value, label]) => {
         const glyphCount = Array.from(value.replaceAll(/\s/g, "")).length;
         const density = glyphCount <= 3 ? "short" : glyphCount <= 5 ? "medium" : "long";
-        const unitValue = separateUnit && value.match(/^(≈)?([\d.,]+)\s+(.+)$/u);
+        const unitValue = (separateUnit || className === "diary__fact") && value.match(/^(≈)?([\d.,\u00a0\u202f]+)\s+([^\d]+)$/u);
         const visibleValue = unitValue
-          ? `${unitValue[1] ? '<small class="diary__metric-prefix">≈</small>' : ''}<span class="diary__metric-atom" data-optical-start>${unitValue[2]} <small class="diary__metric-unit">${unitValue[3]}</small></span>`
+          ? `${unitValue[1] ? '<small class="diary__metric-prefix">≈ </small>' : ''}<span class="diary__metric-atom" data-optical-start>${unitValue[2]}<small class="diary__metric-unit"> ${unitValue[3]}</small></span>`
           : value;
 
         return `

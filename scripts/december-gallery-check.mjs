@@ -34,7 +34,7 @@ function galleryFor(page, day) {
   const episode = page.locator(`[data-episode="${day}"]`);
   return {
     episode,
-    deck: episode.locator(".stage-deck"),
+    deck: episode.locator(".stage-scene"),
     count: episode.locator("[data-start-strip-count]"),
     next: episode.locator("[data-start-strip-next]"),
     previous: episode.locator("[data-start-strip-prev]"),
@@ -46,7 +46,7 @@ async function saveFrame(page, output, name) {
 }
 
 async function checkFullPhoto(page, deck) {
-  const photo = deck.locator("a:not([inert])");
+  const photo = deck.locator('a[data-current="true"]');
   await photo.click();
   const dialog = page.locator("[data-start-lightbox]");
   assert.equal(await dialog.evaluate(element => element.open), true);
@@ -60,10 +60,10 @@ async function checkFullPhoto(page, deck) {
   await page.keyboard.press("Escape");
   assert.equal(await dialog.evaluate(element => element.open), false);
   assert.equal(await deck.getAttribute('data-photo-index'), '2', 'Closing keeps the last photograph selected in the full viewer');
-  const selectedThumbnail = deck.locator('..').locator('.stage-deck__series button[aria-pressed="true"]');
-  assert.equal(await selectedThumbnail.evaluate(element => element === document.activeElement), true,
-    'Focus returns to the selected photograph in the visible series');
-  assert.equal(await selectedThumbnail.evaluate(element => {
+  const selectedPhoto = deck.locator('a[data-current="true"]');
+  assert.equal(await selectedPhoto.evaluate(element => element === document.activeElement), true,
+    'Focus returns to the currently expanded photograph');
+  assert.equal(await selectedPhoto.evaluate(element => {
     const rect = element.getBoundingClientRect();
     return rect.top >= 0 && rect.bottom <= innerHeight;
   }), true, 'The returned keyboard focus is inside the viewport');
@@ -151,34 +151,32 @@ async function checkPointerField(page, gallery, engine, output) {
   await page.keyboard.press('Home');
   const box = await deck.boundingBox();
   const y = box.y + box.height * .45;
+  const original = await deck.locator('.stage-scene__field').getAttribute('style');
   await page.mouse.move(box.x - 10, y);
-  await page.mouse.move(box.x + box.width * .2, y);
-  // Entering and leaving without a horizontal command must not cancel a button.
+  await page.mouse.move(box.x + box.width * .8, y, {steps: 8});
   await page.mouse.move(box.x - 10, y);
-  await gallery.next.evaluate(button => button.dispatchEvent(new MouseEvent('click', {bubbles:true, detail:1})));
-  await deck.dispatchEvent('pointerenter', {pointerType:'mouse', clientX:box.x + 20, clientY:y});
-  await deck.dispatchEvent('pointerleave', {pointerType:'mouse', clientX:box.x - 10, clientY:y});
+  assert.equal(await deck.locator('.stage-scene__field').getAttribute('style'), original,
+    'Pointer movement alone leaves the scene and its selection still');
+  assert.equal(await count.innerText(), '1 / 3');
+  const photos = deck.locator('[data-start-photo]');
+  assert.equal(await photos.count(), 3);
+  assert.equal(await deck.locator('img').count(), 3, 'Each original exists once in the photographic scene');
+  assert.equal(await deck.locator('..').locator('.stage-deck__series').count(), 0, 'There is no duplicated thumbnail row');
+  const targets = await photos.evaluateAll(links => links.map(link => ({inert:link.inert, hidden:link.getAttribute('aria-hidden'),tab:link.tabIndex})));
+  assert.ok(targets.every(target => !target.inert && target.hidden === 'false' && target.tab === 0),
+    'All three visible windows are accessible photo targets');
+  const before = await photos.nth(1).boundingBox();
+  await photos.nth(1).click();
   assert.equal(await count.innerText(), '2 / 3');
-  await assertSelectedPhotograph(page, deck, output, `${engine}-button-after-pointer-entry`);
-  await deck.focus();
-  await page.keyboard.press('Home');
-  await page.mouse.move(box.x - 10, y);
-  await page.mouse.move(box.x + box.width * .2, y);
-  const original = await deck.locator('a[data-start-photo="0"]').getAttribute('style');
-  await page.mouse.move(box.x + box.width * .44, y, {steps: 5});
-  await page.waitForTimeout(30);
-  assert.notEqual(await deck.locator('a[data-start-photo="0"]').getAttribute('style'), original,
-    'A genuine mouse move browses the field without pressing a button');
-  await saveFrame(page, output, `${engine}-field-pointer-moving`);
-  await page.mouse.move(box.x - 10, y);
-  await assertSelectedPhotograph(page, deck, output, `${engine}-field-pointer-settled`);
-  const photographs = await deck.locator('a').evaluateAll(links => links.map(link => {
-    const rect = link.getBoundingClientRect();
-    const field = link.closest('.stage-deck').getBoundingClientRect();
-    return {visible: Math.max(0, Math.min(rect.right, field.right) - Math.max(rect.left, field.left)), current: link.dataset.current === 'true'};
-  }));
-  assert.equal(photographs.filter(photo => !photo.current && photo.visible > 8).length, 2,
-    'Both neighbouring photographs explain continuation at rest');
+  assert.equal(await page.locator('[data-start-lightbox]').evaluate(element => element.open), false,
+    'The first click expands an unselected window instead of opening full view');
+  await assertSelectedPhotograph(page, deck, output, `${engine}-expanded-window-photo`);
+  const after = await photos.nth(1).boundingBox();
+  assert.ok(after.height > before.height + 10, 'Choosing a window changes the scene geometry');
+  await photos.nth(0).focus();
+  await page.keyboard.press('Space');
+  assert.equal(await count.innerText(), '1 / 3', 'Space gives the same first selection command');
+  assert.equal(await deck.getAttribute('data-turning'), 'false', 'Keyboard selection is immediate');
   const beforeScroll = await count.innerText();
   await page.mouse.wheel(0, 100);
   await page.waitForTimeout(100);
@@ -227,7 +225,7 @@ async function checkDesktop(browser, engine, base, output) {
   page.on("pageerror", error => errors.push(error.message));
   try {
     await page.goto(pageUrl(base, "/december/"));
-    await page.locator(".stage-deck").first().waitFor();
+    await page.locator(".stage-scene").first().waitFor();
     await page.evaluate(() => document.fonts.ready);
 
     assert.equal(await page.locator("[data-episode]").count(), 5);
@@ -253,7 +251,7 @@ async function checkDesktop(browser, engine, base, output) {
     await deck.focus();
     await page.keyboard.press("Home");
 
-    // Commands cross the flat field boundary and reverse without a reset frame.
+    // Commands cycle and retarget the windows without duplicating or resetting the photographs.
     await episode.evaluate(element => {
       const previous = element.querySelector("[data-start-strip-prev]");
       const next = element.querySelector("[data-start-strip-next]");
@@ -270,7 +268,7 @@ async function checkDesktop(browser, engine, base, output) {
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowLeft");
     assert.equal(await count.innerText(), "2 / 3");
-    assert.equal(await deck.locator("a:not([inert])").count(), 1);
+    assert.equal(await deck.locator('a:not([inert])').count(), 3);
     await checkFullPhoto(page, deck);
     await checkMouseGestures(page, gallery, engine, output);
 
@@ -283,7 +281,7 @@ async function checkDesktop(browser, engine, base, output) {
 
     // The rehearsal interaction must not replace the real pre-start homepage.
     await page.goto(pageUrl(base, "/"));
-    assert.equal(await page.locator(".stage-deck").count(), 0);
+    assert.equal(await page.locator(".stage-scene").count(), 0);
     assert.equal(await page.locator("[data-five-days]").count(), 0);
     assert.equal(errors.length, 0, errors.join("\n"));
   } finally {
@@ -326,6 +324,24 @@ async function checkTrustedTouch(page, gallery) {
     await touchDrag(page, client, await deck.boundingBox(), -180, 2);
     assert.equal(await count.innerText(), "1 / 3", "Touch cycles forward from last to first");
 
+    // The click generated by the completed swipe is suppressed, but a new
+    // pointerdown is a new intention even within the old ghost-click guard.
+    const selected = deck.locator('a[data-current="true"]');
+    await selected.dispatchEvent("click", { bubbles: true, cancelable: true, detail: 1 });
+    const dialog = page.locator("[data-start-lightbox]");
+    assert.equal(await dialog.evaluate(element => element.open), false, "The completed swipe cannot ghost-open the full photograph");
+    await page.waitForTimeout(300);
+    const photoBox = await selected.boundingBox();
+    await page.touchscreen.tap(photoBox.x + photoBox.width / 2, photoBox.y + photoBox.height / 2);
+    assert.equal(await dialog.evaluate(element => element.open), true, "A fresh quick tap opens the selected photograph");
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("Escape");
+    assert.equal(await count.innerText(), "2 / 3", "Closing preserves the last photograph selected in the full viewer");
+    const returned = deck.locator('a[data-current="true"]');
+    assert.equal(await returned.evaluate(element => element === document.activeElement), true, "Touch/full-view return focuses the current photograph");
+    await page.keyboard.press("Home");
+    await deck.scrollIntoViewIfNeeded();
+
     const before = await page.evaluate(() => scrollY);
     await touchDrag(page, client, await deck.boundingBox(), 2, -120);
     assert.ok(await page.evaluate(() => scrollY) > before + 25, "Vertical page scrolling remains native");
@@ -357,6 +373,17 @@ async function checkPhone(browser, engine, base, output) {
     // CDP dispatches trusted touch input; synthetic DOM events cannot prove scrolling.
     if (engine === "chromium") await checkTrustedTouch(page, gallery);
     await saveFrame(page, output, `${engine}-gallery-en-phone`);
+    const spacing = await episode.evaluate(element => {
+      const media = element.querySelector('.stage-episode__media');
+      const controls = media.querySelector('.start-photo-controls');
+      const scene = media.querySelector('.stage-scene');
+      const story = element.querySelector('.stage-story');
+      return {
+        inner: controls.getBoundingClientRect().top - scene.getBoundingClientRect().bottom,
+        outer: story.getBoundingClientRect().top - controls.getBoundingClientRect().bottom,
+      };
+    });
+    assert.ok(spacing.outer > spacing.inner * 2, "The photo controls are closer to the photographs than to the following story");
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   } finally {
     await page.close();
@@ -394,7 +421,7 @@ async function checkFullPhotoFailures(browser, base, output) {
     await deck.scrollIntoViewIfNeeded();
     await deck.focus();
     await page.keyboard.press("ArrowRight");
-    await deck.locator("a:not([inert])").click();
+    await deck.locator('a[data-current="true"]').click();
     await awaitingSecond;
     const dialog = page.locator("[data-start-lightbox]");
     const image = dialog.locator("[data-start-photo-full]");
@@ -477,7 +504,7 @@ async function checkModuleFallback(browser, base, output) {
     const count = episode.locator("[data-start-strip-count]");
     await count.waitFor();
     assert.equal(abortedModule, true, "The gallery module really failed to load");
-    assert.equal(await page.locator(".stage-deck").count(), 0);
+    assert.equal(await page.locator(".stage-scene").count(), 0);
     assert.equal(await strip.locator("[data-start-photo]").count(), 3);
     assert.equal(await strip.locator("a:not([inert])").count(), 3);
     assert.equal(await strip.evaluate(element => element.scrollWidth > element.clientWidth), true, "The ordinary photo strip still scrolls");
@@ -496,6 +523,23 @@ async function checkModuleFallback(browser, base, output) {
   } finally {
     await page.close();
   }
+}
+
+async function checkNoJavaScript(browser, base, output) {
+  const context = await browser.newContext({viewport:{width:390,height:844},javaScriptEnabled:false});
+  const page = await context.newPage();
+  try {
+    await page.goto(pageUrl(base, '/december/'));
+    const episode = page.locator('[data-episode="05"]');
+    assert.equal(await episode.isVisible(), true, 'The authored current story remains visible without JavaScript');
+    const photos = episode.locator('[data-start-photo]');
+    assert.equal(await photos.count(), 3);
+    assert.equal(await page.locator('.stage-scene').count(), 0);
+    const href = await photos.first().evaluate(link => link.href);
+    await photos.first().click();
+    assert.equal(page.url(), href, 'The native photo URL remains usable without JavaScript');
+    await saveFrame(page, output, 'chromium-gallery-no-javascript');
+  } finally { await context.close(); }
 }
 
 const options = readOptions(process.argv.slice(2));
@@ -526,6 +570,8 @@ try {
         console.log("[december-gallery] chromium gallery module / native fallback");
         await checkModuleFallback(browser, base, output);
         results.push({ engine, kind: "module-fallback", passed: true });
+        await checkNoJavaScript(browser, base, output);
+        results.push({ engine, kind: "no-javascript", passed: true });
       }
     } finally {
       await browser.close();

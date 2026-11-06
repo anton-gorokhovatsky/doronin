@@ -48,14 +48,14 @@
   max-width: var(--measure-copy);
 }
 
-.diary__facts--report .diary__metric-value {
+.diary__fact .diary__metric-value {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: baseline;
-  gap: 0.15em;
+  gap: 0;
 }
 
-.diary__facts--report .diary__metric-atom {
+.diary__fact .diary__metric-atom {
   max-width: 100%;
   margin: 0;
   color: inherit;

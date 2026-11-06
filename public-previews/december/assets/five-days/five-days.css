@@ -56,8 +56,11 @@
   display: flex;
   align-items: baseline;
   justify-content: start;
+  flex-wrap: nowrap;
+  gap: 0;
 }
-[data-five-days] .december-row__number { text-align: start; }
+[data-five-days] .december-row__number { text-align: start; margin-inline-end: var(--optical-start-shift, 0em); }
+[data-five-days] .december-row__unit { padding-inline-start: 0; }
 /* Micra's digit bearings, in em. Leading 1 uses the site's canonical token;
    these additional contours extend the same optical-start family. */
 [data-five-days] .december-row__number[data-optical-leading="5"] { --optical-start-shift: -.079em; }
