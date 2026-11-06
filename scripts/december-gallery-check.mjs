@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, webkit } from "playwright";
 import { startSiteServer } from "./lib/site-server.mjs";
+import { checkMixedMedia } from "./lib/december-mixed-media-checks.mjs";
 
 function readOptions(args) {
   const failuresOnly = args.includes("--failures-only");
@@ -162,20 +163,23 @@ async function checkPointerField(page, gallery, engine, output) {
   assert.equal(await photos.count(), 3);
   assert.equal(await deck.locator('img').count(), 3, 'Each original exists once in the photographic scene');
   assert.equal(await deck.locator('..').locator('.stage-deck__series').count(), 0, 'There is no duplicated thumbnail row');
-  const targets = await photos.evaluateAll(links => links.map(link => ({inert:link.inert, hidden:link.getAttribute('aria-hidden'),tab:link.tabIndex})));
-  assert.ok(targets.every(target => !target.inert && target.hidden === 'false' && target.tab === 0),
-    'All three visible windows are accessible photo targets');
-  const before = await photos.nth(1).boundingBox();
-  await photos.nth(1).click();
+  const targets = await photos.evaluateAll(links => links.map(link => ({inert:link.inert, hidden:link.hidden,tab:link.tabIndex})));
+  assert.equal(targets.filter(target => !target.inert && !target.hidden && target.tab === 0).length, 1,
+    'Only the current media window belongs to the visible focus order');
+  await gallery.next.click();
   assert.equal(await count.innerText(), '2 / 3');
   assert.equal(await page.locator('[data-start-lightbox]').evaluate(element => element.open), false,
-    'The first click expands an unselected window instead of opening full view');
-  await assertSelectedPhotograph(page, deck, output, `${engine}-expanded-window-photo`);
-  const after = await photos.nth(1).boundingBox();
-  assert.ok(after.height > before.height + 10, 'Choosing a window changes the scene geometry');
-  await photos.nth(0).focus();
-  await page.keyboard.press('Space');
-  assert.equal(await count.innerText(), '1 / 3', 'Space gives the same first selection command');
+    'Changing media leaves full view under explicit control');
+  await assertSelectedPhotograph(page, deck, output, `${engine}-native-window-photo`);
+  const native = await photos.nth(1).evaluate(link => {
+    const r = link.getBoundingClientRect();
+    const img = link.querySelector('img');
+    return {ratio:r.width/r.height, native:img.naturalWidth/img.naturalHeight};
+  });
+  assert.ok(Math.abs(native.ratio - native.native) < .01, 'The frame keeps its original aspect ratio');
+  await deck.focus();
+  await page.keyboard.press('Home');
+  assert.equal(await count.innerText(), '1 / 3');
   assert.equal(await deck.getAttribute('data-turning'), 'false', 'Keyboard selection is immediate');
   const beforeScroll = await count.innerText();
   await page.mouse.wheel(0, 100);
@@ -251,7 +255,7 @@ async function checkDesktop(browser, engine, base, output) {
     await deck.focus();
     await page.keyboard.press("Home");
 
-    // Commands cycle and retarget the windows without duplicating or resetting the photographs.
+    // Commands cycle the native media window without resetting the selected source.
     await episode.evaluate(element => {
       const previous = element.querySelector("[data-start-strip-prev]");
       const next = element.querySelector("[data-start-strip-next]");
@@ -268,7 +272,7 @@ async function checkDesktop(browser, engine, base, output) {
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowLeft");
     assert.equal(await count.innerText(), "2 / 3");
-    assert.equal(await deck.locator('a:not([inert])').count(), 3);
+    assert.equal(await deck.locator('a:not([inert])').count(), 1);
     await checkFullPhoto(page, deck);
     await checkMouseGestures(page, gallery, engine, output);
 
@@ -379,8 +383,8 @@ async function checkPhone(browser, engine, base, output) {
       const scene = media.querySelector('.stage-scene');
       const story = element.querySelector('.stage-story');
       return {
-        inner: controls.getBoundingClientRect().top - scene.getBoundingClientRect().bottom,
-        outer: story.getBoundingClientRect().top - controls.getBoundingClientRect().bottom,
+        inner: scene.getBoundingClientRect().top - controls.getBoundingClientRect().bottom,
+        outer: story.getBoundingClientRect().top - scene.getBoundingClientRect().bottom,
       };
     });
     assert.ok(spacing.outer > spacing.inner * 2, "The photo controls are closer to the photographs than to the following story");
@@ -561,6 +565,10 @@ try {
         console.log(`[december-gallery] ${engine} phone / reduced motion`);
         await checkPhone(browser, engine, base, output);
         results.push({ engine, kind: "phone/reduced", passed: true });
+        console.log(`[december-gallery] ${engine} native portrait photographs and video`);
+        const mixed = await checkMixedMedia(browser, engine, base, output);
+        if (Array.isArray(mixed)) results.push(...mixed.map(result => ({ engine, kind: "mixed-media", ...result })));
+        else results.push({ engine, kind: "mixed-media", ...mixed });
       }
       if (engine === "chromium") {
         console.log("[december-gallery] chromium full photograph / failure and retry");

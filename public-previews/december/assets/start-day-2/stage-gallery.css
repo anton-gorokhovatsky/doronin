@@ -39,11 +39,27 @@
   }
 }
 
-/* A single photographic surface: each original occupies one opening. */
+/* A native-aspect media window, sized by both column and viewport height. */
+[data-five-days] .start-photos:not(.stage-scene) { align-items: flex-start; }
+[data-five-days] .start-photos:not(.stage-scene) :is(img, video) {
+  display: block;
+  inline-size: auto;
+  width: auto;
+  block-size: auto;
+  height: auto;
+  max-inline-size: 100%;
+  max-block-size: 70svh;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+html:not(.js) [data-five-days] .start-photo-controls,
+html:not(.js) [data-five-days] [data-start-media-open] { display: none; }
 [data-five-days] .stage-scene {
   display: block;
   position: relative;
   min-inline-size: 0;
+  height: auto;
+  aspect-ratio: auto;
   overflow: visible;
   scroll-snap-type: none;
   touch-action: pan-y pinch-zoom;
@@ -52,60 +68,119 @@
 }
 [data-five-days] .stage-scene::after { content: none; }
 [data-five-days] .stage-scene__field {
-  display: grid;
-  inline-size: 100%;
-  block-size: 100%;
+  position: relative;
+  display: block;
   min-inline-size: 0;
-  gap: var(--space-pair);
-  transition: grid-template-columns var(--duration-feedback) var(--ease-move),
-    grid-template-rows var(--duration-feedback) var(--ease-move);
+  max-inline-size: 100%;
+  row-gap: var(--space-pair);
 }
-[data-five-days] .stage-scene[data-instant="true"] .stage-scene__field,
-[data-five-days] .stage-scene.is-dragging .stage-scene__field { transition: none; }
 [data-five-days] .stage-scene .start-photos__open {
   position: relative;
   inset: auto;
   display: block;
-  inline-size: auto;
-  block-size: auto;
+  inline-size: var(--stage-media-inline);
+  block-size: var(--stage-media-block);
   min-inline-size: 0;
   min-block-size: 0;
-  width: auto;
-  height: auto;
+  width: var(--stage-media-inline);
+  height: var(--stage-media-block);
+  max-inline-size: 100%;
   aspect-ratio: auto;
   margin: 0;
-  overflow: hidden;
+  overflow: visible;
   border: 0;
   border-radius: 0;
-  cursor: pointer;
   scroll-margin-block: var(--space-pair);
   -webkit-tap-highlight-color: transparent;
 }
-[data-five-days] .stage-scene img {
+[data-five-days] .stage-scene .start-photos__open[hidden] { display: none; }
+[data-five-days] .stage-scene img,
+[data-five-days] .stage-scene video {
   display: block;
-  inline-size: 100%;
-  block-size: 100%;
-  width: 100%;
-  height: 100%;
+  inline-size: var(--stage-media-inline);
+  block-size: var(--stage-media-block);
+  width: var(--stage-media-inline);
+  height: var(--stage-media-block);
+  max-inline-size: 100%;
   aspect-ratio: auto;
-  object-fit: cover;
+  object-fit: contain;
   filter: none;
-  pointer-events: none;
 }
-[data-five-days] .stage-scene .start-photos__open[data-current="true"] { cursor: zoom-in; }
-[data-five-days] .stage-scene.is-dragging .start-photos__open { cursor: grabbing; }
-[data-five-days] .stage-scene .start-photos__open:focus-visible {
+[data-five-days] .stage-scene img { pointer-events: none; }
+[data-five-days] .stage-scene a.start-photos__open { cursor: zoom-in; }
+[data-five-days] .stage-scene .start-media--video {
+  inline-size: 100%;
+  width: 100%;
+  block-size: auto;
+  height: auto;
+  cursor: auto;
+}
+[data-five-days] .stage-scene video { touch-action: auto; user-select: auto; scroll-margin-block: var(--space-pair); }
+[data-five-days] .stage-photos > .start-photo-controls {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-pair);
+  margin-block: 0 var(--space-pair);
+}
+[data-five-days] .stage-photos > .start-photo-controls > span { min-inline-size: 4ch; }
+@media (min-width: 961px) {
+  :root:not(.text-enlarged) [data-five-days] .stage-episode__media > .stage-photos {
+    top: calc(var(--space-group) + var(--stage-toolbar-block) + var(--space-pair));
+  }
+  :root:not(.text-enlarged) [data-five-days] .stage-photos > .start-photo-controls {
+    position: absolute;
+    inset-block-end: calc(100% + var(--space-pair));
+    inset-inline-start: 0;
+    margin: 0;
+  }
+}
+[data-five-days] .stage-scene a.start-photos__open:focus-visible {
   outline: 2px solid var(--paper);
   outline-offset: -4px;
   box-shadow: inset 0 0 0 5px var(--ink);
 }
-[data-five-days] .stage-scene + .start-photo-controls { margin-block-start: var(--space-pair); }
-/* In one column the photo controls belong to the photographs. The story
-   starts after the shared outer interval, rather than another inner gap. */
+[data-five-days] .start-media__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-pair) var(--space-stack);
+  margin-block-start: var(--space-pair);
+  font: 450 var(--type-service)/var(--leading-service) var(--body);
+}
+[data-five-days] .start-media__actions button,
+[data-five-days] .start-media__actions a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.75rem;
+  max-inline-size: 100%;
+  color: var(--text-editorial);
+  font: inherit;
+}
+[data-five-days] .start-media__actions button {
+  padding: .4em .7em;
+  scroll-margin-block: var(--space-pair);
+  border: 1px solid var(--line-dark);
+  background: transparent;
+  cursor: pointer;
+}
+[data-five-days] .stage-scene [data-start-media-file] { display: none; }
+[data-five-days] .stage-scene .start-media--video:has(.start-media__error:not([hidden])) [data-start-media-file] { display: inline-flex; }
+[data-five-days] .start-media__error {
+  margin-block: var(--space-pair) 0;
+  color: var(--text-editorial-muted);
+  font: 450 var(--type-service)/var(--leading-service) var(--body);
+}
+[data-five-days] .start-lightbox__video {
+  grid-area: 2 / 1;
+  justify-self: center;
+  align-self: center;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  min-block-size: 0;
+  object-fit: contain;
+}
 @media (max-width: 960px) {
   [data-five-days] .stage-episode__media { margin-block-end: var(--space-group); }
 }
-@media (prefers-reduced-motion: reduce) {
-  [data-five-days] .stage-scene__field { transition: none; }
-}
-:root[data-reduce-motion="true"] [data-five-days] .stage-scene__field { transition: none; }

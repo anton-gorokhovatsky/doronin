@@ -33,19 +33,47 @@ function pager(edition, days, lang) {
     ${newer && newer !== latest ? `<a class="episode-return episode-pager__today" href="#race-day-${pad(latest.day)}" ${preview(latest)}><strong>${calendarPastStory(en ? 'Back to today' : 'К текущему этапу', 'up')}</strong></a>` : ''}
   </nav>`;
 }
+// Published items and local mixed-media checks use the same renderer. Dimensions
+// describe the source; the gallery decides how much room that source needs.
+export function renderStageMedia(items, lang, mediaBase = '') {
+  const en = lang === 'en';
+  const href = file => /^(?:[a-z][a-z\d+.-]*:|\/)/i.test(file) ? file : mediaBase + file;
+  return items.map((item, index) => {
+    const kind = item.kind || 'image';
+    const file = item.src || item.file;
+    const alt = item.alt?.[lang] || item[lang];
+    if (!['image', 'video'].includes(kind) || !file || !alt ||
+        !Number.isInteger(item.width) || item.width <= 0 ||
+        !Number.isInteger(item.height) || item.height <= 0) {
+      throw new Error(`Invalid stage media item ${index + 1} (${lang}).`);
+    }
+    const source = esc(href(file));
+    const attributes = `data-start-photo="${index}" data-media-kind="${kind}" data-media-width="${item.width}" data-media-height="${item.height}"`;
+    if (kind === 'video') {
+      if (!item.poster) throw new Error(`Missing stage video poster ${index + 1} (${lang}).`);
+      const poster = ` poster="${esc(href(item.poster))}"`;
+      const open = en ? 'Open full video' : 'Открыть видео целиком';
+      const openText = en ? 'Full screen' : 'На весь экран';
+      const fallback = en ? 'Open video file' : 'Открыть файл видео';
+      return `<div class="start-photos__open start-media--video" ${attributes}><video src="${source}" width="${item.width}" height="${item.height}" controls playsinline preload="none" tabindex="0"${poster} aria-label="${esc(alt)}"><a href="${source}">${fallback}</a></video><div class="start-media__actions"><button type="button" data-start-media-open aria-label="${open} ${index + 1} ${en ? 'of' : 'из'} ${items.length}. ${esc(alt)}">${openText}</button><a href="${source}" data-start-media-file>${fallback}</a></div><p class="start-media__error" role="status" hidden>${en ? 'The video could not load' : 'Не удалось загрузить видео'}</p></div>`;
+    }
+    const position = item.position ? ` style="object-position:${esc(item.position)}"` : '';
+    return `<a class="start-photos__open" href="${source}" ${attributes}><img src="${esc(href(item.thumb || file))}" width="${item.thumbWidth || item.width}" height="${item.thumbHeight || item.height}" alt="${esc(alt)}"${position} loading="lazy" decoding="async"></a>`;
+  }).join('');
+}
 function episode(day, days, lang, mediaBase) {
   const en = lang === 'en';
   const id = pad(day.day);
-  const group = en ? `Photographs from December ${day.day}` : `Фотографии этапа ${day.day} декабря`;
-  const photos = day.photos.map((photo, i) =>
-    `<a class="start-photos__open" href="${mediaBase}${esc(photo.file)}" data-start-photo="${i}"><img src="${mediaBase}${esc(photo.thumb || photo.file)}" alt="${esc(photo[lang])}" style="object-position:${esc(photo.position)}" loading="lazy" decoding="async"></a>`).join('');
-  const previous = en ? 'Previous photograph' : 'Предыдущая фотография';
-  const next = en ? 'Next photograph' : 'Следующая фотография';
+  const mixed = day.photos.some(item => item.kind === 'video');
+  const group = en ? `${mixed ? 'Media' : 'Photographs'} from December ${day.day}` : `${mixed ? 'Фото и видео' : 'Фотографии'} этапа ${day.day} декабря`;
+  const photos = renderStageMedia(day.photos, lang, mediaBase);
+  const previous = en ? (mixed ? 'Previous item' : 'Previous photograph') : (mixed ? 'Предыдущий материал' : 'Предыдущая фотография');
+  const next = en ? (mixed ? 'Next item' : 'Next photograph') : (mixed ? 'Следующий материал' : 'Следующая фотография');
   return `<section class="section section--light stage-episode" id="race-day-${id}" data-episode="${id}" tabindex="-1" aria-labelledby="life-story-title-${id}">
     <p class="stage-context"><time datetime="${iso(day.day)}">${day.date}</time> · ${day.type}</p>
     <div class="stage-episode__media"><div class="stage-photos">
-      <div class="start-photos" tabindex="0" role="group" aria-label="${group}" data-start-photo-strip>${photos}</div>
       <nav class="start-photo-controls" aria-label="${group}"><span data-start-strip-count aria-live="polite">1 / ${day.photos.length}</span><div><button type="button" data-start-strip-prev disabled aria-label="${previous}">${arrow('left')}</button><button type="button" data-start-strip-next aria-label="${next}">${arrow('right')}</button></div></nav>
+      <div class="start-photos" tabindex="0" role="group" aria-label="${group}" data-start-photo-strip>${photos}</div>
     </div></div>
     <div class="stage-episode__narrative"><div class="stage-story" id="life-story-${id}"><h2 id="life-story-title-${id}">${esc(day.title)}</h2><div class="stage-story__body">${day.paragraphs.map(p => `<p>${esc(p)}</p>`).join('')}</div></div></div>
     ${pager(day, days, lang)}
@@ -79,9 +107,11 @@ function calendarPreview(day, media, base) {
     return {source: `${base}thumbnails/${file}.jpg`, position: image.match(/object-position:([^;"]+)/)?.[1] || '50% 50%'};
   }
   const frames = media.find(item => item.day === day.day);
-  const photo = frames.items.find(item => item.file === frames.hero) ||
-    frames.items.find(item => item.file.includes('night-rider')) || frames.items[0];
-  return {source: `${base}media/${photo.file}`, position: photo.position};
+  const photo = frames.items.find(item => (item.file || item.src) === frames.hero) ||
+    frames.items.find(item => (item.file || item.src || '').includes('night-rider')) || frames.items[0];
+  const file = photo.kind === 'video' ? photo.poster : (photo.file || photo.src);
+  if (!file) throw new Error(`Missing preview image or video poster for day ${day.day}.`);
+  return {source: /^(?:[a-z][a-z\d+.-]*:|\/)/i.test(file) ? file : `${base}media/${file}`, position: photo.position || '50% 50%'};
 }
 function calendarPastStory(title, direction = 'up') {
   const cut = title.lastIndexOf(' ') + 1;
@@ -216,8 +246,11 @@ export async function buildFiveDays(directory) {
     const latest = days.at(-1);
     if (days.some(d => !d.old && !d.photos?.length)) throw new Error('Every published stage needs its own photographs.');
     const currentId = pad(latest.day);
-    const heroFile = media.find(m => m.day === latest.day).hero;
-    const hero = base + 'media/' + heroFile;
+    const latestMedia = media.find(m => m.day === latest.day);
+    const heroItem = latestMedia.items.find(item => (item.file || item.src) === latestMedia.hero);
+    const heroFile = heroItem?.kind === 'video' ? heroItem.poster : latestMedia.hero;
+    if (!heroFile) throw new Error('Missing hero image or video poster.');
+    const hero = /^(?:[a-z][a-z\d+.-]*:|\/)/i.test(heroFile) ? heroFile : base + 'media/' + heroFile;
     const stagesPhoto = media.find(m => m.day === 3).items.find(photo => photo.file === 'day-03-crest.jpg');
     if (!stagesPhoto) throw new Error('Missing the road photograph for the stages menu link.');
     const episodes = days.toReversed().map(day => {
@@ -225,7 +258,10 @@ export async function buildFiveDays(directory) {
       const result = day.old.replace(/<a class="episode-return"[\s\S]*?<\/a>/g, '')
         .replace(/<p class="stage-episode__bridge">[\s\S]*?<\/p>/, '')
         .replace(/(<time datetime="2026-12-0[12]">)[^<]*/, `$1${day.date}`)
-        .replace(/(<img src=")(?:\.\.\/|\.\/)(?:december-1-saved\/assets\/start-day|assets\/start-day-2)\/([\w-]+)-original\.png"/g, `$1${base}thumbnails/$2.jpg"`);
+        .replace(/(<img src=")(?:\.\.\/|\.\/)(?:december-1-saved\/assets\/start-day|assets\/start-day-2)\/([\w-]+)-original\.png"/g, `$1${base}thumbnails/$2.jpg"`)
+        .replace(/(<a class="start-photos__open"[^>]*)(>)/g, '$1 data-media-kind="image" data-media-width="3840" data-media-height="2160"$2')
+        .replace(/(<img\b[^>]*\bwidth=")3840(" height=")2160"/g, (_, start, middle) => `${start}1440${middle}810"`)
+        .replace(/(<div class="start-photos"[^>]*>[\s\S]*?<\/div>)\s*(<nav class="start-photo-controls"[\s\S]*?<\/nav>)/, '$2$1');
       return result.replace('</section>', pager(day, days, lang) + '</section>');
     }).join('\n');
     const firstPanel = html.indexOf(old[1][0]);

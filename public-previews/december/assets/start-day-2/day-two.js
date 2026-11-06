@@ -117,14 +117,35 @@ const lightbox = document.querySelector('[data-start-lightbox]');
 let modalGallery;
 let modalIndex = 0;
 let modalOpener;
+const mediaVideos = new WeakMap();
+let modalVideo;
+let modalVideoHome;
 function currentPhotoIndex() {
   return useStageDeck && modalGallery ? modalGallery.index : modalIndex;
+}
+function pauseGalleryVideos(state, except) {
+  for (const link of state.links) {
+    const video = mediaVideos.get(link);
+    if (video && video !== except) video.pause();
+  }
+}
+function pauseStageVideos(except) {
+  for (const state of galleryStates.values()) pauseGalleryVideos(state, except);
+}
+function restoreModalVideo() {
+  if (!modalVideo) return;
+  modalVideo.pause();
+  modalVideo.classList.remove('start-lightbox__video');
+  modalVideo.removeAttribute('data-start-media-full');
+  modalVideoHome.replaceWith(modalVideo);
+  modalVideo = modalVideoHome = null;
 }
 
 let photoRequest = 0;
 const photoFeedback = useStageDeck ? document.createElement('div') : null;
 let photoStatus;
 let photoRetry;
+let videoFileLink;
 if (photoFeedback) {
   photoFeedback.className = 'start-lightbox__feedback';
   photoFeedback.hidden = true;
@@ -133,12 +154,28 @@ if (photoFeedback) {
   photoRetry = document.createElement('button');
   photoRetry.type = 'button';
   photoRetry.textContent = document.documentElement.lang === 'en' ? 'Retry loading' : 'Повторить загрузку';
-  photoRetry.addEventListener('click', () => showPhoto(currentPhotoIndex()));
-  photoFeedback.append(photoStatus, photoRetry);
+  photoRetry.addEventListener('click', () => {
+    if (!modalVideo) { showPhoto(currentPhotoIndex()); return; }
+    const video = modalVideo;
+    const time = video.currentTime;
+    video.addEventListener('loadedmetadata', () => {
+      if (Number.isFinite(time) && time <= video.duration) video.currentTime = time;
+    }, { once: true });
+    video.pause();
+    video.preload = 'metadata';
+    video.load();
+    photoStatus.textContent = document.documentElement.lang === 'en' ? 'Loading the video…' : 'Загружаем видео…';
+    photoRetry.hidden = true;
+  });
+  videoFileLink = document.createElement('a');
+  videoFileLink.textContent = document.documentElement.lang === 'en' ? 'Open video file' : 'Открыть файл видео';
+  videoFileLink.hidden = true;
+  photoFeedback.append(photoStatus, photoRetry, videoFileLink);
   lightbox.append(photoFeedback);
 }
 function showPhoto(index) {
   if (!modalGallery) return;
+  restoreModalVideo();
   if (useStageDeck) {
     const selected = ((index % modalGallery.links.length) + modalGallery.links.length) % modalGallery.links.length;
     modalGallery.select(selected, { instant: true });
@@ -148,14 +185,47 @@ function showPhoto(index) {
   const selected = currentPhotoIndex();
   const link = modalGallery.links[selected];
   const image = lightbox.querySelector('[data-start-photo-full]');
-  image.alt = link.querySelector('img').alt;
+  const video = mediaVideos.get(link);
+  const mixed = modalGallery.links.some(item => mediaVideos.has(item));
+  const en = document.documentElement.lang === 'en';
+  if (mixed) {
+    lightbox.setAttribute('aria-label', en ? 'Stage photographs and videos' : 'Фото и видео этапа');
+    lightbox.querySelector('[data-start-photo-close]').setAttribute('aria-label', en ? 'Close viewer' : 'Закрыть просмотр');
+    lightbox.querySelector('[data-start-photo-prev]').setAttribute('aria-label', en ? 'Previous item' : 'Предыдущий материал');
+    lightbox.querySelector('[data-start-photo-next]').setAttribute('aria-label', en ? 'Next item' : 'Следующий материал');
+  }
   lightbox.querySelector('[data-start-photo-position]').textContent = `${selected + 1} / ${modalGallery.links.length}`;
   lightbox.querySelector('[data-start-photo-prev]').disabled = !useStageDeck && selected === 0;
   lightbox.querySelector('[data-start-photo-next]').disabled = !useStageDeck && selected === modalGallery.links.length - 1;
+  if (video) {
+    photoRequest += 1;
+    pauseStageVideos();
+    image.hidden = true;
+    image.removeAttribute('src');
+    image.setAttribute('aria-busy', 'false');
+    modalVideoHome = document.createComment('Inline video returns here after the viewer closes.');
+    video.before(modalVideoHome);
+    modalVideo = video;
+    video.classList.add('start-lightbox__video');
+    video.setAttribute('data-start-media-full', '');
+    lightbox.insertBefore(video, image);
+    if (photoFeedback) {
+      photoFeedback.hidden = !video.error;
+      photoStatus.textContent = en ? 'The video could not load' : 'Не удалось загрузить видео';
+      photoRetry.hidden = false;
+      videoFileLink.href = video.currentSrc || video.src;
+      videoFileLink.hidden = false;
+    }
+    return;
+  }
+  pauseStageVideos();
+  image.hidden = false;
+  image.alt = link.querySelector('img').alt;
+  image.width = Number(link.dataset.mediaWidth) || link.querySelector('img').width;
+  image.height = Number(link.dataset.mediaHeight) || link.querySelector('img').height;
   if (!useStageDeck) { image.src = link.href; return; }
 
   const request = ++photoRequest;
-  const en = document.documentElement.lang === 'en';
   let fullReady = false;
   // Clear the old pixels before assigning a new source. Some browsers keep
   // painting the old decoded frame while currentSrc is already empty.
@@ -164,6 +234,7 @@ function showPhoto(index) {
   image.setAttribute('aria-busy', 'true');
   photoStatus.textContent = en ? 'Loading the full photograph…' : 'Загружаем полный снимок…';
   photoRetry.hidden = true;
+  videoFileLink.hidden = true;
   photoFeedback.hidden = false;
 
   const thumbnail = link.querySelector('img');
@@ -194,14 +265,28 @@ function showPhoto(index) {
   full.src = link.href;
 }
 
+const videoVisibility = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
+  for (const entry of entries) {
+    if (!entry.isIntersecting && !(lightbox.open && entry.target === modalVideo)) entry.target.pause();
+  }
+}) : null;
 for (const panel of episodePanels) {
   const strip = panel.querySelector('[data-start-photo-strip]');
   const links = [...strip.querySelectorAll('[data-start-photo]')];
   const prev = panel.querySelector('[data-start-strip-prev]');
   const next = panel.querySelector('[data-start-strip-next]');
   const count = panel.querySelector('[data-start-strip-count]');
+  for (const link of links) {
+    const video = link.querySelector('video');
+    if (video) mediaVideos.set(link, video);
+  }
   const state = useStageDeck
-    ? createStageDeck({ strip, links, prev, next, count, reduced })
+    ? createStageDeck({ strip, links, prev, next, count, reduced,
+      onSelect: index => {
+        for (const [i, link] of links.entries()) {
+          if (i !== index) mediaVideos.get(link)?.pause();
+        }
+      } })
     : { strip, links, index: 0 };
   state.panel = panel;
   galleryStates.set(panel.dataset.episode, state);
@@ -216,6 +301,7 @@ for (const panel of episodePanels) {
   function go(index) {
     const target = Math.max(0, Math.min(links.length - 1, index));
     state.index = target;
+    pauseGalleryVideos(state, mediaVideos.get(links[target]));
     strip.scrollTo({ left: position(target), behavior: reduced() ? 'instant' : 'smooth' });
   }
   if (!useStageDeck) {
@@ -224,16 +310,49 @@ for (const panel of episodePanels) {
     next.addEventListener('click', () => go(state.index + 1));
     strip.addEventListener('scroll', update, {passive:true});
     strip.addEventListener('keydown', event => {
+      if (event.target.closest('video')) return;
       if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
       event.preventDefault(); go(state.index + (event.key === 'ArrowRight' ? 1 : -1));
     });
   }
-  for (const [index, link] of links.entries()) link.addEventListener('click', event => {
-    if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
-    event.preventDefault(); modalGallery = state; modalOpener = link; showPhoto(index);
-    lightbox.showModal(); document.documentElement.classList.add('stage-photo-open');
-    lightbox.querySelector('[data-start-photo-close]').focus();
-  });
+  for (const [index, link] of links.entries()) {
+    const video = mediaVideos.get(link);
+    if (video) {
+      videoVisibility?.observe(video);
+      video.addEventListener('play', () => {
+        const visible = video.getBoundingClientRect();
+        if (panel.hidden || document.hidden || index !== state.index ||
+            document.querySelector('.nav-shell[open]') ||
+            (lightbox.open && modalVideo !== video) ||
+            (!lightbox.open && (visible.bottom <= 0 || visible.top >= innerHeight))) {
+          video.pause();
+          return;
+        }
+        pauseStageVideos(video);
+      });
+      video.addEventListener('error', () => {
+        video.pause();
+        link.querySelector('.start-media__error').hidden = false;
+        if (modalVideo === video && photoFeedback) {
+          photoStatus.textContent = document.documentElement.lang === 'en' ? 'The video could not load' : 'Не удалось загрузить видео';
+          photoRetry.hidden = false;
+          videoFileLink.hidden = false;
+          photoFeedback.hidden = false;
+        }
+      });
+      video.addEventListener('loadeddata', () => {
+        link.querySelector('.start-media__error').hidden = true;
+        if (modalVideo === video && photoFeedback) photoFeedback.hidden = true;
+      });
+    }
+    link.addEventListener('click', event => {
+      if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+      if (video && !event.target.closest('[data-start-media-open]')) return;
+      event.preventDefault(); modalGallery = state; modalOpener = link; showPhoto(index);
+      lightbox.showModal(); document.documentElement.classList.add('stage-photo-open');
+      lightbox.querySelector('[data-start-photo-close]').focus();
+    });
+  }
   if (!useStageDeck) update();
 }
 lightbox.querySelector('[data-start-photo-prev]').addEventListener('click', () => showPhoto(currentPhotoIndex() - 1));
@@ -241,24 +360,36 @@ lightbox.querySelector('[data-start-photo-next]').addEventListener('click', () =
 lightbox.querySelector('[data-start-photo-close]').addEventListener('click', () => lightbox.close());
 lightbox.addEventListener('close', () => {
   photoRequest += 1;
+  restoreModalVideo();
+  pauseStageVideos();
   if (photoFeedback) photoFeedback.hidden = true;
   document.documentElement.classList.remove('stage-photo-open');
+  if (modalGallery?.panel.hidden) return;
   if (useStageDeck) modalGallery?.focusCurrent();
   else modalOpener?.focus({preventScroll:true});
 });
 lightbox.addEventListener('keydown', event => {
+  if (event.target.closest('video')) return;
   if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
     event.preventDefault(); showPhoto(currentPhotoIndex() + (event.key === 'ArrowRight' ? 1 : -1));
   }
 });
 let touchStart;
-lightbox.addEventListener('touchstart', event => { const p = event.touches[0]; touchStart = {x:p.clientX, y:p.clientY}; }, {passive:true});
+lightbox.addEventListener('touchstart', event => {
+  if (event.target.closest('video')) { touchStart = null; return; }
+  const p = event.touches[0]; touchStart = {x:p.clientX, y:p.clientY};
+}, {passive:true});
 lightbox.addEventListener('touchend', event => {
   if (!touchStart) return;
   const p = event.changedTouches[0], dx = p.clientX - touchStart.x, dy = p.clientY - touchStart.y;
   if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) showPhoto(currentPhotoIndex() + (dx < 0 ? 1 : -1));
   touchStart = null;
 }, {passive:true});
+document.addEventListener('visibilitychange', () => { if (document.hidden) pauseStageVideos(); });
+window.addEventListener('pagehide', () => pauseStageVideos());
+document.querySelector('.nav-shell')?.addEventListener('toggle', event => {
+  if (event.currentTarget.open) pauseStageVideos();
+});
 
 function updateLanguageLinks() {
   for (const link of document.querySelectorAll('[data-language-switch]')) {
@@ -275,7 +406,11 @@ function selectFromHash({scroll = false, focus = false} = {}) {
   const match = linkedEpisode(location.hash);
   if (match) selectedEpisode = match;
   else if (!location.hash) selectedEpisode = currentEpisode;
-  for (const panel of episodePanels) panel.hidden = panel.dataset.episode !== selectedEpisode;
+  for (const panel of episodePanels) {
+    panel.hidden = panel.dataset.episode !== selectedEpisode;
+    if (panel.hidden) pauseGalleryVideos(galleryStates.get(panel.dataset.episode));
+  }
+  if (modalGallery?.panel.hidden && lightbox.open) lightbox.close();
   galleryStates.get(selectedEpisode)?.restore();
   updateLanguageLinks();
   if (match && (scroll || focus)) {
