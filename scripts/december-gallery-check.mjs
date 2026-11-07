@@ -4,6 +4,7 @@ import path from "node:path";
 import { chromium, webkit } from "playwright";
 import { startSiteServer } from "./lib/site-server.mjs";
 import { assertThreeVisible, checkCurrentMixedMedia, checkMixedMedia } from "./lib/december-mixed-media-checks.mjs";
+import { hasCurrentDay, checkCurrentDay } from "./lib/current-day-check.mjs";
 
 function readOptions(args) {
   const failuresOnly = args.includes("--failures-only");
@@ -631,11 +632,17 @@ await mkdir(output, { recursive: true });
 const server = options.publicUrl ? null : await startSiteServer(options.directory);
 const base = options.publicUrl || server.origin;
 const results = [];
+let selectedCurrentDay;
 try {
   const engines = options.failuresOnly ? { chromium } : { chromium, webkit };
   for (const [engine, type] of Object.entries(engines)) {
     const browser = await type.launch();
     try {
+      if (selectedCurrentDay === undefined) selectedCurrentDay = await hasCurrentDay(browser, base);
+      if (selectedCurrentDay) {
+        results.push(...await checkCurrentDay(browser, engine, base, output, { failuresOnly: options.failuresOnly }));
+        continue;
+      }
       if (!options.failuresOnly) {
         console.log(`[december-gallery] ${engine} desktop`);
         await checkDesktop(browser, engine, base, output);

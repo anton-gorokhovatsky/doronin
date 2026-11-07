@@ -1,7 +1,7 @@
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import midsummer from '../../src/content/diary/2026-07-06.mjs';
+import { renderCurrentDay } from './current-day.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const json = async file => JSON.parse(await readFile(file, 'utf8'));
@@ -61,25 +61,6 @@ export function renderStageMedia(items, lang, mediaBase = '') {
     return `<a class="start-photos__open" href="${source}" ${attributes}><img src="${esc(href(item.thumb || file))}" width="${item.thumbWidth || item.width}" height="${item.thumbHeight || item.height}" alt="${esc(alt)}"${position} loading="lazy" decoding="async"></a>`;
   }).join('');
 }
-function dayFiveContext(day, plan, lang) {
-  if (day.day !== 5) return '';
-  const en = lang === 'en';
-  const today = calendarValues(day, plan);
-  const tomorrow = calendarValues({day: day.day + 1}, plan);
-  const nextSpecial = plan.segments.find(segment => segment.kind === 'special' && segment.startDate > tomorrow.date);
-  const date = value => Number(value.slice(-2));
-  const distance = midsummer.facts[0].value[lang];
-  const speed = midsummer.facts[1].value[lang];
-  const title = en ? 'Back on the road tomorrow' : 'Завтра снова на трассу';
-  const archive = en
-    ? `In the earlier Midsummer 300+ ride, the plan was to cover 300+ km at an average of 35 km/h. The group stopped every 50\u2060–\u206060 km in the first half of the route and roughly every 40 km nearer the finish. They covered ${distance}; the average speed across the main part of the route was ${speed}.`
-    : `На Midsummer 300+ планировали проехать более 300 км со средней 35 км/ч. Группа делала остановки каждые 50\u2060–\u206060 км в первой половине маршрута и примерно каждые 40 км ближе к финишу. Итог — ${distance}; средняя основной части маршрута — ${speed}.`;
-  const schedule = en
-    ? `The December plan calls for ${today.amount} km on December ${date(today.date)} and ${tomorrow.amount} km on December ${date(tomorrow.date)}, then ${nextSpecial.totalDistanceKm} km on December ${date(nextSpecial.startDate)}. December means riding a long distance day after day. How should Victor pace today’s effort so he can get back on the road tomorrow?`
-    : `В декабрьском плане ${date(today.date)} декабря — ${today.amount} км, ${date(tomorrow.date)} декабря — ${tomorrow.amount} км, а ${date(nextSpecial.startDate)} декабря — ${nextSpecial.totalDistanceKm} км. Декабрьская задача — повторять длинную дистанцию. Как распределить силы сегодня, чтобы завтра снова выйти на трассу?`;
-  const source = en ? 'Diary, July 6, 2026' : 'Дневник, 6 июля 2026';
-  return `<div class="stage-editorial" data-stage-editorial aria-labelledby="stage-editorial-title-${pad(day.day)}"><h2 id="stage-editorial-title-${pad(day.day)}">${title}</h2><p>${esc(archive)}</p><p>${esc(schedule)}</p><p class="stage-editorial__source"><a href="${esc(midsummer.href)}" target="_blank" rel="noopener noreferrer">${source}</a></p></div>`;
-}
 function episode(day, days, lang, mediaBase, plan) {
   const en = lang === 'en';
   const id = pad(day.day);
@@ -95,7 +76,6 @@ function episode(day, days, lang, mediaBase, plan) {
     <div class="stage-episode__media"><div class="stage-photos">
       <nav class="start-photo-controls" aria-label="${group}"><span data-start-strip-count aria-live="polite">1 / ${day.photos.length}</span><div><button type="button" data-start-strip-prev disabled aria-label="${previous}">${arrow('left')}</button><button type="button" data-start-strip-next aria-label="${next}">${arrow('right')}</button></div></nav>
       <div class="start-photos" tabindex="0" role="group" aria-label="${group}"${day.mediaSource ? ` aria-describedby="${sourceId}"` : ''} data-start-photo-strip>${photos}</div>${day.mediaSource ? `\n      <p class="stage-stamp stage-media-source" id="${sourceId}" data-stage-media-source>${esc(day.mediaSource)}</p>` : ''}
-      ${dayFiveContext(day, plan, lang)}
     </div></div>
     <div class="stage-episode__narrative"><div class="stage-story" id="life-story-${id}"><h2 id="life-story-title-${id}">${esc(day.title)}</h2><div class="stage-story__body">${day.paragraphs.map(p => `<p>${esc(p)}</p>`).join('')}</div></div></div>
     ${pager(day, days, lang)}
@@ -168,7 +148,7 @@ function calendarPastLink(day, plan, lang) {
   const {date, segment, amount, cumulative, id} = calendarValues(day, plan);
   return `<a class="december-row december-row--past calendar-past__item" id="${id}" href="#life-story-${pad(day.day)}" data-calendar-start="${date}" data-calendar-end="${date}" data-calendar-kind="${segment.kind}" data-calendar-preview="${esc(day.preview.source)}" data-calendar-preview-position="${esc(day.preview.position)}">
     <span class="calendar-past__identity"><span class="calendar-past__story">${calendarPastStory(day.title)}</span><span class="calendar-past__date"><time datetime="${date}">${day.date}</time><span>${day.type}</span></span></span>
-    <span class="calendar-past__metrics"><span>${en ? 'Planned' : 'План'} ${amount} ${km}</span><span>${en ? 'Planned total' : 'Всего по плану'} ${cumulative} ${km}</span></span>
+    <span class="calendar-past__metrics"><span>${en ? 'Covered' : 'Пройдено'} ${amount} ${km}</span><span>${en ? 'Total' : 'Всего'} ${cumulative} ${km}</span></span>
   </a>`;
 }
 function calendarRow(day, plan, lang, latestDay) {
@@ -182,7 +162,7 @@ function calendarRow(day, plan, lang, latestDay) {
   const format = value => value < 10000 ? String(value) : String(value).replace(/\B(?=(\d{3})+(?!\d))/g, en ? ',' : ' ');
   const description = segment.kind === 'finish' ? (en ? 'Project finish' : 'Финиш проекта')
     : segment.kind === 'special' ? (dateEnd !== date ? (en ? 'Continuous ride' : 'Непрерывный заезд') : (en ? 'Special stage' : 'Специальный этап')) : '';
-  const event = `<div class="december-row__event"><p class="december-row__date"><time datetime="${date}">${day.date}</time>${today ? `<span class="december-row__today" data-calendar-today>${en?'Today':'Сегодня'}</span>` : ''}</p>${description ? `<p class="december-row__type">${description}</p>` : ''}${day.title ? calendarLink(day.day, day.title) : ''}${segment.kind === 'finish' ? `<p class="december-row__note">${en ? 'Recording the final result' : 'Фиксация результата'}</p>` : ''}</div>`;
+  const event = `<div class="december-row__event"><p class="december-row__date"><time datetime="${date}">${day.date}</time>${today ? `<span class="december-row__today" data-calendar-today>${en?'Today':'Сегодня'}</span>` : ''}</p>${description ? `<p class="december-row__type">${description}</p>` : ''}${day.title ? calendarLink(day.day, day.title) : ''}</div>`;
   return `<article class="december-row${state}" id="${id}" data-calendar-start="${date}" data-calendar-end="${dateEnd}" data-calendar-kind="${segment.kind}"${day.preview ? ` data-calendar-preview="${esc(day.preview.source)}" data-calendar-preview-position="${esc(day.preview.position)}"` : ''}${today ? ' aria-current="step"' : ''}>
     ${event}
     ${segment.kind === 'finish' ? '' : `<p class="december-row__distance"><span class="december-row__number" data-optical-start data-optical-ink>${format(amount)}</span><span class="december-row__unit"><span class="december-row__unit-measure"> ${km}</span>${segment.kind === 'base' && dateEnd !== date ? ` <span>${en ? 'per day' : 'в день'}</span>` : ''}</span></p>
@@ -291,6 +271,7 @@ export async function buildFiveDays(directory) {
     if (days.some(d => !d.old && !d.photos?.length)) throw new Error('Every published stage needs its own photographs.');
     const currentId = pad(latest.day);
     const latestMedia = media.find(m => m.day === latest.day);
+    const currentDay = renderCurrentDay({lang, media:latestMedia, story:stories.find(s=>s.day===latest.day), plan, mediaRoot:base+'media/'});
     const heroItem = latestMedia.items.find(item => (item.file || item.src) === latestMedia.hero);
     const heroFile = heroItem?.kind === 'video' ? heroItem.poster : latestMedia.hero;
     if (!heroFile) throw new Error('Missing hero image or video poster.');
@@ -298,6 +279,7 @@ export async function buildFiveDays(directory) {
     const stagesPhoto = media.find(m => m.day === 3).items.find(photo => photo.file === 'day-03-crest.jpg');
     if (!stagesPhoto) throw new Error('Missing the road photograph for the stages menu link.');
     const episodes = days.toReversed().map(day => {
+      if (day.day === latest.day) return currentDay.section;
       if (!day.old) return episode(day, days, lang, base + 'media/', plan);
       const result = day.old.replace(/<a class="episode-return"[\s\S]*?<\/a>/g, '')
         .replace(/<p class="stage-episode__bridge">[\s\S]*?<\/p>/, '')
@@ -344,7 +326,7 @@ export async function buildFiveDays(directory) {
       .replaceAll(canonical + 'december-2.html', canonical)
       .replaceAll('href="./en/december-2.html"', 'href="./en/"')
       .replaceAll('href="../december-2.html"', 'href="../"')
-      .replace('</head>', `<link rel="stylesheet" href="${base}five-days.css"><link rel="stylesheet" href="${base}../start-day-2/stage-gallery.css"><link rel="stylesheet" href="${base}../start-day-2/menu-weather.css"><script src="${base}calendar-hover.js" defer></script></head>`);
+      .replace('</head>', `<link rel="stylesheet" href="${base}five-days.css"><link rel="stylesheet" href="${base}../start-day-2/stage-gallery.css"><link rel="stylesheet" href="${base}../start-day-2/menu-weather.css"><link rel="stylesheet" href="${base}current-day.css"><script type="module" src="${base}current-day.js"></script><script src="${base}calendar-hover.js" defer></script></head>`);
     html = prepare(html.slice(0, firstPanel)) + episodes + prepare(html.slice(lastPanelEnd));
     // The total is one source value. At enlarged narrow widths, expose its
     // hours and minutes as labelled atoms instead of splitting after a colon.
@@ -356,10 +338,8 @@ export async function buildFiveDays(directory) {
     const rows = remainingCalendarRows(latest, plan, lang);
     const columns = html.match(/<div class="december-calendar__columns"[^>]*>[\s\S]*?<\/div>/)?.[0];
     if (!columns) throw new Error('Missing calendar column labels.');
-    const previousRange = en ? `December ${previousDays[0].day}–${previousDays.at(-1).day}`
-      : `${previousDays[0].day}–${previousDays.at(-1).day} декабря`;
     const previous = `<details class="calendar-past" id="calendar-past" data-calendar-past>
-      <summary><span class="calendar-past__label"><span class="calendar-past__command"><span class="calendar-past__action--closed">${en ? 'Show previous ' : 'Показать предыдущие '}</span><span class="calendar-past__action--open">${en ? 'Hide previous ' : 'Скрыть предыдущие '}</span><span class="calendar-past__tail">${en ? 'stages' : 'этапы'}${arrow('right')}</span></span><span class="calendar-past__range">${previousRange}</span></span></summary>
+      ${currentDay.pastSummary}
       <div class="calendar-past__rows">${pastRows}</div>
     </details>`;
     const calendarStart = html.lastIndexOf('<section', html.indexOf('id="distance"'));
@@ -367,6 +347,7 @@ export async function buildFiveDays(directory) {
     const calendarEnd = sectionEnd(html, calendarStart) - '</section>'.length;
     const headings = `<div class="december-calendar__columns" aria-hidden="true"><span>${en ? 'Date and stage' : 'Дата и этап'}</span><span>${en ? 'Distance, km' : 'Дистанция, км'}</span><span>${en ? 'Planned total, km' : 'План к этой дате, км'}</span></div>`;
     html = html.slice(0, columnStart) + previous + headings + rows + '\n' + html.slice(calendarEnd);
+    html = html.replace(/<p class="december-calendar__plan-note">[\s\S]*?<\/p>/, '');
     html = html.replace(/(<header class="december-calendar__heading">)[\s\S]*?<\/header>/,
       header => header.replaceAll('базовые этапы', 'базовые дни').replaceAll('base stages', 'base days').replaceAll('Base stages', 'Base days'));
     if (!html.includes('id="calendar-day-05"') || !html.includes('href="#race-day-05"')) throw new Error('Missing current stage');

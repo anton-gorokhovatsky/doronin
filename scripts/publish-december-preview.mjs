@@ -20,6 +20,7 @@ await buildFiveDays(destination);
 // The entry passes its version to dynamic imports. Its digest must therefore
 // include those children, otherwise a controller-only change reuses an old URL.
 const entry = path.join(destination, 'assets/start-day-2/day-two.js');
+const currentEntry = path.join(destination, 'assets/five-days/current-day.js');
 const entryDependencies = [
   path.join(destination, 'assets/start-day-2/stage-gallery.js'),
   path.join(destination, 'assets/start-day-2/stage-gallery-baseline.js'),
@@ -31,6 +32,7 @@ async function resourceVersion(resource) {
   if (resource === entry) {
     for (const dependency of entryDependencies) hash.update(await readFile(dependency));
   }
+  if (resource === currentEntry) hash.update(await readFile(path.join(destination, 'assets/five-days/current-day-layout.js')));
   return hash.digest('hex').slice(0, 10);
 }
 for (const page of pages) {

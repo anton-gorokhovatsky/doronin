@@ -125,6 +125,7 @@ function currentPhotoIndex() {
   return useStageDeck && modalGallery ? modalGallery.index : modalIndex;
 }
 function pauseGalleryVideos(state, except) {
+  state?.pause?.(except);
   for (const link of state.links) {
     const video = mediaVideos.get(link);
     if (video && video !== except) video.pause();
@@ -294,6 +295,14 @@ const videoVisibility = 'IntersectionObserver' in window ? new IntersectionObser
 }) : null;
 for (const panel of episodePanels) {
   const strip = panel.querySelector('[data-start-photo-strip]');
+  if (!strip && panel.hasAttribute('data-current-day')) {
+    galleryStates.set(panel.dataset.episode, {
+      panel, links: [],
+      restore() { panel.dispatchEvent(new Event('current-day:restore')); },
+      pause() { panel.dispatchEvent(new Event('current-day:pause')); },
+    });
+    continue;
+  }
   const links = [...strip.querySelectorAll('[data-start-photo]')];
   const prev = panel.querySelector('[data-start-strip-prev]');
   const next = panel.querySelector('[data-start-strip-next]');
