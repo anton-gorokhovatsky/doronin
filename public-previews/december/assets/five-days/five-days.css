@@ -1,4 +1,14 @@
 /* The dot follows the calendar date along the existing five peaks. */
+[data-five-days] .hero-peaks__labels a { position:relative; isolation:isolate; }
+[data-five-days] .hero-peaks__labels a::before {
+  position:absolute; inset:-.25rem -.5rem; z-index:-1; content:'';
+  background:transparent;
+  transition:background-color var(--duration-feedback) var(--ease-move);
+}
+@media (hover:hover) and (pointer:fine) {
+  [data-five-days] .hero-peaks__labels a:hover::before { background:rgb(255 255 255 / .14); }
+}
+[data-five-days] .hero-peaks__labels a:focus-visible::before { background:rgb(255 255 255 / .14); }
 [data-five-days] .hero-peaks__current {
   left: var(--today-x);
   top: calc(100% * var(--today-y));

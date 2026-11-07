@@ -39,7 +39,7 @@ async function settled(page, section, index) {
     [...section.querySelectorAll('.lab-frame')].every(frame =>
       frame.getAnimations({ subtree: true }).every(animation => animation.playState !== 'running')),
   { section: await section.elementHandle(), index });
-  assert.equal(await section.locator('.lab-count').innerText(), `${index + 1} / 3`);
+  assert.deepEqual((await section.locator('.lab-count').textContent()).match(/\d+/g).map(Number), [index + 1, 3]);
 }
 
 async function frame(page, output, name) {
@@ -159,6 +159,16 @@ export async function hasCurrentDay(browser, base) {
   } finally { await page.close(); }
 }
 
+async function assertFullStory(section, lang) {
+  const stories = JSON.parse(await readFile(new URL('../../prototypes/five-days/stories.json', import.meta.url), 'utf8'));
+  const original = stories.find(story => story.day === 5)[lang].paragraphs;
+  const paragraphs = section.locator('.lab-story__body > p');
+  const normalize = text => text.replace(/\s+/g, ' ').trim();
+  assert.deepEqual((await paragraphs.allTextContents()).map(normalize), original.map(normalize));
+  for (const paragraph of await paragraphs.all()) assert.equal(await paragraph.isVisible(), true, 'Every original paragraph is visible without disclosure');
+  assert.equal(await section.locator('.lab-story details').count(), 0, 'The biography is not collapsed');
+}
+
 async function checkProfile(browser, engine, base, output, profile, expected) {
   const { context, page, parts, errors } = await openPage(browser, base, profile);
   const name = `${engine}-current-day-${profile.name}`;
@@ -183,6 +193,7 @@ async function checkProfile(browser, engine, base, output, profile, expected) {
     assert.ok(new URL(page.url()).pathname.endsWith(`/december/${profile.lang === 'en' ? 'en/' : ''}`));
     await parts.canvas.locator('.lab-frame img').evaluateAll(images => Promise.all(images.map(image => image.decode())));
     const originalFrames = await parts.section.locator('.lab-frame').elementHandles();
+    await assertFullStory(parts.section, profile.lang);
     const firstScene = await assertScene(page, parts.section);
     await frame(page, output, `${name}-entry`);
 
@@ -213,8 +224,7 @@ async function checkProfile(browser, engine, base, output, profile, expected) {
       frames.flatMap(frame => frame.getAnimations({ subtree: true })).filter(animation => animation.playState === 'running').length), 0);
 
     await playNative(page, parts.video, engine);
-    const more = parts.section.locator('.lab-story__more');
-    if (!await more.evaluate(element => element.open)) await more.locator('summary').click();
+    await assertFullStory(parts.section, profile.lang);
     await parts.section.locator('.lab-previous').click();
     await page.locator('[data-episode="04"]').waitFor({ state: 'visible' });
     assert.equal(await parts.video.evaluate(video => video.paused), true, 'Opening an archived story pauses the current video');
@@ -230,13 +240,10 @@ async function checkProfile(browser, engine, base, output, profile, expected) {
     assert.equal(await parts.video.evaluate(video => video.paused), true, 'Returning to the current day preserves selection without autoplay');
 
     if (profile.name === '390-en-dark') {
-      // This real calendar command uses legacy pushState routing, so it must
-      // reveal the memoir without relying on a reload or a hashchange event.
-      if (await more.evaluate(element => element.open)) await more.locator('summary').click();
-      assert.equal(await more.evaluate(element => element.open), false);
+      // The calendar reaches the same complete story without a reload.
       const beforeCalendar = await parts.section.elementHandle();
       await page.locator('.december-row--today [data-stage-calendar-link]').click();
-      await page.waitForFunction(element => element.open, await more.elementHandle());
+      await assertFullStory(parts.section, profile.lang);
       assert.equal(new URL(page.url()).hash, '#life-story-05');
       assert.equal(await beforeCalendar.evaluate(element => element.isConnected), true, 'The calendar opens the full memoir without reloading the page');
       await settled(page, parts.section, 1);
@@ -255,6 +262,7 @@ async function checkProfile(browser, engine, base, output, profile, expected) {
     assert.equal(await parts.section.locator('.lab-frame').count(), 3);
     await parts.section.locator('.lab-controls').scrollIntoViewIfNeeded();
     await assertScene(page, parts.section);
+    await assertFullStory(parts.section, profile.lang);
     await frame(page, output, `${name}-returned`);
     assert.deepEqual(errors, []);
     const evidence = `${name}-geometry.json`;

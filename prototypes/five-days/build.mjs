@@ -244,6 +244,36 @@ export async function buildFiveDays(directory) {
   if (stories.map(s => s.day).join() !== '3,4,5') throw new Error('Expected three new stories, in order.');
   const mediaDirectory = path.join(directory, 'assets/five-days/media');
   await mkdir(mediaDirectory, { recursive: true });
+  // The rehearsal extends the existing control family from its authored
+  // source, rather than maintaining a second button design in preview CSS.
+  const editorialStyles = await readFile(path.join(here, '../../src/assets/styles/20-editorial-distance-story.css'), 'utf8');
+  const controlsSelector = ':is(.diary-archive__controls, .diary-media__controls)';
+  const family = '[data-five-days] :is(.diary-archive__controls, .diary-media__controls, .lab-arrows, .start-photo-controls > div)';
+  const controlsStart = editorialStyles.indexOf(`${controlsSelector} {`);
+  const controlsEnd = editorialStyles.indexOf('.diary-story + .diary-story', controlsStart);
+  if (controlsStart < 0 || controlsEnd < 0) throw new Error('Missing the shared gallery control styles.');
+  const controlsStyles = editorialStyles.slice(controlsStart, controlsEnd).replaceAll(controlsSelector, family);
+  await writeFile(path.join(directory, 'assets/five-days/gallery-controls.css'), `${controlsStyles}
+/* A constrained native portrait still owns its panel. The same square
+   buttons shrink only when their normal rem-sized pair cannot fit. */
+${family} {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(44px, 1fr));
+  inline-size: min(100%, 6.5rem, var(--gallery-controls-width, 100%));
+  max-inline-size: 100%;
+  flex: 0 1 auto;
+}
+${family}[hidden] { display: none; }
+${family} button {
+  inline-size: 100%; block-size: auto; aspect-ratio: 1;
+  min-inline-size: 44px; min-block-size: 44px;
+}
+${family} .icon {
+  fill: none; stroke: currentColor; stroke-width: 1.35;
+  stroke-linecap: square; stroke-linejoin: miter;
+}
+${family} .icon path { vector-effect: non-scaling-stroke; }
+`);
   for (const file of new Set(media.flatMap(stage => stage.diarySource?.files || []))) {
     if (path.basename(file) !== file) throw new Error(`Invalid diary media filename: ${file}`);
     await copyFile(path.join(here, '../../src/assets', file), path.join(mediaDirectory, file));
@@ -326,8 +356,10 @@ export async function buildFiveDays(directory) {
       .replaceAll(canonical + 'december-2.html', canonical)
       .replaceAll('href="./en/december-2.html"', 'href="./en/"')
       .replaceAll('href="../december-2.html"', 'href="../"')
-      .replace('</head>', `<link rel="stylesheet" href="${base}five-days.css"><link rel="stylesheet" href="${base}../start-day-2/stage-gallery.css"><link rel="stylesheet" href="${base}../start-day-2/menu-weather.css"><link rel="stylesheet" href="${base}current-day.css"><script type="module" src="${base}current-day.js"></script><script src="${base}calendar-hover.js" defer></script></head>`);
+      .replace('</head>', `<link rel="stylesheet" href="${base}five-days.css"><link rel="stylesheet" href="${base}../start-day-2/stage-gallery.css"><link rel="stylesheet" href="${base}../start-day-2/menu-weather.css"><link rel="stylesheet" href="${base}current-day.css"><link rel="stylesheet" href="${base}gallery-controls.css"><script type="module" src="${base}current-day.js"></script><script src="${base}calendar-hover.js" defer></script></head>`);
     html = prepare(html.slice(0, firstPanel)) + episodes + prepare(html.slice(lastPanelEnd));
+    html = html.replace(/<span data-start-strip-count([^>]*)>1 \/ (\d+)<\/span>/g,
+      (_, attributes, total) => `<span class="diary-media__position" data-start-strip-count${attributes}><strong>01</strong><span> / </span><span>${total.padStart(2, '0')}</span></span>`);
     // The total is one source value. At enlarged narrow widths, expose its
     // hours and minutes as labelled atoms instead of splitting after a colon.
     html = html.replace(/(<strong\b[^>]*\bdata-film-total\b[^>]*>)(\d+):(\d+)(<\/strong>)/,

@@ -20,10 +20,6 @@ const config=JSON.parse(document.getElementById('lab-config').textContent);
 const canvas=section.querySelector('.lab-canvas');
 const controls=section.querySelector('.lab-controls');
 const currentText=section.querySelector('.lab-current');
-const storyMore=section.querySelector('.lab-story__more');
-let compactStoryOpen=false;
-let storyFitCache;
-storyMore.addEventListener('click',event=>{if(event.target.closest('summary'))compactStoryOpen=!storyMore.open;});
 const frames=[...canvas.querySelectorAll('.lab-frame')];
 const count=section.querySelector('.lab-count');
 const dialog=section.querySelector('.lab-viewer');
@@ -90,6 +86,7 @@ function arrange({animate=false,instant=false}={}){
   // If the narrowest native source needs two rows, retain those rows for
   // the whole sequence. A wider 3:4 selection must not collapse the panel
   // and move the keyboard command or the document below it.
+  controls.style.setProperty('--gallery-controls-width',`${layoutSpec.height*Math.min(...layoutInput.ratios)}px`);
   const commandWidth=controls.querySelector('.lab-arrows').getBoundingClientRect().width;
   const controlsPairGap=parseFloat(getComputedStyle(controls).columnGap)||0;
   const controlsNeeded=count.getBoundingClientRect().width+commandWidth+controlsPairGap;
@@ -100,25 +97,6 @@ function arrange({animate=false,instant=false}={}){
   if(layoutSpec.currentText){
     currentText.style.left=`${layoutSpec.currentText.x}px`;
     currentText.style.width=`${layoutSpec.currentText.width}px`;
-  }
-  // Show the complete memoir when it balances the media height. A short
-  // window offers the first full paragraph and keeps the rest one action away.
-  const storyFitKey=`${section.clientWidth}:${rem}:${layoutSpec.height}:${measuredControlsHeight}`;
-  if(storyFitCache?.key!==storyFitKey){
-    section.dataset.measuringStory='true';
-    section.dataset.storyCollapsible='false';
-    storyMore.open=true;
-    const fits=section.clientWidth>66*rem&&section.querySelector('.lab-story').getBoundingClientRect().height<=layoutSpec.height+measuredControlsHeight;
-    storyFitCache={key:storyFitKey,fits};
-  }
-  const storyCollapsible=variant.id==='queue'&&!storyFitCache.fits;
-  section.dataset.storyCollapsible=String(storyCollapsible);
-  storyMore.open=!storyCollapsible||compactStoryOpen;
-  if(section.hasAttribute('data-measuring-story')){
-    // Commit the restored open/closed layout while transitions are disabled;
-    // removing the measurement flag must not animate a phantom disclosure.
-    void storyMore.offsetHeight;
-    delete section.dataset.measuringStory;
   }
   canvas.style.height=`${layoutSpec.height}px`;
   for(const [slot,frame] of visualOrder.entries()){
@@ -158,7 +136,7 @@ function arrange({animate=false,instant=false}={}){
     if(controls.parentElement!==canvas||controls.nextElementSibling!==(visualOrder[1]||null))canvas.insertBefore(controls,visualOrder[1]||null);
   }else if(controls.parentElement!==canvas.parentElement||controls.previousElementSibling!==canvas)canvas.after(controls);
   if(controlsFocus&&document.activeElement!==controlsFocus)controlsFocus.focus({preventScroll:true});
-  count.textContent=`${current+1} / ${frames.length}`;
+  count.innerHTML=`<strong>${String(current+1).padStart(2,'0')}</strong><span> / </span><span>${String(frames.length).padStart(2,'0')}</span>`;
   section.dataset.selected=String(current+1);
   section.dataset.layoutReady='true';
   lastSize=`${canvas.clientWidth}:${innerWidth}:${innerHeight}:${rem}`;
@@ -259,17 +237,9 @@ new IntersectionObserver(entries=>{if(!entries[0].isIntersecting)pauseVideos();}
 new MutationObserver(()=>{if(document.body.className.includes('menu-open')||document.documentElement.className.includes('menu-open'))pauseVideos();}).observe(document.body,{attributes:true,attributeFilter:['class']});
 new ResizeObserver(schedule).observe(canvas);
 addEventListener('resize',schedule);
-section.addEventListener('current-day:restore',()=>{syncStoryRoute();arrange();syncLanguageLinks();});
+section.addEventListener('current-day:restore',()=>{arrange();syncLanguageLinks();});
 section.addEventListener('current-day:pause',()=>pauseVideos());
 for(const menu of document.querySelectorAll('.nav-shell'))menu.addEventListener('toggle',()=>{if(menu.open)pauseVideos();});
-function syncStoryRoute(){
-  if(location.hash==='#life-story-05'){
-    compactStoryOpen=true;
-    storyMore.open=true;
-  }
-  syncLanguageLinks();
-}
-addEventListener('hashchange',syncStoryRoute);
-syncStoryRoute();
+addEventListener('hashchange',syncLanguageLinks);
 document.fonts?.ready.then(()=>arrange());
 arrange();

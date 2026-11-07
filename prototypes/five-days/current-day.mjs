@@ -1,7 +1,7 @@
 // Selected current-day composition for the separate December rehearsal.
 // Completed distance is the explicit Dec 5 scenario assumption, never live status.
 const esc = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('"', '&quot;');
-const icon = direction => `<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="${direction === 'left' ? 'M13 8H3m3.5-3.5L3 8l3.5 3.5' : direction === 'down' ? 'M8 3v10m-3.5-3.5L8 13l3.5-3.5' : 'M3 8h10m-3.5-3.5L13 8l-3.5 3.5'}"/></svg>`;
+const icon = direction => `<svg class="icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="${direction === 'left' ? 'M13 8H3m3.5-3.5L3 8l3.5 3.5' : direction === 'down' ? 'M8 3v10m-3.5-3.5L8 13l3.5-3.5' : 'M3 8h10m-3.5-3.5L13 8l-3.5 3.5'}"/></svg>`;
 export function renderCurrentDay({lang, media, story, plan, mediaRoot}) {
   const scenarioDate = new Date('2026-12-05T00:00:00Z');
   const dayMs = 86400000;
@@ -20,14 +20,14 @@ export function renderCurrentDay({lang, media, story, plan, mediaRoot}) {
       select:'Show material', open:'Open photograph', older:'Previous story',
       olderTitle:'The Stage on the Back of a KamAZ', stages:'Challenge stages', close:'Close photograph',
       failed:'This material could not be loaded', retry:'Try again', loading:'Loading…',
-      today:'Today’s target', readStory:'Read the full story', hideStory:'Collapse story'
+      today:'Today’s target'
     } : {
       date:'5 декабря', remembered:'Из жизни Виктора',
       media:'Фото и видео текущего этапа', prev:'Предыдущий материал', next:'Следующий материал',
       select:'Показать материал', open:'Открыть фотографию', older:'Предыдущая история',
       olderTitle:'Сцена в кузове КамАЗа', stages:'Этапы челленджа', close:'Закрыть фотографию',
       failed:'Материал не загрузился', retry:'Повторить загрузку', loading:'Загружаем…',
-      today:'Сегодняшняя цель', readStory:'Читать историю целиком', hideStory:'Свернуть историю'
+      today:'Сегодняшняя цель'
     };
     const targetLabel = en ? plan.targetDistanceKm.toLocaleString('en-US') : plan.targetDistanceKm.toLocaleString('ru-RU').replaceAll('\u00a0', '\u202f');
     const progressLabel = en ? `${previousPlanKm} kilometres covered out of ${targetLabel}` : `Пройдено ${previousPlanKm} из ${targetLabel} километров`;
@@ -57,8 +57,8 @@ export function renderCurrentDay({lang, media, story, plan, mediaRoot}) {
     const section = `<section data-current-day class="section section--light lab-episode" id="race-day-05" data-episode="05" tabindex="-1" aria-labelledby="lab-day-title">
       <header class="lab-day"><h2 class="lab-day__date" id="lab-day-title"><time datetime="2026-12-05">${text.date}</time></h2></header>
       <div class="lab-scene"><div class="lab-media">${currentCopy}<div class="lab-canvas" role="group" aria-label="${text.media}">${frames}</div>
-      <nav class="lab-controls" aria-label="${text.media}"><span class="lab-count" aria-live="polite" aria-atomic="true">1 / ${media.items.length}</span><div class="lab-arrows"><button type="button" data-lab-prev aria-label="${text.prev}">${icon('left')}</button><button type="button" data-lab-next aria-label="${text.next}">${icon('right')}</button></div></nav></div>
-      <aside class="lab-story" id="life-story-05" aria-labelledby="lab-story-title"><p class="lab-story__kicker">${text.remembered}</p><h3 class="lab-story__title" id="lab-story-title">${esc(story[lang].title)}</h3><div class="lab-story__body"><p>${esc(story[lang].paragraphs[0])}</p><details class="lab-story__more" open><summary><span class="lab-story__read">${text.readStory}</span><span class="lab-story__collapse">${text.hideStory}</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M8 3v10"/></svg></summary><div class="lab-story__continuation">${story[lang].paragraphs.slice(1).map(p=>`<p>${esc(p)}</p>`).join('')}<nav class="lab-footer" aria-label="${text.older}"><a href="#life-story-04" class="lab-previous"><span>${text.older}</span><strong>${icon('left')}${text.olderTitle}</strong></a></nav></div></details></div></aside></div>
+      <nav class="lab-controls" aria-label="${text.media}"><span class="lab-count diary-media__position" aria-live="polite" aria-atomic="true"><strong>01</strong><span> / </span><span>${String(media.items.length).padStart(2,'0')}</span></span><div class="lab-arrows"><button type="button" data-lab-prev aria-label="${text.prev}">${icon('left')}</button><button type="button" data-lab-next aria-label="${text.next}">${icon('right')}</button></div></nav></div>
+      <aside class="lab-story" id="life-story-05" aria-labelledby="lab-story-title"><p class="lab-story__kicker">${text.remembered}</p><h3 class="lab-story__title" id="lab-story-title">${esc(story[lang].title)}</h3><div class="lab-story__body">${story[lang].paragraphs.map(p=>`<p>${esc(p)}</p>`).join('')}<nav class="lab-footer" aria-label="${text.older}"><a href="#life-story-04" class="lab-previous"><span>${text.older}</span><strong>${icon('left')}${text.olderTitle}</strong></a></nav></div></aside></div>
       <dialog class="lab-viewer" aria-label="${en?'Photograph':'Фотография'}"><button type="button" data-lab-close aria-label="${text.close}">×</button><img alt=""></dialog>
       <script type="application/json" id="lab-config">${JSON.stringify({lang,text,source:media.diarySource,storySource:story.source})}</script>
     </section>`;

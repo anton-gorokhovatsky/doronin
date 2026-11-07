@@ -81,7 +81,8 @@ export function createStageDeck(options) {
  }
  function choose(index){
   state.index=wrap(index);strip.dataset.photoIndex=String(state.index);
-  count.textContent=`${state.index+1} / ${links.length}`;
+  if(count.classList.contains('diary-media__position'))count.innerHTML=`<strong>${String(state.index+1).padStart(2,'0')}</strong><span> / </span><span>${String(links.length).padStart(2,'0')}</span>`;
+  else count.textContent=`${state.index+1} / ${links.length}`;
   links.forEach((link,i)=>{
    const current=i===state.index,following=i===wrap(state.index+1),later=i===wrap(state.index+2),video=media[i].tagName==='VIDEO';
    const visible=current||following||later;link.hidden=!visible;link.inert=!visible;

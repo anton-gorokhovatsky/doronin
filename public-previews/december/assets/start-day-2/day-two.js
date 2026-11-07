@@ -325,7 +325,8 @@ for (const panel of episodePanels) {
   function update() {
     if (panel.hidden) return;
     state.index = links.reduce((best, link, i) => Math.abs(position(i) - strip.scrollLeft) < Math.abs(position(best) - strip.scrollLeft) ? i : best, 0);
-    count.textContent = `${state.index + 1} / ${links.length}`;
+    if (count.classList.contains('diary-media__position')) count.innerHTML = `<strong>${String(state.index + 1).padStart(2, '0')}</strong><span> / </span><span>${String(links.length).padStart(2, '0')}</span>`;
+    else count.textContent = `${state.index + 1} / ${links.length}`;
     prev.disabled = state.index === 0;
     next.disabled = state.index === links.length - 1;
   }

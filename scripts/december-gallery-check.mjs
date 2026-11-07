@@ -32,6 +32,10 @@ function pageUrl(base, route) {
   return url.href;
 }
 
+async function readCount(locator) {
+  return (await locator.textContent()).replace(/\b0+(?=\d)/g, '').replace(/\s+/g, ' ').trim();
+}
+
 function galleryFor(page, day) {
   const episode = page.locator(`[data-episode="${day}"]`);
   return {
@@ -127,20 +131,20 @@ async function checkMixedInput(page, gallery, engine, output) {
   await page.keyboard.press('End');
   await assertSelectedPhotograph(page, deck, output, `${engine}-keyboard-last-photo`);
   await next.click();
-  assert.equal(await count.innerText(), '1 / 3');
+  assert.equal(await readCount(count), '1 / 3');
   await assertSelectedPhotograph(page, deck, output, `${engine}-mouse-wrap-photo`);
   await deck.locator('[data-current="true"]').focus();
   await page.keyboard.press('Home');
   for (let step = 0; step < 7; step++) await page.keyboard.press('ArrowRight');
-  assert.equal(await count.innerText(), '2 / 3');
+  assert.equal(await readCount(count), '2 / 3');
   await assertSelectedPhotograph(page, deck, output, `${engine}-keyboard-many-photo`);
   await next.click();
-  assert.equal(await count.innerText(), '3 / 3');
+  assert.equal(await readCount(count), '3 / 3');
   await assertSelectedPhotograph(page, deck, output, `${engine}-mouse-next-photo`);
   // A resize preserves the selected photograph, then accepts mouse navigation.
   await page.setViewportSize({width: 1360, height: 1000});
   await next.click();
-  assert.equal(await count.innerText(), '1 / 3');
+  assert.equal(await readCount(count), '1 / 3');
   await assertSelectedPhotograph(page, deck, output, `${engine}-resized-wrap-photo`);
   await page.setViewportSize({width: 1440, height: 1000});
   await deck.locator('[data-current="true"]').focus();
@@ -159,7 +163,7 @@ async function checkPointerField(page, gallery, engine, output) {
   await page.mouse.move(box.x - 10, y);
   assert.equal(await deck.locator('.stage-scene__field').getAttribute('style'), original,
     'Pointer movement alone leaves the scene and its selection still');
-  assert.equal(await count.innerText(), '1 / 3');
+  assert.equal(await readCount(count), '1 / 3');
   const photos = deck.locator('[data-start-photo]');
   assert.equal(await photos.count(), 3);
   await assertThreeVisible(deck, 0);
@@ -176,7 +180,7 @@ async function checkPointerField(page, gallery, engine, output) {
   assert.ok(targets.filter(target => !target.current && !target.inert && !target.hidden && target.tab >= 0)
     .every(target => target.following || target.later), 'The two following previews may be separate selection commands');
   await gallery.next.click();
-  assert.equal(await count.innerText(), '2 / 3');
+  assert.equal(await readCount(count), '2 / 3');
   await page.waitForFunction(element => element.dataset.turning !== 'true', await deck.elementHandle());
   await assertThreeVisible(deck, 1);
   assert.equal(await page.locator('[data-start-lightbox]').evaluate(element => element.open), false,
@@ -190,12 +194,12 @@ async function checkPointerField(page, gallery, engine, output) {
   assert.ok(Math.abs(native.ratio - native.native) < .01, 'The frame keeps its original aspect ratio');
   await deck.locator('[data-current="true"]').focus();
   await page.keyboard.press('Home');
-  assert.equal(await count.innerText(), '1 / 3');
+  assert.equal(await readCount(count), '1 / 3');
   assert.equal(await deck.getAttribute('data-turning'), 'false', 'Keyboard selection is immediate');
-  const beforeScroll = await count.innerText();
+  const beforeScroll = await readCount(count);
   await page.mouse.wheel(0, 100);
   await page.waitForTimeout(100);
-  assert.equal(await count.innerText(), beforeScroll, 'Reading vertically does not browse photographs');
+  assert.equal(await readCount(count), beforeScroll, 'Reading vertically does not browse photographs');
   await deck.scrollIntoViewIfNeeded();
   await deck.locator('[data-current="true"]').focus();
   await page.keyboard.press('Home');
@@ -215,7 +219,7 @@ async function checkMouseGestures(page, gallery, engine, output) {
   await page.mouse.move(x - box.width * 0.38, y + 8, { steps: 7 });
   await saveFrame(page, output, `${engine}-gallery-drag`);
   await page.mouse.up();
-  assert.equal(await count.innerText(), "2 / 3");
+  assert.equal(await readCount(count), "2 / 3");
   assert.equal(await page.locator("[data-start-lightbox]").evaluate(element => element.open), false);
 
   await page.waitForTimeout(300);
@@ -224,12 +228,12 @@ async function checkMouseGestures(page, gallery, engine, output) {
   await page.mouse.move(x - 18, y + 1, { steps: 5 });
   await page.waitForTimeout(130);
   await page.mouse.up();
-  assert.equal(await count.innerText(), "2 / 3");
+  assert.equal(await readCount(count), "2 / 3");
 
   await previous.click();
   await next.click({ delay: 10 });
   await previous.click({ delay: 10 });
-  assert.equal(await count.innerText(), "1 / 3");
+  assert.equal(await readCount(count), "1 / 3");
   await page.waitForTimeout(300);
   await saveFrame(page, output, `${engine}-gallery-rest`);
 }
@@ -255,14 +259,14 @@ async function checkDesktop(browser, engine, base, output) {
     await checkMixedInput(page, gallery, engine, output);
     await checkPointerField(page, gallery, engine, output);
     await next.click();
-    assert.equal(await count.innerText(), "2 / 3");
+    assert.equal(await readCount(count), "2 / 3");
     await next.click();
-    assert.equal(await count.innerText(), "3 / 3");
+    assert.equal(await readCount(count), "3 / 3");
     assert.equal(await next.isDisabled(), false);
     await next.click();
-    assert.equal(await count.innerText(), "1 / 3", "The last photograph advances to the first");
+    assert.equal(await readCount(count), "1 / 3", "The last photograph advances to the first");
     await gallery.previous.click();
-    assert.equal(await count.innerText(), "3 / 3", "The first photograph returns to the last");
+    assert.equal(await readCount(count), "3 / 3", "The first photograph returns to the last");
     await deck.locator('[data-current="true"]').focus();
     await page.keyboard.press("Home");
 
@@ -275,14 +279,14 @@ async function checkDesktop(browser, engine, base, output) {
       next.click();
       previous.click();
     });
-    assert.equal(await count.innerText(), "2 / 3");
+    assert.equal(await readCount(count), "2 / 3");
 
     await deck.locator('[data-current="true"]').focus();
     await page.keyboard.press("Home");
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowLeft");
-    assert.equal(await count.innerText(), "2 / 3");
+    assert.equal(await readCount(count), "2 / 3");
     assert.equal(await deck.locator('a[data-current="true"]:not([inert])').count(), 1);
     await checkFullPhoto(page, deck);
     await checkMouseGestures(page, gallery, engine, output);
@@ -291,7 +295,7 @@ async function checkDesktop(browser, engine, base, output) {
     await episode.locator('a[href="#race-day-03"]').click();
     assert.equal(await galleryFor(page, "03").episode.isVisible(), true);
     await galleryFor(page, "03").episode.locator('a[href="#race-day-04"]').click();
-    assert.equal(await count.innerText(), "2 / 3");
+    assert.equal(await readCount(count), "2 / 3");
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
 
     // The rehearsal interaction must not replace the real pre-start homepage.
@@ -328,16 +332,16 @@ async function checkTrustedTouch(page, gallery) {
   try {
     await page.keyboard.press("Home");
     await touchDrag(page, client, await deck.boundingBox(), -180, 3);
-    assert.equal(await count.innerText(), "2 / 3", "Trusted touch swipe advances");
+    assert.equal(await readCount(count), "2 / 3", "Trusted touch swipe advances");
     assert.equal(await page.locator("[data-start-lightbox]").evaluate(element => element.open), false, "A swipe never opens the full photo");
 
     await touchDrag(page, client, await deck.boundingBox(), 160, 2);
-    assert.equal(await count.innerText(), "1 / 3", "Touch reversal returns");
+    assert.equal(await readCount(count), "1 / 3", "Touch reversal returns");
 
     await touchDrag(page, client, await deck.boundingBox(), 160, 2);
-    assert.equal(await count.innerText(), "3 / 3", "Touch cycles backward from first to last");
+    assert.equal(await readCount(count), "3 / 3", "Touch cycles backward from first to last");
     await touchDrag(page, client, await deck.boundingBox(), -180, 2);
-    assert.equal(await count.innerText(), "1 / 3", "Touch cycles forward from last to first");
+    assert.equal(await readCount(count), "1 / 3", "Touch cycles forward from last to first");
 
     // The click generated by the completed swipe is suppressed, but a new
     // pointerdown is a new intention even within the old ghost-click guard.
@@ -351,7 +355,7 @@ async function checkTrustedTouch(page, gallery) {
     assert.equal(await dialog.evaluate(element => element.open), true, "A fresh quick tap opens the selected photograph");
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("Escape");
-    assert.equal(await count.innerText(), "2 / 3", "Closing preserves the last photograph selected in the full viewer");
+    assert.equal(await readCount(count), "2 / 3", "Closing preserves the last photograph selected in the full viewer");
     const returned = deck.locator('a[data-current="true"]');
     assert.equal(await returned.evaluate(element => element === document.activeElement), true, "Touch/full-view return focuses the current photograph");
     await page.keyboard.press("Home");
@@ -360,7 +364,7 @@ async function checkTrustedTouch(page, gallery) {
     const before = await page.evaluate(() => scrollY);
     await touchDrag(page, client, await deck.boundingBox(), 2, -120);
     assert.ok(await page.evaluate(() => scrollY) > before + 25, "Vertical page scrolling remains native");
-    assert.equal(await count.innerText(), "1 / 3");
+    assert.equal(await readCount(count), "1 / 3");
     await deck.scrollIntoViewIfNeeded();
   } finally {
     await client.detach();
@@ -376,7 +380,7 @@ async function checkCurrentTrustedTouch(browser, base, output) {
     await page.goto(pageUrl(base, '/december/en/#race-day-05'));
     const { deck, count } = galleryFor(page, '05');
     await deck.waitFor(); await deck.scrollIntoViewIfNeeded();
-    assert.equal(await count.innerText(), '1 / 3');
+    assert.equal(await readCount(count), '1 / 3');
     const first = deck.locator('[data-start-photo="0"] img');
     await page.waitForFunction(image => image.complete && image.naturalWidth > 0, await first.elementHandle());
     await first.evaluate(image => image.decode());
@@ -385,7 +389,7 @@ async function checkCurrentTrustedTouch(browser, base, output) {
     assert.ok(photo, 'The real first portrait supplies the touch surface');
     await touchDrag(page, client, photo, -photo.width * .65, 2);
     await page.waitForFunction(element => element.dataset.photoIndex === '1' && element.dataset.turning !== 'true', await deck.elementHandle());
-    assert.equal(await count.innerText(), '2 / 3');
+    assert.equal(await readCount(count), '2 / 3');
     const video = deck.locator('[data-start-photo="1"] video');
     assert.equal(await video.evaluate(video => video.controls), true);
     // Include the compatibility-click window, rather than sampling only the
@@ -403,7 +407,7 @@ async function checkCurrentTrustedTouch(browser, base, output) {
     assert.ok(native, 'The loaded native player supplies its own control surface');
     await touchDrag(page, client, { ...native, y: native.y + native.height - 28, height: 20 },
       -Math.min(100, native.width * .3), 1);
-    assert.equal(await count.innerText(), '2 / 3', 'A native video gesture stays with the player');
+    assert.equal(await readCount(count), '2 / 3', 'A native video gesture stays with the player');
     assert.equal(await dialog.evaluate(element => element.open), false);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
     assert.deepEqual(errors, []);
@@ -430,7 +434,7 @@ async function checkPhone(browser, engine, base, output) {
     await deck.scrollIntoViewIfNeeded();
     await deck.locator('[data-current="true"]').focus();
     await page.keyboard.press("ArrowRight");
-    assert.equal(await count.innerText(), "2 / 3");
+    assert.equal(await readCount(count), "2 / 3");
 
     // CDP dispatches trusted touch input; synthetic DOM events cannot prove scrolling.
     if (engine === "chromium") await checkTrustedTouch(page, gallery);
@@ -573,7 +577,7 @@ async function checkModuleFallback(browser, base, output) {
 
     await strip.scrollIntoViewIfNeeded();
     await episode.locator("[data-start-strip-next]").click();
-    await page.waitForFunction(() => document.querySelector('[data-episode="03"] [data-start-strip-count]').textContent === "2 / 3");
+    await page.waitForFunction(() => document.querySelector('[data-episode="03"] [data-start-strip-count]').textContent.replace(/\b0+(?=\d)/g, '') === "2 / 3");
     assert.ok(await strip.evaluate(element => element.scrollLeft) > 0);
     await episode.locator('a[href="#race-day-02"]').click();
     assert.equal(await galleryFor(page, "02").episode.isVisible(), true);
