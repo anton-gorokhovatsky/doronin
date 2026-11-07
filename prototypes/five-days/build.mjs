@@ -88,6 +88,28 @@ function advancePeaks(html, today, dayLabel) {
   const pathData = html.match(/class="hero-peaks__route" d="([^"]+)"/)[1];
   const points = [...pathData.matchAll(/[ML]([\d.]+) ([\d.]+)/g)].map(m => [Number(m[1]), Number(m[2])]);
   const labels = [...html.matchAll(/<li data-date="2026-12-(\d\d)" style="--peak-x:([\d.]+)%/g)];
+  // Highlight the existing slopes, never a separately redrawn mountain.
+  // Moving a summit in the source route updates both its normal and hover ink.
+  const highlights = labels.map(([, day, percent]) => {
+    const summitX = Number(percent) * 6;
+    const tip = points.reduce((best, point, index) =>
+      Math.abs(point[0] - summitX) < Math.abs(points[best][0] - summitX) ? index : best, 0);
+    if (Math.abs(points[tip][0] - summitX) > .01) throw new Error(`Missing peak for December ${day}.`);
+    let left = tip, right = tip;
+    while (left > 0 && points[left - 1][1] >= points[left][1]) left--;
+    while (right < points.length - 1 && points[right + 1][1] >= points[right][1]) right++;
+    const crest = `M${points.slice(left, right + 1).map(point => point.join(' ')).join(' L')}`;
+    const date = `2026-12-${day}`;
+    const target = `[data-five-days] .hero-peaks`;
+    const link = `.hero-peaks__labels [data-date="${date}"] a`;
+    const layer = `[data-peak-date="${date}"]`;
+    return {
+      markup: `<g class="hero-peaks__highlight" data-peak-date="${date}"><defs><linearGradient id="hero-peak-wash-${day}" x1="0" y1="${points[tip][1]}" x2="0" y2="88" gradientUnits="userSpaceOnUse"><stop offset="0" stop-opacity="1"/><stop offset="1" stop-opacity="0"/></linearGradient></defs><path class="hero-peaks__highlight-wash" d="${crest} L${points[right][0]} 88 L${points[left][0]} 88 Z" fill="url(#hero-peak-wash-${day})"/><path class="hero-peaks__highlight-crest" d="${crest}"/></g>`,
+      hover: `${target}:not(:has(.hero-peaks__labels a:focus-visible)):has(${link}:hover) ${layer}`,
+      focus: `${target}:has(${link}:focus-visible) ${layer}`,
+    };
+  });
+  const highlightStyles = `/* State mapping follows the same date anchors as the SVG. */\n@media (hover:hover) and (pointer:fine) {\n${highlights.map(item => item.hover).join(',\n')} { opacity:1; }\n}\n${highlights.map(item => item.focus).join(',\n')} { opacity:1; transition:none; }\n`;
   const [first, second] = labels;
   const x = 6 * (Number(first[2]) + (today - Number(first[1])) / (Number(second[1]) - Number(first[1])) * (Number(second[2]) - Number(first[2])));
   const drawn = points.filter(([px]) => px <= x);
@@ -95,9 +117,11 @@ function advancePeaks(html, today, dayLabel) {
   const [x2, y2] = points[drawn.length];
   const y = y1 + (y2 - y1) * (x - x1) / (x2 - x1);
   drawn.push([x, y]);
-  return html.replace('class="hero-peaks hero-peaks--dated"', `class="hero-peaks hero-peaks--dated" style="--today-x:${(x / 6).toFixed(3)}%;--today-y:${(y / 88).toFixed(5)}"`)
+  const result = html.replace('class="hero-peaks hero-peaks--dated"', `class="hero-peaks hero-peaks--dated" style="--today-x:${(x / 6).toFixed(3)}%;--today-y:${(y / 88).toFixed(5)}"`)
+    .replace('<path class="hero-peaks__past"', `${highlights.map(item => item.markup).join('')}<path class="hero-peaks__past"`)
     .replace(/class="hero-peaks__past" d="[^"]*"/, `class="hero-peaks__past" d="M${drawn.map(([a,b]) => a.toFixed(2) + ' ' + b.toFixed(2)).join(' L')}"`)
     .replace(/<a class="hero-peaks__today"[^>]*>[^<]*<\/a>/, `<a class="hero-peaks__today" href="#calendar-day-${pad(today)}" aria-current="date">${dayLabel}</a>`);
+  return {html:result, highlightStyles};
 }
 
 // One selected frame for a stage, shared by its calendar row and pager links.
@@ -356,7 +380,7 @@ ${family} .icon path { vector-effect: non-scaling-stroke; }
       .replaceAll(canonical + 'december-2.html', canonical)
       .replaceAll('href="./en/december-2.html"', 'href="./en/"')
       .replaceAll('href="../december-2.html"', 'href="../"')
-      .replace('</head>', `<link rel="stylesheet" href="${base}five-days.css"><link rel="stylesheet" href="${base}../start-day-2/stage-gallery.css"><link rel="stylesheet" href="${base}../start-day-2/menu-weather.css"><link rel="stylesheet" href="${base}current-day.css"><link rel="stylesheet" href="${base}gallery-controls.css"><script type="module" src="${base}current-day.js"></script><script src="${base}calendar-hover.js" defer></script></head>`);
+      .replace('</head>', `<link rel="stylesheet" href="${base}five-days.css"><link rel="stylesheet" href="${base}peak-highlights.css"><link rel="stylesheet" href="${base}../start-day-2/stage-gallery.css"><link rel="stylesheet" href="${base}../start-day-2/menu-weather.css"><link rel="stylesheet" href="${base}current-day.css"><link rel="stylesheet" href="${base}gallery-controls.css"><script type="module" src="${base}current-day.js"></script><script src="${base}calendar-hover.js" defer></script></head>`);
     html = prepare(html.slice(0, firstPanel)) + episodes + prepare(html.slice(lastPanelEnd));
     html = html.replace(/<span data-start-strip-count([^>]*)>1 \/ (\d+)<\/span>/g,
       (_, attributes, total) => `<span class="diary-media__position" data-start-strip-count${attributes}><strong>01</strong><span> / </span><span>${total.padStart(2, '0')}</span></span>`);
@@ -364,7 +388,9 @@ ${family} .icon path { vector-effect: non-scaling-stroke; }
     // hours and minutes as labelled atoms instead of splitting after a colon.
     html = html.replace(/(<strong\b[^>]*\bdata-film-total\b[^>]*>)(\d+):(\d+)(<\/strong>)/,
       (_, opening, hours, minutes, closing) => `${opening}${hours}:${minutes}${closing}<span class="film-duration-parts"><span class="film-duration-part"><b data-optical-start>${hours}</b><small>${en ? 'hr' : 'ч'}</small></span><span class="film-duration-part"><b data-optical-start>${minutes}</b><small>${en ? 'min' : 'мин'}</small></span></span>`);
-    html = advancePeaks(html, latest.day, todayLabel);
+    const peaks = advancePeaks(html, latest.day, todayLabel);
+    html = peaks.html;
+    await writeFile(path.join(directory, 'assets/five-days/peak-highlights.css'), peaks.highlightStyles);
     const previousDays = days.filter(day => day.day < latest.day);
     const pastRows = previousDays.map(day => calendarPastLink(day, plan, lang)).join('\n');
     const rows = remainingCalendarRows(latest, plan, lang);

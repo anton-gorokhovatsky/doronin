@@ -1,14 +1,27 @@
 /* The dot follows the calendar date along the existing five peaks. */
-[data-five-days] .hero-peaks__labels a { position:relative; isolation:isolate; }
-[data-five-days] .hero-peaks__labels a::before {
-  position:absolute; inset:-.25rem -.5rem; z-index:-1; content:'';
-  background:transparent;
-  transition:background-color var(--duration-feedback) var(--ease-move);
+[data-five-days] .hero-peaks__highlight {
+  opacity:0; pointer-events:none;
+  transition:opacity var(--duration-feedback) var(--ease-move);
 }
+[data-five-days] .hero-peaks__highlight stop { stop-color:var(--paper); }
+[data-five-days] .hero-peaks__highlight-wash { opacity:.22; }
+[data-five-days] .hero-peaks__highlight-crest {
+  fill:none; stroke:var(--paper); stroke-width:2;
+  stroke-linecap:butt; stroke-linejoin:miter; vector-effect:non-scaling-stroke;
+}
+[data-five-days] .hero-peaks__labels li { transition:opacity var(--duration-feedback) var(--ease-move); }
 @media (hover:hover) and (pointer:fine) {
-  [data-five-days] .hero-peaks__labels a:hover::before { background:rgb(255 255 255 / .14); }
+  [data-five-days] .hero-peaks:not(:has(.hero-peaks__labels a:focus-visible)):has(.hero-peaks__labels a:hover) .hero-peaks__labels li:not(:has(a:hover)) { opacity:.5; }
+  [data-five-days] .hero-peaks__labels a:hover { color:var(--paper); }
 }
-[data-five-days] .hero-peaks__labels a:focus-visible::before { background:rgb(255 255 255 / .14); }
+[data-five-days] .hero-peaks:has(.hero-peaks__labels a:focus-visible) .hero-peaks__labels li:not(:has(a:focus-visible)) { opacity:.5; transition:none; }
+[data-five-days] .hero-peaks:has(.hero-peaks__labels a:focus-visible) :is(.hero-peaks__highlight,.hero-peaks__labels li) { transition:none; }
+[data-five-days] .hero-peaks__labels a:focus-visible { outline:none; color:var(--paper); }
+[data-five-days] .hero-peaks__labels a:focus-visible > span { text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:.3em; }
+@media (prefers-reduced-motion:reduce) {
+  [data-five-days] :is(.hero-peaks__highlight,.hero-peaks__labels li) { transition:none; }
+}
+:root[data-reduce-motion="true"] [data-five-days] :is(.hero-peaks__highlight,.hero-peaks__labels li) { transition:none; }
 [data-five-days] .hero-peaks__current {
   left: var(--today-x);
   top: calc(100% * var(--today-y));
