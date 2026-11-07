@@ -396,7 +396,7 @@ ${family} .icon path { vector-effect: non-scaling-stroke; }
     const rows = remainingCalendarRows(latest, plan, lang);
     const columns = html.match(/<div class="december-calendar__columns"[^>]*>[\s\S]*?<\/div>/)?.[0];
     if (!columns) throw new Error('Missing calendar column labels.');
-    const previous = `<details class="calendar-past" id="calendar-past" data-calendar-past>
+    const previous = `<details class="calendar-past" id="calendar-past" data-calendar-past open>
       ${currentDay.pastSummary}
       <div class="calendar-past__rows">${pastRows}</div>
     </details>`;

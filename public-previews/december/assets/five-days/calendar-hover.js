@@ -111,7 +111,8 @@ if (calendar) {
   const past = calendar.querySelector('[data-calendar-past]');
   if (past) {
     const summary = past.querySelector('summary');
-    let expanded = past.open;
+    const defaultExpanded = past.open;
+    let expanded = defaultExpanded;
     let disclosureMotion = null;
     let motionRevision = 0;
     const noMotion = () => motion.matches || document.documentElement.dataset.reduceMotion === 'true';
@@ -166,20 +167,22 @@ if (calendar) {
     }
     const hashTarget = hash => document.getElementById(hash.slice(1));
     const isPreviousTarget = target => target && past.contains(target) && target !== past;
+    function setPastParam(url) {
+      if (expanded === defaultExpanded) url.searchParams.delete('past');
+      else url.searchParams.set('past', expanded ? '1' : '0');
+    }
     function syncPastLanguageLinks() {
       for (const link of document.querySelectorAll('[data-language-switch]')) {
         const url = new URL(link.href);
-        if (expanded) url.searchParams.set('past', '1');
-        else url.searchParams.delete('past');
+        setPastParam(url);
         link.href = url.href;
       }
     }
     function writePastState() {
       const url = new URL(location.href);
-      if (expanded) url.searchParams.set('past', '1');
-      else {
+      setPastParam(url);
+      if (!expanded) {
         if (past.contains(document.activeElement) && document.activeElement !== summary) summary.focus({preventScroll: true});
-        url.searchParams.delete('past');
         if (isPreviousTarget(hashTarget(url.hash))) url.hash = '#calendar-past';
       }
       if (url.href !== location.href) history.replaceState(history.state, '', url);
@@ -189,7 +192,8 @@ if (calendar) {
     function restorePastState({scroll = false} = {}) {
       const target = hashTarget(location.hash);
       const previousTarget = isPreviousTarget(target);
-      settleDisclosure(new URLSearchParams(location.search).get('past') === '1' || previousTarget);
+      const state = new URLSearchParams(location.search).get('past');
+      settleDisclosure(previousTarget || (state === '1' ? true : state === '0' ? false : defaultExpanded));
       if (!expanded && past.contains(document.activeElement)) summary.focus({preventScroll: true});
       syncPastLanguageLinks();
       if (scroll && previousTarget) requestAnimationFrame(() => target.scrollIntoView({block: 'start', behavior: 'instant'}));
