@@ -25,8 +25,12 @@
 }
 
 .diary__facts.diary__facts--report {
-  grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(14rem, 100%), 1fr));
   margin-top: var(--space-group);
+}
+
+.diary__facts--report:has(> .diary__fact:only-child) .diary__fact {
+  grid-column: 1 / -1;
 }
 
 .diary__subheading + .diary__facts--report {
@@ -53,6 +57,11 @@
   flex-wrap: nowrap;
   align-items: baseline;
   gap: 0;
+}
+
+.diary__fact .diary__metric-value--duration {
+  flex-wrap: wrap;
+  gap: 0.1em 0.3em;
 }
 
 .diary__fact .diary__metric-atom {

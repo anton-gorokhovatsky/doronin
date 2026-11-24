@@ -249,15 +249,12 @@ const locales = {
       calendarTotalColumn: "План к этой дате, км",
       plannedMonthLabel: "По плану за декабрь",
       openStageLabel: "Открыть этап в календаре",
-      finishLabel: "Фиксация результата",
-      finishMonth: "декабря",
       continuousLabel: "Один непрерывный заезд",
       oneDayLabel: "Один день",
       dailyLabel: "в день",
       totalBlockLabel: "за блок",
       baseSummary: "22 базовых дня",
       specialSummary: "5 специальных этапов",
-      rideSummary: "30 дней движения",
       rhythmTitle: "Ритм до финала",
       rhythmText:
         "20 базовых дней — по 333 км; ещё два — по 338 км. Перед финальным этапом Виктор набирает ровно 10 000 км. Финальный этап — непрерывный заезд на 1111 км.",
@@ -676,15 +673,12 @@ const locales = {
       calendarTotalColumn: "Planned total by date, km",
       plannedMonthLabel: "Planned for December",
       openStageLabel: "Open this stage in the calendar",
-      finishLabel: "Result confirmation",
-      finishMonth: "December",
       continuousLabel: "One continuous ride",
       oneDayLabel: "One day",
       dailyLabel: "per day",
       totalBlockLabel: "for the block",
       baseSummary: "22 base days",
       specialSummary: "5 special stages",
-      rideSummary: "30 days in motion",
       rhythmTitle: "The rhythm before the final stage",
       rhythmText:
         "Twenty base days cover 333 km each; two more cover 338 km. Before the final stage, Victor reaches exactly 10,000 km. The final stage is a continuous 1111 km ride.",
@@ -1201,18 +1195,10 @@ function renderCalendarSegments(plan, l) {
       cumulativeDistance += segment.totalDistanceKm;
       const value = formatProjectNumber(segment.kind === "base" ? segment.dailyDistanceKm : segment.totalDistanceKm, l.lang);
       const cumulative = formatProjectNumber(cumulativeDistance, l.lang);
-      const label =
-        segment.kind === "special"
-          ? l.distance.specialLabel
-          : segment.kind === "base"
-            ? l.distance.baseLabel
-            : l.distance.finishLabel;
+      const label = segment.kind === "special" ? l.distance.specialLabel : l.distance.baseLabel;
       const continuous = segment.kind === "special" && segment.calendarDays > 1;
       const calendarDate = formatCalendarRange(segment, l.lang);
-      const calendarValue =
-        segment.kind === "finish"
-          ? ""
-          : `${value}\u00a0${l.distance.totalUnit}${segment.kind === "base" ? ` ${l.distance.dailyLabel}` : ""}`;
+      const calendarValue = `${value}\u00a0${l.distance.totalUnit}${segment.kind === "base" ? ` ${l.distance.dailyLabel}` : ""}`;
 
       return `
         <article
@@ -1232,8 +1218,8 @@ function renderCalendarSegments(plan, l) {
             ${continuous ? `<p class="calendar-program__note">${l.distance.continuousLabel}</p>` : ""}
             <span class="calendar-program__today" data-calendar-today hidden>${l.distance.currentStageLabel}</span>
           </div>
-          ${segment.kind === "finish" ? "" : `<p class="calendar-program__distance"><strong${segment.kind === "special" ? " data-optical-start" : ""}>${value}</strong><span><span class="calendar-program__unit-measure"> ${l.distance.totalUnit}</span>${segment.kind === "base" ? ` ${l.distance.dailyLabel}` : ""}</span></p>`}
-          ${segment.kind === "finish" ? "" : `<p class="calendar-program__cumulative" data-plan-cumulative="${cumulativeDistance}"><span>${l.distance.plannedTotalLabel}</span><strong><span>${cumulative}</span><span class="calendar-program__total-unit">\u00a0${l.distance.totalUnit}</span></strong></p>`}
+          <p class="calendar-program__distance"><strong${segment.kind === "special" ? " data-optical-start" : ""}>${value}</strong><span><span class="calendar-program__unit-measure"> ${l.distance.totalUnit}</span>${segment.kind === "base" ? ` ${l.distance.dailyLabel}` : ""}</span></p>
+          <p class="calendar-program__cumulative" data-plan-cumulative="${cumulativeDistance}"><span>${l.distance.plannedTotalLabel}</span><strong><span>${cumulative}</span><span class="calendar-program__total-unit">\u00a0${l.distance.totalUnit}</span></strong></p>
         </article>`;
     })
     .join("");
@@ -1259,14 +1245,22 @@ function renderMetrics(items, className, separateUnit = false) {
       ([value, label]) => {
         const glyphCount = Array.from(value.replaceAll(/\s/g, "")).length;
         const density = glyphCount <= 3 ? "short" : glyphCount <= 5 ? "medium" : "long";
-        const unitValue = (separateUnit || className === "diary__fact") && value.match(/^(≈)?([\d.,\u00a0\u202f]+)\s+([^\d]+)$/u);
-        const visibleValue = unitValue
-          ? `${unitValue[1] ? '<small class="diary__metric-prefix">≈ </small>' : ''}<span class="diary__metric-atom" data-optical-start>${unitValue[2]}<small class="diary__metric-unit"> ${unitValue[3]}</small></span>`
-          : value;
+        const diaryMetric = separateUnit || className === "diary__fact";
+        const unitValue = diaryMetric && value.match(/^(≈)?([+−]?[\d.,\u00a0\u202f]+)\s+([^\d]+)$/u);
+        const duration = diaryMetric && value.match(/^(\d+)\s+(ч|h)\s+(\d+)\s+(мин|min)$/u);
+        let visibleValue = value;
+        if (unitValue) {
+          const [, approximate, number, unit] = unitValue;
+          visibleValue = `${approximate ? '<small class="diary__metric-prefix">≈ </small>' : ''}<span class="diary__metric-atom" data-optical-start>${number}<small class="diary__metric-unit">${unit === "%" ? "" : " "}${unit}</small></span>`;
+        }
+        if (duration) {
+          const [, hours, hourUnit, minutes, minuteUnit] = duration;
+          visibleValue = `<span class="diary__metric-atom" data-optical-start>${hours}<small class="diary__metric-unit"> ${hourUnit}</small></span> <span class="diary__metric-atom" data-optical-start>${minutes}<small class="diary__metric-unit"> ${minuteUnit}</small></span>`;
+        }
 
         return `
         <div class="${className}" data-metric-density="${density}">
-          <strong${unitValue ? ' class="diary__metric-value"' : ' data-optical-start'}>${visibleValue}</strong>
+          <strong${unitValue || duration ? ` class="diary__metric-value${duration ? " diary__metric-value--duration" : ""}"` : ' data-optical-start'}>${visibleValue}</strong>
           <span>${label}</span>
         </div>`;
       },

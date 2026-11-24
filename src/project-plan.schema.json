@@ -68,11 +68,11 @@
       ],
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
-        "kind": { "enum": ["base", "special", "finish"] },
+        "kind": { "enum": ["base", "special"] },
         "startDate": { "type": "string", "format": "date" },
         "endDate": { "type": "string", "format": "date" },
         "calendarDays": { "type": "integer", "minimum": 1 },
-        "totalDistanceKm": { "type": "integer", "minimum": 0 },
+        "totalDistanceKm": { "type": "integer", "minimum": 1 },
         "dailyDistanceKm": { "type": ["integer", "null"], "minimum": 1 },
         "continuous": { "type": "boolean" }
       }

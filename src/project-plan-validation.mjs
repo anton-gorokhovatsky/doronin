@@ -110,7 +110,7 @@ export function validateProjectPlan(plan) {
     }
     if (ids.has(segment.id)) errors.push(`${prefix}.id must be unique`);
     ids.add(segment.id);
-    if (!["base", "special", "finish"].includes(segment.kind)) {
+    if (!["base", "special"].includes(segment.kind)) {
       errors.push(`${prefix}.kind is invalid`);
     }
 
@@ -126,9 +126,9 @@ export function validateProjectPlan(plan) {
     }
     if (
       !Number.isInteger(segment.totalDistanceKm) ||
-      segment.totalDistanceKm < 0
+      segment.totalDistanceKm <= 0
     ) {
-      errors.push(`${prefix}.totalDistanceKm must be a non-negative integer`);
+      errors.push(`${prefix}.totalDistanceKm must be a positive integer`);
     }
     if (typeof segment.continuous !== "boolean") {
       errors.push(`${prefix}.continuous must be boolean`);
@@ -146,23 +146,8 @@ export function validateProjectPlan(plan) {
         errors.push(`${prefix}: a base segment is not one continuous multi-day ride`);
       }
     }
-    if (segment.kind === "special") {
-      if (segment.dailyDistanceKm !== null || segment.continuous !== true) {
-        errors.push(`${prefix}: a special stage is one continuous ride with no daily split`);
-      }
-      if (segment.totalDistanceKm <= 0) {
-        errors.push(`${prefix}: a special stage requires a positive distance`);
-      }
-    }
-    if (segment.kind === "finish") {
-      if (
-        segment.dailyDistanceKm !== null ||
-        segment.continuous !== false ||
-        segment.totalDistanceKm !== 0 ||
-        segment.calendarDays !== 1
-      ) {
-        errors.push(`${prefix}: finish must be a one-day zero-distance marker`);
-      }
+    if (segment.kind === "special" && (segment.dailyDistanceKm !== null || segment.continuous !== true)) {
+      errors.push(`${prefix}: a special stage is one continuous ride with no daily split`);
     }
 
     for (let timestamp = start.valueOf(); timestamp <= end.valueOf(); timestamp += dayMs) {
@@ -200,21 +185,17 @@ export function validateProjectPlan(plan) {
   }
   const baseSegments = validSegments.filter(({ kind }) => kind === "base");
   const specialSegments = validSegments.filter(({ kind }) => kind === "special");
-  const finishSegments = validSegments.filter(({ kind }) => kind === "finish");
   const baseDays = baseSegments.reduce((sum, segment) => sum + segment.calendarDays, 0);
   const specialDays = specialSegments.reduce(
     (sum, segment) => sum + segment.calendarDays,
     0,
   );
   if (baseDays !== 22) errors.push(`base segments must cover 22 days, got ${baseDays}`);
-  if (specialDays !== 8) {
-    errors.push(`special stages must occupy 8 calendar days, got ${specialDays}`);
+  if (specialDays !== 9) {
+    errors.push(`special stages must occupy 9 calendar days, got ${specialDays}`);
   }
   if (specialSegments.length !== 5) {
     errors.push(`the plan must contain 5 special stages, got ${specialSegments.length}`);
-  }
-  if (finishSegments.length !== 1 || finishSegments[0]?.startDate !== plan.period.finishDate) {
-    errors.push("the plan must contain one finish marker on finishDate");
   }
 
   const sequence = specialSegments.map(({ totalDistanceKm }) => totalDistanceKm);
@@ -223,6 +204,9 @@ export function validateProjectPlan(plan) {
   }
   const finalStage = specialSegments.at(-1);
   if (finalStage) {
+    if (finalStage !== validSegments.at(-1) || finalStage.endDate !== plan.period.finishDate || finalStage.calendarDays !== 3) {
+      errors.push("the final ride must cover the last three calendar days of the project");
+    }
     const beforeFinalDistance = validSegments
       .filter(({ end }) => end < finalStage.start)
       .reduce((sum, segment) => sum + segment.totalDistanceKm, 0);

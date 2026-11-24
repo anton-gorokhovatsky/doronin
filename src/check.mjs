@@ -539,9 +539,8 @@ for (const [lang, path] of pages) {
       ),
     `${lang}: календарь должен оставлять пять вершин на поверхности и рендерить все сегменты плана в фазовом раскрытии`,
   );
-  const ridingSegments = projectPlan.segments.filter((segment) => segment.kind !== "finish");
   let plannedDistance = 0;
-  const expectedCumulative = ridingSegments.map((segment) => plannedDistance += segment.totalDistanceKm);
+  const expectedCumulative = projectPlan.segments.map((segment) => plannedDistance += segment.totalDistanceKm);
   const actualCumulative = [...html.matchAll(/data-plan-cumulative="(\d+)"/gu)].map(([, value]) => Number(value));
   expect(
     JSON.stringify(actualCumulative) === JSON.stringify(expectedCumulative) &&
@@ -553,13 +552,20 @@ for (const [lang, path] of pages) {
       (html.match(/data-date="2026-12-/g) || []).length === 5,
     `${lang}: первый экран должен показывать пять календарных вершин`,
   );
-  const finishRow = html.match(/<article\b[^>]*class="calendar-program__row calendar-program__row--finish"[\s\S]*?<\/article>/u)?.[0] || "";
+  const finalStage = projectPlan.segments.at(-1);
+  const finalRowId = `calendar-segment-${String(projectPlan.segments.length).padStart(2, "0")}`;
+  const finalRow = html.match(new RegExp(`<article\\b[^>]*id="${finalRowId}"[\\s\\S]*?<\\/article>`, "u"))?.[0] || "";
+  const finalRange = lang === "ru" ? "29–31 декабря" : "December 29–31";
+  const finalPoster = html.match(/<li class="calendar-poster__row calendar-poster__row--final"[\s\S]*?<\/li>/u)?.[0] || "";
   expect(
-    finishRow.includes(`datetime="${projectPlan.period.finishDate}"`) &&
-      finishRow.includes(lang === "ru" ? "Фиксация результата" : "Result confirmation") &&
-      !finishRow.includes('class="calendar-program__distance"') &&
-      !finishRow.includes("data-plan-cumulative"),
-    `${lang}: 31 декабря фиксирует результат без новой дистанции и повторного планового итога`,
+    finalRow.includes('data-calendar-kind="special"') &&
+      finalRow.includes(`data-calendar-start="${finalStage.startDate}"`) &&
+      finalRow.includes(`data-calendar-end="${projectPlan.period.finishDate}"`) &&
+      finalRow.includes(finalRange) &&
+      finalRow.includes(`>${finalStage.totalDistanceKm}</strong>`) &&
+      finalRow.includes(`data-plan-cumulative="${projectPlan.targetDistanceKm}"`) &&
+      finalPoster.includes(`href="#${finalRowId}"`) && finalPoster.includes(finalRange),
+    `${lang}: у финального заезда на афише и в календаре один интервал 29–31 декабря и один итог`,
   );
   expect(
     html.includes("54\u00a0×\u00a036"),
@@ -584,7 +590,7 @@ for (const [lang, path] of pages) {
 
   if (lang === "ru") {
     expect(
-      ["13–14 декабря", "20–21 декабря", "29–30 декабря"].every(
+      ["13–14 декабря", "20–21 декабря", finalRange].every(
         (range) => html.includes(range),
       ) && !/>\d{1,2}–\d{1,2} декабрь</u.test(html),
       "ru: диапазоны календаря должны использовать родительный падеж месяца",

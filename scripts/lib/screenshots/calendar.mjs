@@ -122,14 +122,6 @@ export const calendarSpecs = [
     viewport: { width: 1440, height: 900 },
   },
   {
-    name: "ru-1440-light-bike-calendar-finish",
-    path: "/?gate=ru-1440-light-calendar-finish#distance",
-    locale: "ru",
-    theme: "light",
-    target: ".calendar-program__row--finish",
-    viewport: { width: 1440, height: 900 },
-  },
-  {
     name: "ru-1440-light-bike-calendar-final-stage",
     path: "/?gate=ru-1440-light-calendar-total#distance",
     locale: "ru",

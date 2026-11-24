@@ -268,20 +268,6 @@
   padding-block: clamp(1.65rem, calc(1rem + 1.5vw), 2.5rem);
 }
 
-.calendar-program__row--finish .calendar-program__event {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.5rem clamp(1rem, calc(0.5rem + 2vw), 3rem);
-}
-
-.calendar-program__row--finish .calendar-program__name {
-  font-size: clamp(1.1rem, calc(0.95rem + 0.4vw), 1.4rem);
-  font-weight: 550;
-  color: var(--text-editorial);
-}
-
 .calendar-program__cumulative {
   display: grid;
   gap: 0.4rem;
@@ -419,14 +405,6 @@
     font-size: var(--type-service);
   }
 
-  .calendar-program__row--finish {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .calendar-program__row--finish .calendar-program__event {
-    grid-column: 1 / -1;
-  }
-
   .calendar-program__date {
     grid-column: 1 / -1;
   }
@@ -467,10 +445,6 @@
 
 :root.text-enlarged .calendar-program__date,
 :root.text-enlarged .calendar-program__cumulative {
-  grid-column: auto;
-}
-
-:root.text-enlarged .calendar-program__row--finish .calendar-program__event {
   grid-column: auto;
 }
 

@@ -104,21 +104,11 @@
       "id": "special-1111",
       "kind": "special",
       "startDate": "2026-12-29",
-      "endDate": "2026-12-30",
-      "calendarDays": 2,
+      "endDate": "2026-12-31",
+      "calendarDays": 3,
       "totalDistanceKm": 1111,
       "dailyDistanceKm": null,
       "continuous": true
-    },
-    {
-      "id": "finish",
-      "kind": "finish",
-      "startDate": "2026-12-31",
-      "endDate": "2026-12-31",
-      "calendarDays": 1,
-      "totalDistanceKm": 0,
-      "dailyDistanceKm": null,
-      "continuous": false
     }
   ],
   "unconfirmedFacts": [

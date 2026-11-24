@@ -12,10 +12,38 @@ const pages = [
   'december-2.html', 'en/december-2.html',
   'december-1-saved/december-1.html', 'december-1-saved/en/december-1.html',
 ];
+const plan = JSON.parse(await readFile(path.join(root, 'src/project-plan.json'), 'utf8'));
+const finalStage = plan.segments.at(-1);
+const startDay = Number(finalStage.startDate.slice(-2));
+const endDay = Number(finalStage.endDate.slice(-2));
+const finalDays = `${startDay}–${endDay}`;
+const finalRow = `calendar-segment-${String(plan.segments.length).padStart(2, '0')}`;
 
 await mkdir(destination, { recursive: true });
 await cp(source, destination, { recursive: true });
-await buildFiveDays(destination);
+// Saved editions keep their own composition while showing the current final stage.
+for (const page of pages.slice(2)) {
+  const file = path.join(destination, page);
+  const lang = page.includes('en/') ? 'en' : 'ru';
+  const en = lang === 'en';
+  const values = {
+    row: finalRow,
+    start: finalStage.startDate,
+    end: finalStage.endDate,
+    days: finalDays,
+    range: en ? `December ${finalDays}` : `${finalDays} декабря`,
+    distance: String(finalStage.totalDistanceKm),
+    deadline: en ? `By December ${endDay}:` : `К ${endDay} декабря —`,
+    total: new Intl.NumberFormat(en ? 'en-US' : 'ru-RU').format(plan.targetDistanceKm).replace(/\s/gu, ' '),
+  };
+  const template = await readFile(file, 'utf8');
+  const html = template.replace(/\{\{final-stage:([a-z]+)\}\}/g, (_, field) => {
+    if (!Object.hasOwn(values, field)) throw new Error(`Unknown final-stage field in ${page}: ${field}`);
+    return values[field];
+  });
+  await writeFile(file, html);
+}
+await buildFiveDays(destination, plan);
 
 // The entry passes its version to dynamic imports. Its digest must therefore
 // include those children, otherwise a controller-only change reuses an old URL.

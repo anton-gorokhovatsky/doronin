@@ -57,7 +57,6 @@ export async function checkCalendarAndPortrait({ page, testCase, prefix }) {
       sequenceDisplay: getComputedStyle(sequence).display,
       sequenceWidth: rect(sequence).width,
       parentWidth: rect(element).width,
-      finishLabel: element.querySelector(".calendar-program__row--finish .calendar-program__name").textContent.trim(),
     };
   });
   let cumulativeDistance = 0;
@@ -66,9 +65,8 @@ export async function checkCalendarAndPortrait({ page, testCase, prefix }) {
     return {
       id: `calendar-segment-${String(index + 1).padStart(2, "0")}`,
       kind: segment.kind, start: segment.startDate, end: segment.endDate,
-      distance: segment.kind === "finish" ? null :
-        String(segment.kind === "base" ? segment.dailyDistanceKm : segment.totalDistanceKm),
-      cumulative: segment.kind === "finish" ? null : String(cumulativeDistance),
+      distance: String(segment.kind === "base" ? segment.dailyDistanceKm : segment.totalDistanceKm),
+      cumulative: String(cumulativeDistance),
     };
   });
   const actualSegments = calendarState.segments.map(({id, kind, start, end, distance, cumulative}) =>
@@ -92,14 +90,14 @@ export async function checkCalendarAndPortrait({ page, testCase, prefix }) {
           stage.value.left >= stage.date.right - 1)),
     `${prefix}: poster loses its increasing type, target sizes or non-overlapping rows (${JSON.stringify(calendarState.stages)})`,
   );
-  const finish = calendarState.segments.at(-1);
+  const finalStage = calendarState.segments.at(-1);
   expect(
     calendarState.segments.every((segment) => segment.contained && !segment.overlaps && segment.datetime === segment.start) &&
       Math.max(...calendarState.segments.map((segment) => segment.dateLeft)) -
         Math.min(...calendarState.segments.map((segment) => segment.dateLeft)) <= 1 &&
-      finish.kind === "finish" && !finish.hasNote && finish.distance === null && finish.cumulative === null &&
-      calendarState.finishLabel === (testCase.path.startsWith("/en/") ? "Result confirmation" : "Фиксация результата"),
-    `${prefix}: calendar rows overlap, lose their date axis or repeat a distance at the finish (${JSON.stringify(calendarState.segments)})`,
+      finalStage.kind === "special" && finalStage.hasNote && finalStage.end === projectPlan.period.finishDate &&
+      finalStage.cumulative === String(projectPlan.targetDistanceKm),
+    `${prefix}: calendar rows overlap, lose their date axis or omit the last date of the final ride (${JSON.stringify(calendarState.segments)})`,
   );
 
   // A date in the poster opens the full program with native keyboard navigation.

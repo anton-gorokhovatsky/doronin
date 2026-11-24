@@ -184,19 +184,18 @@ function calendarRow(day, plan, lang, latestDay) {
   const {date, segment, amount, cumulative, id} = {...values, ...day.values};
   const dateEnd = day.endDate || date;
   const format = value => value < 10000 ? String(value) : String(value).replace(/\B(?=(\d{3})+(?!\d))/g, en ? ',' : ' ');
-  const description = segment.kind === 'finish' ? (en ? 'Project finish' : 'Финиш проекта')
-    : segment.kind === 'special' ? (dateEnd !== date ? (en ? 'Continuous ride' : 'Непрерывный заезд') : (en ? 'Special stage' : 'Специальный этап')) : '';
+  const description = segment.kind === 'special' ? (dateEnd !== date ? (en ? 'Continuous ride' : 'Непрерывный заезд') : (en ? 'Special stage' : 'Специальный этап')) : '';
   const event = `<div class="december-row__event"><p class="december-row__date"><time datetime="${date}">${day.date}</time>${today ? `<span class="december-row__today" data-calendar-today>${en?'Today':'Сегодня'}</span>` : ''}</p>${description ? `<p class="december-row__type">${description}</p>` : ''}${day.title ? calendarLink(day.day, day.title) : ''}</div>`;
   return `<article class="december-row${state}" id="${id}" data-calendar-start="${date}" data-calendar-end="${dateEnd}" data-calendar-kind="${segment.kind}"${day.preview ? ` data-calendar-preview="${esc(day.preview.source)}" data-calendar-preview-position="${esc(day.preview.position)}"` : ''}${today ? ' aria-current="step"' : ''}>
     ${event}
-    ${segment.kind === 'finish' ? '' : `<p class="december-row__distance"><span class="december-row__number" data-optical-start data-optical-ink>${format(amount)}</span><span class="december-row__unit"><span class="december-row__unit-measure"> ${km}</span>${segment.kind === 'base' && dateEnd !== date ? ` <span>${en ? 'per day' : 'в день'}</span>` : ''}</span></p>
-    <p class="december-row__total"><span>${en ? 'Planned total' : 'Всего по плану'}</span><strong><span>${format(cumulative)}</span><span class="december-row__total-unit"> ${km}</span></strong></p>`}
+    <p class="december-row__distance"><span class="december-row__number" data-optical-start data-optical-ink>${format(amount)}</span><span class="december-row__unit"><span class="december-row__unit-measure"> ${km}</span>${segment.kind === 'base' && dateEnd !== date ? ` <span>${en ? 'per day' : 'в день'}</span>` : ''}</span></p>
+    <p class="december-row__total"><span>${en ? 'Planned total' : 'Всего по плану'}</span><strong><span>${format(cumulative)}</span><span class="december-row__total-unit"> ${km}</span></strong></p>
   </article>`;
 }
 
 // The rehearsal changes the calendar's current date, not the plan. Render the
 // remaining rows from the same canonical segments, clipping only the base
-// block which contains today. A two-date continuous ride remains one row.
+// block which contains today. A continuous ride remains one row.
 function remainingCalendarRows(latest, plan, lang) {
   const today = iso(latest.day);
   let cumulative = 0;
@@ -260,10 +259,9 @@ function restoreCourseWeather(html, lang) {
   throw new Error('Unclosed menu forecast container.');
 }
 
-export async function buildFiveDays(directory) {
-  const [stories, media, plan] = await Promise.all([
+export async function buildFiveDays(directory, plan) {
+  const [stories, media] = await Promise.all([
     json(path.join(here, 'stories.json')), json(path.join(here, 'media.json')),
-    json(path.join(here, '../../src/project-plan.json')),
   ]);
   if (stories.map(s => s.day).join() !== '3,4,5') throw new Error('Expected three new stories, in order.');
   const mediaDirectory = path.join(directory, 'assets/five-days/media');

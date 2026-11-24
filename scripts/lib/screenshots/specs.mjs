@@ -17,7 +17,6 @@ const targetCaptureScopes = new Map([
   [".hero__evidence", "fragment"],
   [".athlete", "section"],
   [".diary-live", "section"],
-  [".calendar-program__row--finish", "fragment"],
   [".site-footer__intro", "fragment"],
   [".calendar-poster", "fragment"],
   [".bike-calendar__details", "fragment"],
